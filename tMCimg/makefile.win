@@ -1,0 +1,15 @@
+
+
+default::
+        cd src
+        make opt
+opt::
+        cd src
+        make opt
+debug::
+        cd src
+        make debug
+clean::
+        cd src
+        make clean
+

@@ -1,0 +1,2 @@
+OS=Darwin
+include makefile.unix

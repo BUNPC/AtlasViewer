@@ -1,0 +1,29 @@
+
+
+debug: tMCimg_exe_debug
+
+tMCimg_exe_debug: tMCimg_obj_debug
+        $(CC) $(CC_LIB_PATH) $(LFLAGS_DEBUG) ..\obj\$(OS)\tMCimg.$(OBJ)
+        $(MOVE) ..\obj\$(OS)\tMCimg.exe ..\bin\$(OS)
+        $(MOVE) ..\obj\$(OS)\tMCimg.tds ..\bin\$(OS)
+
+tMCimg_obj_debug:
+        $(CC) $(CC_INCLUDE_PATH) $(CFLAGS_DEBUG) tMCimg.c
+        $(MOVE) tMCimg.$(OBJ) ..\obj\$(OS)
+
+
+opt: tMCimg_exe_opt
+
+tMCimg_exe_opt: tMCimg_obj_opt
+        $(CC) $(CC_LIB_PATH) $(LFLAGS_OPT) ..\obj\$(OS)\tMCimg.$(OBJ)
+        $(MOVE) ..\obj\$(OS)\tMCimg.exe ..\bin\$(OS)
+        $(MOVE) ..\obj\$(OS)\tMCimg.tds  ..\bin\$(OS)
+
+tMCimg_obj_opt:
+        $(CC) $(CC_INCLUDE_PATH) $(CFLAGS_OPT) tMCimg.c
+        $(MOVE) tMCimg.$(OBJ) ..\obj\$(OS)
+
+
+clean: 
+        $(RM) ..\bin\$(OS)\* ..\obj\$(OS)\*
+

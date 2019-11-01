@@ -1,0 +1,10 @@
+
+Monte-Carlo Simulation Code Contributors
+
+   The original author of the tMCimg code is David Boas (dboas <at> nmr.mgh.harvard.edu).
+
+   This code is currently maintained by
+     * Jay Dubb (jdubb <at> nmr.mgh.harvard.edu)
+     * Qianqian Fang (fangq <at> nmr.mgh.harvard.edu)
+
+   Please see ChangeLog for detailed contributions.

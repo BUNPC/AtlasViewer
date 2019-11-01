@@ -1,0 +1,6 @@
+scalp
+csf
+gm
+wm
+brainstem
+cerebellum
