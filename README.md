@@ -8,7 +8,7 @@ Introduction:
 
 Installing and Running AtlasViewer:
 ===================================
-First download the AtlasViewer package. Go online to https://github.com/BUNPC/AtlasViewer and click the green "Clone or download" button on right. Then click "Download ZIP" right below the green button. Once you have downloaded the zip file, unzip it.
+First download the AtlasViewer package. Go online to https://github.com/BUNPC/AtlasViewer and click the green "Clone or download" button on right. Then click "Download ZIP" right below the green button. Once you have downloaded the zip file, unzip it. We highly recommend that you "Download ZIP". Only use "Clone" if you now what you are doing with git.
 
 
 Installing and running AtlasViewer if you do NOT have Matlab:
