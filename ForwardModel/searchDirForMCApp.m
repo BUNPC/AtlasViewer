@@ -2,7 +2,11 @@ function [mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(mc_exepat
 
 mc_exename = '';
 mc_appname = '';
-ext = '';
+if ispc()
+    ext = '.exe';
+else
+    ext = '';
+end
 
 files = dir([mc_exepath, '/*']);
 for ii=1:length(files)
@@ -11,10 +15,8 @@ for ii=1:length(files)
         k = find(files(ii).name=='.');
         if isempty(k)
             possible = files(ii).name;
-            ext = '';
         else
             possible = files(ii).name(1:k-1);
-            ext = files(ii).name(k:end);
         end
     else
         possible = files(ii).name;
