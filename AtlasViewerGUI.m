@@ -48,7 +48,7 @@ dirnameSubj = getSubjDir(argExtern);
 dirnameAtlas = getAtlasDir(argExtern);
 
 fprintf('AtlasViewerGUI (%s):\n', version2string());
-fprintf('   dirnameApp = %s\n', getAppDir());
+fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
 
