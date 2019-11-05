@@ -2874,7 +2874,7 @@ fwmodel = atlasViewer.fwmodel;
 % Set tissue properties
 name='Input Head Optical Properties';
 numlines=1;
-if ~isempty(fwmodel.headvol.tiss_prop)
+if ~fwmodel.headvol.isempty(fwmodel.headvol)
     tiss_prop = fwmodel.headvol.tiss_prop;
 else
     tiss_prop = headvol.tiss_prop;
