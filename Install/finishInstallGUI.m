@@ -19,12 +19,12 @@ end
 
 
 % ---------------------------------------------------------------------------
-function msgFailure()
+function msgFailure(errnum)
 global stats
 
 handles = stats.handles;
 
-stats.err = stats.err+1;
+stats.err = errnum;
 
 msgFail{1}    = sprintf('AtlasViewer failed to install properly. Error code %d', stats.err);
 msgFail{2}    = 'Contact jdubb@bu.edu for help with installation.';
@@ -82,43 +82,43 @@ stats.err = 0;
 stats.handles.this = hObject;
 stats.handles.msgFinished = handles.textFinished;
 stats.handles.msgMoreInfo = handles.textMoreInfo;
-stats.dirnameApp = getAppDir_av('isdeployed');
+stats.dirnameApp = getAppDir('isdeployed');
 stats.pushbuttonOKPress = false;
 stats.AtlasViewer_exe_flag = false;
 
+fprintf('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);
+
 % Error checks
 if stats.dirnameApp==0
-    msgFailure();
-    return;
+    msgFailure(1);
 end
 
 if isempty(stats.dirnameApp)
-    msgFailure();
-    return;
+    msgFailure(2);
 end
 
 files = dir([stats.dirnameApp, '/*']);
 if isempty(files)
-    msgFailure();
-    return;
+    msgFailure(3);
 end
 
 for ii=1:length(files)
-    if files(ii).isdir
-        continue;
-    end
     [~, fname] = fileparts(files(ii).name);
     if strcmp(fname, 'AtlasViewerGUI')
         stats.AtlasViewer_exe_flag = true;
+        break;
     end
 end
 
 if stats.AtlasViewer_exe_flag==false
-    msgFailure();
-    return;
+    msgFailure(4);
 end
 
+if stats.err==0
 msgSuccess();
+end
+
+
 
 
 
