@@ -82,7 +82,7 @@ stats.err = 0;
 stats.handles.this = hObject;
 stats.handles.msgFinished = handles.textFinished;
 stats.handles.msgMoreInfo = handles.textMoreInfo;
-stats.dirnameApp = getAppDir('isdeployed');
+stats.dirnameApp = getAppDir_av('isdeployed');
 stats.pushbuttonOKPress = false;
 stats.AtlasViewer_exe_flag = false;
 

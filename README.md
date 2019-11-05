@@ -43,7 +43,7 @@ Installing and running AtlasViewer if you have Matlab:
 
 This will set all the required matlab search paths for AtlasViewer. Note: this step should be done every time a new Matlab session is started. 
 
-At this point you should be ready to start AtlasViewer from the Matlab command window. 
+At this point you should be ready to start AtlasViewerGUI from the Matlab command window. 
 
 To run:
 
