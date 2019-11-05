@@ -47,6 +47,6 @@ At this point you should be ready to start AtlasViewerGUI from the Matlab comman
 
 To run:
 
-a) Type AtlasViewer in the command window
+a) Type AtlasViewerGUI in the command window
 b) Navigate to a subject folder and select to open it. 
 
