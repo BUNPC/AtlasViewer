@@ -144,7 +144,7 @@ if isempty(wspaths)
 end
 
 % Add the primary workspace to the search path
-addpath(paths_excl_str{1}, '-end');
+addpath(paths_excl_str{1});
 
 if options.rmpathconfl
     msg = 'Removed the following similar workspaces from the search path to avoid conflicts:';
@@ -161,7 +161,7 @@ if length(wspaths)>1
         if options.rmpathconfl
             continue;
         end
-        addpath(paths_excl_str{ii}, '-end');
+        addpath(paths_excl_str{ii});
     end
 end
 
