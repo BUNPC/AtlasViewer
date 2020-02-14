@@ -21,10 +21,10 @@ end
 
 % -------------------------------------------------------------------
 function SDgui_OpeningFcn(hObject, eventdata, handles, varargin)
+global SD
 
 set(hObject, 'visible','off');
 
-global SD;
 SD = [];
 
 % Choose default command line output for SDgui
@@ -48,7 +48,7 @@ if ~isempty(filename)
     err = sd_file_open(filename, pathname, handles);
     if err
         SDgui_SetVersion(hObject);
-        positionGUI(hObject, 0.30, 0.20, 0.65, 0.78);
+        positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
         SDgui_set_font_size(handles);        
         return;
     end
@@ -59,15 +59,14 @@ end
 % Set the AtlasViewerGUI version number
 SDgui_version(hObject);
 
-positionGUI(hObject, 0.30, 0.20, 0.65, 0.78);
+positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 SDgui_set_font_size(handles);
 
 
 
 % -------------------------------------------------------------------
 function SDgui_DeleteFcn(hObject, eventdata, handles)
-
-global SD;
+global SD
 SD = [];
 hSDgui = get(get(hObject,'parent'),'parent');
 delete(hSDgui);
@@ -208,26 +207,33 @@ end
 
 % -------------------------------------------------------------------
 function [fname, pname] = getCurrPathname(arg)
-
-pname = [];
-fname = [];
 if isempty(arg)
+    [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
+    if(fname == 0)
+        pname = [];
+        fname = [];
+    end
+    pname = [pname, '/'];
     return
 end
-    
+
 filename = arg{1};
 [pname, fname, ext] = fileparts(filename);
-if isempty(fname)
-    return;
-end
+directory = dir(pname);
+file = dir([fname, ext]);
 
-if isempty(fname)
+if isempty(directory)
+    pname = pwd;
+end
+if isempty(file)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pname);
     if(fname == 0)
+        pname = [];
         fname = [];
-        return;
+        return
     end
 end
+pname = [pname, '/'];
 fname = [fname, ext];
 
 
