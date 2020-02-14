@@ -1,7 +1,7 @@
-function sd_data_SetDummyPos(i,pos)
+function sd_data_SetDummyPos(i, pos)
+global SD
 
-global SD;
-SD.DummyPos(i,:)=pos;
+SD.DummyPos(i,:) = pos;
 
 % Update AtlasViewerGUI
 SDgui_AtlasViewerGUI('update');

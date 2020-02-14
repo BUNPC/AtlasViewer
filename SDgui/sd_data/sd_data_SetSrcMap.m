@@ -1,8 +1,8 @@
 function sd_data_SetSrcMap()
+global SD
 
-global SD;
-SD.SrcMap=[];
-for j=1:SD.nSrcs
+SD.SrcMap = [];
+for j = 1:SD.nSrcs
     sd_data_SetSrcMapEntry(j);
 end
 

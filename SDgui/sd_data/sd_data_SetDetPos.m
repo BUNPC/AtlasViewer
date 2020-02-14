@@ -1,7 +1,7 @@
-function sd_data_SetDetPos(i,pos)
+function sd_data_SetDetPos(i, pos)
+global SD
 
-global SD;
-SD.DetPos(i,:)=pos;
+SD.DetPos(i,:) = pos;
 
 % Update AtlasViewerGUI
 SDgui_AtlasViewerGUI('update');

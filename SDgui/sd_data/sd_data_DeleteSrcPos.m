@@ -1,7 +1,6 @@
 function sd_data_DeleteSrcPos(i)
+global SD
 
-global SD;
-
-SD.SrcPos(i,:)=[];
-SD.nSrcs=SD.nSrcs-1;
+SD.SrcPos(i,:) = [];
+SD.nSrcs = SD.nSrcs-1;
 

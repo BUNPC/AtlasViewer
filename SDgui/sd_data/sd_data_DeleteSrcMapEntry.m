@@ -1,7 +1,6 @@
 function sd_data_DeleteSrcMapEntry(i)
+global SD
 
-global SD;
-
-if(~isempty(SD.SrcMap) & i<=size(SD.SrcMap,2))
-    SD.SrcMap(:,i)=[];
+if ~isempty(SD.SrcMap) && i<=size(SD.SrcMap,2)
+    SD.SrcMap(:,i) = [];
 end

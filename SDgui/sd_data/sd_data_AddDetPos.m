@@ -1,6 +1,5 @@
-function sd_data_AddDetPos(i,pos)
+function sd_data_AddDetPos(i, pos)
+global SD
 
-    global SD;
-
-    SD.DetPos(i,:)=pos;
-    SD.nDets=SD.nDets+1;
+SD.DetPos(i,:) = pos;
+SD.nDets = SD.nDets+1;

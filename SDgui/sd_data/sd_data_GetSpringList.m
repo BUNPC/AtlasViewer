@@ -1,8 +1,7 @@
-function sl=sd_data_GetSpringList()
+function sl = sd_data_GetSpringList()
+global SD
 
-global SD;
-
-sl=[];
-if(~isempty(SD.SpringList))
+sl = [];
+if ~isempty(SD.SpringList)
     sl = SD.SpringList;
 end

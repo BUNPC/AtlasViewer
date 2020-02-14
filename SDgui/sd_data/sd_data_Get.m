@@ -1,38 +1,37 @@
-function data=sd_data_Get(datatype)
+function data = sd_data_Get(datatype)
+global SD
 
-    data = [];
+data = [];
 
-    global SD;
+if isempty(SD)
+    datatype = 'all';
+end
 
-    if isempty(SD)
-        datatype='all';
-    end 
-
-    switch lower(datatype)
+switch lower(datatype)
     case {'lambda'}
-        data=SD.Lambda;
+        data = SD.Lambda;
     case {'srcpos'}
-        data=SD.SrcPos;
+        data = SD.SrcPos;
     case {'detpos'}
-        data=SD.DetPos;
+        data = SD.DetPos;
     case {'dummypos'}
-        data=SD.DummyPos;
+        data = SD.DummyPos;
     case {'nsrcs'}
-        data=SD.nSrcs;
+        data = SD.nSrcs;
     case {'ndets'}
-        data=SD.nDets;
+        data = SD.nDets;
     case {'measlist'}
-        data=SD.MeasList;
+        data = SD.MeasList;
     case {'springlist'}
-        data=SD.SpringList;
+        data = SD.SpringList;
     case {'anchorlist'}
-        data=SD.AnchorList;
+        data = SD.AnchorList;
     case {'srcmap'}
-        data=SD.SrcMap;
+        data = SD.SrcMap;
     case {'SpatialUnit'}
-        data=SD.SpatialUnit;
+        data = SD.SpatialUnit;
     case {'all'}
-        data=SD;
-    end     
+        data = SD;
+end
 
-    
+

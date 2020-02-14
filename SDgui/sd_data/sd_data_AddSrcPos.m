@@ -1,12 +1,11 @@
-function sd_data_AddSrcPos(i,pos,lasers)
+function sd_data_AddSrcPos(i, pos, lasers)
+global SD
 
-    global SD;
+SD.SrcPos(i,:) = pos;
 
-    SD.SrcPos(i,:)=pos;
+% Add entry to SrcMap
+if exist('lasers','var') && ~isempty(lasers)
+    sd_data_SetSrcMapEntry(i, lasers);
+end
 
-    % Add entry to SrcMap
-    if(exist('lasers','var') & ~isempty(lasers))
-        sd_data_SetSrcMapEntry(i,lasers);
-    end
-
-    SD.nSrcs=SD.nSrcs+1;
+SD.nSrcs = SD.nSrcs+1;

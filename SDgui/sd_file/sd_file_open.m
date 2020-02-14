@@ -1,9 +1,8 @@
 function err = sd_file_open(filename, pathname, handles)
-
-global filedata;
+global filedata
 
 % Load new SD file
-[filedata, err] = sd_file_load([pathname filename], handles);
+[filedata, err] = sd_file_load([pathname, filename], handles);
 if err
     return;
 end
@@ -57,18 +56,17 @@ optode_anchor_tbl_Init(handles,al);
 %    end
 
 %%%%%%%% Initialize Lambda Panel %%%%%%%
-if(length(Lambda)>0)
+if length(Lambda)>0
     wavelength1_edit_Update(handles,Lambda(1));
 else
     wavelength1_edit_Update(handles,[]);
 end
-if(length(Lambda)>1)
+if length(Lambda)>1
     wavelength2_edit_Update(handles,Lambda(2));
 else
     wavelength2_edit_Update(handles,[]);
-    h_edges=[];
 end
-if(length(Lambda)>2)
+if length(Lambda)>2
     wavelength3_edit_Update(handles,Lambda(3));
 else
     wavelength3_edit_Update(handles,[]);

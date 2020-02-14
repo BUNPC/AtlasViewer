@@ -1,5 +1,4 @@
 function sd_data_DeleteDummyPos(i)
+global SD
 
-global SD;
-
-SD.DummyPos(i,:)=[];
+SD.DummyPos(i,:) = [];

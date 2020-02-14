@@ -1,5 +1,4 @@
 function sd_data_DeleteSpring(i)
+global SD
 
-global SD;
-
-SD.SpringList(i,:)=[];
+SD.SpringList(i,:) = [];

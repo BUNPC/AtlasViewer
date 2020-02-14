@@ -33,24 +33,18 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes SDgui wait for user response (see UIRESUME)
-% uiwait(handles.SDgui);
-
 set(hObject,'userdata',pwd);
-
-sd_data_Create();
-% loadSDfile(handles);
 
 SDgui_chooseMode(handles.radiobuttonSpringEnable, handles);
 
 probe_geometry_axes_SetAxisEqual(handles);
 probe_geometry_axes2_SetAxisEqual(handles);
 
-SDgui_newmenuitem_Callback([],[],handles);
+SDgui_newmenuitem_Callback([], [], handles);
 [filename, pathname] = getCurrPathname(varargin);
-if ~isempty(filename) & filename ~= 0
-    sd_filename_edit_Set(handles,filename);
-    sd_file_panel_SetPathname(handles,pathname);
+if ~isempty(filename)
+    sd_filename_edit_Set(handles, filename);
+    sd_file_panel_SetPathname(handles, pathname);
     err = sd_file_open(filename, pathname, handles);
     if err
         SDgui_SetVersion(hObject);
@@ -58,9 +52,8 @@ if ~isempty(filename) & filename ~= 0
         SDgui_set_font_size(handles);        
         return;
     end
-    % cd(pathname);
 else
-    sd_file_panel_SetPathname(handles,pathname);
+    sd_file_panel_SetPathname(handles, pathname);
 end
 
 % Set the AtlasViewerGUI version number
@@ -94,7 +87,7 @@ end
 function SDgui_clear_all_bttn_Callback(hObject, eventdata, handles)
 
 % Clear central data object first
-sd_data_Clear();
+sd_data_Init();
 
 if ~exist('handles','var') || isempty(handles)
     return;
@@ -133,7 +126,6 @@ SDgui_disp_msg(handles, '');
 
 % -------------------------------------------------------------------
 function SDgui_openmenuitem_Callback(hObject, eventdata, handles)
-global SD;
 
 pathname = sd_file_panel_GetPathname(handles);
 
@@ -150,14 +142,8 @@ err = sd_file_open(filename, pathname, handles);
 
 % -------------------------------------------------------------------
 function SDgui_newmenuitem_Callback(hObject, eventdata, handles)
-global SD;
 
 SDgui_clear_all_bttn_Callback(hObject, [], handles);
-
-
-
-% -------------------------------------------------------------------
-function loadSDfile(handles)
 
 
 
@@ -170,7 +156,7 @@ pathname = sd_file_panel_GetPathname(handles);
 
 % Save file
 if(isempty(filename))
-    [filename, pathname, filterindex] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file',filename);
+    [filename, pathname] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file',filename);
     if(filename == 0)
         return;
     end
@@ -184,10 +170,9 @@ function SDgui_saveasmenuitem_Callback(hObject, eventdata, handles)
 
 % Get current pathname
 filename = sd_filename_edit_Get(handles);
-pathname = sd_file_panel_GetPathname(handles);
 
 % Save file
-[filename, pathname, filterindex] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file as under another file name',filename);
+[filename, pathname] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file as under another file name',filename);
 if(filename == 0)
     return;
 end
@@ -222,50 +207,44 @@ end
 
 
 % -------------------------------------------------------------------
-function [filename, pathname] = getCurrPathname(arg)
+function [fname, pname] = getCurrPathname(arg)
 
-pathname = [];
-filename = [];
-if length(arg)==2
-    pathname = arg{1};
-    if isempty(pathname)
-        return;
-    end
-    k = find(pathname == '/' | pathname == '\');
-    if length(k)>0
-        filename = pathname(k(end)+1:end);
-        pathname = pathname(1:k(end));
-    else
-        filename = pathname;
-        pathname = [];
-    end
-elseif length(arg)==3
-    pathname = arg{1};
-    filename = arg{2};
+pname = [];
+fname = [];
+if isempty(arg)
+    return
+end
+    
+filename = arg{1};
+[pname, fname, ext] = fileparts(filename);
+if isempty(fname)
+    return;
 end
 
-if isempty(filename)
-    [filename, pathname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pathname);
-    if(filename == 0)
+if isempty(fname)
+    [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pname);
+    if(fname == 0)
+        fname = [];
         return;
     end
 end
+fname = [fname, ext];
 
 
 
 % -------------------------------------------------------------------
 function sd_filename_edit_Callback(hObject, eventdata, handles)
 filename = get(hObject,'string');
-if isempty(filename);
+if isempty(filename)
     return;
 end
-k=findstr(filename,'.');
+k = findstr(filename,'.');
 if ~isempty(k)
     ext=filename(k(end):end);
 else
     ext=[];
 end
-if ~strcmpi(ext,'.nirs') & ~strcmpi(ext,'.sd')
+if ~strcmpi(ext,'.nirs') && ~strcmpi(ext,'.sd')
     filename = [filename '.SD'];
     set(hObject,'string',filename);
 end
@@ -274,8 +253,6 @@ end
 
 % -------------------------------------------------------------------
 function SDgui_set_font_size(handles)
-
-objtypes = {'text','pushbutton','edit','checkbox','radiobutton'};
 
 if ismac() || islinux()
     fields = fieldnames(handles);

@@ -1,9 +1,8 @@
-function sd_data_SetSrcPos(i,pos)
+function sd_data_SetSrcPos(i, pos)
+global SD;
 
-    global SD;
-    SD.SrcPos(i,:)=pos;
-    
+SD.SrcPos(i,:) = pos;
 
-    % Update AtlasViewerGUI
-    SDgui_AtlasViewerGUI('update');
+% Update AtlasViewerGUI
+SDgui_AtlasViewerGUI('update');
 
