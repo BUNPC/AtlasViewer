@@ -33,34 +33,34 @@ switch(lower(action))
         probe = atlasViewer.probe;
         
         if(isfield(SD,'Lambda'))
-            probe.lambda=SD.Lambda;
+            probe.lambda = SD.Lambda;
         end
         if(isfield(SD,'SrcPos'))
-            probe.srcpos=SD.SrcPos;
+            probe.srcpos = SD.SrcPos;
         end
         if(isfield(SD,'DetPos'))
-            probe.detpos=SD.DetPos;
+            probe.detpos = SD.DetPos;
         end
         if(isfield(SD,'DummyPos'))
-            probe.dummypos=SD.DummyPos;
+            probe.dummypos = SD.DummyPos;
         end
         if(isfield(SD,'nSrcs'))
-            probe.nsrc=SD.nSrcs;
+            probe.nsrc = SD.nSrcs;
         end
         if(isfield(SD,'nDets'))
-            probe.ndet=SD.nDets;
+            probe.ndet = SD.nDets;
         end
         if(isfield(SD,'nDummys'))
-            probe.ndummy=SD.nDummys;
+            probe.ndummy = SD.nDummys;
         end
         if(isfield(SD,'MeasList'))
-            probe.ml=SD.MeasList;
+            probe.ml = SD.MeasList;
         end
         if(isfield(SD,'SpringList'))
-            probe.sl=SD.SpringList;
+            probe.sl = SD.SpringList;
         end
         if(isfield(SD,'AnchorList'))
-            probe.al=SD.AnchorList;
+            probe.al = SD.AnchorList;
         end
         probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
         probe.noptorig = size([probe.srcpos; probe.detpos],1);

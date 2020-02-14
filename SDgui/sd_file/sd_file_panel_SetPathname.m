@@ -1,13 +1,7 @@
-function sd_file_panel_SetPathname(handles,pathname)
-
-hObject = handles.sd_file_panel;
+function sd_file_panel_SetPathname(handles, pathname)
 
 if isempty(pathname) || ~ischar(pathname)
-    pathname = pwd;
-end
-pathname(pathname=='\') = '/';
-if pathname(end) ~= '/'
-    pathname(end+1) = '/';
+    pathname = filesepStandard(pwd);
 end
 
 if get(handles.checkboxViewFilePath,'value')==1

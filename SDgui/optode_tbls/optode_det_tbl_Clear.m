@@ -1,4 +1,4 @@
 function optode_det_tbl_Clear(handles)
 
-    hObject = handles.optode_det_tbl;
-    optode_det_tbl_CreateFcn(hObject, [], []);
+optode_tbl_CreateFcn(handles.optode_det_tbl, 200);
+

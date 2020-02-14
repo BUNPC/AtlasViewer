@@ -210,10 +210,10 @@ function [fname, pname] = getCurrPathname(arg)
 if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
     if(fname == 0)
-        pname = [];
+        pname = filesepStandard(pwd);
         fname = [];
     end
-    pname = [pname, '/'];
+    pname = filesepStandard(pname);
     return
 end
 
@@ -223,17 +223,17 @@ directory = dir(pname);
 file = dir([fname, ext]);
 
 if isempty(directory)
-    pname = pwd;
+    pname = filesepStandard(pwd);
 end
 if isempty(file)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pname);
     if(fname == 0)
-        pname = [];
+        pname = filesepStandard(pwd);
         fname = [];
         return
     end
 end
-pname = [pname, '/'];
+pname = filesepStandard(pname);
 fname = [fname, ext];
 
 
