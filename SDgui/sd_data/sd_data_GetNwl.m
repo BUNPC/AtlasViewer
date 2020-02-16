@@ -9,3 +9,4 @@ elseif ~isempty(SD.MeasList)
 elseif ~isempty(SD.SrcMap)
     nwl = size(SD.SrcMap,1);
 end
+

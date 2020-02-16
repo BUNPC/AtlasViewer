@@ -14,6 +14,8 @@ switch lower(datatype)
         data = SD.SrcPos;
     case {'detpos'}
         data = SD.DetPos;
+	case {'grommettype'}
+	    data = SD.GrommetType;
     case {'dummypos'}
         data = SD.DummyPos;
     case {'nsrcs'}
@@ -28,7 +30,7 @@ switch lower(datatype)
         data = SD.AnchorList;
     case {'srcmap'}
         data = SD.SrcMap;
-    case {'SpatialUnit'}
+	case {'spatialunit'}
         data = SD.SpatialUnit;
     case {'all'}
         data = SD;

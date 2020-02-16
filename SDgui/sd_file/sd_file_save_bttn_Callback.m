@@ -1,12 +1,9 @@
 function sd_file_save_bttn_Callback(hObject, eventdata, handles)
 
+errmsg = '';
+
 filename0 = sd_filename_edit_Get(handles);
 pathname0 = sd_file_panel_GetPathname(handles);
-
-if isempty(filename0)
-    SDgui_disp_msg(handles, 'ERROR: No file specified', -1)
-    return;
-end
 
 % Convert pathname to full path and filename to file name ONLY (no path
 % info at all)
@@ -17,16 +14,23 @@ if exist([pathname0, filename0], 'file')~=2
 else
     [pname, fname, ext] = fileparts(fullpath([pathname0, filename0]));
 end
-pathname = [pname, '/'];
+pathname = filesepStandard(pname);
 filename = [fname, ext];
 
-if exist(pathname, 'dir')~=7
-    SDgui_disp_msg(handles, 'ERROR: Save directory doesn''t exist', -1)
+% Check for errors
+if isempty(filename)
+    errmsg = 'ERROR: File name invalid';
+elseif isempty(dir(pathname))
+    errmsg = 'ERROR: Save directory doesn''t exist';
+end
+
+% If there are errors, open windows explorer to let user enter file name 
+if ~isempty(errmsg)
+    SDgui_disp_msg(handles, errmsg, -1)
     
     % Change directory
     [filename, pathname] = uiputfile('*.*','Save SD file', filename);
     if(filename == 0)
-        set(handles.sd_filename_edit, 'string', filename);
         return;
     end
 end
@@ -37,5 +41,6 @@ if exist([pathname, filename],'file')==2
         return;
     end
 end
+
 sd_file_save(filename, pathname, handles);
 

@@ -17,15 +17,16 @@ if err
 end
 
 % Now we're ready to use the SD data
-SrcPos   = sd_data_Get('SrcPos');
-SrcMap   = sd_data_Get('SrcMap');
-DetPos   = sd_data_Get('DetPos');
-DummyPos = sd_data_Get('DummyPos');
-ml       = sd_data_GetMeasList();
-sl       = sd_data_GetSpringList();
-al       = sd_data_GetAnchorList();
-Lambda   = sd_data_Get('Lambda');
-SpatialUnit   = sd_data_Get('SpatialUnit');
+SrcPos       = sd_data_Get('SrcPos');
+SrcMap       = sd_data_Get('SrcMap');
+DetPos       = sd_data_Get('DetPos');
+GrommetType  = sd_data_Get('GrommetType');
+DummyPos     = sd_data_Get('DummyPos');
+ml           = sd_data_GetMeasList();
+sl           = sd_data_GetSpringList();
+al           = sd_data_GetAnchorList();
+Lambda       = sd_data_Get('Lambda');
+SpatialUnit  = sd_data_Get('SpatialUnit');
 
 set(handles.sd_filename_edit,'string',filename);
 

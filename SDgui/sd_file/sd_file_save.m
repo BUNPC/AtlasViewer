@@ -16,7 +16,6 @@ if isempty(sd_data_Get('Lambda'))
     return;
 end
 
-sd_filename_edit_Set(handles,filename);
 sd_data_ErrorFix();
 SD = sd_data_Get('all');
 if ~isempty(ext) & strcmp(ext,'.nirs')
@@ -24,6 +23,10 @@ if ~isempty(ext) & strcmp(ext,'.nirs')
     sd_file_save2nirs([pathname, filename],filedata);
 else
     try
+        [~, ~, ext] = fileparts(filename);
+        if isempty(ext)
+            filename = [filename, '.SD'];
+        end
         save([pathname, filename],'SD','-mat');
     catch ME
         msg = sprintf('Error: %s', ME.message);
@@ -32,6 +35,7 @@ else
         return;
     end
 end
+sd_filename_edit_Set(handles,filename);
 
 SDgui_disp_msg(handles, sprintf('Save %s', filename));
 

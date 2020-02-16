@@ -1,10 +1,10 @@
 function sd_data_SetSrcMapEntry(i, lasers)
 global SD
 
-if ~exist('lasers') || isempty(lasers)
+if ~exist('lasers','var') || isempty(lasers)
     nwl = sd_data_GetNwl();
-    if nwl>0 & SD.nSrcs>0
-        if(nwl<size(SD.SrcMap,1))
+    if nwl>0 && SD.nSrcs>0
+        if nwl<size(SD.SrcMap,1)
             SD.SrcMap(nwl+1:end,:) = [];
         end
         k = nwl;

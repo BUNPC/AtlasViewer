@@ -1,5 +1,5 @@
 function sd_data_SetSrcPos(i, pos)
-global SD;
+global SD
 
 SD.SrcPos(i,:) = pos;
 

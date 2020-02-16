@@ -4,7 +4,7 @@ global SD
 if ~exist('nwl','var') || isempty(nwl)
     nwl = sd_data_GetNwl();
 end
-if(nwl==0)
+if nwl==0
     return;
 end
 SD.SrcMap = [];
