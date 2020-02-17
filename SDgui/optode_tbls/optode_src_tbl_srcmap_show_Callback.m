@@ -1,16 +1,21 @@
 function optode_src_tbl_srcmap_show_Callback(hObject, eventdata, handles)
 
 val = get(hObject,'value');
-tbl_data = optode_src_tbl_get_tbl_data(handles);
-ncols = size(tbl_data,2);
-tbl_size = optode_src_tbl_GetSize(handles);
-cnames = {'x','y','z'};
-cwidth = {40,40,40};
-ceditable = logical([1 1 1]);
+
+hObject = handles.optode_src_tbl;
+
+tbl_data    = get(handles.optode_src_tbl, 'data');
+cnames      = get(handles.optode_src_tbl, 'ColumnName');
+cwidth      = get(handles.optode_src_tbl, 'ColumnWidth');
+ceditable   = get(handles.optode_src_tbl, 'ColumnEditable');
 
 if(val==0)
-    tbl_data = tbl_data(:,1:3);
+    tbl_data    = tbl_data(:,1:3);
+    cnames      = cnames(1:3);
+    cwidth      = cwidth(1:3);
+    ceditable   = ceditable(1:3);
 else
+    ncols = size(tbl_data,2);
     srcmap = sd_data_Get('SrcMap');
     nwl_prev = ncols-3;
     nwl = sd_data_GetNwl();
@@ -32,4 +37,5 @@ else
         tbl_data(:,3+nwl+1:3+nwl_prev) = [];
     end
 end
+
 set(handles.optode_src_tbl, 'Data',tbl_data, 'ColumnName',cnames, 'ColumnWidth',cwidth, 'ColumnEditable',ceditable);

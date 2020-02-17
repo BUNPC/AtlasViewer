@@ -2,6 +2,7 @@ function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
 
 tbl_data = get(hObject,'data');
 ncols = size(tbl_data,2);
+ncoord = 3;
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
 r = eventdata.Indices(1);
@@ -14,12 +15,12 @@ if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
     return;
 end
 
-for i = 1:ncols
+for i = 1:ncoord
     l(i) = length(tbl_data{r,i});
 end
 if all(l>0)
     
-    for i = 1:ncols
+    for i = 1:ncoord
         srcdata(i) = str2num(tbl_data{r,i});
     end
 
@@ -28,9 +29,9 @@ if all(l>0)
         action = 'edit';
         
         % Update SD
-        sd_data_SetSrcPos(r,srcdata(1:3));
-        if ncols>3
-            sd_data_SetSrcMapEntry(r,srcdata(4:end));
+        sd_data_SetSrcPos(r, srcdata(1:ncoord));
+        if ncols > ncoord
+            sd_data_SetSrcMapEntry(r, srcdata(ncoord+1:end));
         end
 
     % Add row
@@ -43,23 +44,24 @@ if all(l>0)
         tbl_size=tbl_size+1;
         
         % Update SD
-        sd_data_AddSrcPos(r,srcdata(1:3));
-        if ncols==3
+        sd_data_AddSrcPos(r, srcdata(1:ncoord));
+        if ncols == ncoord
             sd_data_SetSrcMapEntry(r);
         else
-            sd_data_SetSrcMapEntry(r,srcdata(4:end));
+            sd_data_SetSrcMapEntry(r, srcdata(ncoord+1:end));
+%             tbl_data(ncoord+1:end,) = 
         end
         optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
     end
     
     % Update Axes
-    probe_geometry_axes_SrcUpdate(handles, srcdata(1:3), r, action);
-    probe_geometry_axes2_OptUpdate(handles, srcdata(1:3), r, action, 'src');
+    probe_geometry_axes_SrcUpdate(handles, srcdata(1:ncoord), r, action);
+    probe_geometry_axes2_OptUpdate(handles, srcdata(1:ncoord), r, action, 'src');
     
 elseif all(l==0) & r<=tbl_size
     
-    tbl_size=tbl_size-1;
-    tbl_data(r,:)=[];
+    tbl_size = tbl_size-1;
+    tbl_data(r,:) = [];
     
     % Update SD
     sd_data_DeleteSrcPos(r);

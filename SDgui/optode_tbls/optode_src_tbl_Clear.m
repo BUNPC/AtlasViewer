@@ -29,7 +29,6 @@ end
 
 set(hObject, 'Data',A, 'ColumnName',cnames, 'ColumnWidth',cwidth, 'ColumnEditable',ceditable);
 userdata.tbl_size = 0;
-userdata.selection = [];
 set(hObject, 'userdata',userdata);
 
 

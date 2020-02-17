@@ -1,6 +1,9 @@
-function optode_src_tbl_Init(handles, OptPos, SrcMap)
+function optode_src_tbl_Update(handles)
 
-hObject = handles.optode_src_tbl;
+OptPos       = sd_data_Get('SrcPos');
+SrcMap       = sd_data_Get('SrcMap');
+GrommetType  = sd_data_Get('GrommetType');
+
 srcmap_show = optode_src_tbl_srcmap_show_GetVal(handles);
 
 A = repmat({'' '' ''},100,1);
@@ -25,5 +28,4 @@ if srcmap_show
 end
 set(handles.optode_src_tbl, 'Data',A, 'ColumnName',cnames, 'ColumnWidth',cwidth, 'ColumnEditable',ceditable);
 userdata.tbl_size = size(OptPos,1);
-userdata.selection = [];
-set(hObject, 'userdata',userdata);
+set(handles.optode_src_tbl, 'userdata',userdata);

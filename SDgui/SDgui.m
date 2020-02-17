@@ -115,9 +115,9 @@ optode_anchor_tbl_Clear(handles);
 sd_file_panel_Clear(handles);
 
 % Clear Lambda panel
-wavelength1_edit_Update(handles,[]);
-wavelength2_edit_Update(handles,[]);
-wavelength3_edit_Update(handles,[]);
+wavelength1_edit_Update(handles, 690);
+wavelength2_edit_Update(handles, 830);
+wavelength3_edit_Update(handles, []);
 
 SDgui_disp_msg(handles, '');
 
@@ -219,8 +219,12 @@ end
 
 filename = arg{1};
 [pname, fname, ext] = fileparts(filename);
+pname = filesepStandard(pname);
+if isempty(ext)
+    ext = '.SD';
+end
 directory = dir(pname);
-file = dir([fname, ext]);
+file = dir([pname, fname, ext]);
 
 if isempty(directory)
     pname = filesepStandard(pwd);
@@ -298,3 +302,5 @@ if get(hObject,'value')==1
 else
     set(handles.textViewFilePath, 'visible','off');
 end
+
+

@@ -39,8 +39,8 @@ probe_geometry_axes2_Init(handles,[SrcPos; DetPos; DummyPos],...
 
 
 %%%%%%%% Initialize source, detector and dummy optode tables in SD %%%%%%%
-optode_src_tbl_Init(handles,SrcPos,SrcMap);
-optode_det_tbl_Init(handles,DetPos);
+optode_src_tbl_Update(handles);
+optode_det_tbl_Update(handles);
 optode_dummy_tbl_Init(handles,DummyPos,size([SrcPos; DetPos],1));
 
 %%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
