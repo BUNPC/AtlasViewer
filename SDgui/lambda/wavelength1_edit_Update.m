@@ -1,8 +1,5 @@
-function wavelength1_edit_Update(handles,wl)
-% hObject    handle to wavelength3_edit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function wavelength1_edit_Update(handles, wl)
 
-    hObject = handles.wavelength1_edit;
-    set(hObject,'string',num2str(wl));
-    % wavelength_edit_Callback(hObject, [], handles);
+hObject = handles.wavelength1_edit;
+set(hObject, 'string',num2str(wl));
+wavelength_edit_Callback(hObject, [wl,1], handles);
