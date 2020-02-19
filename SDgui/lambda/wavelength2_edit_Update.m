@@ -1,6 +1,5 @@
 function wavelength2_edit_Update(handles, wl)
 
-hObject = handles.wavelength2_edit;
-set(hObject,'string',num2str(wl));
-wavelength_edit_Callback(hObject, [wl,2], handles);
+set(handles.wavelength2_edit,'string',num2str(wl));
+wavelength_edit_Callback(handles.wavelength2_edit, [wl,2], handles);
 

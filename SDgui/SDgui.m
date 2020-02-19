@@ -22,10 +22,13 @@ end
 % -------------------------------------------------------------------
 function SDgui_OpeningFcn(hObject, eventdata, handles, varargin)
 global SD
+global filedata
 
 set(hObject, 'visible','off');
 
 SD = [];
+filedata.SD = [];
+
 
 % Choose default command line output for SDgui
 handles.output = hObject;
@@ -67,7 +70,11 @@ SDgui_set_font_size(handles);
 % -------------------------------------------------------------------
 function SDgui_DeleteFcn(hObject, eventdata, handles)
 global SD
+global filedata
+
 SD = [];
+filedata.SD = [];
+
 hSDgui = get(get(hObject,'parent'),'parent');
 delete(hSDgui);
 

@@ -18,15 +18,16 @@ end
 
 sd_data_ErrorFix();
 SD = sd_data_Get('all');
-if ~isempty(ext) & strcmp(ext,'.nirs')
+if ~isempty(ext) && strcmp(ext,'.nirs')
     filedata.SD = SD;
-    sd_file_save2nirs([pathname, filename],filedata);
+    sd_file_save2nirs([pathname, filename], filedata);
 else
     try
         [~, ~, ext] = fileparts(filename);
         if isempty(ext)
             filename = [filename, '.SD'];
         end
+        filedata.SD = SD;
         save([pathname, filename],'SD','-mat');
     catch ME
         msg = sprintf('Error: %s', ME.message);

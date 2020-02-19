@@ -1,45 +1,25 @@
 function wavelength_edit_Callback(hObject, eventdata, handles)
 
-h(1) = handles.wavelength1_edit;
-h(2) = handles.wavelength2_edit;
-h(3) = handles.wavelength3_edit;
+wstr{1} = get(handles.wavelength1_edit, 'string');
+wstr{2} = get(handles.wavelength2_edit, 'string');
+wstr{3} = get(handles.wavelength3_edit, 'string');
 
-if isempty(eventdata)
-    wli = cell(3,1);
-    wlo = cell(3,1);
-    wli{1} = str2num(get(h(1), 'string'));
-    wli{2} = str2num(get(h(2), 'string'));
-    wli{3} = str2num(get(h(3), 'string'));
-    
-    % Get lambda
-    j=1;
-    for i=1:length(wli)
-        if(~isempty(wli{i}))
-            lambda(j) = wli{i};
-            wlo{j} = wli{i};
-            j = j+1;
-        end
-    end
-    
-    % Update gui
-    for i = 1:length(wlo)
-        set(h(i), 'string',wlo{i});
-    end
-    optode_src_tbl_srcmap_show_UpdateSrcTbl(handles);
-    
-else
-    
-    lambda = sd_data_Get('Lambda');
-    lambda(eventdata(2)) = eventdata(1);
+lambda = [];
 
+kk = 1;
+for ii=1:length(wstr)
+    if isnumber(wstr{ii})
+        lambda(kk) = str2double(wstr{ii});
+        kk = kk+1;
+    else
+        eval( sprintf('set(handles.wavelength%d_edit, ''string'','''')', ii) )
+    end
 end
 
 % Update SD data
-nwl = sd_data_GetNwl();
 sd_data_Set('Lambda',lambda);
-if(nwl ~= length(lambda))
-    sd_data_SetSrcMapDefault(length(lambda));
-    ml = sd_data_GetMeasList();
-    sd_data_SetMeasList(ml);
-end
+sd_data_SetSrcMapDefault(length(lambda));
+ml = sd_data_GetMeasList();
+sd_data_SetMeasList(ml);
 
+optode_src_tbl_Update(handles);

@@ -36,7 +36,7 @@ if ~isempty(errmsg)
 end
 
 if exist([pathname, filename],'file')==2
-    q = menu('File already exists. Do you want to overwrite it?','Yes','No');
+    q = MenuBox('File already exists. Do you want to overwrite it?', {'Yes','No'});
     if q==2
         return;
     end
