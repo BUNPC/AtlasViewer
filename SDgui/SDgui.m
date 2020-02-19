@@ -227,11 +227,15 @@ end
 filename = arg{1};
 [pname, fname, ext] = fileparts(filename);
 pname = filesepStandard(pname);
-if isempty(ext)
+if ~isempty(fname) && isempty(ext)
     ext = '.SD';
 end
 directory = dir(pname);
-file = dir([pname, fname, ext]);
+
+file = [];
+if ~isempty(fname)
+    file = dir([pname, fname, ext]);
+end
 
 if isempty(directory)
     pname = filesepStandard(pwd);
@@ -306,8 +310,10 @@ function checkboxViewFilePath_Callback(hObject, eventdata, handles)
 
 if get(hObject,'value')==1
     set(handles.textViewFilePath, 'visible','on');
+    set(handles.textFolderName, 'visible','on');
 else
     set(handles.textViewFilePath, 'visible','off');
+    set(handles.textFolderName, 'visible','off');
 end
 
 

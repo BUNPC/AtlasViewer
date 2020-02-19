@@ -15,16 +15,17 @@ cwidth = get(hObject, 'ColumnWidth');
 ceditable = get(hObject, 'ColumnEditable');
 
 srcmap = sd_data_Get('SrcMap');
-nwl = 1;
-nSrcs = 0;
+srcpos = sd_data_Get('SrcPos');
+nwl = sd_data_GetNwl();
+offset = size(sd_data_Get('SrcPos'), 2)+1;
+A(:,offset+1:end) = {''};
 for j=1:nwl
-    A(:,4+j) = {''};
-    for i=1:nSrcs
-        A{i,4+j} = num2str(srcmap(j,i));
+    for i=1:size(srcpos,1)
+        A{i,offset+j} = num2str(srcmap(j,i));
     end
-    cnames{end+1} = ['l' num2str(j)];
-    cwidth{end+1} = 20;
-    ceditable(end+1) = logical(1);
+    cnames{offset+j} = ['l' num2str(j)];
+    cwidth{offset+j} = 20;
+    ceditable(offset+j) = logical(1);
 end
 
 set(hObject, 'Data',A, 'ColumnName',cnames, 'ColumnWidth',cwidth, 'ColumnEditable',ceditable);
