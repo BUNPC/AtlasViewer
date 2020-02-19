@@ -7,7 +7,6 @@ if isempty(handles)
 end
 
 file = dir(filename);
-
 if isempty(file)
     err=2;
     SDgui_disp_msg(handles, sprintf('ERROR: file %s does not exist.', filename), err);

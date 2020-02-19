@@ -16,7 +16,6 @@ end
 % Default prop values
 col = colstatusgood;
 fsize = fsize_orig;
-alignment = 'center';
 
 % Save original property values
 units_orig = get(handles.textFileLoadSave, 'units');
@@ -29,8 +28,6 @@ if status~=0
 end
 if length(msg) > pos(3)
     fsize = fsize-1;
-    alignment = 'left';
 end
-set(handles.textFileLoadSave, 'string',msg, 'fontsize', fsize, ...
-                              'foregroundcolor',col, 'units',units_orig, ...
-                              'horizontalalignment',alignment);
+set(handles.textFileLoadSave, 'string',msg, 'fontsize',fsize, ...
+                              'foregroundcolor',col, 'units',units_orig);

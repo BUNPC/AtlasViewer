@@ -9,7 +9,10 @@ pathname0 = sd_file_panel_GetPathname(handles);
 pathname = filesepStandard(pname);
 filename = [fname, ext];
 
-file = dir([pathname, filename]);
+file = [];
+if ~isempty(filename)
+    file = dir([pathname, filename]);
+end
 if isempty(file)
     % if exist([pathname, filename],'file')~=2
     [filename, pathname] = uigetfile({'*.SD; *.sd';'*.nirs'}, 'Open SD file', [pathname, filename]);
@@ -18,5 +21,4 @@ if isempty(file)
         return;
     end
 end
-
 sd_file_open(filename, pathname, handles);

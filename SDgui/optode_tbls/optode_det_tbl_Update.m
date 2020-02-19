@@ -3,11 +3,13 @@ function optode_det_tbl_Update(handles)
 OptPos       = sd_data_Get('DetPos');
 GrommetType  = sd_data_Get('GrommetType');
 
-for i = 1:size(OptPos,1)
-    A{i,1} = num2str(OptPos(i,1));
-    A{i,2} = num2str(OptPos(i,2));
-    A{i,3} = num2str(OptPos(i,3));
+A = get(handles.optode_det_tbl, 'data');
+for ii = 1:size(OptPos,1)
+    A{ii,1} = num2str(OptPos(ii,1));
+    A{ii,2} = num2str(OptPos(ii,2));
+    A{ii,3} = num2str(OptPos(ii,3));
 end
+A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
 
 set(handles.optode_det_tbl, 'data', A);
 userdata.tbl_size = size(OptPos,1);
