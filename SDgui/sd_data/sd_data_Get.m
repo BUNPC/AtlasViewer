@@ -15,8 +15,16 @@ switch lower(datatype)
     case {'detpos'}
         data = SD.DetPos;
 	case {'srcgrommettype'}
+        if isempty(SD.SrcGrommetType)
+            c = sd_data_GetGrommetChoices();
+            SD.SrcGrommetType = repmat(c(1), size(SD.SrcPos,1), 1);
+        end
 	    data = SD.SrcGrommetType;
 	case {'detgrommettype'}
+        if isempty(SD.DetGrommetType)
+            c = sd_data_GetGrommetChoices();
+            SD.DetGrommetType = repmat(c(1), size(SD.DetPos,1), 1);
+        end
 	    data = SD.DetGrommetType;
     case {'dummypos'}
         data = SD.DummyPos;
