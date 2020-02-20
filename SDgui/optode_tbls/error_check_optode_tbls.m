@@ -4,6 +4,10 @@ status = 0;
 tbl_data1 = tbl_data1(:,1:3);
 tbl_data2 = tbl_data2(:,1:3);
 
+if c > sd_data_GetCoordNum()
+    return
+end
+
 if ~isempty(tbl_data1{r,c}) & isempty(str2num(tbl_data1{r,c}))
     status = 1;
     tbl_data1{r,c} = '';

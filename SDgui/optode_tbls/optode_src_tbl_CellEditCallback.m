@@ -1,6 +1,7 @@
 function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
 
 tbl_data = get(hObject,'data');
+cformat = get(hObject,'columnformat');
 ncoord = sd_data_GetCoordNum();
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
@@ -38,8 +39,9 @@ if all(l>0)
             tbl_data(tbl_size+1:r-1,:) = [];
             r = tbl_size+1;
         end
-        tbl_size = tbl_size+1;        
-        optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
+        tbl_size = tbl_size+1;
+        tbl_data{r, ncoord+1} = cformat{1,ncoord+1}{1};
+        optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);        
     end
     
     % Update Axes
@@ -47,15 +49,18 @@ if all(l>0)
     probe_geometry_axes2_OptUpdate(handles, srcdata(1:ncoord), r, action, 'src');
     
 elseif all(l==0)
-    
-    tbl_size = tbl_size-1;
-    tbl_data(r,:) = [];
-        
-    % Update Axes
-    probe_geometry_axes_SrcUpdate(handles, [], r, 'delete');
-    probe_geometry_axes2_OptUpdate(handles, [], r, 'delete', 'src');
-    optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
-    
+    if c<=ncoord
+        tbl_size = tbl_size-1;
+        tbl_data(end+1,:) = {''};
+        tbl_data(r,:) = [];
+
+        % Update Axes
+        probe_geometry_axes_SrcUpdate(handles, [], r, 'delete');
+        probe_geometry_axes2_OptUpdate(handles, [], r, 'delete', 'src');
+        optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
+    else
+        tbl_data{r,c} = '';
+    end    
 else
     
     return 
@@ -67,6 +72,9 @@ end
 
 % SrcPos
 sd_data_SetSrcPos(tbl_data(1:tbl_size,:))
+
+% GrommetType 
+sd_data_SetSrcGrommetType(tbl_data(1:tbl_size,ncoord+1))
 
 % SrcMap
 sd_data_SetSrcMap()
@@ -88,4 +96,5 @@ end
 set(hObject,'data',tbl_data);
 userdata.tbl_size = tbl_size;
 set(hObject,'userdata',userdata);
+
 

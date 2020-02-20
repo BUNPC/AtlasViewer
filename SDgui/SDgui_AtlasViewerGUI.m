@@ -41,8 +41,11 @@ switch(lower(action))
         if(isfield(SD,'DetPos'))
             probe.detpos = SD.DetPos;
         end
-        if(isfield(SD,'GrommetType'))
-            probe.grommettype = SD.GrommetType;
+        if(isfield(SD,'SrcGrommetType'))
+            probe.srcgrommettype = SD.SrcGrommetType;
+        end
+        if(isfield(SD,'DetGrommetType'))
+            probe.detgrommettype = SD.DetGrommetType;
         end
         if(isfield(SD,'DummyPos'))
             probe.dummypos = SD.DummyPos;

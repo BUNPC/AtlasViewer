@@ -19,6 +19,9 @@ function pathname = filesepStandard(pathname)
 %
 %
 
+if isempty(pathname)
+    return;
+end
 pathname(pathname=='\') = '/';
 if pathname(end) ~= '/'
     pathname(end+1) = '/';
@@ -28,3 +31,4 @@ if ispc()
         pathname(1) = upper(pathname(1));
     end
 end
+

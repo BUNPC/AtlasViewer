@@ -14,8 +14,10 @@ switch lower(datatype)
         data = SD.SrcPos;
     case {'detpos'}
         data = SD.DetPos;
-	case {'grommettype'}
-	    data = SD.GrommetType;
+	case {'srcgrommettype'}
+	    data = SD.SrcGrommetType;
+	case {'detgrommettype'}
+	    data = SD.DetGrommetType;
     case {'dummypos'}
         data = SD.DummyPos;
     case {'nsrcs'}
