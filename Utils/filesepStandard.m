@@ -1,4 +1,4 @@
-function pathname = filesepStandard(pathname)
+function pathname = filesepStandard(pathname0)
 
 %
 % Usage:
@@ -11,7 +11,7 @@ function pathname = filesepStandard(pathname)
 % Example: 
 %    
 %   >> pathname = 'C:\dir1\\\dir2\\dir3\test1/\test2/'
-%   >> pathname = filesepStandard(pathname)
+%   >> pathname = replacefilesepinpath(pathname)
 %
 %   pathname =
 %
@@ -19,16 +19,26 @@ function pathname = filesepStandard(pathname)
 %
 %
 
-if isempty(pathname)
-    return;
+pathname = [];
+if ~isdir(pathname0) && ~isfile(pathname0)    
+    return
 end
-pathname(pathname=='\') = '/';
-if pathname(end) ~= '/'
-    pathname(end+1) = '/';
-end
-if ispc()
-    if pathname(2)==':'
-        pathname(1) = upper(pathname(1));
-    end
+if ~ischar(pathname0)
+    return
 end
 
+idxs = [];
+k = find(pathname0=='\' | pathname0=='/');
+for ii = 1:length(k)
+    if (ii>1) && (k(ii) == k(ii-1)+1)
+        idxs = [idxs, k(ii)];
+        continue;
+    end
+    pathname0(k(ii)) = '/';
+end
+pathname0(idxs) = '';
+
+if isdir(pathname0) && pathname0(end) ~= '/'
+    pathname0(end+1) = '/';
+end
+pathname = pathname0;
