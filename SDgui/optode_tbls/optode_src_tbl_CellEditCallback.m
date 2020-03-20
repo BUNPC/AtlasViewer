@@ -19,9 +19,10 @@ if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
 end
 
 %%%% Update source positions portion of data table
-for i = 1:ncoord
+for i = 1:ncoord+1
     l(i) = length(tbl_data{r,i});
 end
+ 
 if all(l>0)
     
     for i = 1:ncoord
@@ -49,6 +50,7 @@ if all(l>0)
     probe_geometry_axes2_OptUpdate(handles, srcdata(1:ncoord), r, action, 'src');
     
 elseif all(l==0)
+    
     if c<=ncoord
         tbl_size = tbl_size-1;
         tbl_data(end+1,:) = {''};
@@ -60,7 +62,8 @@ elseif all(l==0)
         optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
     else
         tbl_data{r,c} = '';
-    end    
+    end
+    
 else
     
     return 
@@ -92,9 +95,7 @@ if get(handles.optode_src_tbl_srcmap_show, 'value')
     end
 end
 
-%%%% Update the data property of table object
-set(hObject,'data',tbl_data);
-userdata.tbl_size = tbl_size;
-set(hObject,'userdata',userdata);
+% Update table
+optode_tbl_Update(hObject, tbl_data, tbl_size, r, c);
 
 

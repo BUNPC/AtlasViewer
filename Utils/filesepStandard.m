@@ -19,7 +19,7 @@ function pathname = filesepStandard(pathname0)
 %
 %
 
-pathname = [];
+pathname = '';
 if ~isdir(pathname0) && ~isfile(pathname0)    
     return
 end

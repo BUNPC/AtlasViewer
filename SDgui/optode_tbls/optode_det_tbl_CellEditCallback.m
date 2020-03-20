@@ -17,7 +17,7 @@ if error_check_optode_tbls(hObject, tbl_data, tbl_data_src, r, c) ~= 0
 end
 
 % Otherwise we have legitimate data
-for i = 1:ncoord
+for i = 1:ncoord+1
     l(i) = length(tbl_data{r,i});
 end
 
@@ -77,7 +77,7 @@ sd_data_SetDetPos(tbl_data(1:tbl_size,:))
 % GrommetType 
 sd_data_SetDetGrommetType(tbl_data(1:tbl_size, ncoord+1))
 
-set(hObject, 'data',tbl_data);
-userdata.tbl_size = tbl_size;
-set(hObject, 'userdata',userdata);
+% Update table
+optode_tbl_Update(hObject, tbl_data, tbl_size, r, c);
+
 
