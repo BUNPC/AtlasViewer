@@ -1,4 +1,4 @@
-function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
+    function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
 
 if isempty(eventdata.Indices)
     return
@@ -46,7 +46,7 @@ if all(l>0)
     probe_geometry_axes_SrcUpdate(handles, srcdata(1:ncoord), r, action);
     probe_geometry_axes2_OptUpdate(handles, srcdata(1:ncoord), r, action, 'src');
     
-elseif all(l==0)
+elseif all(l==0) && r<=tbl_size
     
     tbl_size = tbl_size-1;
     tbl_data(end+1,:) = {''};
