@@ -1,16 +1,17 @@
 function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
 
-tbl_data = get(hObject,'data');
-cformat = get(hObject,'columnformat');
-ncoord = sd_data_GetCoordNum();
-userdata = get(hObject, 'userdata');
-tbl_size = userdata.tbl_size;
+if isempty(eventdata.Indices)
+    return
+end
 r = eventdata.Indices(1);
 c = eventdata.Indices(2);
-srcdata = zeros(1, ncoord);
-l = zeros(1, ncoord);
-action = '';
+tbl_data = get(hObject,'data');
+userdata = get(hObject, 'userdata');
+tbl_size = userdata.tbl_size;
 
+ncoord = sd_data_GetCoordNum();
+srcdata = zeros(1, ncoord);
+action = '';
 
 %%%% Error check
 [tbl_data_det, tbl_size_det] = optode_det_tbl_get_tbl_data(handles);
@@ -19,10 +20,7 @@ if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
 end
 
 %%%% Update source positions portion of data table
-for i = 1:ncoord+1
-    l(i) = length(tbl_data{r,i});
-end
- 
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, ncoord);
 if all(l>0)
     
     for i = 1:ncoord
@@ -41,7 +39,6 @@ if all(l>0)
             r = tbl_size+1;
         end
         tbl_size = tbl_size+1;
-        tbl_data{r, ncoord+1} = cformat{1,ncoord+1}{1};
         optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);        
     end
     
@@ -51,18 +48,14 @@ if all(l>0)
     
 elseif all(l==0)
     
-    if c<=ncoord
-        tbl_size = tbl_size-1;
-        tbl_data(end+1,:) = {''};
-        tbl_data(r,:) = [];
-
-        % Update Axes
-        probe_geometry_axes_SrcUpdate(handles, [], r, 'delete');
-        probe_geometry_axes2_OptUpdate(handles, [], r, 'delete', 'src');
-        optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
-    else
-        tbl_data{r,c} = '';
-    end
+    tbl_size = tbl_size-1;
+    tbl_data(end+1,:) = {''};
+    tbl_data(r,:) = [];
+    
+    % Update Axes
+    probe_geometry_axes_SrcUpdate(handles, [], r, 'delete');
+    probe_geometry_axes2_OptUpdate(handles, [], r, 'delete', 'src');
+    optode_dummy_tbl_UpdateNum(handles, tbl_size+tbl_size_det);
     
 else
     
@@ -77,7 +70,7 @@ end
 sd_data_SetSrcPos(tbl_data(1:tbl_size,:))
 
 % GrommetType 
-sd_data_SetSrcGrommetType(tbl_data(1:tbl_size,ncoord+1))
+sd_data_SetSrcGrommetType(tbl_data(1:tbl_size, ncoord+1))
 
 % SrcMap
 sd_data_SetSrcMap()

@@ -20,10 +20,7 @@ function pathname = filesepStandard(pathname0)
 %
 
 pathname = '';
-if ~isdir(pathname0) && ~isfile(pathname0)    
-    return
-end
-if ~ischar(pathname0)
+if ~ispathvalid(pathname0)
     return
 end
 

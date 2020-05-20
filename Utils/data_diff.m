@@ -25,31 +25,19 @@ function status = data_diff(data1,data2)
 
 status = 0;
 if isempty(data1) && ~isempty(data2)
-    status = 2;
+    status = 1;
     return;
 end
 if ~isempty(data1) && isempty(data2)
-    status = 2;
+    status = 1;
     return;
 end
 
-[foo1 foo2 err] = comp_struct(data1,data2);
-
-if ~isempty(foo1) || ~isempty(foo2) || ~isempty(err)
-    status = 1;
-end
-
-for ii=1:length(foo1)
-    if ~isempty(err) && strcmp(err{1},'Type mismatch')
+[foo1, foo2, err] = comp_struct(data1,data2);
+for ii=1:length(err)
+    if strcmp(err{ii},'Un-matched')
         status=2;
-        break;
-    end
-    if ~ischar(foo1{ii}) || isempty(foo1{ii})
-        status=2;
-        break;
-    end
-    if ~ischar(foo2{ii}) || isempty(foo2{ii})
-        status=2;
-        break;
-    end
+    else
+        status=3;
+    end    
 end
