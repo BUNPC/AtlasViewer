@@ -3,8 +3,10 @@ global filedata
 global SD
 
 b = true;
-status = data_diff(SD, filedata.SD);
-if status == 3
-    return    
+if ~sd_data_IsEmpty()
+    status = data_diff(SD, filedata.SD);
+    if status == 3
+        return
+    end
 end
 b = false;
