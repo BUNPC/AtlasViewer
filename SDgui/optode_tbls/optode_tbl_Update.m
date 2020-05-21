@@ -14,9 +14,14 @@ function findNextTableFocus(hObject, tbl_data, r, c)
 
 try
     [r, c] = getNextCell(tbl_data, r, c);
-    jUIScrollPane = findjobj_fast(hObject);
-    jUITable = jUIScrollPane.getViewport.getView;
-    jUITable.changeSelection(r, c, false, false);
+    % The code below doesn't work after 2019b. We get:
+    % Warning: The JavaFrame figure property will be removed in a future release. For more information 
+    % see UI Alternatives for MATLAB Apps on mathworks.com. 
+    %
+    % Commenting out for now 
+    %     jUIScrollPane = findjobj_fast(hObject);
+    %     jUITable = jUIScrollPane.getViewport.getView;
+    %     jUITable.changeSelection(r, c, false, false);
 catch
     
 end
