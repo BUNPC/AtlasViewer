@@ -1,6 +1,6 @@
 function optode_src_tbl_Clear(handles)
 
-optode_tbl_CreateFcn(handles.optode_src_tbl, 100);
+optode_tbl_CreateFcn(handles.optode_src_tbl, 100, {'x','y','z','Grommet Type'});
 if get(handles.optode_src_tbl_srcmap_show, 'value')
     init_srcmap_tbl(handles.optode_src_tbl)
 end
@@ -21,7 +21,7 @@ offset = size(sd_data_Get('SrcPos'), 2)+1;
 A(:,offset+1:end) = {''};
 for j=1:nwl
     for i=1:size(srcpos,1)
-        A{i,offset+j} = num2str(srcmap(j,i));
+        A{i,offset+j} = real2str(srcmap(j,i));
     end
     cnames{offset+j} = ['l' num2str(j)];
     cwidth{offset+j} = 20;

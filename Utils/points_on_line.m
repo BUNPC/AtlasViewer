@@ -89,7 +89,7 @@ if isempty(p1) || isempty(p2)
 end
 
 % Set desired absolute gap distance
-gapAbsolute  = 1.90;
+gapAbsolute  = 1;
 lineSize     = dist3(p1, p2);
 
 % Get relative gap distance

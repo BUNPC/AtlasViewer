@@ -1,4 +1,4 @@
-    function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
+function optode_src_tbl_CellEditCallback(hObject, eventdata, handles)
 
 if isempty(eventdata.Indices)
     return
@@ -20,7 +20,7 @@ if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
 end
 
 %%%% Update source positions portion of data table
-[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, ncoord);
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r);
 if all(l>0)
     
     for i = 1:ncoord

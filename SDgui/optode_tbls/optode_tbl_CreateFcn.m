@@ -1,13 +1,18 @@
-function optode_tbl_CreateFcn(hObject, nrows)
+function optode_tbl_CreateFcn(hObject, nrows, cnames)
 
-A = repmat({'','','',''}, nrows,1);
-cnames = {'x','y','z','Grommet Type'};
-cwidth = {40,40,40,100};
-ceditable = logical([1,1,1,1]);
-cformat = {'char', 'char', 'char', sd_data_GetGrommetChoices()};
+if length(cnames)==4
+    A = repmat({'','','',''}, nrows,1);
+    cwidth = {50, 50, 50, 100};
+    ceditable = logical([1,1,1,1]);
+    cformat = {'char', 'char', 'char', sd_data_GetGrommetChoices()};
+elseif length(cnames)==5
+    A = repmat({'','','','',''}, nrows,1);
+    cwidth = {40, 50, 50, 50, 100};
+    ceditable = logical([0,1,1,1,1]);
+    cformat = {'char', 'char', 'char', 'char', sd_data_GetGrommetChoices()};
+end
 
 set(hObject, 'Data',A, 'ColumnName',cnames, 'ColumnWidth',cwidth, 'ColumnEditable',ceditable, 'ColumnFormat',cformat);
-
 userdata.tbl_size = 0;
 set(hObject, 'userdata',userdata);
 

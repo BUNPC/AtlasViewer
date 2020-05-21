@@ -26,6 +26,12 @@ switch lower(datatype)
             SD.DetGrommetType = repmat(c(1), size(SD.DetPos,1), 1);
         end
 	    data = SD.DetGrommetType;
+	case {'dummygrommettype'}
+        if isempty(SD.DummyGrommetType)
+            c = sd_data_GetGrommetChoices();
+            SD.DummyGrommetType = repmat(c(end), size(SD.DummyPos,1), 1);
+        end
+	    data = SD.DummyGrommetType;
     case {'dummypos'}
         data = SD.DummyPos;
     case {'nsrcs'}

@@ -7,9 +7,9 @@ userdata=get(hObject,'userdata');
 tbl_size = userdata.tbl_size;
 
 for i=1:tbl_size
-    D{i,1}=num2str(i+noptreal);
+    D{i,1} = num2str(i+noptreal);
 end
 
 userdata.tbl_data = D;
-set(hObject,'data',D,'userdata',userdata);
+set(hObject, 'userdata',userdata);
 

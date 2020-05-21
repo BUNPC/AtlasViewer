@@ -1,6 +1,8 @@
 function err = sd_file_open(filename, pathname, handles)
 global filedata
 
+err = 0;
+
 % If SD has been edited but not saved, notify user there's unsaved changes
 % before loading new file
 if SDgui_EditsMade()
@@ -12,6 +14,8 @@ if SDgui_EditsMade()
         return;
     end
 end
+
+SDgui_clear_all(handles);
 
 % Load new SD file
 [filedata, err] = sd_file_load([pathname, filename], handles);
@@ -50,7 +54,7 @@ probe_geometry_axes2_Init(handles,[SrcPos; DetPos; DummyPos],...
 %%%%%%%% Initialize source, detector and dummy optode tables in SD %%%%%%%
 optode_src_tbl_Update(handles);
 optode_det_tbl_Update(handles);
-optode_dummy_tbl_Init(handles,DummyPos,size([SrcPos; DetPos],1));
+optode_dummy_tbl_Update(handles);
 
 %%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
 optode_spring_tbl_Init(handles,sl);

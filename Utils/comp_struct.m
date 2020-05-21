@@ -45,8 +45,8 @@ if isstruct(s1) && isstruct(s2) && (length(s1) == length(s2))
     end
 
     % both structures - get the field names
-    fn1 = fieldnames(s1);
-    fn2 = fieldnames(s2);
+    fn1 = sort(fieldnames(s1));
+    fn2 = sort(fieldnames(s2));
 
     % loop through structure 1 and match to structure 2
     pnt1 = zeros(1,length(fn1));
@@ -84,9 +84,9 @@ if isstruct(s1) && isstruct(s2) && (length(s1) == length(s2))
                 n1p = [n1 '(' num2str(jj) ').' char(fn1(ii))]; ...
                        n2p = [n2 '(' num2str(jj) ').' char(fn2(pnt2(ii)))];
             end
-            [fss1 fss2 err] = comp_struct(getfield(s1(jj),char(fn1(pnt1i(ii)))), ...
-                                          getfield(s2(jj),char(fn2(pnt2i(ii)))),n1p,n2p,p);
-            if ~iscell(err); 
+            [fss1, fss2, err] = comp_struct(getfield(s1(jj),char(fn1(pnt1i(ii)))), ...
+                                            getfield(s2(jj),char(fn2(pnt2i(ii)))),n1p,n2p,p);
+            if ~iscell(err)
                 err = cellstr(err); 
             end
             fs1 = [fs1; fss1]; 
@@ -111,19 +111,19 @@ elseif (isstruct(s1) && isstruct(s2)) && (length(s1) ~= length(s2))
 elseif isa(s1,'sym') && isa(s2,'sym')
     % compare two symbolic expresions
     % direct compare
-    [ss1 r] = simple(s1); [ss2 r] = simple(s2);
-    t = isequal(simplify(ss1),simplify(ss2));
+    ss1 = simple(s1); ss2 = simple(s2);
+    t = isEqual(simplify(ss1),simplify(ss2));
     if ~t
         % could still be equal, but not able to reduce the symbolic expresions
         % get factors
         f1 = findsym(ss1); f2 = findsym(ss2);
         w = warning; 
-        if isequal(f1,f2)
+        if isEqual(f1,f2)
             % same symbolic variables.  same eqn?
             temp = [1 findstr(f1,' ') + 1]; tres = NaN * zeros(1,30);
             for jj = 1:1e3
                 ss1e = ss1; ss2e = ss2;
-                for ii = 1:length(temp);
+                for ii = 1:length(temp)
                     tv = (real(rand^rand)) / (real(rand^rand));
                     ss1e = subs(ss1e,f1(temp(ii)),tv);
                     ss2e = subs(ss2e,f2(temp(ii)),tv);
@@ -155,7 +155,7 @@ elseif isa(s1,'sym') && isa(s2,'sym')
     end
 else
     % neither is a structure - compare directly
-    if isequal(s1,s2);
+    if isEqual(s1,s2)
         display_cond(sprintf('%s        %s              match',n1,n2),mode)
     else
         % check for "false" failures
@@ -178,13 +178,13 @@ else
                 if exist('er1','var') && exist('er2','var')
                     er = [er; {[er1 ' ---> ' er2]}];
                 end
-                if ~ischar(s1) && ~iscell(s1);
+                if ~ischar(s1) && ~iscell(s1)
                     er{1} = sprintf('Max error (%%) = %g%%', ...
                                   max(max(max(abs(s1 - s2)))) / ...
                                   (max(max(max([s1 s2]))) - min(min(min([s1 s2])))));
                     display_cond(er,mode);
                 end
-                if p; 
+                if p
                     display_cond('Paused .....',mode); 
                     pause; 
                 end
@@ -196,7 +196,7 @@ else
             % size difference
             display_cond(sprintf('%s        %s              do NOT match - DIFFERENT SIZES',n1,n2),mode)
             fs1 = [fs1; {n1}]; fs2 = [fs2; {n2}]; er = [er; {'String size error'}];
-            if p; 
+            if p
                 display_cond('Paused .....',mode); 
                 pause; 
             end
@@ -224,7 +224,17 @@ end
 
 
 
+% -------------------------------------------------------------------
+function b = isEqual(n1, n2)
+b = true;
+if isempty(n1) && isempty(n2)
+    return 
+end
+b = isequal(n1, n2);
 
+
+
+% -------------------------------------------------------------------
 function display_cond(str,mode)
 if(mode==1)
     disp(str);

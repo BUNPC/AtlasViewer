@@ -9,11 +9,9 @@ tbl_data = get(hObject,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
 
-ncols = size(tbl_data,2);
-coordcolIdx = 2;
-coordcols = coordcolIdx : coordcolIdx + sd_data_GetCoordNum()-1;
-dummydata = [];
-noptreal = sd_data_Get('nsrcs') + sd_data_Get('ndets');
+coordColIdx = 2;
+coordCols = coordColIdx : coordColIdx + sd_data_GetCoordNum()-1;
+dummydata = [];noptreal = sd_data_Get('nsrcs') + sd_data_Get('ndets');
 
 % Error check
 if(c <= 4)
@@ -23,18 +21,12 @@ if(c <= 4)
 end
 
 % Test to see if a row was added or deleted
-j=1;
-for i=2:ncols
-    l(j) = length(tbl_data{r,i});
-    j = j+1;
-end
-
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, coordCols);
 if(all(l>0))
-    
     j=1;
-    for i=2:ncols
+    for i = coordCols
         dummydata(j) = str2num(tbl_data{r,i});
-        j=j+1;
+        j = j+1;
     end
     
     % Edit row
@@ -85,7 +77,10 @@ else
 end
 
 % Update SD
-sd_data_SetDummyPos(tbl_data(1:tbl_size, coordcols));
+sd_data_SetDummyPos(tbl_data(1:tbl_size, coordCols));
+
+% GrommetType 
+sd_data_SetDummyGrommetType(tbl_data(1:tbl_size, coordCols(end)+1))
 
 %%%% Add source map to table data
 userdata.tbl_size = tbl_size;
