@@ -15,7 +15,7 @@ action = '';
 
 %%%% Error check
 [tbl_data_det, tbl_size_det] = optode_det_tbl_get_tbl_data(handles);
-if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
+if error_check_optode_tbls(tbl_data, tbl_data_det, r, c) ~= 0
     return;
 end
 

@@ -1,8 +1,11 @@
-function SDgui_disp_msg(handles, msg, status)
+function SDgui_disp_msg(handles, msg, status, dst)
 
 % Set default args
-if ~exist('status','var')
+if ~exist('status','var') || isempty(status)
     status=0;
+end
+if ~exist('dst','var') || isempty(dst)
+    dst = 'guionly';
 end
 
 colstatusgood = [0.25, 0.60, 0.10];
@@ -31,3 +34,8 @@ if length(msg) > pos(3)
 end
 set(handles.textFileLoadSave, 'string',msg, 'fontsize',fsize, ...
                               'foregroundcolor',col, 'units',units_orig);
+
+if strcmp(dst, 'messagebox')
+    MessageBox(msg);
+end
+                          

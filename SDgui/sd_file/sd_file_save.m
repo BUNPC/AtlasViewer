@@ -4,15 +4,22 @@ global filedata;
 [~,~,ext] = fileparts(filename);
 if exist(pathname,'dir')~=7
     msg = sprintf('Error: couldn''t save SD file - directory doesn''t exist');
-    SDgui_disp_msg(handles, msg, -1);
-    set(handles.sd_filename_edit, 'string', [filename,ext]);
-    menu(msg,'ok');
+    SDgui_disp_msg(handles, msg, -1, 'messagebox');
     return;
 end
 if isempty(sd_data_Get('Lambda'))
     msg = sprintf('Error: could not save file - need to set Lamda');
-    SDgui_disp_msg(handles, msg, -1);
-    menu(msg,'ok');
+    SDgui_disp_msg(handles, msg, -1, 'messagebox');
+    return;
+end
+[err, msgs] = sd_data_ErrorCheck();
+if err
+    msgs = {...
+        sprintf('Cannot save file because of the following errors:\n\n'), ...
+        msgs, ...        
+        sprintf('\nPlease fix these then try saving again.\n') ...
+        };    
+    SDgui_disp_msg(handles, [msgs{:}], -1, 'messagebox');
     return;
 end
 
