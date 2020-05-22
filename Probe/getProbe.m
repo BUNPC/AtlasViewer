@@ -54,7 +54,7 @@ switch lower(ext)
 
     case {'.sd','.nirs'}
 
-        filedata = load([dirname, filename], '-mat');
+        filedata = load([dirname filesep filename], '-mat');
         probe = loadSD(probe,filedata.SD);
 
     % In this case dirname is actually a directory 
