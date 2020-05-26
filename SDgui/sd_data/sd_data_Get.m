@@ -35,9 +35,9 @@ switch lower(datatype)
     case {'dummypos'}
         data = SD.DummyPos;
     case {'nsrcs'}
-        data = SD.nSrcs;
+        data = size(SD.SrcPos,1);
     case {'ndets'}
-        data = SD.nDets;
+        data = size(SD.DetPos,1);
     case {'measlist'}
         data = SD.MeasList;
     case {'springlist'}
