@@ -52,7 +52,7 @@ if ~isempty(filename)
     if err
         SDgui_SetVersion(hObject);
         positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-        SDgui_set_font_size(handles);        
+        setGuiFonts(hObject);        
         return;
     end
 else
@@ -63,7 +63,7 @@ end
 SDgui_version(hObject);
 
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-SDgui_set_font_size(handles);
+setGuiFonts(hObject);
 
 
 
@@ -232,26 +232,6 @@ end
 if ~strcmpi(ext,'.nirs') && ~strcmpi(ext,'.sd')
     filename = [filename '.SD'];
     set(hObject,'string',filename);
-end
-
-
-
-% -------------------------------------------------------------------
-function SDgui_set_font_size(handles)
-
-if ismac() || islinux()
-    fields = fieldnames(handles);
-    for ii=1:length(fields)
-        if eval(sprintf('~isproperty(handles.%s, ''style'')', fields{ii}))
-            continue;
-        end
-        
-        if eval(sprintf('ismember(get(handles.%s, ''style''), objtypes);', fields{ii}))
-            eval( sprintf('set(handles.%s, ''fontsize'',12.0);', fields{ii}) );
-        end
-    end
-elseif ispc()
-    ;
 end
 
 
