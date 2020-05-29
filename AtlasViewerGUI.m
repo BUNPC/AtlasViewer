@@ -52,6 +52,8 @@ fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
 
+checkForAtlasViewerUpdates();
+
 cd(dirnameSubj);
 
 atlasViewer.handles.figure = hObject;
