@@ -25,7 +25,9 @@ function setpaths(options_str)
 %           {'mvpathconfl','rmpathconfl'}  (default: mvpathconfl) 'conflcheck' option must be selected 
 %                                                                  for this this option not to be ignored
 %           {'quiet','verbose'}            (default: quiet)
-%    
+%           {'nodiffnames','diffnames'}    (default: nodiffnames) Diffs files that share a name with a file already on the path
+%
+%
 % EXAMPLES:
 %
 %   Example 1: Add paths for current workspace quietly and do not do any
@@ -87,6 +89,7 @@ dnum = 0;
 diffqueue = {};  % Files to be diff'd
 
 for ii=1:length(paths)
+    
     paths{ii} = [rootpath, paths{ii}];
     
     if options.diffnames 
@@ -96,20 +99,24 @@ for ii=1:length(paths)
         
         for f = 1:length(files)
             % When exists returns 2 but excluding the working dir
-            if ( (exist(files(f).name(1:end-2),'file') == 2) & (~isequal(files(f).folder,pwd())) )
-                
-                fprintf("This file shadows one already on the path: %s\n",[files(f).folder '\' files(f).name(1:end-2)]);
-                fprintf("Here is the original: %s\n", which(files(f).name(1:end-2)));
-                
-                if (strcmp( fileread([files(f).folder '\' files(f).name]), fileread(which(files(f).name(1:end-2))) ))
-                   fprintf("The files are the same.\n") 
-                else
-                   fprintf("The files have some differences.\n")
-                   dnum = dnum + 1;
-                   diffqueue{end+1} = {[files(f).folder '\' files(f).name], which(files(f).name(1:end-2))};
+            if ( (exist(files(f).name(1:end-2),'file') == 2) & (~isequal(files(f).folder,pwd())))
+                if options.verbose
+                    fprintf("This file shadows one already on the path: %s\n",[files(f).folder '\' files(f).name(1:end-2)]);
+                    fprintf("Here is the original: %s\n", which(files(f).name(1:end-2)));
                 end
-            end            
-        end        
+                if (strcmp( fileread([files(f).folder '\' files(f).name]), fileread(which(files(f).name(1:end-2))) ))
+                    if options.verbose
+                        fprintf("The files are the same.\n");
+                    end
+                else
+                    if options.verbose
+                        fprintf("The files have some differences.\n")
+                    end
+                    dnum = dnum + 1;
+                    diffqueue{end+1} = {[files(f).folder '\' files(f).name], which(files(f).name(1:end-2))};
+                end
+            end
+        end
     end
     
     if options.verbose
@@ -148,13 +155,13 @@ paths_excl_str = [paths_str, paths_excl_str];
 
 
 % Either add all conflicting workspaces to the search path or remove the
-% current one, depending on user selection 
+% current one, depending on user selection
 if options.add
-    fprintf('ADDED search paths for worspace %s\n', pwd);    
+    fprintf('ADDED search paths for workspace %s\n', pwd);
     addwspaths(wspaths, paths_excl_str, options);
     setpermissions(paths);
 else
-    fprintf('REMOVED search paths for worspace %s\n', pwd);
+    fprintf('REMOVED search paths for workspace %s\n', pwd);
     rmpath(paths_excl_str{1});
 end
 
@@ -181,7 +188,7 @@ if isempty(wspaths)
 end
 
 % Add the primary workspace to the search path
-addpath(paths_excl_str{1});
+addpath(paths_excl_str{1}, '-end');
 
 if options.rmpathconfl
     msg = 'Removed the following similar workspaces from the search path to avoid conflicts:';
@@ -198,7 +205,7 @@ if length(wspaths)>1
         if options.rmpathconfl
             continue;
         end
-        addpath(paths_excl_str{ii});
+        addpath(paths_excl_str{ii}, '-end');
     end
 end
 
