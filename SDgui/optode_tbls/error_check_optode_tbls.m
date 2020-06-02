@@ -7,6 +7,9 @@ tbl_data2 = tbl_data2(:,1:3);
 if c > size(tbl_data1,2)
     return
 end
+if isempty(tbl_data1{r,c})
+    return
+end
 
 if ~isempty(tbl_data1{r,c}) && isempty(str2num(tbl_data1{r,c})) %#ok<*ST2NM>
     status = 1;

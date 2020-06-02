@@ -182,7 +182,7 @@ if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
     if(fname == 0)
         pname = filesepStandard(pwd);
-        fname = [];
+        fname = [];        
     end
     pname = filesepStandard(pname);
     return
@@ -211,6 +211,7 @@ if isempty(file)
         fname = [];
         return
     end
+    ext = '';
 end
 pname = filesepStandard(pname);
 fname = [fname, ext];
@@ -260,4 +261,9 @@ else
     set(handles.textFolderName, 'visible','off');
 end
 
+
+
+
+% ------------------------------------------------------------------
+function checkboxNinjaCap_Callback(hObject, eventdata, handles)
 

@@ -20,7 +20,7 @@ if error_check_optode_tbls(tbl_data, tbl_data_src, r, c) ~= 0
 end
 
 % Otherwise we have legitimate data
-[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r);
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, [], handles);
 if all(l>0)
     
     for i = 1:ncoord
