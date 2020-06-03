@@ -86,6 +86,11 @@ else
     wavelength3_edit_Update(handles,[]);
 end
 
+% Set ninja cap checkbox if any of the grommet types set to None
+if sd_data_AnyGrommetTypeSet()
+    set(handles.checkboxNinjaCap, 'value',1)
+end
+
 [~, fname,ext] = fileparts(filename);
 SDgui_disp_msg(handles, sprintf('Loaded %s', [fname,ext]));
 

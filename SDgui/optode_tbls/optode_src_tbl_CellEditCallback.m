@@ -15,12 +15,12 @@ action = '';
 
 %%%% Error check
 [tbl_data_det, tbl_size_det] = optode_det_tbl_get_tbl_data(handles);
-if error_check_optode_tbls(hObject, tbl_data, tbl_data_det, r, c) ~= 0
+if error_check_optode_tbls(tbl_data, tbl_data_det, r, c) ~= 0
     return;
 end
 
 %%%% Update source positions portion of data table
-[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r);
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, [], handles);
 if all(l>0)
     
     for i = 1:ncoord
@@ -33,7 +33,7 @@ if all(l>0)
 
     % Add row
     elseif r > tbl_size
-        action = 'add';
+        action = 'add';        
         if(r>tbl_size+1)
             tbl_data(tbl_size+1:r-1,:) = [];
             r = tbl_size+1;

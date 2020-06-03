@@ -21,7 +21,7 @@ if(c <= 4)
 end
 
 % Test to see if a row was added or deleted
-[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, coordCols);
+[l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, coordCols, handles);
 if(all(l>0))
     j=1;
     for i = coordCols

@@ -52,7 +52,7 @@ if ~isempty(filename)
     if err
         SDgui_SetVersion(hObject);
         positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-        SDgui_set_font_size(handles);        
+        setGuiFonts(hObject);        
         return;
     end
 else
@@ -63,7 +63,7 @@ end
 SDgui_version(hObject);
 
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-SDgui_set_font_size(handles);
+setGuiFonts(hObject);
 
 
 
@@ -182,7 +182,7 @@ if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
     if(fname == 0)
         pname = filesepStandard(pwd);
-        fname = [];
+        fname = [];        
     end
     pname = filesepStandard(pname);
     return
@@ -211,6 +211,7 @@ if isempty(file)
         fname = [];
         return
     end
+    ext = '';
 end
 pname = filesepStandard(pname);
 fname = [fname, ext];
@@ -232,26 +233,6 @@ end
 if ~strcmpi(ext,'.nirs') && ~strcmpi(ext,'.sd')
     filename = [filename '.SD'];
     set(hObject,'string',filename);
-end
-
-
-
-% -------------------------------------------------------------------
-function SDgui_set_font_size(handles)
-
-if ismac() || islinux()
-    fields = fieldnames(handles);
-    for ii=1:length(fields)
-        if eval(sprintf('~isproperty(handles.%s, ''style'')', fields{ii}))
-            continue;
-        end
-        
-        if eval(sprintf('ismember(get(handles.%s, ''style''), objtypes);', fields{ii}))
-            eval( sprintf('set(handles.%s, ''fontsize'',12.0);', fields{ii}) );
-        end
-    end
-elseif ispc()
-    ;
 end
 
 
@@ -280,4 +261,9 @@ else
     set(handles.textFolderName, 'visible','off');
 end
 
+
+
+
+% ------------------------------------------------------------------
+function checkboxNinjaCap_Callback(hObject, eventdata, handles)
 
