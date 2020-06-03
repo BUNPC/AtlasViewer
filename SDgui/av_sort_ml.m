@@ -1,4 +1,4 @@
-function [ml k]=sort_ml(ml)
+function [ml k]=av_sort_ml(ml)
 
     k=[];
     if(isempty(ml))

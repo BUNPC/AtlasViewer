@@ -1,8 +1,8 @@
 function showLandmarks(nz,iz,rpa,lpa,cz,czo)
 
-l1 = points_on_line(rpa, lpa, 1/100, 'all');
-l2 = points_on_line(nz, iz, 1/100, 'all');
-l3 = points_on_line(cz, czo, 1/100, 'all');
+l1 = AVUtils.points_on_line(rpa, lpa, 1/100, 'all');
+l2 = AVUtils.points_on_line(nz, iz, 1/100, 'all');
+l3 = AVUtils.points_on_line(cz, czo, 1/100, 'all');
 
 set(gca, {'xgrid', 'ygrid','zgrid'}, {'on','on','on'}); 
 axis vis3d; 

@@ -43,7 +43,7 @@ set(hm, 'units', uf);
 
 % Wait for user to respond before exiting
 t = 0;
-while ishandles(hm)
+while AVUtils.ishandles(hm)
     t=t+1;
     pause(.2);
     if mod(t,30)==0

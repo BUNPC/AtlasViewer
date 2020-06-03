@@ -5,7 +5,7 @@ if isempty(probe.ml) || (probe.noptorig == 0) || isempty(probe.handles.hOptodes)
     return;
 end
 
-if ishandles(probe.handles.hMeasList)
+if AVUtils.ishandles(probe.handles.hMeasList)
     delete(probe.handles.hMeasList);
 end
 

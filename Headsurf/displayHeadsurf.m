@@ -13,7 +13,7 @@ if ~exist('options','var') | isempty(options)
     options = 'patch';
 end
 
-if ishandles(headsurf.handles.surf)
+if AVUtils.ishandles(headsurf.handles.surf)
     delete(headsurf.handles.surf);
 end
 
@@ -46,8 +46,8 @@ else
 end
 headsurf.handles.surf = h;
 
-if ishandles(headsurf.handles.surf)
-    if ishandles(headsurf.handles.radiobuttonShowHead)
+if AVUtils.ishandles(headsurf.handles.surf)
+    if AVUtils.ishandles(headsurf.handles.radiobuttonShowHead)
         set(headsurf.handles.radiobuttonShowHead,'value',1);
         set(headsurf.handles.radiobuttonShowHead,'enable','on');
         set(headsurf.handles.editTransparency,'enable','on');
@@ -56,7 +56,7 @@ if ishandles(headsurf.handles.surf)
         set(headsurf.handles.menuItemImportProbe,'enable','on');
     end
 else
-    if ishandles(headsurf.handles.radiobuttonShowHead)
+    if AVUtils.ishandles(headsurf.handles.radiobuttonShowHead)
         set(headsurf.handles.radiobuttonShowHead,'enable','off');
         set(headsurf.handles.menuItemMakeProbe,'enable','off');
         set(headsurf.handles.menuItemImportProbe,'enable','off');

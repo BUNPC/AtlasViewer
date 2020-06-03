@@ -55,7 +55,7 @@ else
     intensity = log10(sum(fwmodel.Adot(iCh,:,iW),1));
 end
 
-if ishandles(fwmodel.handles.surf)
+if AVUtils.ishandles(fwmodel.handles.surf)
     delete(fwmodel.handles.surf);
 end
 fwmodel.handles.surf = ....
@@ -65,7 +65,7 @@ hold off;
 
 set(fwmodel.handles.menuItemImageReconGUI,'enable','on');
 
-if ishandles(fwmodel.handles.surf) & (val == fwmodel.menuoffset+1)
+if AVUtils.ishandles(fwmodel.handles.surf) & (val == fwmodel.menuoffset+1)
     
     fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'on');
     fwmodel = enableFwmodelDisplay(fwmodel, 'on');

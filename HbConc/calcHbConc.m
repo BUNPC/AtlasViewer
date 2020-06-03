@@ -57,8 +57,8 @@ elseif tRangeMin >= tRangeMax
     endIdx = length(tHRF);
     menu(sprintf('Invalid time rage entered; tHRF range [%0.1f - %0.1f]. Using whole tHRF...', tHRF(1), tHRF(end)), 'OK');
 else
-    [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
-    [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
+    [~, startIdx] = AVUtils.nearest_point(tHRF, tRangeMin, 1, 1);
+    [~, endIdx] = AVUtils.nearest_point(tHRF, tRangeMax, 1, 1);
 end
 hbconc.HbO = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 1, :, iCond),  probe.ptsProj_cortex,  iCh);
 hbconc.HbR = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 2, :, iCond),  probe.ptsProj_cortex,  iCh);

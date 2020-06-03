@@ -5,8 +5,8 @@ pathname0 = sd_file_panel_GetPathname(handles);
 
 % Convert pathname to full path and filename to filename ONLY (no path
 % info at all)
-[pname, fname, ext] = fileparts(fullpath([pathname0, filename0]));
-pathname = filesepStandard(pname);
+[pname, fname, ext] = fileparts(AVUtils.fullpath([pathname0, filename0]));
+pathname = AVUtils.filesepStandard(pname);
 filename = [fname, ext];
 
 file = [];

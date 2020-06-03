@@ -1,7 +1,7 @@
 function sd_file_panel_SetPathname(handles, pathname)
 
 if isempty(pathname) || ~ischar(pathname)
-    pathname = filesepStandard(pwd);
+    pathname = AVUtils.filesepStandard(pwd);
 end
 
 if get(handles.checkboxViewFilePath,'value')==1
@@ -26,5 +26,5 @@ if length(pathname) > pos(3)
 else
     fsize = fsize_orig;
 end
-set(handles.textViewFilePath, 'string', filesepStandard(pathname), 'fontsize', fsize, 'units','normalized');
+set(handles.textViewFilePath, 'string', AVUtils.filesepStandard(pathname), 'fontsize', fsize, 'units','normalized');
                           

@@ -8,7 +8,7 @@ lambda = [];
 
 kk = 1;
 for ii=1:length(wstr)
-    if isnumber(wstr{ii})
+    if AVUtils.isnumber(wstr{ii})
         lambda(kk) = str2double(wstr{ii});
         kk = kk+1;
     else

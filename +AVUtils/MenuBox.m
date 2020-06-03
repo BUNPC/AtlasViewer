@@ -135,13 +135,13 @@ end
 
 % Need to make sure position data is saved in pixel units at end of function
 % to as these are the units used to reposition GUI later if needed
-setGuiFonts(hf);
+AVUtils.setGuiFonts(hf);
 p = guiOutsideScreenBorders(hf);
 set(hf, 'visible','on', 'position',p);
 
 % Wait for user to respond before exiting
 t = 0;
-while isempty(bttnId) && ishandles(hf)
+while isempty(bttnId) && AVUtils.ishandles(hf)
     t=t+1;
     pause(.2);
     if mod(t,30)==0
@@ -151,7 +151,7 @@ end
 
 selection = bttnId;
 
-if ishandles(hf)
+if AVUtils.ishandles(hf)
     delete(hf);
 else
     selection=0;

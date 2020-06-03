@@ -1,22 +1,22 @@
 function probe = resetProbe(probe)
 
 % dynamic handles
-if ishandles(probe.handles.hOptodes)
+if AVUtils.ishandles(probe.handles.hOptodes)
    delete(probe.handles.hOptodes);
 end
-if ishandles(probe.handles.hOptodesCircles)
+if AVUtils.ishandles(probe.handles.hOptodesCircles)
    delete(probe.handles.hOptodesCircles);
 end
-if ishandles(probe.handles.hProjectionPts)
+if AVUtils.ishandles(probe.handles.hProjectionPts)
    delete(probe.handles.hProjectionPts);
 end
-if ishandles(probe.handles.hMeasList)
+if AVUtils.ishandles(probe.handles.hMeasList)
    delete(probe.handles.hMeasList);
 end
-if ishandles(probe.handles.hSprings)
+if AVUtils.ishandles(probe.handles.hSprings)
    delete(probe.handles.hSprings);
 end
-if ishandles(probe.handles.hProjectionRays)
+if AVUtils.ishandles(probe.handles.hProjectionRays)
    delete(probe.handles.hProjectionRays);
 end
 for ii=1:length(probe.handles.hProjectionTbl)

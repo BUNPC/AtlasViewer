@@ -9,12 +9,12 @@ pathname0 = sd_file_panel_GetPathname(handles);
 % info at all)
 if exist([pathname0, filename0], 'file')~=2
     [pname, fname, ext] = fileparts(filename0);
-    pathname = fullpath([pathname0, pname]);
+    pathname = AVUtils.fullpath([pathname0, pname]);
     [pname, fname, ext] = fileparts([pathname, fname, ext]);
 else
-    [pname, fname, ext] = fileparts(fullpath([pathname0, filename0]));
+    [pname, fname, ext] = fileparts(AVUtils.fullpath([pathname0, filename0]));
 end
-pathname = filesepStandard(pname);
+pathname = AVUtils.filesepStandard(pname);
 filename = [fname, ext];
 
 % Check for errors
@@ -36,7 +36,7 @@ if ~isempty(errmsg)
 end
 
 if exist([pathname, filename],'file')==2
-    q = MenuBox('File already exists. Do you want to overwrite it?', {'Yes','No'});
+    q = AVUtils.MenuBox('File already exists. Do you want to overwrite it?', {'Yes','No'});
     if q==2
         return;
     end

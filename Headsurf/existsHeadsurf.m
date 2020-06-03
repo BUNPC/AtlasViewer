@@ -7,5 +7,5 @@ else
     headsurf = varargin{1};
 end
 
-b = ishandles(headsurf.handles.surf);
+b = AVUtils.ishandles(headsurf.handles.surf);
 

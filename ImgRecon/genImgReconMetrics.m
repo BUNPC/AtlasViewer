@@ -60,11 +60,11 @@ imgrecon.mesh = fwmodel.mesh;
 
 save([dirname, 'imagerecon/metrics.mat'],'-mat', 'localizationError','resolution');
 
-if ishandles(imgrecon.handles.hResolution)
+if AVUtils.ishandles(imgrecon.handles.hResolution)
     delete(imgrecon.handles.hResolution);
     imgrecon.handles.hResolution=[];
 end
-if ishandles(imgrecon.handles.hLocalizationError)
+if AVUtils.ishandles(imgrecon.handles.hLocalizationError)
     delete(imgrecon.handles.hLocalizationError);
     imgrecon.handles.hLocalizationError=[];
 end

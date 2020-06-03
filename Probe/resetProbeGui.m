@@ -7,22 +7,22 @@ hMeasList = probe.handles.hMeasList;
 hProjectionPts = probe.handles.hProjectionPts;
 hProjectionRays = probe.handles.hProjectionRays;
 
-if ishandles(hOptodes)
+if AVUtils.ishandles(hOptodes)
    delete(hOptodes);
 end
-if ishandles(hOptodesCircles)
+if AVUtils.ishandles(hOptodesCircles)
    delete(hOptodesCircles);
 end
-if ishandles(hProjectionPts)
+if AVUtils.ishandles(hProjectionPts)
    delete(hProjectionPts);
 end
-if ishandles(hMeasList)
+if AVUtils.ishandles(hMeasList)
    delete(hMeasList);
 end
-if ishandles(hSprings)
+if AVUtils.ishandles(hSprings)
    delete(hSprings);
 end  
-if ishandles(probe.handles.hProjectionRays)
+if AVUtils.ishandles(probe.handles.hProjectionRays)
    delete(probe.handles.hProjectionRays);
 end
 for ii=1:length(probe.handles.hProjectionTbl)

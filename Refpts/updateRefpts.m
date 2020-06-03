@@ -140,7 +140,7 @@ else
 end
 p = [pos_new(axes_order(1)), pos_new(axes_order(2)), pos_new(axes_order(3))];
 
-if ishandles(hp)
+if AVUtils.ishandles(hp)
     set(hp(1), 'xdata',p(1), 'ydata',p(2), 'zdata',p(3));
 else
     hp = plot3(p(1), p(2), p(3), '.m','markersize',30);

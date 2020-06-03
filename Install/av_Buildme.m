@@ -1,4 +1,4 @@
-function Buildme(appName, inclList, exclList, flags)
+function av_Buildme(appName, inclList, exclList, flags)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Buildme allows building of the current directories project in 

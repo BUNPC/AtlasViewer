@@ -51,8 +51,8 @@ if ~isempty(filename)
     err = sd_file_open(filename, pathname, handles);
     if err
         SDgui_SetVersion(hObject);
-        positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-        setGuiFonts(hObject);        
+        AVUtils.positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
+        AVUtils.setGuiFonts(hObject);        
         return;
     end
 else
@@ -62,8 +62,8 @@ end
 % Set the AtlasViewerGUI version number
 SDgui_version(hObject);
 
-positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-setGuiFonts(hObject);
+AVUtils.positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
+AVUtils.setGuiFonts(hObject);
 
 
 
@@ -181,16 +181,16 @@ function [fname, pname] = getCurrPathname(arg)
 if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
     if(fname == 0)
-        pname = filesepStandard(pwd);
+        pname = AVUtils.filesepStandard(pwd);
         fname = [];
     end
-    pname = filesepStandard(pname);
+    pname = AVUtils.filesepStandard(pname);
     return
 end
 
 filename = arg{1};
 [pname, fname, ext] = fileparts(filename);
-pname = filesepStandard(pname);
+pname = AVUtils.filesepStandard(pname);
 if ~isempty(fname) && isempty(ext)
     ext = '.SD';
 end
@@ -202,17 +202,17 @@ if ~isempty(fname)
 end
 
 if isempty(directory)
-    pname = filesepStandard(pwd);
+    pname = AVUtils.filesepStandard(pwd);
 end
 if isempty(file)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pname);
     if(fname == 0)
-        pname = filesepStandard(pwd);
+        pname = AVUtils.filesepStandard(pwd);
         fname = [];
         return
     end
 end
-pname = filesepStandard(pname);
+pname = AVUtils.filesepStandard(pname);
 fname = [fname, ext];
 
 
@@ -239,7 +239,7 @@ end
 % ------------------------------------------------------------------
 function SDgui_SetVersion(hObject)
 
-V = getVernum();
+V = AVUtils.getVernum();
 if str2num(V{2})==0
     set(hObject,'name', sprintf('SDgui  (v%s) - %s', [V{1}],cd) )
 else

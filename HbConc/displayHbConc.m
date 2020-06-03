@@ -34,10 +34,10 @@ val = get(hbconc.handles.popupmenuImageDisplay,'value');
 if ~exist('hAxes','var')
     hAxes = hbconc.handles.axes;
 end
-if ishandles(hbconc.handles.HbO)
+if AVUtils.ishandles((hbconc.handles.HbO)
     delete(hbconc.handles.HbO);
 end
-if ishandles(hbconc.handles.HbR)
+if AVUtils.ishandles((hbconc.handles.HbR)
     delete(hbconc.handles.HbR);
 end
 
@@ -61,7 +61,7 @@ end
 
 % Enable or disable display controls based on the availability of the 
 % HbO or HbR handles
-if ishandles(hbconc.handles.HbO) & (val == hbconc.menuoffset+1)
+if AVUtils.ishandles((hbconc.handles.HbO) & (val == hbconc.menuoffset+1)
       
     % Turn sensitivity display off
     fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
@@ -73,7 +73,7 @@ if ishandles(hbconc.handles.HbO) & (val == hbconc.menuoffset+1)
     set(pialsurf.handles.radiobuttonShowPial, 'value',0);
     uipanelBrainDisplay(pialsurf.handles.radiobuttonShowPial, pialsurf);
     
-elseif ishandles(hbconc.handles.HbR) & (val == hbconc.menuoffset+2)
+elseif AVUtils.ishandles((hbconc.handles.HbR) & (val == hbconc.menuoffset+2)
 
     % Turn sensitivity display off
     fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');

@@ -38,7 +38,7 @@ kk = zeros(size(probe.optpos_reg,1), length(fwmodel.fluenceProfFnames));
 dd = zeros(size(probe.optpos_reg,1), length(fwmodel.fluenceProfFnames));
 for jj=1:length(fwmodel.fluenceProfFnames)
     prof = loadFluenceProf(fwmodel.fluenceProfFnames{jj});
-    [p(:,:,jj), kk(:,jj), dd(:,jj)] = nearest_point(prof.srcpos, probe.optpos_reg);
+    [p(:,:,jj), kk(:,jj), dd(:,jj)] = AVUtils.nearest_point(prof.srcpos, probe.optpos_reg);
 end
 [d,k] = min(dd,[],2);
 

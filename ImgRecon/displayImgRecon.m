@@ -67,7 +67,7 @@ hold off;
 
 % Enable of disable display controls based on the availability of the 
 % hLocalizationError or hResolution handles
-if ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+1
+if AVUtils.ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+1
        
     % Turn sensitivity display off
     fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
@@ -78,7 +78,7 @@ if ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+1
     set(pialsurf.handles.radiobuttonShowPial, 'value',0);
     uipanelBrainDisplay(pialsurf.handles.radiobuttonShowPial, {pialsurf, labelssurf});
     
-elseif ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+2
+elseif AVUtils.ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+2
 
     % Turn sensitivity display off
     fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');

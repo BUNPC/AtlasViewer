@@ -29,7 +29,7 @@ else
     if ~isempty(refpts.pos)
         return;
     end
-    if ishandles(refpts.handles.labels)
+    if AVUtils.ishandles(refpts.handles.labels)
         return;
     end
     

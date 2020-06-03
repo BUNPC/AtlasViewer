@@ -50,8 +50,8 @@ det=[];
 if size(p,1)>1
     [isrc,idet] = getSelectedOptodes(p, optpos_src, optpos_det, axes_view);
 else
-    [p1,isrc,d1] = nearest_point(optpos_src,p);
-    [p2,idet,d2] = nearest_point(optpos_det,p);
+    [p1,isrc,d1] = AVUtils.nearest_point(optpos_src,p);
+    [p2,idet,d2] = AVUtils.nearest_point(optpos_det,p);
 end
 
 actions = {'Add/Delete Channel','Delete','Cancel'};

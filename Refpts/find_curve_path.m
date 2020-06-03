@@ -25,15 +25,15 @@ function [curve_seg len max_gap] = find_curve_path(p1,p2,p3,curve)
 % DATE:   2/9/2010
 
 
-[q1 ip1]=nearest_point(curve, p1);
-[q2 ip2]=nearest_point(curve, p2);
-[q3 ip3]=nearest_point(curve, p3);
+[q1 ip1]=AVUtils.nearest_point(curve, p1);
+[q2 ip2]=AVUtils.nearest_point(curve, p2);
+[q3 ip3]=AVUtils.nearest_point(curve, p3);
 i=1;
 ipc=ip1; 
 pc=curve(ipc,:);
 curve_seg(1,:)=curve(ip1,:);
 while(~isempty(curve))
-    [pn ipn]=nearest_point(curve, pc);
+    [pn ipn]=AVUtils.nearest_point(curve, pc);
     d1=dist3(pc,q3);
     d2=dist3(pn,q3);
 
@@ -56,7 +56,7 @@ while(~isempty(curve))
 end
 
 while(~isempty(curve))
-    [pn ipn]=nearest_point(curve, pc);
+    [pn ipn]=AVUtils.nearest_point(curve, pc);
     d1=dist3(pc,q2);
     d2=dist3(pn,q2);
 

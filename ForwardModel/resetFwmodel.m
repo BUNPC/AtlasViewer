@@ -8,7 +8,7 @@ end
 % We'll  turn   them back on if probe registration     is successful
 fwmodel = enableDisableMCoutputGraphics(fwmodel, 'off');
 fwmodel = enableFwmodelDisplay(fwmodel, 'off');
-if ishandles(fwmodel.handles.surf)
+if AVUtils.ishandles(fwmodel.handles.surf)
     delete(fwmodel.handles.surf);
     fwmodel.handles.surf = [];
 end

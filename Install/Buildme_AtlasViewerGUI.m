@@ -1,6 +1,6 @@
 function Buildme_AtlasViewerGUI(dirnameApp)
 
-platform = setplatformparams();
+platform = av_setplatformparams();
 
 if ~exist('dirnameApp','var') | isempty(dirnameApp)
     dirnameApp = ffpath('setpaths.m');
@@ -15,7 +15,7 @@ end
 dirnameInstall = pwd;
 cd(dirnameApp);
 
-Buildme('AtlasViewerGUI', {}, {'.git'});
+av_Buildme('AtlasViewerGUI', {}, {'.git'});
 for ii=1:length(platform.atlasviewer_exe)
     if exist(['./',  platform.atlasviewer_exe{ii}],'file')
         movefile(['./',  platform.atlasviewer_exe{ii}], dirnameInstall);

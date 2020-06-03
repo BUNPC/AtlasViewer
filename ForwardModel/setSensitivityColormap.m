@@ -11,7 +11,7 @@ end
 
 % Get colopmap editbox input and check it for errors
 climstr = get(hclim,'string');
-if ~isnumber(climstr)
+if ~AVUtils.isnumber(climstr)
     set(hclim,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
     return;
 end

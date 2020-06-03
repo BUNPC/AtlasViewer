@@ -1,7 +1,7 @@
 function probe = updateProbeGuiControls(probe,headsurf,method,mode)
 
 if ~exist('method','var') || isempty(method)
-    if ~ishandles(hSprings)
+    if ~AVUtils.ishandles(hSprings)
         method = 'digpts';
     else
         method = 'springs';
@@ -35,7 +35,7 @@ if exist('headsurf','var')
         else
             p = probe.optpos;
         end
-        [~, ~, d] = nearest_point(headsurf.mesh.vertices, p);
+        [~, ~, d] = AVUtils.nearest_point(headsurf.mesh.vertices, p);
         
         % Check if proble is flat and has 
         if ~isempty(probe.sl) & ~isempty(probe.al)

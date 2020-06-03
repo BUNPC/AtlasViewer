@@ -33,7 +33,7 @@ if ~isempty(data1) && isempty(data2)
     return;
 end
 
-[foo1, foo2, err] = comp_struct(data1,data2);
+[foo1, foo2, err] = AVUtils.comp_struct(data1,data2);
 for ii=1:length(err)
     if strcmp(err{ii},'Un-matched')
         status=2;

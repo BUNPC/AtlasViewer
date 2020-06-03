@@ -1,4 +1,4 @@
-function setup()
+function av_setup()
 
 global h
 global nSteps
@@ -32,9 +32,9 @@ catch ME
     rethrow(ME)
 end
 
-platform = setplatformparams();
+platform = av_setplatformparams();
 
-v = getVernum();
+v = AVUtils.getVernum();
 fprintf('=================================\n', v{1}, v{2});
 fprintf('Setup script for Homer2 v%s.%s:\n', v{1}, v{2});
 fprintf('=================================\n\n', v{1}, v{2});
@@ -119,8 +119,8 @@ catch ME
 end
 
 % Get full paths for source and destination directories
-dirnameSrc = fullpath(dirnameSrc);
-dirnameDst = fullpath(dirnameDst);
+dirnameSrc = AVUtils.fullpath(dirnameSrc);
+dirnameDst = AVUtils.fullpath(dirnameDst);
 
 % Copy all the AtlasViewerGUI app folder files
 
@@ -206,7 +206,7 @@ pause(2);
 
 
 % Check that everything was installed properly
-r = finishInstallGUI();
+r = av_finishInstallGUI();
 
 waitbar(iStep/nSteps, h); iStep = iStep+1;
 pause(2);
@@ -215,10 +215,10 @@ if r==0
     try
         open([dirnameDst, 'Test/Testing_procedure.pdf']);
     catch ME
-        msg{1} = sprintf('Warning at line 225 in setup.m: %s', ME.message);
+        msg{1} = sprintf('Warning at line 225 in av_setup.m: %s', ME.message);
         menu([msg{:}], 'OK');
         close(h);
-        fprintf('Error at line 225 in setup.m: %s\n', ME.message); 
+        fprintf('Error at line 225 in av_setup.m: %s\n', ME.message); 
         rethrow(ME);
     end
 end
@@ -226,11 +226,11 @@ end
 waitbar(nSteps/nSteps, h);
 close(h);
 
-% cleanup();
+% av_cleanup();
 
 
 % -----------------------------------------------------------------
-function cleanup()
+function av_cleanup()
 
 % Cleanup
 if exist('~/Desktop/atlasviewer_install/','dir')

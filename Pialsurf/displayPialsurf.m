@@ -10,7 +10,7 @@ if ~exist('hAxes','var')
     hAxes = pialsurf.handles.axes;
 end
 
-if ishandles(pialsurf.handles.surf)
+if AVUtils.ishandles(pialsurf.handles.surf)
     delete(pialsurf.handles.surf);
 end
 
@@ -35,7 +35,7 @@ end
 pialsurf.handles.surf = h;
 pialsurf.handles.hLighting = hLighting;
 
-if ishandles(pialsurf.handles.surf)
+if AVUtils.ishandles(pialsurf.handles.surf)
     set(pialsurf.handles.editTransparency,'string', num2str(get(pialsurf.handles.surf,'facealpha')));
     set(pialsurf.handles.editTransparency,'enable','on');
     set(pialsurf.handles.radiobuttonShowPial,'enable','on');

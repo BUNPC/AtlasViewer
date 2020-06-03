@@ -1,6 +1,6 @@
 function fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf)
 
-if ~isempty(probe.optpos_reg) && ishandles(labelssurf.handles.surf)
+if ~isempty(probe.optpos_reg) && AVUtils.ishandles(labelssurf.handles.surf)
     set(probe.handles.menuItemProbeToCortex, 'enable','on');
     set(probe.handles.menuItemOverlayHbConc, 'enable','on');    
 else

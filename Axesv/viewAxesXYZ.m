@@ -1,6 +1,6 @@
 function viewAxesXYZ(hAxes, axes_order, origin, mode)
 
-if ~ishandles(hAxes)
+if ~AVUtils.ishandles(hAxes)
     hAxes = gca;
     setappdata(h, 'hOrigin',[]);
     setappdata(h, 'hViewOrigin',[]);
@@ -15,7 +15,7 @@ end
 axes(hAxes); hold on
 hOrigin = getappdata(hAxes, 'hOrigin');
 hViewOrigin = getappdata(hAxes, 'hViewOrigin');
-if ~ishandles(hViewOrigin)
+if ~AVUtils.ishandles(hViewOrigin)
     return;
 end
 
@@ -34,7 +34,7 @@ Ya = [o(1),   o(2)+s, o(3);   o(1),   o(2)-s, o(3)];
 Za = [o(1),   o(2),   o(3)+s; o(1),   o(2),   o(3)-s];
 
 if strcmp(mode,'redraw')
-    if size(hOrigin,1)>=1 & ishandles(hOrigin(1,:))
+    if size(hOrigin,1)>=1 & AVUtils.ishandles(hOrigin(1,:))
         delete(hOrigin(1,:));
     end
     
@@ -59,7 +59,7 @@ setappdata(hAxes, 'hOrigin', hOrigin);
 if size(hOrigin,1)<1
     return;
 end
-if ~ishandles(hOrigin(1,:))
+if ~AVUtils.ishandles(hOrigin(1,:))
     return;
 end
 if strcmp(onoff, 'on')

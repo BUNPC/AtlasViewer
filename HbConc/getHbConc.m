@@ -49,7 +49,7 @@ end
 if ~isempty(hbconc.HbConcRaw)
     if ~isempty(probe.ml) & ~isempty(probe.optpos_reg)
         enableHbConcGen(hbconc, 'on');
-        if ishandles(hbconc.handles.HbO) | ishandles(hbconc.handles.HbR)
+        if AVUtils.ishandles(hbconc.handles.HbO) | AVUtils.ishandles(hbconc.handles.HbR)
             enableHbConcDisplay(hbconc, 'on');
         else
             enableHbConcDisplay(hbconc, 'off');

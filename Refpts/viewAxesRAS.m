@@ -5,7 +5,7 @@ function viewAxesRAS(hAxes, axes_order, refpts, mode)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Arg 1
-if ~ishandles(hAxes)
+if ~AVUtils.ishandles(hAxes)
     hAxes = gca;
     set(hAxes, {'xgrid', 'ygrid','zgrid'}, {'on','on','on'});
     axis vis3d;
@@ -40,7 +40,7 @@ end
 axes(hAxes); hold on
 hOrigin = getappdata(hAxes, 'hOrigin');
 hViewOrigin = getappdata(hAxes, 'hViewOrigin');
-if ~ishandles(hViewOrigin)
+if ~AVUtils.ishandles(hViewOrigin)
     return;
 end
 
@@ -60,7 +60,7 @@ if strcmp(mode,'redraw')
         return;
     end
     
-    if size(hOrigin,1)>=2 & ishandles(hOrigin(2,:))
+    if size(hOrigin,1)>=2 & AVUtils.ishandles(hOrigin(2,:))
         delete(hOrigin(2,:));
     end
     
@@ -71,9 +71,9 @@ if strcmp(mode,'redraw')
     c = [c(:,axes_order2(1)), c(:,axes_order2(2)), c(:,axes_order2(3))];
     c = [c(:,axes_order(1)), c(:,axes_order(2)), c(:,axes_order(3))];
 
-    l1 = points_on_line(rpa, lpa, 1/100, 'all');
-    l2 = points_on_line(nz, iz, 1/100, 'all');
-    l3 = points_on_line(cz, czo, 1/100, 'all');
+    l1 = AVUtils.points_on_line(rpa, lpa, 1/100, 'all');
+    l2 = AVUtils.points_on_line(nz, iz, 1/100, 'all');
+    l3 = AVUtils.points_on_line(cz, czo, 1/100, 'all');
     
     hl1 = plot3(l1(:,axes_order(1)), l1(:,axes_order(2)), l1(:,axes_order(3)), 'color',c(1,:));
     hl2 = plot3(l2(:,axes_order(1)), l2(:,axes_order(2)), l2(:,axes_order(3)), 'color',c(2,:));
@@ -91,7 +91,7 @@ setappdata(hAxes, 'hOrigin', hOrigin);
 if size(hOrigin,1)<2
     return;
 end
-if ~ishandles(hOrigin(2,:))
+if ~AVUtils.ishandles(hOrigin(2,:))
     return;
 end
 if strcmp(onoff, 'on')

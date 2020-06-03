@@ -1,6 +1,6 @@
-function cleanup(dirnameInstall, dirnameApp)
+function av_cleanup(dirnameInstall, dirnameApp)
 
-platform = setplatformparams();
+platform = av_setplatformparams();
 
 if ~exist('dirnameApp','var') | isempty(dirnameApp)
     dirnameApp = ffpath('setpaths.m');

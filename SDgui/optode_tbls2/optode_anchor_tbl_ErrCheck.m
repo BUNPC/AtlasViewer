@@ -10,7 +10,7 @@ val = tbl_data{r,c};
 if isempty(val)
     ;
 elseif c==1
-    if ~isnumber(val)
+    if ~AVUtils.isnumber(val)
         return;
     end
     
@@ -367,6 +367,6 @@ end
 
 
 % -----------------------------------------
-function b = isnumber(str)  
+function b = AVUtils.isnumber(str)  
 b = ~isempty(str2num(str));
 

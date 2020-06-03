@@ -73,7 +73,7 @@ if isfield(pts,'pos')
         
         if ~isempty(ctr)
             dr = dist3(ptPos0, ctr);
-            ptPos = points_on_line(ptPos0, ctr, -lift/100);
+            ptPos = AVUtils.points_on_line(ptPos0, ctr, -lift/100);
         else
             ptPos = ptPos0;
         end
@@ -102,7 +102,7 @@ else
     for i=1:size(pts,1);       
         if ~isempty(ctr)
             dr = dist3(pts0(i,:), ctr);
-            pts(i,:) = points_on_line(pts0(i,:),ctr,-lift/100);
+            pts(i,:) = AVUtils.points_on_line(pts0(i,:),ctr,-lift/100);
         else
             pts(i,:) = pts0(i,:);
         end
@@ -157,7 +157,7 @@ if ~isempty(hPts)
     end
     
     if flag==1
-        if ishandles(hAxesBbox)
+        if AVUtils.ishandles(hAxesBbox)
             delete(hAxesBbox);
         end
         

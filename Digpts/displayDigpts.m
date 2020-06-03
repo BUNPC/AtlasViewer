@@ -10,19 +10,19 @@ if ~exist('hAxes','var')
     hAxes = digpts.handles.axes;
 end
 
-if ishandles(digpts.handles.hPcpos)
+if AVUtils.ishandles(digpts.handles.hPcpos)
     delete(digpts.handles.hPcpos);
 end
-if ishandles(digpts.handles.hRefpts)
+if AVUtils.ishandles(digpts.handles.hRefpts)
     delete(digpts.handles.hRefpts);
 end
-if ishandles(digpts.handles.hSrcpos)
+if AVUtils.ishandles(digpts.handles.hSrcpos)
     delete(digpts.handles.hSrcpos);
 end 
-if ishandles(digpts.handles.hDetpos)
+if AVUtils.ishandles(digpts.handles.hDetpos)
     delete(digpts.handles.hDetpos);
 end 
-if ishandles(digpts.handles.hOptodes)
+if AVUtils.ishandles(digpts.handles.hOptodes)
     delete(digpts.handles.hOptodes);
 end
 

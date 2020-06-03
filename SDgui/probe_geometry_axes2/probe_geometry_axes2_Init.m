@@ -31,8 +31,8 @@ if ~isempty(sl)
         o1 = optpos(sl(i,1),:);
         o2 = optpos(sl(i,2),:);
         hold on;
-        pts(1,:) = points_on_line(o1, o2);
-        pts(2,:) = points_on_line(o2, o1);
+        pts(1,:) = AVUtils.points_on_line(o1, o2);
+        pts(2,:) = AVUtils.points_on_line(o2, o1);
         userdata.xdata = [o1(1) o2(1)];
         userdata.ydata = [o1(2) o2(2)];
         userdata.zdata = [o1(3) o2(3)];

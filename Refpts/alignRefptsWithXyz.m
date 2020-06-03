@@ -36,7 +36,7 @@ end
 m1 = [(rpa(1)+lpa(1))/2, (rpa(2)+lpa(2))/2, (rpa(3)+lpa(3))/2];
 m2 = [(nz(1)+iz(1))/2,   (nz(2)+iz(2))/2,   (nz(3)+iz(3))/2];
 o = mean([m1; m2]);
-czo = points_on_line(o, cz, -1, 'relative');
+czo = AVUtils.points_on_line(o, cz, -1, 'relative');
 m3 = [(cz(1)+czo(1))/2,  (cz(2)+czo(2))/2,  (cz(3)+czo(3))/2];
 
 % Translate head axes to common head origin

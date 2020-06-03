@@ -73,7 +73,7 @@ T10 = eeg_curves.LPACzRPA.pos{end};
 % Find curve from Nz to Iz, through T9. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_NzT9Iz = curve_gen(Nz, Iz, T9, surf, 6);
-[~, iT9] = nearest_point(curve_pts_NzT9Iz, T9);
+[~, iT9] = AVUtils.nearest_point(curve_pts_NzT9Iz, T9);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from Nz to T9
@@ -91,7 +91,7 @@ waitbar(iCurve/nCurves, hwait); iCurve=iCurve+1;
 % Find curve from Nz to Iz, through T10. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_NzT10Iz = curve_gen(Nz, Iz, T10, surf, 6);
-[~, iT10] = nearest_point(curve_pts_NzT10Iz, T10);
+[~, iT10] = AVUtils.nearest_point(curve_pts_NzT10Iz, T10);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from Nz to T10
@@ -120,7 +120,7 @@ T10h = eeg_curves.LPACzRPA.pos{end-1};
 % Find curve from NFpz to OIz, through T9h. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_NFpzT9hOIz = curve_gen(NFpz, OIz, T9h, surf, 6);
-[~, iT9h] = nearest_point(curve_pts_NFpzT9hOIz, T9h);
+[~, iT9h] = AVUtils.nearest_point(curve_pts_NFpzT9hOIz, T9h);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from NFpz to T9h
@@ -138,7 +138,7 @@ waitbar(iCurve/nCurves, hwait); iCurve=iCurve+1;
 % Find curve from NFpz to OIz, through T10h. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_NFpzT10hOIz = curve_gen(NFpz, OIz, T10h, surf, 6);
-[~, iT10h] = nearest_point(curve_pts_NFpzT10hOIz, T10h);
+[~, iT10h] = AVUtils.nearest_point(curve_pts_NFpzT10hOIz, T10h);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from NFpz to T10h
@@ -167,7 +167,7 @@ T8  = eeg_curves.LPACzRPA.pos{end-2};
 % Find curve from Fpz to Oz, through T7. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_FpzT7Oz = curve_gen(Fpz, Oz, T7, surf, []);
-[~, iT7] = nearest_point(curve_pts_FpzT7Oz, T7);
+[~, iT7] = AVUtils.nearest_point(curve_pts_FpzT7Oz, T7);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from Fpz to T7
@@ -185,7 +185,7 @@ waitbar(iCurve/nCurves, hwait); iCurve=iCurve+1;
 % Find curve from Fpz to Oz, through T8. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_FpzT8Oz = curve_gen(Fpz, Oz, T8, surf, []);
-[~, iT8] = nearest_point(curve_pts_FpzT8Oz, T8);
+[~, iT8] = AVUtils.nearest_point(curve_pts_FpzT8Oz, T8);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from Fpz to T8
@@ -213,7 +213,7 @@ AFpz = eeg_curves.NzCziIz.pos{3};
 % Find curve from AFp7 to AFp8, through AFpz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_AFp7AFpzAFp8 = curve_gen(AFp7, AFp8, AFpz, surf, []);
-[~, iAFpz] = nearest_point(curve_pts_AFp7AFpzAFp8, AFpz);
+[~, iAFpz] = AVUtils.nearest_point(curve_pts_AFp7AFpzAFp8, AFpz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from AFp7 to AFpz
@@ -241,7 +241,7 @@ AFz = eeg_curves.NzCziIz.pos{4};
 % Find curve from AF7 to AF8, through AFz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_AF7AFzAF8 = curve_gen(AF7, AF8, AFz, surf, []);
-[~, iAFz] = nearest_point(curve_pts_AF7AFzAF8, AFz);
+[~, iAFz] = AVUtils.nearest_point(curve_pts_AF7AFzAF8, AFz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from AF7 to AFz
@@ -269,7 +269,7 @@ AFFz = eeg_curves.NzCziIz.pos{5};
 % Find curve from AFF7 to AFF8, through AFFz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_AFF7AFFzAFF8 = curve_gen(AFF7, AFF8, AFFz, surf, []);
-[~, iAFFz] = nearest_point(curve_pts_AFF7AFFzAFF8, AFFz);
+[~, iAFFz] = AVUtils.nearest_point(curve_pts_AFF7AFFzAFF8, AFFz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from AFF7 to AFFz
@@ -297,7 +297,7 @@ Fz = eeg_curves.NzCziIz.pos{6};
 % Find curve from F7 to F8, through Fz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_F7FzF8 = curve_gen(F7, F8, Fz, surf, []);
-[~, iFz] = nearest_point(curve_pts_F7FzF8, Fz);
+[~, iFz] = AVUtils.nearest_point(curve_pts_F7FzF8, Fz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from F7 to Fz
@@ -325,7 +325,7 @@ FFCz = eeg_curves.NzCziIz.pos{7};
 % Find curve from FFT7 to FFT8, through FFCz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_FFT7FFCzFFT8 = curve_gen(FFT7, FFT8, FFCz, surf, []);
-[~, iFFCz] = nearest_point(curve_pts_FFT7FFCzFFT8, FFCz);
+[~, iFFCz] = AVUtils.nearest_point(curve_pts_FFT7FFCzFFT8, FFCz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from FFT7 to FFCz
@@ -353,7 +353,7 @@ FCz = eeg_curves.NzCziIz.pos{8};
 % Find curve from FT7 to FT8, through FCz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_FT7FCzFT8 = curve_gen(FT7, FT8, FCz, surf, []);
-[~, iFCz] = nearest_point(curve_pts_FT7FCzFT8, FCz);
+[~, iFCz] = AVUtils.nearest_point(curve_pts_FT7FCzFT8, FCz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from FT7 to FCz
@@ -381,7 +381,7 @@ FCCz = eeg_curves.NzCziIz.pos{9};
 % Find curve from FTT7 to FTT8, through FCCz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_FTT7FCCzFTT8 = curve_gen(FTT7, FTT8, FCCz, surf, []);
-[~, iFCCz] = nearest_point(curve_pts_FTT7FCCzFTT8, FCCz);
+[~, iFCCz] = AVUtils.nearest_point(curve_pts_FTT7FCCzFTT8, FCCz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from FTT7 to FCCz
@@ -410,7 +410,7 @@ CCPz = eeg_curves.NzCziIz.pos{11};
 % Find curve from TTP7 to TTP8, through CCPz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_TTP7CCPzTTP8 = curve_gen(TTP7, TTP8, CCPz, surf, []);
-[~, iCCPz] = nearest_point(curve_pts_TTP7CCPzTTP8, CCPz);
+[~, iCCPz] = AVUtils.nearest_point(curve_pts_TTP7CCPzTTP8, CCPz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from TTP7 to CCPz
@@ -437,7 +437,7 @@ CPz = eeg_curves.NzCziIz.pos{12};
 % Find curve from TP7 to TP8, through CPz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_TP7CPzTP8 = curve_gen(TP7, TP8, CPz, surf, []);
-[~, iCPz] = nearest_point(curve_pts_TP7CPzTP8, CPz);
+[~, iCPz] = AVUtils.nearest_point(curve_pts_TP7CPzTP8, CPz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from TP7 to CPz
@@ -465,7 +465,7 @@ CPPz = eeg_curves.NzCziIz.pos{13};
 % Find curve from TPP7 to TPP8, through CPPz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_TPP7CPPzTPP8 = curve_gen(TPP7, TPP8, CPPz, surf, []);
-[~, iCPPz] = nearest_point(curve_pts_TPP7CPPzTPP8, CPPz);
+[~, iCPPz] = AVUtils.nearest_point(curve_pts_TPP7CPPzTPP8, CPPz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from TPP7 to CPPz
@@ -493,7 +493,7 @@ Pz = eeg_curves.NzCziIz.pos{14};
 % Find curve from P7 to P8, through Pz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_P7PzP8 = curve_gen(P7, P8, Pz, surf, []);
-[~, iPz] = nearest_point(curve_pts_P7PzP8, Pz);
+[~, iPz] = AVUtils.nearest_point(curve_pts_P7PzP8, Pz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from P7 to Pz
@@ -521,7 +521,7 @@ PPOz = eeg_curves.NzCziIz.pos{15};
 % Find curve from PPO7 to PPO8, through PPOz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_PPO7PPOzPPO8 = curve_gen(PPO7, PPO8, PPOz, surf, []);
-[~, iPPOz] = nearest_point(curve_pts_PPO7PPOzPPO8, PPOz);
+[~, iPPOz] = AVUtils.nearest_point(curve_pts_PPO7PPOzPPO8, PPOz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from PPO7 to PPOz
@@ -549,7 +549,7 @@ POz = eeg_curves.NzCziIz.pos{16};
 % Find curve from PO7 to PO8, through POz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_PO7POzPO8 = curve_gen(PO7, PO8, POz, surf, []);
-[~, iPOz] = nearest_point(curve_pts_PO7POzPO8, POz);
+[~, iPOz] = AVUtils.nearest_point(curve_pts_PO7POzPO8, POz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from PO7 to POz
@@ -577,7 +577,7 @@ POOz = eeg_curves.NzCziIz.pos{17};
 % Find curve from POO7 to POO8, through POOz. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 curve_pts_POO7POOzPOO8 = curve_gen(POO7, POO8, POOz, surf, []);
-[~, iPOOz] = nearest_point(curve_pts_POO7POOzPOO8, POOz);
+[~, iPOOz] = AVUtils.nearest_point(curve_pts_POO7POOzPOO8, POOz);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Find ref pts from POO7 to POOz

@@ -28,7 +28,7 @@ if isempty(fwmodel.projVoltoMesh_scalp)
     % Check if number of elements is too large. If greater than 40,000 then
     % need to reduce
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if ishandles(hf)
+    if AVUtils.ishandles(hf)
         delete(hf);
     end      
     

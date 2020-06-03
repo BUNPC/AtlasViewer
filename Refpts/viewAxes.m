@@ -1,7 +1,7 @@
 function viewAxes(refpts, hAxes, axes_order)
 
 % Arg 1
-if ~ishandles(hAxes)
+if ~AVUtils.ishandles(hAxes)
     hAxes = gca;
     set(hAxes, {'xgrid', 'ygrid','zgrid'}, {'on','on','on'});
     axis vis3d;

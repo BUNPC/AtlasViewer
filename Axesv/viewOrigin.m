@@ -1,6 +1,6 @@
 function viewOrigin(hAxes, axes_order, origin, mode)
 
-if ~ishandles(hAxes)
+if ~AVUtils.ishandles(hAxes)
     return;
 end
 
@@ -30,7 +30,7 @@ Ya = [c(1),   c(2)+s, c(3);   c(1),   c(2)-s, c(3)];
 Za = [c(1),   c(2),   c(3)+s; c(1),   c(2),   c(3)-s];
 
 if strcmp(mode,'redraw')
-    if ishandles(hOrigin)
+    if AVUtils.ishandles(hOrigin)
         delete(hOrigin);
     end
     
@@ -54,7 +54,7 @@ if strcmp(mode,'redraw')
 end
 
 setappdata(hAxes, 'hOrigin', hOrigin);
-if ishandles(hOrigin)
+if AVUtils.ishandles(hOrigin)
     if strcmp(onoff, 'on')
         set(hOrigin, 'visible','on');
         

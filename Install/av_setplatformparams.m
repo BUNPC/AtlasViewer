@@ -1,4 +1,4 @@
-function platform = setplatformparams()
+function platform = av_setplatformparams()
 
 % Set the home directoty on linux and mac to full path so it can be
 % displayed in full at setup time.

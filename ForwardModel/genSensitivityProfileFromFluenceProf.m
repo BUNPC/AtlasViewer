@@ -115,7 +115,7 @@ for ii=1:length(fluenceProfFnames)
     fluenceProf = loadFluenceProf(fluenceProfFnames{ii}, 'srcpos','index','mesh','voxPerNode');
     
     optpos = fluenceProf.srcpos;
-    [~,iFluence,dist1] = nearest_point(optpos, pos, ith_closest);
+    [~,iFluence,dist1] = AVUtils.nearest_point(optpos, pos, ith_closest);
     
     if ii==1
         fluenceProf.mesh.vertices = xform_apply(fluenceProf.mesh.vertices, T_vol2mc);

@@ -4,7 +4,7 @@ global SD
 
 b = true;
 if ~sd_data_IsEmpty()
-    status = data_diff(SD, filedata.SD);
+    status = AVUtils.data_diff(SD, filedata.SD);
     if status == 3
         return
     end

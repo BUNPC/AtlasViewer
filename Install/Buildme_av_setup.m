@@ -1,9 +1,9 @@
-function Buildme_Setup(dirname)
+function Buildme_av_setup(dirname)
 
 dirnameInstall = pwd;
 cd(dirname);
 
-Buildme('setup');
+av_Buildme('setup');
 
 cd(dirnameInstall);
 

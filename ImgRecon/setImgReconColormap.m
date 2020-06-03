@@ -18,7 +18,7 @@ val = val-imgrecon.menuoffset;
 
 % Get colopmap editbox input and check it for errors 
 climstr = get(hclim,'string');
-if ~isnumber(climstr)
+if ~AVUtils.isnumber(climstr)
     set(hclim,'string',sprintf('%0.2g %0.2g',imgrecon.cmThreshold(val,1), imgrecon.cmThreshold(val,2)));
     return;
 end

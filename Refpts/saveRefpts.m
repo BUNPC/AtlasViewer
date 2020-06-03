@@ -17,7 +17,7 @@ end
 
 if ~isempty(refpts.handles.selected)
     for ii=1:size(refpts.handles.selected,1)
-        if ishandles(refpts.handles.selected(ii))
+        if AVUtils.ishandles(refpts.handles.selected(ii))
             delete(refpts.handles.selected(ii));
             refpts.handles.selected(ii) = -1;
         end

@@ -18,7 +18,7 @@ val = val-hbconc.menuoffset;
 
 % Get colopmap editbox input and check it for errors 
 climstr = get(hclim,'string');
-if ~isnumber(climstr)
+if ~AVUtils.isnumber(climstr)
     set(hclim,'string',sprintf('%0.2g %0.2g',hbconc.cmThreshold(val,1), hbconc.cmThreshold(val,2)));
     return;
 end

@@ -8,7 +8,7 @@ global atlasViewer;
 axesv = atlasViewer.axesv;
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonZoomOut)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonZoomOut)
         if hObject==axesv(ii).handles.pushbuttonZoomOut
             ax=axesv(ii);
             break;

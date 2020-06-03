@@ -20,7 +20,7 @@ end
 while 1
     err=zeros(1,length(params));
     for ii=1:length(answer)
-        if ~isnumber(answer{ii})
+        if ~AVUtils.isnumber(answer{ii})
             err{ii}=1;
         end
         if length(str2num(answer{ii})) > 1

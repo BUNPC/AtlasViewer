@@ -10,11 +10,11 @@ for ii=1:length(probe.handles.hProjectionTbl)
     end
 end
 
-if ishandles(probe.handles.hProjectionPts)
+if AVUtils.ishandles(probe.handles.hProjectionPts)
    delete(probe.handles.hProjectionPts);
    probe.handles.hProjectionPts=[];
 end
-if ishandles(probe.handles.hProjectionRays)
+if AVUtils.ishandles(probe.handles.hProjectionRays)
    delete(probe.handles.hProjectionRays);
    probe.handles.hProjectionRays=[];
 end

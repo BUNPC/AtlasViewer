@@ -24,7 +24,7 @@ if isempty(fwmodel.projVoltoMesh_brain)
     
     [nodeX, nNode, fwmode.mesh] = showReducedMesh(fwmodel.mesh_orig, fwmodel.mesh);
     
-    if ishandles(hf)
+    if AVUtils.ishandles(hf)
         delete(hf);
     end
     

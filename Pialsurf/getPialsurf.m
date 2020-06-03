@@ -31,7 +31,7 @@ else
     if ~isempty(pialsurf.mesh.vertices)    
         return;
     end
-    if ishandles(pialsurf.handles.surf)    
+    if AVUtils.ishandles(pialsurf.handles.surf)    
         return;
     end
     

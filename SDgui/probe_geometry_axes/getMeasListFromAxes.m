@@ -10,13 +10,13 @@ for i=1:length(h_edges)
     
     j = find(optpos_src(:,1)==p1(1) & optpos_src(:,2)==p1(2) & optpos_src(:,3)==p1(3));
     if isempty(j)
-        [foo,j] = nearest_point(optpos_src,p1);
+        [foo,j] = AVUtils.nearest_point(optpos_src,p1);
     end
     j = sort(j);
     
     k = find(optpos_det(:,1)==p2(1) & optpos_det(:,2)==p2(2) & optpos_det(:,3)==p2(3));
     if isempty(k)
-        [foo,k] = nearest_point(optpos_det,p2);
+        [foo,k] = AVUtils.nearest_point(optpos_det,p2);
     end
     k = sort(k);
 

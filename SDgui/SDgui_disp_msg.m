@@ -36,6 +36,6 @@ set(handles.textFileLoadSave, 'string',msg, 'fontsize',fsize, ...
                               'foregroundcolor',col, 'units',units_orig);
 
 if strcmp(dst, 'messagebox')
-    MessageBox(msg);
+    AVUtils.MessageBox(msg);
 end
                           

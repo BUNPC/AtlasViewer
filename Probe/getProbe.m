@@ -22,7 +22,7 @@ if exist(dirname,'file')==2
     [dirname,filename,ext] = fileparts(dirname);
     filename = [filename,ext];    
 elseif exist(dirname,'dir')==7 && exist([dirname, '/probe.SD'],'file')
-    dirname = fullpath(dirname);
+    dirname = AVUtils.fullpath(dirname);
     filename = 'probe.SD';
     ext = '.SD';
 elseif exist(dirname,'dir')==7
@@ -158,7 +158,7 @@ elseif ~isempty(probe.optpos)
         
     % Check if the probe is already registered. One indicator is if
     % the probe isn't flat. Another is if all optodes are on or close to the head surface.
-    [foo1, foo2, d] = nearest_point(headsurf.mesh.vertices, probe.optpos);
+    [foo1, foo2, d] = AVUtils.nearest_point(headsurf.mesh.vertices, probe.optpos);
     if ~isempty(d) && (mean(d)>5 | std(d)>1)
         % We are loading a flat probe that needs to be anchored to the
         % head. Bring flat probe to some point on head surface to make the
@@ -246,7 +246,7 @@ if ~refpts.isempty(refpts) && iscell(probe.al)
             continue;
         end
         if sum(strcmpi(refpts.labels, probe.al{ii,2}))==0
-            if ~isnumber(probe.al{ii,2})
+            if ~AVUtils.isnumber(probe.al{ii,2})
 	            menu('The selected probe uses anchors points not included in the current anatomy.','Ok');
 	            return;
             end
@@ -264,7 +264,7 @@ end
 
 
 % -----------------------------------------
-function b = isnumber(str)
+function b = AVUtils.isnumber(str)
 b = ~isempty(str2num(str));
 
 

@@ -7,8 +7,8 @@ for i=1:length(h_edges)
     z=get(h_edges(i),'zdata');
     p1=[x(1) y(1) z(1)];
     p2=[x(2) y(2) z(2)];
-    [foo j]=nearest_point(optpos,p1);
+    [foo j]=AVUtils.nearest_point(optpos,p1);
     sl(i,1)=j;
-    [foo k]=nearest_point(optpos,p2);
+    [foo k]=AVUtils.nearest_point(optpos,p2);
     sl(i,2)=k;
 end

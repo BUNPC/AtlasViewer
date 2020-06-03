@@ -34,7 +34,7 @@ end
 
 nTpts = size(dc,1);
 
-e = GetExtinctions( SD.Lambda );
+e = av_GetExtinctions( SD.Lambda );
 e = e(:,1:2) / 10; % convert from /cm to /mm
 %einv = inv( e'*e )*e';
 

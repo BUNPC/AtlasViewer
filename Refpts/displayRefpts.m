@@ -3,10 +3,10 @@ function refpts = displayRefpts(refpts, hAxes)
 if ~exist('hAxes','var')
     hAxes = refpts.handles.axes;
 end
-if ishandles(refpts.handles.labels)
+if AVUtils.ishandles(refpts.handles.labels)
     delete(refpts.handles.labels);
 end
-if ishandles(refpts.handles.circles)
+if AVUtils.ishandles(refpts.handles.circles)
     delete(refpts.handles.circles);
 end
 
@@ -47,7 +47,7 @@ refpts.handles.labels = hLabels;
 refpts.handles.circles = hCircles;
 refpts.handles.selected = zeros(size(hLabels,1),1)-1;
 
-if ishandles(refpts.handles.labels)
+if AVUtils.ishandles(refpts.handles.labels)
     set(refpts.handles.radiobuttonShowRefptsLabels,'enable','on');
     set(refpts.handles.radiobuttonShowRefptsCircles,'enable','on');
     set(refpts.handles.radiobuttonHeadDimensions, 'enable','on');

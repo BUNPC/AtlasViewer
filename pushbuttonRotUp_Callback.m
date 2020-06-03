@@ -5,7 +5,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonRotUp)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonRotUp)
         if hObject==axesv(ii).handles.pushbuttonRotUp
             ax=axesv(ii);
             break;

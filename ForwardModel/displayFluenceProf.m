@@ -66,7 +66,7 @@ mesh = fwmodel.mesh;
 
 h = displayIntensityOnMesh(mesh, intensity, lights_onoff, axes_order);
 
-if ishandles(h)
+if AVUtils.ishandles(h)
     
     fwmodel = enableFwmodelDisplay(fwmodel, 'on');
     colorbar;

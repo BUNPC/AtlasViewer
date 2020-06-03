@@ -20,7 +20,7 @@ hbuttn = uicontrol('parent',hfig,'style','pushbutton','tag','pushbuttonApplyRegM
                    'callback','pushbuttonApplyRegMethod_Callback');
                
 while probeRegMethod.apply==0
-   if ~ishandles(hfig)
+   if ~AVUtils.ishandles(handleshfig)
        return;
    end
    pause(.1);

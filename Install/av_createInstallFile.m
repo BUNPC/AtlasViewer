@@ -1,4 +1,4 @@
-function createInstallFile(options)
+function av_createInstallFile(options)
 
 if ~exist('options','var') | isempty(options)
     options = 'all';
@@ -32,10 +32,10 @@ addpath(dirnameInstall, '-end')
 cd(dirnameInstall);
 
 % Start with a clean slate
-cleanup(dirnameInstall, dirnameApp);
+av_cleanup(dirnameInstall, dirnameApp);
 
 % Set the executable names based on the platform type
-platform = setplatformparams();
+platform = av_setplatformparams();
 
 if exist([dirnameInstall, 'atlasviewer_install'],'dir')
     rmdir([dirnameInstall, 'atlasviewer_install'],'s');
@@ -47,7 +47,7 @@ mkdir([dirnameInstall, 'atlasviewer_install']);
 
 % Generate executables
 if ~strcmp(options, 'nobuild')
-	Buildme_Setup(pwd);
+	Buildme_av_setup(pwd);
 	Buildme_AtlasViewerGUI(dirnameApp);
     if islinux()
         perl('./makesetup.pl','./run_setup.sh','./setup.sh');
@@ -125,7 +125,7 @@ zip([dirnameInstall, 'atlasviewer_install.zip'], [dirnameInstall, 'atlasviewer_i
 
 % Clean up 
 fclose all;
-cleanup(dirnameInstall, dirnameApp);
+av_cleanup(dirnameInstall, dirnameApp);
 
 
 

@@ -88,7 +88,7 @@ refpts = atlasViewer.refpts;
 
 hChecks = [];
 
-if ~ishandles(hGui)
+if ~AVUtils.ishandles(hGui)
     return;
 end
 

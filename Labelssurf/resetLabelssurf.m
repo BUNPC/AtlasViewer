@@ -8,7 +8,7 @@ namesL       = labelssurf.names;
 colormaps    = labelssurf.colormaps;
 idxCm        = labelssurf.colormapsIdx;
 
-if ~ishandles(hLabelsSurf)
+if ~AVUtils.ishandles(hLabelsSurf)
     return;
 end
 

@@ -6,7 +6,7 @@ if isempty(ml)
     SD.MeasList=[];
     return;
 end
-[ml,i] = sort_ml(ml);
+[ml,i] = av_sort_ml(ml);
 nwl = sd_data_GetNwl();
 nmeas = size(ml,1);
 if nwl>0

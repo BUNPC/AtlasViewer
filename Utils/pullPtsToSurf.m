@@ -84,9 +84,9 @@ elseif strcmpi(mode,'center')
                 if vol(round(q(1)),round(q(2)),round(q(3)))==0
                     
                     % q is outside surface - move q in direction toward c.
-                    q = points_on_line(q,c,step);
+                    q = AVUtils.points_on_line(q,c,step);
                     if vol(round(q(1)),round(q(2)),round(q(3)))>0 
-                        q = points_on_line(q,c,depth,'absolute');
+                        q = AVUtils.points_on_line(q,c,depth,'absolute');
                         % q = round(q);
                         break;
                     end
@@ -94,7 +94,7 @@ elseif strcmpi(mode,'center')
                 else
                     
                     % q is inside surface - move q in direction away from c.
-                    q = points_on_line(q,c,-step);
+                    q = AVUtils.points_on_line(q,c,-step);
                     
                 end
                 
@@ -140,12 +140,12 @@ elseif strcmpi(mode,'center')
                 if dist3(c,q)>dist3(c,s) && dist3(c,q)>dist3(q,s)
                     
                     % q is outside surface - move q in direction toward p.
-                    q = points_on_line(q,c,step);
+                    q = AVUtils.points_on_line(q,c,step);
                     
                 elseif dist3(c,q)<dist3(c,s)
                     
                     % q is inside surface - move q in direction away from p.
-                    q = points_on_line(q,c,-step);
+                    q = AVUtils.points_on_line(q,c,-step);
                     
                 end
                 
@@ -196,7 +196,7 @@ elseif strcmpi(mode,'nearest')
 end
 
 % Make sure the final pts are on head surface
-pts = nearest_point(v,pts);
+pts = AVUtils.nearest_point(v,pts);
 
 if showprogress
     close(hwait);

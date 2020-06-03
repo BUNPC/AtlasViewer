@@ -8,7 +8,7 @@ function checkForAtlasViewerUpdates()
         return
     end
     updateTxt = ''; % Get information about update from s
-    vrnnum = getVernum();
+    vrnnum = AVUtils.getVernum();
     % Do something to updateAvailable flag
 
     if (updateAvailable)

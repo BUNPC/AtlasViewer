@@ -47,7 +47,7 @@ end
 dirnameSubj = getSubjDir(argExtern);
 dirnameAtlas = getAtlasDir(argExtern);
 
-fprintf('AtlasViewerGUI (%s):\n', version2string());
+fprintf('AtlasViewerGUI (%s):\n', AVUtils.version2string());
 fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
@@ -234,7 +234,7 @@ menuItemRegisterAtlasToDigpts_Callback();
 AtlasViewerGUI_enableDisable();
 
 % Set GUI size relative to screen size
-positionGUI(hObject);
+AVUtils.positionGUI(hObject);
 
 
 
@@ -445,7 +445,7 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, [hObject, hImageRe
 function hGroupList = displayGroupSubjList(groupSubjList0, hGroupList, hGui)
 
 if isempty(groupSubjList0)
-    if ishandles(hGroupList)
+    if AVUtils.ishandles(hGroupList)
         delete(hGroupList);
     end
     return;
@@ -462,7 +462,7 @@ for ii=1:length(groupSubjList0)
     groupSubjList{ii} = subjListboxStr;
 end
 
-if ishandles(hGroupList)
+if AVUtils.ishandles(hGroupList)
     hFig = get(hGroupList,'parent');
     set(hGroupList, 'string',groupSubjList);
     figure(hFig);
@@ -471,7 +471,7 @@ end
 if ~exist('hGui','var')
     hGui = [];
 end
-if ishandles(hGui)
+if AVUtils.ishandles(hGui)
     set(hGui,'units','normalized','position',[.33,.08,.66,.85]);
 end
 
@@ -534,7 +534,7 @@ LoadSubj(hObject, eventdata, handles, varargin);
 
 fprintf('Subject index = %d\n', atlasViewer.imgrecon.iSubj);
 
-if ishandles(handles.hGroupList)
+if AVUtils.ishandles(handles.hGroupList)
     set(handles.hGroupList, 'enable','on');
     hParent = get(handles.hGroupList,'parent');
     set(hParent, 'visible','on');
@@ -544,7 +544,7 @@ end
 atlasViewer.handles.hGroupList = handles.hGroupList;
 atlasViewer.groupSubjList = groupSubjList;
 
-if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
+if AVUtils.ishandles(atlasViewer.imgrecon.handles.ImageRecon)
     ImageRecon();
 end
 
@@ -572,21 +572,21 @@ axesv = atlasViewer.axesv;
 probe = atlasViewer.probe;
 imgrecon = atlasViewer.imgrecon;
 
-if ishandles(probe.handles.hSDgui)
+if AVUtils.ishandles(probe.handles.hSDgui)
     delete(probe.handles.hSDgui);
 end
 
-if ishandles(imgrecon.handles.ImageRecon)
+if AVUtils.ishandles(imgrecon.handles.ImageRecon)
     delete(imgrecon.handles.ImageRecon);
 end
 
 if length(axesv)>1
-    if ishandles(axesv(2).handles.axesSurfDisplay)
+    if AVUtils.ishandles(axesv(2).handles.axesSurfDisplay)
         hp = get(axesv(2).handles.axesSurfDisplay,'parent');
         delete(hp);
     end
 end
-if ishandles(atlasViewer.handles.hGroupList)
+if AVUtils.ishandles(atlasViewer.handles.hGroupList)
     hFig = get(atlasViewer.handles.hGroupList,'parent');
     delete(hFig);
 end
@@ -810,7 +810,7 @@ if isempty(which('SDgui'))
     menu('SDgui doesn''t exist in the search path.','OK');
     return;
 end
-if ishandles(hSDgui)
+if AVUtils.ishandles(hSDgui)
     menu('SDgui already active.','OK');
     return;
 end
@@ -830,7 +830,7 @@ function menuItemExit_Callback(hObject, eventdata, handles)
 global atlasViewer
 probe = atlasViewer.probe;
 
-if ishandles(probe.handles.hSDgui) 
+if AVUtils.ishandles(probe.handles.hSDgui) 
     delete(probe.handles.hSDgui);
     probe.handles.hSDgui=[];
 end
@@ -919,7 +919,7 @@ axesv = atlasViewer.axesv;
 fwmodel = atlasViewer.fwmodel;
 hGroupList = atlasViewer.handles.hGroupList;
 
-if ishandles(hGroupList)
+if AVUtils.ishandles(hGroupList)
     displayGroupSubjList(groupSubjList, hGroupList);
     return;
 end  
@@ -929,7 +929,7 @@ if dirnameSubj==0
     return;
 end
 if length(axesv)>1
-    if ishandles(axesv(2).handles.axesSurfDisplay)
+    if AVUtils.ishandles(axesv(2).handles.axesSurfDisplay)
         hp = get(axesv(2).handles.axesSurfDisplay,'parent');
         delete(hp);
     end
@@ -1152,7 +1152,7 @@ colormaps       = atlasViewer.labelssurf.colormaps;
 colormapsIdx    = atlasViewer.labelssurf.colormapsIdx;
 iFaces          = atlasViewer.labelssurf.iFaces;
 
-if ~ishandles(hLabelsSurf)
+if ~AVUtils.ishandles(hLabelsSurf)
     return;
 end
 
@@ -1212,7 +1212,7 @@ end
 
 % If call menuItemRegisterAtlasToDigpts_Callback is not a GUI event, 
 % then exit after setting  setting 
-if ~ishandles(hObject)
+if ~AVUtils.ishandles(hObject)
     return;
 end
 
@@ -1327,7 +1327,7 @@ axesv(1) = displayAxesv(axesv(1), headsurf, headvol, initDigpts());
 
 set(axesv(1).handles.axesSurfDisplay,{'xlimmode','ylimmode','zlimmode'},{'manual','manual','manual'});
 
-if ishandles(labelssurf.handles.surf)
+if AVUtils.ishandles(labelssurf.handles.surf)
     set(labelssurf.handles.menuItemSelectLabelsColormap,'enable','on');
 else
     set(labelssurf.handles.menuItemSelectLabelsColormap,'enable','off');
@@ -1739,17 +1739,17 @@ switch(get(hObject, 'tag'))
         atlasViewer.refpts.eeg_system.selected = '10-1';
     case 'menuItemShowSelectedCurves10_20'
                 atlasViewer.refpts.eeg_system.selected = 'selected_curves_10_20';
-        if ~ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
+        if ~AVUtils.ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
             atlasViewer.refpts.handles.SelectEEGCurvesGUI = SelectEEGCurvesGUI();
         end
     case 'menuItemShowSelectedCurves10_10'
         atlasViewer.refpts.eeg_system.selected = 'selected_curves_10_10';
-        if ~ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
+        if ~AVUtils.ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
             atlasViewer.refpts.handles.SelectEEGCurvesGUI = SelectEEGCurvesGUI();
         end
     case 'menuItemShowSelectedCurves10_5'
         atlasViewer.refpts.eeg_system.selected = 'selected_curves_10_5';
-        if ~ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
+        if ~AVUtils.ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
             atlasViewer.refpts.handles.SelectEEGCurvesGUI = SelectEEGCurvesGUI();
         end
 end
@@ -1759,7 +1759,7 @@ atlasViewer.refpts = set_eeg_active_pts(atlasViewer.refpts);
 
 atlasViewer.refpts = displayRefpts(atlasViewer.refpts);
 
-if ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
+if AVUtils.ishandles(atlasViewer.refpts.handles.SelectEEGCurvesGUI)
     figure(atlasViewer.refpts.handles.SelectEEGCurvesGUI);
 end
 
@@ -2058,7 +2058,7 @@ so2 = str2num(answer{3}) / 100;
 a = str2num(answer{4});
 b = str2num(answer{5});
 
-e = GetExtinctions( wv );
+e = av_av_GetExtinctions( wv );
 
 mua = e(:,1)*(hbt*so2) + e(:,2)*(hbt*(1-so2));
 musp = a * exp(-b*(wv-800)/800);
@@ -2192,7 +2192,7 @@ end
 % ptsProj_cortex is in viewer space. To get back to MNI coordinates take the
 % inverse of the tranformation from mni to viewer space.
 ptsProj_cortex = ProjectionBI(ptsProj, vertices);
-[ptsClosest, iP] = nearest_point(vertices, ptsProj_cortex);
+[ptsClosest, iP] = AVUtils.nearest_point(vertices, ptsProj_cortex);
 if ~labelssurf.isempty(labelssurf)
     ptsProj_cortex_mni = xform_apply(ptsProj_cortex,inv(T_headvol2mc*T_labelssurf2vol));
 end
@@ -2225,7 +2225,7 @@ if eventdata == true
         set(hLabelsSurf,'FaceVertexAlphaData',faceVertexAlphaData);
         iFaces = [iFaces iFace(iFaceMin)];
     end
-    if all(ishandles(hProjectionRays))
+    if all(AVUtils.ishandles(hProjectionRays))
         set(hProjectionRays,'color','k');
     else
         return;
@@ -2362,7 +2362,7 @@ ptsProj = refpts.pos;
 % ptsProj_cortex is in viewer space. To get back to MNI coordinates take the
 % inverse of the tranformation from mni to viewer space.
 ptsProj_cortex = ProjectionBI(ptsProj, vertices);
-[~, iP] = nearest_point(vertices, ptsProj_cortex);
+[~, iP] = AVUtils.nearest_point(vertices, ptsProj_cortex);
 
 % Display optodes on labeled cortex
 hCortexProjection = [];
@@ -2390,7 +2390,7 @@ for ii=1:size(ptsProj,1)
     set(pialsurf.handles.surf,'FaceVertexCData',faceVertexCData);
     iFaces = [iFaces, iFace(iFaceMin)];
 end
-if all(ishandles(hProjectionRays))
+if all(AVUtils.ishandles(hProjectionRays))
     set(hProjectionRays,'color','k');
 else
     return;
@@ -2791,7 +2791,7 @@ if isempty(ChStr)
     set(hObject,'string', '0 0');
     return;
 end
-if ~isnumber(ChStr)
+if ~AVUtils.isnumber(ChStr)
     set(hObject,'string', '0 0');
     return;
 end
@@ -3092,7 +3092,7 @@ if isempty(condstr)
     set(hObject, 'string', num2str(hbconc.iCond));
     return;
 end
-if ~isnumber(condstr)
+if ~AVUtils.isnumber(condstr)
     set(hObject, 'string', num2str(hbconc.iCond));
     return;
 end
@@ -3194,7 +3194,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.editViewAnglesAzimuth)
+    if AVUtils.ishandles(axesv(ii).handles.editViewAnglesAzimuth)
         if hObject==axesv(ii).handles.editViewAnglesAzimuth
             ax=axesv(ii);
             break;
@@ -3228,7 +3228,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.editViewAnglesElevation)
+    if AVUtils.ishandles(axesv(ii).handles.editViewAnglesElevation)
         if hObject==axesv(ii).handles.editViewAnglesElevation
             ax=axesv(ii);
             break;
@@ -3262,7 +3262,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsAnterior)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsAnterior)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsAnterior
             ax=axesv(ii);
             break;            
@@ -3295,7 +3295,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsPosterior)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsPosterior)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsPosterior
             ax=axesv(ii);
             break;
@@ -3331,7 +3331,7 @@ o = headsurf.orientation;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsRight)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsRight)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsRight
             ax=axesv(ii);
             break;
@@ -3366,7 +3366,7 @@ o = headsurf.orientation;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsLeft)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsLeft)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsLeft
             ax=axesv(ii);
             break;
@@ -3400,7 +3400,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsSuperior)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsSuperior)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsSuperior
             ax=axesv(ii);
             break;
@@ -3432,7 +3432,7 @@ headsurf = atlasViewer.headsurf;
 
 ax=[];
 for ii=1:length(axesv)
-    if ishandles(axesv(ii).handles.pushbuttonStandardViewsInferior)
+    if AVUtils.ishandles(axesv(ii).handles.pushbuttonStandardViewsInferior)
         if hObject==axesv(ii).handles.pushbuttonStandardViewsInferior
             ax=axesv(ii);
             break;

@@ -317,7 +317,7 @@ HbR = [];
 if value1 == 1 % brain only reconstruction after short separation regression
        
     % put A matrix together and combine with extinction coefficients
-    E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
+    E = av_GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
     E = E/10; %convert from /cm to /mm  E raws: wavelength, columns 1:HbO, 2:HbR
     Amatrix = [squeeze(Adot(:,:,1))*E(1,1) squeeze(Adot(:,:,1))*E(1,2);
                squeeze(Adot(:,:,2))*E(2,1) squeeze(Adot(:,:,2))*E(2,2)];
@@ -377,7 +377,7 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     Anew(:,:,2) = u2 * sqrtm(s2*s2 + alpha2^2*eye(size(s2))) *v2';
     
     % put A matrix together and combine with extinction coefficients
-    E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
+    E = av_GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
     E = E/10; %convert from /cm to /mm  E raws: wavelength, columns 1:HbO, 2:HbR
     Amatrix = [squeeze(Anew(:,:,1))*E(1,1) squeeze(Anew(:,:,1))*E(1,2);
                squeeze(Anew(:,:,2))*E(2,1) squeeze(Anew(:,:,2))*E(2,2)];
@@ -476,10 +476,10 @@ set(imgrecon.handles.popupmenuImageDisplay,'value',imgrecon.menuoffset+3);
 
 % Since sensitivity profile exists, enable all image panel controls 
 % for calculating metrics
-if ishandles(imgrecon.handles.hHbO)
+if AVUtils.ishandles(imgrecon.handles.hHbO)
     delete(imgrecon.handles.hHbO)
 end
-if ishandles(imgrecon.handles.hHbR)
+if AVUtils.ishandles(imgrecon.handles.hHbR)
     delete(imgrecon.handles.hHbR)
 end
 

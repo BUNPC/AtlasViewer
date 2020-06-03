@@ -149,8 +149,8 @@ function probe_geometry_axes2_OptUpdate(handles, opos1, i, event, mode)
             for ii = 1:length(j)
                 opos2 = optpos(sl(j(ii),2), :);
                 
-                pts(1,:) = points_on_line(opos1, opos2);
-                pts(2,:) = points_on_line(opos2, opos1);
+                pts(1,:) = AVUtils.points_on_line(opos1, opos2);
+                pts(2,:) = AVUtils.points_on_line(opos2, opos1);
                 p1 = pts(1,:);
                 p2 = pts(2,:);
                 userdata.xdata = [opos1(1) opos2(1)];
@@ -170,8 +170,8 @@ function probe_geometry_axes2_OptUpdate(handles, opos1, i, event, mode)
             for ii = 1:length(k)
                 opos2 = optpos(sl(k(ii),1),:);
                 
-                pts(1,:) = points_on_line(opos2, opos1);
-                pts(2,:) = points_on_line(opos1, opos2);
+                pts(1,:) = AVUtils.points_on_line(opos2, opos1);
+                pts(2,:) = AVUtils.points_on_line(opos1, opos2);
                 p1 = pts(1,:);
                 p2 = pts(2,:);
                 userdata.xdata = [opos2(1), opos1(1)];

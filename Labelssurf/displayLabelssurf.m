@@ -10,7 +10,7 @@ if ~exist('hAxes','var')
     hAxes = labelssurf.handles.axes;
 end
 
-if ishandles(labelssurf.handles.surf)
+if AVUtils.ishandles(labelssurf.handles.surf)
     delete(labelssurf.handles.surf);
 end
 
@@ -39,7 +39,7 @@ end
 labelssurf.handles.surf = h;
 labelssurf.handles.hLighting = hLighting;
 
-if ishandles(labelssurf.handles.surf)
+if AVUtils.ishandles(labelssurf.handles.surf)
     a = get(labelssurf.handles.surf,'facevertexalphadata');
     set(labelssurf.handles.editTransparency,'string', num2str(a(1)));
     set(labelssurf.handles.editTransparency,'enable','on');

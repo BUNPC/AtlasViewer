@@ -88,7 +88,7 @@ end
 % Arg 2
 pos    = refpts.pos;
 labels = refpts.labels;
-pos = nearest_point(vertices,pos);
+pos = AVUtils.nearest_point(vertices,pos);
 
 
 % Arg 3 (optional)

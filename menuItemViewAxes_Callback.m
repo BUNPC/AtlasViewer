@@ -34,7 +34,7 @@ end
 
 onoff = '';
 for ii=1:length(idx)
-    if ~ishandles(hOrigin(idx(ii),:))
+    if ~AVUtils.ishandles(hOrigin(idx(ii),:))
         continue;
     end
     if strcmp(get(hOrigin(idx(ii),:), 'visible'), 'off')

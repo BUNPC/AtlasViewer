@@ -31,7 +31,7 @@ else
     if ~isempty(headsurf.mesh.vertices)    
         return;
     end
-    if ishandles(headsurf.handles.surf)    
+    if AVUtils.ishandles(headsurf.handles.surf)    
         return;
     end
 

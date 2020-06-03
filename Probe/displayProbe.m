@@ -10,13 +10,13 @@ if ~exist('hAxes','var')
     hAxes = probe.handles.axes;
 end
 
-if ishandles(probe.handles.hSrcpos)
+if AVUtils.ishandles(probe.handles.hSrcpos)
     delete(probe.handles.hSrcpos);
 end 
-if ishandles(probe.handles.hDetpos)
+if AVUtils.ishandles(probe.handles.hDetpos)
     delete(probe.handles.hDetpos);
 end 
-if ishandles(probe.handles.hOptodes)
+if AVUtils.ishandles(probe.handles.hOptodes)
     delete(probe.handles.hOptodes);
 end
 

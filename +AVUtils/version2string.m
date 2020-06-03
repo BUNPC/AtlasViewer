@@ -1,6 +1,6 @@
 function [verstr, V] = version2string()
 
-V = getVernum();
+V = AVUtils.getVernum();
 if str2num(V{2})==0 || isempty(V{2})
     verstr = sprintf('v%s', [V{1}]);
 else

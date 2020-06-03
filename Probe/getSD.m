@@ -1,20 +1,20 @@
 function SD = getSD(nirsobj)
 
 SD = [];
-if isproperty(nirsobj, 'SD')
+if AVUtils.isproperty(nirsobj, 'SD')
     SD = nirsobj.SD;
-    if isempty(SD) && isproperty(nirsobj,'subjs')
+    if isempty(SD) && AVUtils.isproperty(nirsobj,'subjs')
         SD = getSD(nirsobj.subjs(1));
-    elseif isempty(SD) && isproperty(nirsobj,'runs')
+    elseif isempty(SD) && AVUtils.isproperty(nirsobj,'runs')
         SD = getSD(nirsobj.runs(1));
-    elseif isproperty(nirsobj, 'procInputRun') & isproperty(nirsobj.procInputRun, 'SD')
+    elseif AVUtils.isproperty(nirsobj, 'procInputRun') & AVUtils.isproperty(nirsobj.procInputRun, 'SD')
         SD = nirsobj.procInputRun.SD;
     end
-elseif isproperty(nirsobj, 'procInput') & isproperty(nirsobj.procInput, 'SD')
+elseif AVUtils.isproperty(nirsobj, 'procInput') & AVUtils.isproperty(nirsobj.procInput, 'SD')
     SD = nirsobj.procInput.SD;
-    if isempty(SD) && isproperty(nirsobj,'subjs')
+    if isempty(SD) && AVUtils.isproperty(nirsobj,'subjs')
         SD = getSD(nirsobj.subjs(1).procInput);
-    elseif isempty(SD) && isproperty(nirsobj,'runs')
+    elseif isempty(SD) && AVUtils.isproperty(nirsobj,'runs')
         SD = getSD(nirsobj.runs(1).procInput);
     end
 end

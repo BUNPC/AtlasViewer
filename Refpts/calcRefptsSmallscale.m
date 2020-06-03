@@ -80,7 +80,7 @@ if isstruct(refpts)
 else
     pos = refpts;
 end
-pos = nearest_point(vertices,pos);
+pos = AVUtils.nearest_point(vertices,pos);
 
 
 % Arg 3 (optional)
@@ -336,7 +336,7 @@ labels{uint8(n/2),1} = lm;
 labels = [ls; labels; le];
 
 if symmetric
-    [foo, im] = nearest_point(curve_pts, pm);
+    [foo, im] = AVUtils.nearest_point(curve_pts, pm);
     refpts1 = calcRefptsAlongCurve(curve_pts(1:im,:), 0, labels, stepsize*2, sprintf('%s-%s', ls, lm));
     refpts2 = calcRefptsAlongCurve(curve_pts(im+1:end,:), 0, labels, stepsize*2, sprintf('%s-%s', le, lm));
     refpts = [refpts1; refpts2];

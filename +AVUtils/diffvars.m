@@ -77,14 +77,14 @@ else
     fields = unique([propnames(v1); propnames(v2)]);
     for ii=1:length(v1(:))
         for jj=1:length(fields)
-            if ~isproperty(v2(ii),fields{jj})
+            if ~AVUtils.isproperty(v2(ii),fields{jj})
                 if kk>20
                     continue;
                 end
                 logger.Write(sprintf('%s(%d) ~= %s(%d): field %s exists in %s(%d) but not %s(%d)\n', ...
                          v1name, ii, v2name, ii, fields{jj}, v1name, ii, v2name, ii));
                 kk=kk+1;
-            elseif ~isproperty(v1(ii),fields{jj})
+            elseif ~AVUtils.isproperty(v1(ii),fields{jj})
                 if kk>20
                     continue;
                 end

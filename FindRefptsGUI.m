@@ -38,7 +38,7 @@ headvol = atlasViewer.headvol;
 refpts = atlasViewer.refpts;
 
 if length(axesv)==2
-    if ishandles(axesv(2).handles.axesSurfDisplay)
+    if AVUtils.ishandles(axesv(2).handles.axesSurfDisplay)
         return;
     end
 end
@@ -228,7 +228,7 @@ if strcmpi(cmd, 'DONE')
     refpts = displayRefpts(refpts, atlasViewer.axesv(1).handles.axesSurfDisplay );    
     
     if length(axesv)>1
-        if ishandles(axesv(2).handles.axesSurfDisplay)
+        if AVUtils.ishandles(axesv(2).handles.axesSurfDisplay)
             ha = get(axesv(2).handles.axesSurfDisplay,'parent');
             delete(ha);
             axesv(2) = [];

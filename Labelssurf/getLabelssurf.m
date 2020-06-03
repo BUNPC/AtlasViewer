@@ -28,7 +28,7 @@ if ~isempty(labelssurf.mesh.vertices)
     return;
 end
 
-if ishandles(labelssurf.handles.surf)
+if AVUtils.ishandles(labelssurf.handles.surf)
     return;
 end
 

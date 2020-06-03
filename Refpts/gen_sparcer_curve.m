@@ -22,7 +22,7 @@ while ii<N
     kk=1;
     graddist = distmin/2;
     while graddist*kk < d
-        curve_seg_new(end+1,:) = points_on_line(ptc, ptn, graddist*kk/d);
+        curve_seg_new(end+1,:) = AVUtils.points_on_line(ptc, ptn, graddist*kk/d);
         kk=kk+distmin;
     end
     

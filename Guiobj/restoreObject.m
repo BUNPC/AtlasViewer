@@ -55,7 +55,7 @@ for ii=1:length(guiobjprop)
         eval(sprintf('propvalues = fieldvalues(obj.guiobjprop.%s(jj));', guiobjprop{ii}));
         eval(sprintf('b = isempty(obj.handles.%s);',guiobjprop{ii}));
         try 
-            eval(sprintf('if b==0 && ishandles(obj.handles.%s(jj)), set(obj.handles.%s(jj), propnames, propvalues); end', ...
+            eval(sprintf('if b==0 && AVUtils.ishandles(obj.handles.%s(jj)), set(obj.handles.%s(jj), propnames, propvalues); end', ...
                          guiobjprop{ii}, guiobjprop{ii}));
         catch
             disp(sprintf('ERROR restoring property %s',guiobjprop{ii}));

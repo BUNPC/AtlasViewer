@@ -33,7 +33,7 @@ if nargin==0
     return;
 end
 
-if ~ishandles(h)
+if ~AVUtils.ishandles(h)
     return;
 end
 
