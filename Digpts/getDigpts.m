@@ -274,7 +274,7 @@ end
 
 
 % -----------------------------------------
-function b = AVUtils.isnumber(str)
+function b = isnumber(str)
 b = ~isempty(str2num(str));
 
 

@@ -1,4 +1,4 @@
-function plotProbePlacementVariation()
+function av_plotProbePlacementVariation()
 % Selection 1: Inter-subject variability analysis:
 %   Plots multiple subject probe geometries on a common atlas volume
 %   Plots mean optode locations and their standard deviations

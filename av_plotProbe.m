@@ -1,4 +1,4 @@
-% [h hFig tAmp] = plotProbe( y, t, SD, hFig, ystd, axFactor, tStep, tAmp )
+% [h hFig tAmp] = av_plotProbe( y, t, SD, hFig, ystd, axFactor, tStep, tAmp )
 %
 % Plot the data in the probe format. If no data is provided,
 % this plots the probe geometry given in SD.
@@ -40,12 +40,12 @@
 % toggle nearest neighbors
 % assuming y is concentration data... need to check dimensions
 
-function [h hFig tAmp]=plotProbe( y, t, SD, hFig, ystd, axFactor, tStep, tAmp )
+function [h hFig tAmp]=av_plotProbe( y, t, SD, hFig, ystd, axFactor, tStep, tAmp )
 
 h=[];
 isinitfig=0;
 if ~exist('y')
-    help plotProbe
+    help av_plotProbe
     return
 end
 
@@ -379,7 +379,7 @@ try
 
 catch ME
     
-    menu(sprintf('plotProbe exited with ERROR while plotting data for channel # %d',idx),'OK');
+    menu(sprintf('av_plotProbe exited with ERROR while plotting data for channel # %d',idx),'OK');
     close(hFig);
     h=[];
     

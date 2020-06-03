@@ -1935,7 +1935,7 @@ FindRefptsGUI();
 % --------------------------------------------------------------------
 function menuProbePlacementVariation_Callback(hObject, eventdata, handles)
 
-plotProbePlacementVariation();
+av_plotProbePlacementVariation();
 
 
 
@@ -2058,7 +2058,7 @@ so2 = str2num(answer{3}) / 100;
 a = str2num(answer{4});
 b = str2num(answer{5});
 
-e = av_av_GetExtinctions( wv );
+e = av_GetExtinctions( wv );
 
 mua = e(:,1)*(hbt*so2) + e(:,2)*(hbt*(1-so2));
 musp = a * exp(-b*(wv-800)/800);
