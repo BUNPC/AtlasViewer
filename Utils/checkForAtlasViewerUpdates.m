@@ -1,4 +1,4 @@
-edfunction checkForAtlasViewerUpdates()
+function checkForAtlasViewerUpdates()
     url = 'http://bu.edu/neurophotonics/research/fnirs/atlasviewer';
 %     cfg = ConfigFileClass(); TODO implement cfg
     promptFlag = 0;
