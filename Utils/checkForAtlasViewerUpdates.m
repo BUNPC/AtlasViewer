@@ -1,17 +1,24 @@
-function checkForAtlasViewerUpdates()
+edfunction checkForAtlasViewerUpdates()
     url = 'http://bu.edu/neurophotonics/research/fnirs/atlasviewer';
-    updateAvailable = 0;
+%     cfg = ConfigFileClass(); TODO implement cfg
+    promptFlag = 0;
     try
+        % Open a hidden web browser 
+        [~,h] = web(url);
+        p = getParentRecursive(h);
+        p.setVisible(0);
         s = urlread(url,'timeout',2);
     catch
-        % app is offline or server could not be reached
+        % App is offline or server could not be reached
+        close(h);
         return
     end
-    updateTxt = ''; % Get information about update from s
-    vrnnum = AVUtils.getVernum();
-    % Do something to updateAvailable flag
-
-    if (updateAvailable)
+    updateTxt = ''; % Get information about potential update from s
+    vrnum = getAtlasViewerVernum();  % Compare to current version and set promptFlag
+    % if (vrnum < updateTxt) & (cfg.GetValue('LatestUpdateRefused') < updateTxt)
+    %   promptFlag = 1;
+    % end
+    if (promptFlag)
         choice = questdlg(['An update for AtlasViewer is available: ',...
             updateTxt,...
             ' Would you like to download it?'],...
@@ -23,7 +30,11 @@ function checkForAtlasViewerUpdates()
                 % Open browser to update page
                 web(url);    
             case 'Don''t ask again'
-                % Prevent this prompt for showing until next version
+                % Make sure user doesn't get asked about this particular
+                % update again.
+                %
+                % cfg.SetValue('LatestUpdateRefused',updateTxt); 
         end
     end
+    close(h);
 end
