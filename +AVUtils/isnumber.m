@@ -32,13 +32,13 @@ for ii=1:length(strarr)
                 %     1) the string to the left and right of '.' is numeric (e.g., 2.3)
                 %     2) the string to only to the left of '.' is numeric (e.g.,  2.)
                 %     3) the string to only to the right of '.' is numeric (e.g., .3)
-                if isnumber(str_left) & isnumber(str_right)
+                if AVUtils.isnumber(str_left) & AVUtils.isnumber(str_right)
                     continue;
                 end
-                if isnumber(str_right)
+                if AVUtils.isnumber(str_right)
                     continue;
                 end
-                if isnumber(str_left)
+                if AVUtils.isnumber(str_left)
                     continue;
                 end
                 
@@ -46,7 +46,7 @@ for ii=1:length(strarr)
                 
                 % String with 'e' is a numeric string if
                 %     1) the string to the left and right of 'e' is numeric (e.g., 1e4)
-                if isnumber(str_left) & isnumber(str_right)
+                if AVUtils.isnumber(str_left) & AVUtils.isnumber(str_right)
                     continue;
                 end
                 
@@ -56,10 +56,10 @@ for ii=1:length(strarr)
                 % String with '-' is a numeric string if
                 %     1) the string to the left and right of '-' is numeric (e.g., 8-6)
                 %     2) the string to only to the left of '-' is numeric (e.g., -6)
-                if isnumber(str_left) & isnumber(str_right)
+                if AVUtils.isnumber(str_left) & AVUtils.isnumber(str_right)
                     continue;
                 end
-                if isnumber(str_right)
+                if AVUtils.isnumber(str_right)
                     continue;
                 end
                 
@@ -68,19 +68,19 @@ for ii=1:length(strarr)
                 % String with '+' is a numeric string if
                 %     1) the string to the left and right of '-' is numeric (e.g., 8+6)
                 %     2) the string to only to the left of '-' is numeric (e.g., +6)
-                if isnumber(str_left) & isnumber(str_right)
+                if AVUtils.isnumber(str_left) & AVUtils.isnumber(str_right)
                     continue;
                 end
-                if isnumber(str_right)
+                if AVUtils.isnumber(str_right)
                     continue;
                 end
                 
             case ' '
                 
-                if isnumber(str_left)
+                if AVUtils.isnumber(str_left)
                     continue;
                 end
-                if isnumber(str_right)
+                if AVUtils.isnumber(str_right)
                     continue;
                 end
                 

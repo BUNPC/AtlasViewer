@@ -12,7 +12,7 @@ optViewMode     = probe.optViewMode;
 
 % Parse arguments
 if ~exist('method','var') || isempty(method)
-    if ~AVUtils.ishandles(handles.Springs)
+    if ~AVUtils.ishandles(probe.handles.hSprings)
         method = 'digpts';
     else
         method = 'springs';
@@ -40,7 +40,7 @@ end
 iAct   = hOidx;
 iInAct = ~(iAct-1)+1;
 
-if AVUtils.ishandles(handles.MeasList)
+if AVUtils.ishandles(probe.handles.hMeasList)
     set(hMeasList,'color','y','linewidth',2);
     if iCh~=0
         set(hMeasList(iCh,1),'color','g','linewidth',3);
@@ -56,21 +56,21 @@ probe = setOptodeNumbering(probe);
 if strcmp(method,'digpts')
    if probe.hideProbe==1
       set(hOptodes,'visible','off');
-      if AVUtils.ishandles(handles.ProjectionRays)
+      if AVUtils.ishandles(probe.handles.hProjectionRays)
           set(hProjectionRays,'visible','off');
       end
-      if AVUtils.ishandles(handles.MeasList)
+      if AVUtils.ishandles(probe.handles.hMeasList)
           set(hMeasList,'visible','off');
       end
    else
       set(hOptodes(:,iAct),'visible','on');
       set(hOptodes(:,iInAct),'visible','off');
-      if AVUtils.ishandles(handles.ProjectionRays)
+      if AVUtils.ishandles(probe.handles.hProjectionRays)
           set(hProjectionRays,'visible','on');
       end
-      if AVUtils.ishandles(handles.MeasList) & probe.hideMeasList
+      if AVUtils.ishandles(probe.handles.hMeasList) & probe.hideMeasList
           set(hMeasList,'visible','off');
-      elseif AVUtils.ishandles(handles.MeasList)
+      elseif AVUtils.ishandles(probe.handles.hMeasList)
           set(hMeasList,'visible','on');
       end
    end
@@ -85,10 +85,10 @@ elseif strcmp(method,'springs')
    if probe.hideProbe==1
       set(hSprings,'visible','off');
       set(hOptodes(:,iAct),'visible','off');
-      if AVUtils.ishandles(handles.ProjectionRays)
+      if AVUtils.ishandles(probe.handles.hProjectionRays)
          set(hProjectionRays,'visible','off');
       end
-      if AVUtils.ishandles(handles.MeasList)
+      if AVUtils.ishandles(probe.handles.hMeasList)
           set(hMeasList,'visible','off');
       end      
    elseif probe.hideProbe==0
@@ -97,60 +97,60 @@ elseif strcmp(method,'springs')
          set(hOptodes(:,iInAct),'visible','off');
          set(hOptodes(iDummy,iAct),'visible','on');
          set(hOptodes(iDummy,iInAct),'visible','off');
-         if AVUtils.ishandles(handles.ProjectionRays)
+         if AVUtils.ishandles(probe.handles.hProjectionRays)
             set(hProjectionRays,'visible','on');
          end
-         if AVUtils.ishandles(handles.MeasList) & probe.hideMeasList
+         if AVUtils.ishandles(probe.handles.hMeasList) & probe.hideMeasList
              set(hMeasList,'visible','off');
              set(hSprings,'visible','on');
-         elseif AVUtils.ishandles(handles.MeasList)
+         elseif AVUtils.ishandles(probe.handles.hMeasList)
              set(hMeasList,'visible','on');
              set(hSprings,'visible','off');
-         elseif ~AVUtils.ishandles(handles.MeasList)
+         elseif ~AVUtils.ishandles(probe.handles.hMeasList)
              set(hSprings,'visible','on');
          end
       elseif probe.hideSprings==0 && probe.hideDummyOpts==1
-         if AVUtils.ishandles(handles.ProjectionRays)
+         if AVUtils.ishandles(probe.handles.hProjectionRays)
             set(hProjectionRays,'visible','on');
          end
          set(hOptodes(:,iAct),'visible','on');
          set(hOptodes(:,iInAct),'visible','off');
          set(hOptodes(iDummy,iAct),'visible','off');
-         if AVUtils.ishandles(handles.MeasList) & probe.hideMeasList
+         if AVUtils.ishandles(probe.handles.hMeasList) & probe.hideMeasList
              set(hMeasList,'visible','off');
              set(hSprings,'visible','on');
-         elseif AVUtils.ishandles(handles.MeasList)
+         elseif AVUtils.ishandles(probe.handles.hMeasList)
              set(hMeasList,'visible','on');
              set(hSprings,'visible','off');
-         elseif ~AVUtils.ishandles(handles.MeasList)
+         elseif ~AVUtils.ishandles(probe.handles.hMeasList)
              set(hSprings,'visible','on');
          end
          set(hSprings(iSprDum),'visible','off');      
       elseif probe.hideSprings==1 && probe.hideDummyOpts==0
          set(hOptodes(:,iAct),'visible','on');
          set(hOptodes(:,iInAct),'visible','off');
-         if AVUtils.ishandles(handles.ProjectionRays)
+         if AVUtils.ishandles(probe.handles.hProjectionRays)
              set(hProjectionRays,'visible','on');
          end
          set(hSprings,'visible','off');
          set(hOptodes(iDummy,iAct),'visible','on');
          set(hOptodes(iDummy,iInAct),'visible','off');
-         if AVUtils.ishandles(handles.MeasList) & probe.hideMeasList
+         if AVUtils.ishandles(probe.handles.hMeasList) & probe.hideMeasList
              set(hMeasList,'visible','off');
-         elseif AVUtils.ishandles(handles.MeasList)
+         elseif AVUtils.ishandles(probe.handles.hMeasList)
              set(hMeasList,'visible','on');
          end
       elseif probe.hideSprings==1 && probe.hideDummyOpts==1
          set(hOptodes(:,iAct),'visible','on');
          set(hOptodes(:,iInAct),'visible','off');
-         if AVUtils.ishandles(handles.ProjectionRays)
+         if AVUtils.ishandles(probe.handles.hProjectionRays)
              set(hProjectionRays,'visible','on');
          end
          set(hSprings,'visible','off');
          set(hOptodes(iDummy,:),'visible','off');
-         if AVUtils.ishandles(handles.MeasList) & probe.hideMeasList
+         if AVUtils.ishandles(probe.handles.hMeasList) & probe.hideMeasList
              set(hMeasList,'visible','off');
-         elseif AVUtils.ishandles(handles.MeasList)
+         elseif AVUtils.ishandles(probe.handles.hMeasList)
              set(hMeasList,'visible','on');
          end
       end
