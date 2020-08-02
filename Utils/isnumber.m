@@ -8,15 +8,15 @@ if isempty(str)
 end
 
 strarr = strtrim(str2cell(str, {',',';'}));
-for ii=1:length(strarr)
+for jj = 1:length(strarr)
     
-    str = strarr{ii};
+    str = strarr{jj};
     
     d = isdigit(str);
     
     % Get all the nonnumeric characters and check if they form a numeric string
     k = find(d==0);
-    for ii=1:length(k)
+    for ii = 1:length(k)
         
         str_left  = str(1:k(ii)-1);
         str_right = str(k(ii)+1:end);
@@ -32,7 +32,7 @@ for ii=1:length(strarr)
                 %     1) the string to the left and right of '.' is numeric (e.g., 2.3)
                 %     2) the string to only to the left of '.' is numeric (e.g.,  2.)
                 %     3) the string to only to the right of '.' is numeric (e.g., .3)
-                if isnumber(str_left) & isnumber(str_right)
+                if isnumber(str_left) && isnumber(str_right)
                     continue;
                 end
                 if isnumber(str_right)
@@ -46,7 +46,7 @@ for ii=1:length(strarr)
                 
                 % String with 'e' is a numeric string if
                 %     1) the string to the left and right of 'e' is numeric (e.g., 1e4)
-                if isnumber(str_left) & isnumber(str_right)
+                if isnumber(str_left) && isnumber(str_right)
                     continue;
                 end
                 
@@ -56,7 +56,7 @@ for ii=1:length(strarr)
                 % String with '-' is a numeric string if
                 %     1) the string to the left and right of '-' is numeric (e.g., 8-6)
                 %     2) the string to only to the left of '-' is numeric (e.g., -6)
-                if isnumber(str_left) & isnumber(str_right)
+                if isnumber(str_left) && isnumber(str_right)
                     continue;
                 end
                 if isnumber(str_right)
@@ -68,7 +68,7 @@ for ii=1:length(strarr)
                 % String with '+' is a numeric string if
                 %     1) the string to the left and right of '-' is numeric (e.g., 8+6)
                 %     2) the string to only to the left of '-' is numeric (e.g., +6)
-                if isnumber(str_left) & isnumber(str_right)
+                if isnumber(str_left) && isnumber(str_right)
                     continue;
                 end
                 if isnumber(str_right)

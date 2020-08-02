@@ -20,8 +20,8 @@ else
 end
 % End AtlasViewerGUI initialization code - DO NOT EDIT
 
-        
-        
+
+
 % ------------------------------------------------------------------
 function InitSubj(hObject,handles,argExtern)
 global atlasViewer
@@ -52,7 +52,7 @@ fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
 
-checkForAtlasViewerUpdates();
+% checkForAtlasViewerUpdates();
 
 cd(dirnameSubj);
 
@@ -172,7 +172,7 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     digpts     = getDigpts(digpts, dirnameSubj);
     refpts     = getRefpts(refpts, headsurf.pathname);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
-    probe      = getProbe(probe, dirnameSubj, headsurf, digpts, refpts);
+    probe      = getProbe(probe, dirnameSubj, digpts);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
     imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe);
     hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe);
@@ -687,7 +687,7 @@ end
 
 
 % --------------------------------------------------------------------
-function probe = probeRegisterSpringsMethod(probe,headvol,refpts)
+function probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts)
 
 if isempty(probe)
     menu('probe hasn''t been loaded. Use the Make Probe option in the Tools menu','OK');
@@ -707,7 +707,7 @@ if isempty([probe.sl])
 end
 
 % Get registered optode positions and then display springs 
-probe = registerProbe2Head(probe,headvol,refpts);
+probe = registerProbe2Head(probe, headvol, headsurf, refpts);
 
 
 
@@ -771,7 +771,7 @@ else
         return;
     end
     method = 'springs';
-    probe = probeRegisterSpringsMethod(probe,headvol,refpts);
+    probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts);
   
 end
 
@@ -1105,7 +1105,7 @@ fwmodel     = resetFwmodel(fwmodel);
 imgrecon    = resetImgRecon(imgrecon);
 labelssurf  = resetLabelssurf(labelssurf);
 
-probe = getProbe(probe, [pathname, '/', filename], headsurf, digpts, refpts);
+probe = getProbe(probe, [pathname, '/', filename], digpts);
 
 probe = viewProbe(probe,'unregistered');
 
@@ -1834,10 +1834,7 @@ cd(wd)
 atlasViewer.digpts = getDigpts(atlasViewer.digpts, atlasViewer.dirnameSubj);
 atlasViewer.probe = getProbe(atlasViewer.probe, ...
                              atlasViewer.dirnameSubj, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.digpts, ...
-                             atlasViewer.refpts);
+                             atlasViewer.digpts);
 atlasViewer.probe = displayProbe(atlasViewer.probe);
 
 
