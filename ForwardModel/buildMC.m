@@ -5,11 +5,11 @@ if exist(fwmodel.mc_rootpath,'dir')==7
     currdir = pwd;
     cd(fwmodel.mc_rootpath);
    
-    if ismac() | islinux()
+    if ismac() || islinux()
         cmd = sprintf('make opt');
         system(cmd);
     elseif ispc()
-        ;
+        
     end
     
     cd(currdir);

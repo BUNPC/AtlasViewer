@@ -49,3 +49,16 @@ end
 b = strcmpi(fullpath1, fullpath2);
 
 cd(currdir);
+
+
+
+% ----------------------------------------------------------------
+function cd_safe(dirname)
+
+if exist(dirname, 'dir') == 7
+    try
+        cd(dirname);
+    catch
+        ;
+    end
+end

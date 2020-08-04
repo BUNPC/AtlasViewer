@@ -60,6 +60,10 @@ elseif ~isempty(dir([dirname, '*.nirs']))
     SD = filedata.SD;
     save([dirname, 'probe.SD'],'-mat', 'SD');
     
+else
+    
+    return;
+    
 end
 probe2d = loadSD(probe2d, SD);
 

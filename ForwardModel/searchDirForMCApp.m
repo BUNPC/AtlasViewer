@@ -8,7 +8,7 @@ else
     ext = '';
 end
 
-files = dir([mc_exepath, '/*']);
+files = dir(mc_exepath);
 for ii=1:length(files)
     
     if ~files(ii).isdir

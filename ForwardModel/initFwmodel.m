@@ -85,7 +85,7 @@ end
 fwmodel = findMCapp(fwmodel, argExtern);
 
 % Make sure executable permission for MC app is set 
-if ismac() | islinux()
+if ismac() || islinux()
     exefile = [fwmodel.mc_exepath, '/', fwmodel.mc_exename]; 
     if exist(exefile,'file')==2
         cmd = sprintf('chmod 755 %s', exefile);
@@ -146,12 +146,12 @@ set(fwmodel.handles.menuItemGenerateMCInput,'enable','off');
 
 set(fwmodel.handles.menuItemGenFluenceProfile,'enable','off');
 if ENABLE_FLUENCE_PROF
-    set(fwmodel.handles.menuItemGenFluenceProfile,'visible','on');
+    set(fwmodel.handles.menuItemGenFluenceProfile,'visible','on'); %#ok<UNRCH>
 end
 set(fwmodel.handles.menuItemLoadPrecalculatedProfile,'enable','off');
 set(fwmodel.handles.menuItemGetSensitivityatMNICoordinates,'enable','off');
 
-fwmodel.Ch          = str2num(get(fwmodel.handles.editSelectChannel,'string'));
+fwmodel.Ch = str2num(get(fwmodel.handles.editSelectChannel,'string'));
 
 
 

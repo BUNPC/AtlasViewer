@@ -33,7 +33,7 @@ extin = '';
 extout = '';
 [mc_appnamelist, mc_appextin, mc_appextout] = mcAppList();
 for ii=1:length(mc_appnamelist)
-    if ~isempty(dir(['./fw/*', mc_appextout{ii}]));
+    if ~isempty(dir(['./fw/*', mc_appextout{ii}]))
         extin = mc_appextin{ii};
         extout = mc_appextout{ii};
         fwmodel = setMCappname(fwmodel, extout);

@@ -1,7 +1,7 @@
-function [p, b] = GuiOutsideScreenBorders(hObject)
+function [p, b] = guiOutsideScreenBorders(hObject)
 %
 % Syntax:
-%    [p, b] = GuiOutsideScreenBorders(hObject)
+%    [p, b] = guiOutsideScreenBorders(hObject)
 %
 % Description:
 %    Calculates the amount that a figure with handle hObject falls outside of screen borders and returns 
@@ -12,6 +12,9 @@ function [p, b] = GuiOutsideScreenBorders(hObject)
 %
 
 b = [0, 0, 0, 0];
+u0 = get(hObject, 'units');
+
+set(hObject, 'units','characters');
 p = get(hObject,'position');
 
 % Set screen units to be same as GUI
@@ -61,5 +64,4 @@ p = p - b;
 
 % Set the screen units back to pixels
 set(0,'units','pixels');
-
-
+set(hObject, 'units',u0);

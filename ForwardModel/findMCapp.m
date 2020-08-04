@@ -7,7 +7,7 @@ mc_appnamelist = mcAppList();
 dirnameApp = getAppDir_av();
 
 %%%% SEARCH 1: Check external args for user supplied MC app root folder 
-if length(argExtern)>2 & ~isempty(argExtern{3})
+if length(argExtern)>2 && ~isempty(argExtern{3})
     mc_exepath = argExtern{3};
     [mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(mc_exepath, fwmodel.platform);
     fwmodel = setMCFields(fwmodel, mc_exepath, mc_exename, mc_appname, ext);
@@ -24,7 +24,7 @@ end
 
 
 %%%% SEARCH 2: Check installation folder for MC app 
-[mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(dirnameApp, fwmodel.platform);
+[mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp([dirnameApp, 'ForwardModel/'], fwmodel.platform);
 fwmodel = setMCFields(fwmodel, mc_exepath, mc_exename, mc_appname, ext);
 if ~isempty(mc_exename)
     return;
@@ -32,7 +32,7 @@ end
 
 % Since it doesn't exist, try to build mc_exename
 fwmodel = buildMC(fwmodel);
-if ~isempty(fwmodel.mc_exename)    
+if ~isempty(fwmodel.mc_exename)
     return;
 end
 
@@ -65,7 +65,7 @@ end
 %%%% SEARCH 4: Last resort: If none of the above locate MC app then ask user where it is. 
 while 1
     pause(.1)
-    [filenm, pathnm] = uigetfile({'*'; '*.exe'}, ['Monte Carlo executable not found. Please select Monte Carlo executable.']);
+    [filenm, pathnm] = uigetfile({'*'; '*.exe'}, 'Monte Carlo executable not found. Please select Monte Carlo executable.');
     if filenm==0
         return;
     end

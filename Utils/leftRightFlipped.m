@@ -108,10 +108,10 @@ end
 % if the type it matches will appear flipped or not in matlab. 
 if ~isempty(T2)
     k = find(M{ii,jj} == -1);
-    if mod(ii,2)==0 & mod(length(k),2)==0
+    if mod(ii,2)==0 && mod(length(k),2)==0
         b=true;
     end
-    if mod(ii,2)==1 & mod(length(k),2)==1
+    if mod(ii,2)==1 && mod(length(k),2)==1
         b=true;
     end
 end
