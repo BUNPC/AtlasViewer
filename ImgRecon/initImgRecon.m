@@ -56,8 +56,8 @@ if exist('handles','var')
     imgrecon.handles.popupmenuImageDisplay = handles.popupmenuImageDisplay;
     imgrecon.handles.menuItemImageReconGUI = handles.menuItemImageReconGUI;
     imgrecon.handles.axes = handles.axesSurfDisplay;
-    if ishandles(handles.hGroupList)
-        idx = get(handles.hGroupList, 'value');
+    if ishandles(handles.hGroupTree)
+        idx = get(handles.hGroupTree, 'value');
         if idx==1
             imgrecon.iSubj = 0;
         elseif idx > 1

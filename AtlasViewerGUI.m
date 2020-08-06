@@ -23,7 +23,7 @@ end
 
 
 % ------------------------------------------------------------------
-function InitSubj(hObject,handles,argExtern)
+function Initialize(hObject,handles,argExtern)
 global atlasViewer
 global DEBUG
 
@@ -44,7 +44,7 @@ if length(argExtern)>=4
     end
 end
 
-dirnameSubj = getSubjDir(argExtern);
+dirnameSubj = getGroupDir(argExtern);
 dirnameAtlas = getAtlasDir(argExtern);
 
 fprintf('AtlasViewerGUI (%s):\n', version2string());
@@ -58,7 +58,7 @@ cd(dirnameSubj);
 
 atlasViewer.handles.figure = hObject;
 atlasViewer.handles.hHbConc = [];
-atlasViewer.handles.hGroupList = [];
+atlasViewer.handles.hGroupTree = [];
 
 % Initialize atlas viewer objects with their respective gui
 % handles
@@ -137,7 +137,7 @@ if isempty(argExtern)
     argExtern = {''};
 end
 
-InitSubj(hObject,handles,argExtern);
+Initialize(hObject,handles,argExtern);
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
 dirnameSubj = atlasViewer.dirnameSubj;
@@ -244,9 +244,7 @@ positionGUI(hObject);
 function [headvol, headsurf, pialsurf] = checkAnatomy(headvol, headsurf, pialsurf, handles)
 global atlasViewer
 
-dirnameAtlas = atlasViewer.dirnameAtlas;
 dirnameSubj = atlasViewer.dirnameSubj;
-searchPaths = {dirnameSubj; dirnameAtlas};
 
 % If the head surface and head volume don't agree on anatomy, then
 % keep the object that come from the subject folder and discard that
@@ -296,10 +294,7 @@ end
     
     
 % --------------------------------------------------------------------
-function Edit_Probe_Callback(hObject, eventdata, handles)
-% hObject    handle to Edit_Probe (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function Edit_Probe_Callback(~, ~, ~)
 global atlasViewer;
 
 %%%% close GUI
@@ -314,10 +309,10 @@ if ismac()
 else
     P=regexp(path, ';', 'split'); %%% search path for Probe designer path
 end
-for i=1:size(P,2)
-    if findstr(P{1,i},'NIRS_Probe_Designer_V1')
-        CP=P{1,i}; %%% current path
-        L=findstr(CP,'NIRS_Probe_Designer_V1');
+for i = 1:size(P,2)
+    if findstr(P{1,i},'NIRS_Probe_Designer_V1') %#ok<*FSTR>
+        CP = P{1,i}; %%% current path
+        
         %%% check for path seperator
         if ~isempty(findstr(CP,'/'))
             PS='/';
@@ -352,45 +347,45 @@ Hc=get(atlasViewer.pialsurf.handles.surf); %%% head surface mesh
 cortexsurf.vertices=Hc.Vertices;
 cortexsurf.faces=Hc.Faces;
 elec=[];
+refpts = cell(size(atlasViewer.refpts.handles.circles,1),3);
 for i=1:size(atlasViewer.refpts.handles.circles,1)
-    refpts{i,1}=atlasViewer.refpts.pos(i,:);
-    elec=[elec; refpts{i,1}];
-    h1=get(atlasViewer.refpts.handles.labels(i,1));
-    refpts{i,2}=h1.String;
-    refpts{i,3}=atlasViewer.refpts.orientation;
+    refpts{i,1} = atlasViewer.refpts.pos(i,:);
+    elec = [elec; refpts{i,1}];
+    h1 = get(atlasViewer.refpts.handles.labels(i,1));
+    refpts{i,2} = h1.String;
+    refpts{i,3} = atlasViewer.refpts.orientation;
 end
-probe=atlasViewer.probe;   %%%% probe
-[optodes,channels]=Edit_Probe(headsurf,cortexsurf,refpts,probe);
-atlasViewer.probe.optpos_reg=optodes;   
-atlasViewer.probe.mlmp=channels;   
-
+probe = atlasViewer.probe;   %%%% probe
+[optodes,channels] = Edit_Probe(headsurf,cortexsurf,refpts,probe);
+atlasViewer.probe.optpos_reg = optodes;   
+atlasViewer.probe.mlmp = channels;   
 
 %%% update optode positions    
-for i=1:size(optodes,1)
+for i = 1:size(optodes,1)
     set(atlasViewer.probe.handles.hOptodes(i,1),'Position',optodes(i,:));
     set(atlasViewer.probe.handles.hOptodesCircles(i,1),'XData',optodes(i,1),'YData',optodes(i,2),'ZData',optodes(i,3));
 end
 
 %%%% update NIRS channel positions
-ml=atlasViewer.probe.ml;
-Num_Scr=atlasViewer.probe.nsrc;
-for i=1:size(ml,1)
+ml = atlasViewer.probe.ml;
+Num_Scr = atlasViewer.probe.nsrc;
+for i = 1:size(ml,1)
 %     h=get(atlasViewer.probe.handles.hMeasList(i,1));
-    XData=[optodes(ml(i,1),1) optodes(ml(i,2)+Num_Scr,1)];
-    YData=[optodes(ml(i,1),2) optodes(ml(i,2)+Num_Scr,2)];
-    ZData=[optodes(ml(i,1),3) optodes(ml(i,2)+Num_Scr,3)];
-    set(atlasViewer.probe.handles.hMeasList(i,1),'XData',XData,'YData',YData,'ZData',ZData)
+    XData = [optodes(ml(i,1),1) optodes(ml(i,2)+Num_Scr,1)];
+    YData = [optodes(ml(i,1),2) optodes(ml(i,2)+Num_Scr,2)];
+    ZData = [optodes(ml(i,1),3) optodes(ml(i,2)+Num_Scr,3)];
+    set(atlasViewer.probe.handles.hMeasList(i,1), 'XData',XData, 'YData',YData, 'ZData',ZData)
 end
 
 
-% ---------------------------------------------------------------------
-function [groupSubjList, dirname] = InitGroup(argExtern)
 
+% ---------------------------------------------------------------------
+function [groupSubjList, dirname] = LoadDataTree(argExtern)
 if isempty(argExtern)
     argExtern = {''};
 end
 
-dirname = getSubjDir(argExtern);
+dirname = getGroupDir(argExtern);
 
 groupSubjList = {};
 
@@ -399,15 +394,16 @@ groupSubjList = {};
 if isempty(groupDir)
     return;
 end
+
 groupSubjList{1} = groupDir;
-for ii=2:length(subjDirs)+1
-    groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name];
+for ii = 2:length(subjDirs)+1
+    groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name]; %#ok<AGROW>
 end
 
 
 
 % -----------------------------------------------------------------------
-function groupSubjList_Callback(hObject,eventdata,handles)
+function groupSubjList_Callback(hObject, ~, ~)
 global atlasViewer
 
 if isempty(atlasViewer)
@@ -441,29 +437,29 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, [hObject, hImageRe
 
 
 % -----------------------------------------------------------------------
-function hGroupList = displayGroupSubjList(groupSubjList0, hGroupList, hGui)
+function hGroupTree = displayGroupSubjList(groupSubjList0, hGroupTree, hGui)
 
 if isempty(groupSubjList0)
-    if ishandles(hGroupList)
-        delete(hGroupList);
+    if ishandles(hGroupTree)
+        delete(hGroupTree);
     end
     return;
 end
 
 groupSubjList = {};
-for ii=1:length(groupSubjList0)
-    [pp,fp] = getpathparts(groupSubjList0{ii});
+for ii = 1:length(groupSubjList0)
+    pp = getpathparts(groupSubjList0{ii});
     
     subjListboxStr = pp{end};
     if ii>1
         subjListboxStr = ['  ', pp{end}];
     end
-    groupSubjList{ii} = subjListboxStr;
+    groupSubjList{ii} = subjListboxStr; %#ok<AGROW>
 end
 
-if ishandles(hGroupList)
-    hFig = get(hGroupList,'parent');
-    set(hGroupList, 'string',groupSubjList);
+if ishandles(hGroupTree)
+    hFig = get(hGroupTree,'parent');
+    set(hGroupTree, 'string',groupSubjList);
     figure(hFig);
     return;
 end
@@ -477,18 +473,18 @@ end
 hFig = figure('numbertitle','off','menubar','none','name','Group Subject List','units','normalized',...
               'position',[.05,.45,.15,.40],'resize','on', 'visible','off');
 
-hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList,...
+hGroupTree = uicontrol('parent',hFig,'style','listbox','string',groupSubjList,...
                        'fontsize',10,'units','normalized','position',[.10 .25 .80 .70],'value',1,...
                        'callback',{@groupSubjList_Callback,'hObject'});
 
-setappdata(hGroupList, 'groupSubjList', groupSubjList0);
+setappdata(hGroupTree, 'groupSubjList', groupSubjList0);
 
 % Initilize listbox selection to current subject folder
-[pp,fs] = getpathparts(pwd);
+pp = getpathparts(pwd);
 subjname = pp{end};
 k =  find(strcmp(strtrim(groupSubjList), subjname));
 if ~isempty(k)
-    set(hGroupList, 'value', k);
+    set(hGroupTree, 'value', k);
 end
 
 
@@ -512,16 +508,16 @@ end
 
 initAxesv(handles);
 
-[groupSubjList, dirnameSubj] = InitGroup(varargin);
-hGroupList=[];
+[groupSubjList, dirnameSubj] = LoadDataTree(varargin);
+hGroupTree=[];
 if length(varargin)>3
     if ~isempty(varargin{4})
-        hGroupList = varargin{4}(1);
+        hGroupTree = varargin{4}(1);
     end
 end
-handles.hGroupList = displayGroupSubjList(groupSubjList, hGroupList, hObject);
+handles.hGroupTree = displayGroupSubjList(groupSubjList, hGroupTree, hObject);
 
-if ~isempty(dirnameSubj) & dirnameSubj ~= 0
+if ~isempty(dirnameSubj) & dirnameSubj ~= 0 %#ok<AND2>
     if length(varargin)<2
         varargin{1} = dirnameSubj;
         varargin{2} = 'userargs';
@@ -533,14 +529,14 @@ LoadSubj(hObject, eventdata, handles, varargin);
 
 fprintf('Subject index = %d\n', atlasViewer.imgrecon.iSubj);
 
-if ishandles(handles.hGroupList)
-    set(handles.hGroupList, 'enable','on');
-    hParent = get(handles.hGroupList,'parent');
+if ishandles(handles.hGroupTree)
+    set(handles.hGroupTree, 'enable','on');
+    hParent = get(handles.hGroupTree,'parent');
     set(hParent, 'visible','on');
     figure(hParent);
 end
 
-atlasViewer.handles.hGroupList = handles.hGroupList;
+atlasViewer.handles.hGroupTree = handles.hGroupTree;
 atlasViewer.groupSubjList = groupSubjList;
 
 if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
@@ -550,7 +546,7 @@ end
 
 
 % -------------------------------------------------------------------
-function varargout = AtlasViewerGUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = AtlasViewerGUI_OutputFcn(~, ~, handles) 
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
@@ -559,7 +555,7 @@ varargout{1} = handles.output;
 
 
 % --------------------------------------------------------------------
-function AtlasViewerGUI_DeleteFcn(hObject, eventdata, handles)
+function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
 fclose all;
@@ -585,8 +581,8 @@ if length(axesv)>1
         delete(hp);
     end
 end
-if ishandles(atlasViewer.handles.hGroupList)
-    hFig = get(atlasViewer.handles.hGroupList,'parent');
+if ishandles(atlasViewer.handles.hGroupTree)
+    hFig = get(atlasViewer.handles.hGroupTree,'parent');
     delete(hFig);
 end
 atlasViewer=[];
@@ -596,7 +592,7 @@ clear atlasViewer;
 
 
 % ----------------------------------------------------------------
-function radiobuttonShowHead_Callback(hObject, eventdata, handles)
+function radiobuttonShowHead_Callback(hObject, ~, ~)
 global atlasViewer;
 hHeadSurf = atlasViewer.headsurf.handles.surf;
 
@@ -612,7 +608,7 @@ end
 
 
 % ------------------------------------------------------------------
-function editHeadTransparency_Callback(hObject, eventdata, handles)
+function editHeadTransparency_Callback(hObject, ~, ~)
 global atlasViewer;
 
 hHeadSurf = atlasViewer.headsurf.handles.surf;
@@ -643,9 +639,8 @@ end
 
 
 
-
 % --------------------------------------------------------------------
-function editBrainTransparency_Callback(hObject, eventdata, handles)
+function editBrainTransparency_Callback(hObject, ~, ~)
 global atlasViewer;
 
 hPialSurf = atlasViewer.pialsurf.handles.surf;
@@ -722,9 +717,8 @@ labelssurf  = resetLabelssurf(labelssurf);
 
 
 
-
 % --------------------------------------------------------------------
-function pushbuttonRegisterProbeToSurface_Callback(hObject, eventdata, handles)
+function pushbuttonRegisterProbeToSurface_Callback(~, ~, ~)
 global atlasViewer
 
 refpts       = atlasViewer.refpts;
@@ -746,7 +740,7 @@ end
 
 if isempty(probe.optpos)
     menu('No probe has been loaded or created. Use the SDgui to make or load a probe','ok');
-    probe = resetProbe(probe);
+    atlasViewer.probe = resetProbe(probe);
     return;
 end
 
@@ -798,10 +792,9 @@ atlasViewer.labelssurf  = labelssurf;
 
 
 % --------------------------------------------------------------------
-function menuItemMakeProbe_Callback(hObject, eventdata, handles)
+function menuItemMakeProbe_Callback(~, ~, ~)
 global atlasViewer
 
-probe        = atlasViewer.probe;
 labelssurf   = atlasViewer.labelssurf;
 
 hSDgui = atlasViewer.probe.handles.hSDgui;
@@ -821,26 +814,27 @@ set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
 % the faces red). It's all new for a new probe.
 labelssurf = resetLabelssurf(labelssurf);
 
+atlasViewer.labelssurf = labelssurf;
 
 
 
 % --------------------------------------------------------------------
-function menuItemExit_Callback(hObject, eventdata, handles)
+function menuItemExit_Callback(~, ~, ~)
 global atlasViewer
 probe = atlasViewer.probe;
 
 if ishandles(probe.handles.hSDgui) 
     delete(probe.handles.hSDgui);
-    probe.handles.hSDgui=[];
+    probe.handles.hSDgui = [];
 end
 delete(atlasViewer.handles.figure);
-atlasViewer=[];
+atlasViewer = [];
 
 
 
 
 % --------------------------------------------------------------------
-function checkboxHideProbe_Callback(hObject, eventdata, handles)
+function checkboxHideProbe_Callback(hObject, ~, ~)
 global atlasViewer;
 probe    = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -860,7 +854,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideMeasList_Callback(hObject, eventdata, handles)
+function checkboxHideMeasList_Callback(hObject, ~, ~)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -873,7 +867,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideSprings_Callback(hObject, eventdata, handles)
+function checkboxHideSprings_Callback(hObject, ~, handles)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -895,7 +889,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideDummyOpts_Callback(hObject, eventdata, handles)
+function checkboxHideDummyOpts_Callback(hObject, ~, ~)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -909,17 +903,17 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemChangeSubjDir_Callback(hObject, eventdata, handles)
+function menuItemChangeSubjDir_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
 groupSubjList = atlasViewer.groupSubjList;
 axesv = atlasViewer.axesv;
 fwmodel = atlasViewer.fwmodel;
-hGroupList = atlasViewer.handles.hGroupList;
+hGroupTree = atlasViewer.handles.hGroupTree;
 
-if ishandles(hGroupList)
-    displayGroupSubjList(groupSubjList, hGroupList);
+if ishandles(hGroupTree)
+    displayGroupSubjList(groupSubjList, hGroupTree);
     return;
 end  
 
@@ -933,17 +927,16 @@ if length(axesv)>1
         delete(hp);
     end
 end
-AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, hGroupList, 'userargs');
+AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, hGroupTree, 'userargs');
 
 
 
 
 % --------------------------------------------------------------------
-function menuItemChangeAtlasDir_Callback(hObject, eventdata, handles)
+function menuItemChangeAtlasDir_Callback(~, ~, ~)
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
-axesv = atlasViewer.axesv;
 fwmodel = atlasViewer.fwmodel;
 
 
@@ -979,7 +972,7 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, 'userargs');
 
 
 % --------------------------------------------------------------------
-function menuItemSaveRegisteredProbe_Callback(hObject, eventdata, handles)
+function menuItemSaveRegisteredProbe_Callback(~, ~, ~)
 global atlasViewer
 
 probe      = atlasViewer.probe;
@@ -991,7 +984,7 @@ nsrc       = probe.nsrc;
 q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
 if q==2
 
-    [filename pathname] = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
+    filename = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
     if filename==0
         return;
     end
@@ -1067,18 +1060,17 @@ if ~isfield(subj,'anchor')
 else
     method = getProbeRegMethod();
 end
-[probe.optpos, T] = reg_subj2atlas(method, subj, atlas);
+probe.optpos = reg_subj2atlas(method, subj, atlas);
 
 
 
 
 
 % --------------------------------------------------------------------
-function menuItemImportProbe_Callback(hObject, eventdata, handles)
+function menuItemImportProbe_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameProbe = atlasViewer.dirnameProbe;
-dirnameSubj  = atlasViewer.dirnameSubj;
 probe        = atlasViewer.probe;
 refpts       = atlasViewer.refpts;
 headsurf     = atlasViewer.headsurf;
@@ -1086,7 +1078,6 @@ labelssurf   = atlasViewer.labelssurf;
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 digpts       = atlasViewer.digpts;
-axesv        = atlasViewer.axesv;
 
 [filename, pathname] = uigetfile([dirnameProbe '*.*'],'Import subject probe');
 if filename==0
@@ -1104,7 +1095,7 @@ fwmodel     = resetFwmodel(fwmodel);
 imgrecon    = resetImgRecon(imgrecon);
 labelssurf  = resetLabelssurf(labelssurf);
 
-probe = getProbe(probe, [pathname, '/', filename], digpts);
+probe = importProbe(probe, [pathname, filename], digpts);
 
 probe = viewProbe(probe,'unregistered');
 
@@ -1140,15 +1131,12 @@ drawnow();
 
 
 % --------------------------------------------------------------------
-function menuItemChooseLabelsColormap_Callback(hObject, eventdata, handles)
+function menuItemChooseLabelsColormap_Callback(~, ~, ~)
 global atlasViewer
 
 hLabelsSurf     = atlasViewer.labelssurf.handles.surf;
-vertices        = atlasViewer.labelssurf.mesh.vertices;
 idxL            = atlasViewer.labelssurf.idxL;
-namesL          = atlasViewer.labelssurf.names;
 colormaps       = atlasViewer.labelssurf.colormaps;
-colormapsIdx    = atlasViewer.labelssurf.colormapsIdx;
 iFaces          = atlasViewer.labelssurf.iFaces;
 
 if ~ishandles(hLabelsSurf)
@@ -1175,7 +1163,7 @@ atlasViewer.labelssurf.colormapsIdx = ch;
 
 
 % --------------------------------------------------------------------
-function menuItemRegisterAtlasToDigpts_Callback(hObject, eventdata, handles)
+function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 global DEBUG
 
@@ -1186,8 +1174,6 @@ headvol      = atlasViewer.headvol;
 pialsurf     = atlasViewer.pialsurf;
 probe        = atlasViewer.probe;
 labelssurf   = atlasViewer.labelssurf;
-dirnameAtlas = atlasViewer.dirnameAtlas;
-dirnameSubj  = atlasViewer.dirnameSubj;
 axesv        = atlasViewer.axesv;
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon; 
@@ -1351,7 +1337,7 @@ atlasViewer.hbconc      = hbconc;
 
 
 % --------------------------------------------------------------------
-function menuItemGenerateMCInput_Callback(hObject, eventdata, handles)
+function menuItemGenerateMCInput_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel       = atlasViewer.fwmodel;
@@ -1471,7 +1457,7 @@ end
 
 
 % --------------------------------------------------------------------
-function fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, eventdata, handles)
+function fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(~, eventdata, handles)
 global atlasViewer
 
 fwmodel     = atlasViewer.fwmodel;
@@ -1484,10 +1470,9 @@ headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
 axesv       = atlasViewer.axesv;
 
-T_vol2mc    = atlasViewer.headvol.T_2mc;
 
 try 
-    if isempty(eventdata) | strcmp(eventdata.EventName,'Action')
+    if isempty(eventdata) || strcmp(eventdata.EventName,'Action')
         fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf,dirnameSubj);
         if isempty(fwmodel.Adot)
             return;
@@ -1495,7 +1480,7 @@ try
         imgrecon = resetImgRecon(imgrecon);
     end 
 catch ME
-    if strcmp(ME.identifier,'MATLAB:nomem') | ...
+    if strcmp(ME.identifier,'MATLAB:nomem') || ...
        strcmp(ME.identifier,'MATLAB:pmaxsize')
         if ispc()
             waitfor(msgbox(makeMsgOutOfMem('outofmem')));
@@ -1538,21 +1523,19 @@ end
 
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
+atlasViewer.hbconc = hbconc;
 
 
 
 % --------------------------------------------------------------------
-function menuItemGenFluenceProfile_Callback(hObject, eventdata, handles)
+function menuItemGenFluenceProfile_Callback(~, ~, ~)
 global atlasViewer
 
 fwmodel     = atlasViewer.fwmodel;
-imgrecon    = atlasViewer.imgrecon;
 probe       = atlasViewer.probe;
 headvol     = atlasViewer.headvol;
 pialsurf    = atlasViewer.pialsurf;
-headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
-axesv       = atlasViewer.axesv;
 
 dirnameOut = [dirnameSubj 'fw/'];
 
@@ -1569,7 +1552,7 @@ sectionsize = fwmodel.nFluenceProfPerFile;
 
 fwmodel.fluenceProf(1) = initFluenceProf();
 fwmodel.fluenceProf(2) = initFluenceProf();
-for ii=1:sectionsize:probe.noptorig;
+for ii = 1:sectionsize:probe.noptorig
     fluenceExists = false;
 
     fwmodel.fluenceProf(1).index = fwmodel.fluenceProf(1).index+1;
@@ -1598,9 +1581,9 @@ for ii=1:sectionsize:probe.noptorig;
     % Get number of dets in this probe section
     if iFirst > probe.nsrc
         ndet = iFirst-iLast+1;
-    elseif iFirst <= probe.nsrc & iLast <= probe.nsrc
+    elseif iFirst <= probe.nsrc && iLast <= probe.nsrc
         ndet = 0;
-    elseif iFirst <= probe.nsrc & iLast > probe.nsrc
+    elseif iFirst <= probe.nsrc && iLast > probe.nsrc
         ndet = iLast-probe.nsrc;
     end
     
@@ -1642,7 +1625,6 @@ for ii=1:sectionsize:probe.noptorig;
     delete([dirnameOut 'fw*.inp*']);
     
 end
-
 atlasViewer.fwmodel = fwmodel;
 
 
@@ -1650,7 +1632,7 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function radiobuttonShowDigpts_Callback(hObject, eventdata, handles)
+function radiobuttonShowDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 
 digpts = atlasViewer.digpts;
@@ -1676,13 +1658,12 @@ end
 
 
 % --------------------------------------------------------------------
-function checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+function checkboxOptodeSDMode_Callback(~, ~, ~)
 global atlasViewer
 probe    = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
 
 probe = setOptodeNumbering(probe);
-
 probe = setProbeDisplay(probe, headsurf);
 
 atlasViewer.probe = probe;
@@ -1717,11 +1698,9 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemShowRefpts_Callback(hObject, eventdata, handles)
+function menuItemShowRefpts_Callback(hObject, ~, ~)
 global atlasViewer
 
-
-eeg_system_labels = {};
 switch(get(hObject, 'tag'))
     case 'menuItemShow10_20'
         atlasViewer.refpts.eeg_system.selected = '10-20';
@@ -1765,17 +1744,17 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemEnableSensitivityMatrixVolume_Callback(hObject, eventdata, handles)
+function menuItemEnableSensitivityMatrixVolume_Callback(hObject, ~, ~)
 global atlasViewer
 fwmodel = atlasViewer.fwmodel;
 
 checked = get(hObject,'checked');
-if strcmp(checked,'on');
+if strcmp(checked,'on')
     set(hObject,'checked','off');
-    val=0;
-elseif strcmp(checked,'off');
+    val = 0;
+elseif strcmp(checked,'off')
     set(hObject,'checked','on');
-    val=1;
+    val = 1;
 else
     return;
 end
@@ -1786,11 +1765,9 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function pushbuttonCopyFigure_Callback(hObject, eventdata, handles)
+function pushbuttonCopyFigure_Callback(~, ~, ~)
 global atlasViewer
 axesv       = atlasViewer.axesv;
-headsurf    = atlasViewer.headsurf;
-fwmodel 	= atlasViewer.fwmodel;
 
 cm = colormap;
 clim = caxis;
@@ -1817,7 +1794,7 @@ camzoom(axesv(1).handles.axesSurfDisplay, 1.3*axesv(1).zoomincr);
 
 
 % --------------------------------------------------------------------
-function menuItemConvertEZStoDigPts_Callback(hObject, eventdata, handles)
+function menuItemConvertEZStoDigPts_Callback(~, ~, ~)
 global atlasViewer
 
 [filenm,pathnm] = uigetfile('*.ezs','Choose .ezs file to convert');
@@ -1838,7 +1815,7 @@ atlasViewer.probe = displayProbe(atlasViewer.probe);
 
 
 % --------------------------------------------------------------------
-function menuItemSaveViewerState_Callback(hObject, eventdata, handles)
+function menuItemSaveViewerState_Callback(~, ~, ~)
 global atlasViewer
 
 
@@ -1852,8 +1829,6 @@ digpts      = atlasViewer.digpts;
 probe       = atlasViewer.probe;
 fwmodel 	= atlasViewer.fwmodel;
 imgrecon    = atlasViewer.imgrecon;
-
-dirnameSubj = atlasViewer.dirnameSubj;
 
 saveObjects('atlasViewer.mat', ...
     axesv, ...
@@ -1874,7 +1849,7 @@ saveObjects('atlasViewer.mat', ...
 
 
 % --------------------------------------------------------------------
-function checkboxOptodeCircles_Callback(hObject, eventdata, handles)
+function checkboxOptodeCircles_Callback(hObject, ~, ~)
 global atlasViewer
 
 probe    = atlasViewer.probe;
@@ -1895,15 +1870,15 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemLighting_Callback(hObject, eventdata, handles)
+function menuItemLighting_Callback(hObject, ~, ~)
 global atlasViewer
 
 axesv       = atlasViewer.axesv;
 
-if strcmp(get(hObject,'checked'), 'on');
+if strcmp(get(hObject,'checked'), 'on')
     set(hObject,'checked', 'off');
     val=0;
-elseif strcmp(get(hObject,'checked'), 'off');
+elseif strcmp(get(hObject,'checked'), 'off')
     set(hObject,'checked', 'on');
     val=1;
 end
@@ -1920,8 +1895,7 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemFindRefpts_Callback(hObject, eventdata, handles)
-
+function menuItemFindRefpts_Callback(~, ~, ~)
 FindRefptsGUI();
 
 
@@ -1929,14 +1903,13 @@ FindRefptsGUI();
 
 
 % --------------------------------------------------------------------
-function menuProbePlacementVariation_Callback(hObject, eventdata, handles)
-
+function menuProbePlacementVariation_Callback(~, ~, ~)
 plotProbePlacementVariation();
 
 
 
 % --------------------------------------------------------------------
-function menuItemRegisterAtlasToHeadSize_Callback(hObject, eventdata, handles)
+function menuItemRegisterAtlasToHeadSize_Callback(hObject, eventdata, handles) %#ok<*DEFNU>
 global atlasViewer
 
 dirnameSubj  = atlasViewer.dirnameSubj;
@@ -1984,7 +1957,7 @@ menuItemRegisterAtlasToDigpts_Callback(hObject, eventdata, handles)
 
 
 % --------------------------------------------------------------------
-function editSpringLenThresh_Callback(hObject, eventdata, handles)
+function editSpringLenThresh_Callback(hObject, ~, ~)
 global atlasViewer;
 
 probe = atlasViewer.probe;
@@ -2013,6 +1986,8 @@ end
 probe.springLenThresh = foo;
 sLenThresh = probe.springLenThresh;
 
+springLenReg = zeros(size(sl,1),1);
+springLenErr = zeros(size(sl,1),1);
 for ii=1:size(sl,1) 
     springLenReg(ii) = dist3(optpos(sl(ii,1),:), optpos(sl(ii,2),:));
     springLenErr(ii) = springLenReg(ii)-sl(ii,3);
@@ -2027,16 +2002,14 @@ for ii=1:size(sl,1)
     else
         k = 3;
     end
-    set(hSprings(ii),'color',cm(k,:));
+    set(hSprings(ii), 'color',cm(k,:));
 end
-
-springLenErr
 
 
 
 
 % --------------------------------------------------------------------
-function menuCalcOptProp_Callback(hObject, eventdata, handles)
+function menuCalcOptProp_Callback(~, ~, ~)
 
 prompt        = {'Wavelengths (nm)','HbT (uM)','SO2 (%)','Reduced Scattering Coefficient at 800 nm (1/mm)','Scattering Slope b'};
 name          = 'Calculate absorption and scattering';
@@ -2065,7 +2038,7 @@ ch = menu( sprintf('For wavelengths %s nm:\nmua = %s 1/mm\nmusp = %s 1/mm\n', nu
 
 
 % --------------------------------------------------------------------
-function probe = menuItemProjectProbeToCortex_Callback(hObject, eventdata, handles)
+function probe = menuItemProjectProbeToCortex_Callback(hObject, eventdata, ~)
 global atlasViewer
 
 % eventdata tells us if we are displaying label projections ( eventdata==true ) 
@@ -2073,7 +2046,7 @@ global atlasViewer
 if isempty(eventdata)
     eventdata = true;
 end
-if strcmp(class(eventdata), 'matlab.ui.eventdata.ActionData') & ...
+if isa(eventdata, 'matlab.ui.eventdata.ActionData') && ...
    strcmp(eventdata.EventName,'Action')
     eventdata = true;
 end
@@ -2088,18 +2061,15 @@ pialsurf           = atlasViewer.pialsurf;
 % Assign variables from the main objects
 optpos_reg         = probe.optpos_reg;
 optpos_reg_mean    = probe.optpos_reg_mean;
-hOptodes           = probe.handles.hOptodes;
-hProjectionPts     = probe.handles.hProjectionPts;
 hProjectionTbl     = probe.handles.hProjectionTbl;
 hProjectionRays    = probe.handles.hProjectionRays;
 nopt               = probe.noptorig;
 ml                 = probe.ml;
-ptsProj_cortex     = probe.ptsProj_cortex;
 ptsProj_cortex_mni = probe.ptsProj_cortex_mni;
 attractPt          = headvol.center;
 T_labelssurf2vol   = labelssurf.T_2vol;
 
-if (~labelssurf.isempty(labelssurf)) & (eventdata == true)
+if (~labelssurf.isempty(labelssurf)) && (eventdata == true)
     labelssurf     = initLabelssurfProbeProjection(labelssurf);
     hLabelsSurf    = labelssurf.handles.surf;
     mesh           = labelssurf.mesh;
@@ -2188,7 +2158,7 @@ end
 % ptsProj_cortex is in viewer space. To get back to MNI coordinates take the
 % inverse of the tranformation from mni to viewer space.
 ptsProj_cortex = ProjectionBI(ptsProj, vertices);
-[ptsClosest, iP] = nearest_point(vertices, ptsProj_cortex);
+[~, iP] = nearest_point(vertices, ptsProj_cortex);
 if ~labelssurf.isempty(labelssurf)
     ptsProj_cortex_mni = xform_apply(ptsProj_cortex,inv(T_headvol2mc*T_labelssurf2vol));
 end
@@ -2211,10 +2181,10 @@ if eventdata == true
         p2 = ptsProj_cortex(ii,:);
         hProjectionRays(ii) = drawRayProjection(p1, p2, headsurf);
         v=p1-p2;
-        [t,u,v,iFace] = raytrace(p1,v, mesh.vertices, mesh.faces);
+        [t,~,~,iFace] = raytrace(p1,v, mesh.vertices, mesh.faces);
         
         % Find closest face
-        [foo,iFaceMin] = min(abs(t(iFace)));
+        [~,iFaceMin] = min(abs(t(iFace)));
         faceVertexCData(iFace(iFaceMin),:) = repmat([1 0 0],length(iFace(iFaceMin)),1);
         set(hLabelsSurf,'FaceVertexCData',faceVertexCData);
         faceVertexAlphaData(iFace(iFaceMin)) = ones(length(iFace(iFaceMin)),1);
@@ -2232,7 +2202,7 @@ if eventdata == true
                                   'menubar','none','numbertitle','off', ...
                                   'units','normalized', 'position',tblPos);
     
-    if option==1 | option==3
+    if option==1 || option==3
         optlabelsTbl = repmat({'','',''},length(iP),1);
         columnname = {'opt #','opt coord (Monte Carlo)','opt coord (MNI)','label name'};
         columnwidth = {40,160,120,140};
@@ -2258,12 +2228,12 @@ if eventdata == true
             faceVertexCData(j,:) = repmat([1 0 0],length(j),1);
         end
     end
-    ht = uitable('parent',hProjectionTbl(iTbl),'columnname',columnname,...
-                 'units','normalized','position',[.10 .10 .80 .80],'columnwidth',columnwidth,...
-                 'data',optlabelsTbl);
+    uitable('parent',hProjectionTbl(iTbl),'columnname',columnname,...
+            'units','normalized','position',[.10 .10 .80 .80],'columnwidth',columnwidth,...
+            'data',optlabelsTbl);
              
-    hBttnExit = uicontrol('parent',hProjectionTbl(iTbl),'style','pushbutton','string','EXIT',...
-                          'units','normalized','position',[.40 .02 .08 .04],'callback',@closeProjectionTbl);
+    uicontrol('parent',hProjectionTbl(iTbl),'style','pushbutton','string','EXIT',...
+              'units','normalized','position',[.40 .02 .08 .04],'callback',@closeProjectionTbl);
 end
 
 % Save outputs
@@ -2280,7 +2250,7 @@ atlasViewer.labelssurf.iFaces = iFaces;
 
 
 % --------------------------------------------------------------------
-function menuItemProjectRefptsToCortex_Callback(hObject, eventdata, handles)
+function menuItemProjectRefptsToCortex_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameSubj = atlasViewer.dirnameSubj;
@@ -2341,9 +2311,8 @@ headsurf         = atlasViewer.headsurf;
 pialsurf         = atlasViewer.pialsurf;
 
 % Assign variables from the main objects
-hProjectionRays              = refpts.handles.hProjectionRays;
-attractPt          = headvol.center;
-T_headvol2mc       = headvol.T_2mc;
+hProjectionRays = refpts.handles.hProjectionRays;
+attractPt       = headvol.center;
 
 if isempty(pialsurf.mesh.vertices)
     return;
@@ -2361,9 +2330,6 @@ ptsProj_cortex = ProjectionBI(ptsProj, vertices);
 [~, iP] = nearest_point(vertices, ptsProj_cortex);
 
 % Display optodes on labeled cortex
-hCortexProjection = [];
-iFaces = [];
-
 pts = prepPtsStructForViewing(ptsProj_cortex, size(ptsProj_cortex,1), 'probenum','k',11);
 hCortexProjection = viewPts(pts, attractPt,  0);
 set(hCortexProjection,'visible','off');
@@ -2371,17 +2337,16 @@ set(hCortexProjection,'visible','off');
 % Generate rays from optodes on head to optodes on cortex and
 % highlight the faces on the label that they pass through.
 faceVertexCData = get(pialsurf.handles.surf,'faceVertexCData');
-faceVertexAlphaData = get(pialsurf.handles.surf,'faceVertexAlphaData');
 iFaces = [];
 for ii=1:size(ptsProj,1)
     p1 = ptsProj(ii,:);
     p2 = ptsProj_cortex(ii,:);
     hProjectionRays(ii) = drawRayProjection(p1, p2, headsurf);
     v=p1-p2;
-    [t,u,v,iFace] = raytrace(p1,v, pialsurf.mesh.vertices, pialsurf.mesh.faces);
+    [t,~,~,iFace] = raytrace(p1,v, pialsurf.mesh.vertices, pialsurf.mesh.faces);
     
     % Find closest face
-    [foo,iFaceMin] = min(abs(t(iFace)));
+    [~,iFaceMin] = min(abs(t(iFace)));
     faceVertexCData(iFace(iFaceMin),:) = repmat([1 0 0],length(iFace(iFaceMin)),1);
     set(pialsurf.handles.surf,'FaceVertexCData',faceVertexCData);
     iFaces = [iFaces, iFace(iFaceMin)];
@@ -2403,19 +2368,18 @@ refpts.cortexProjection.pos = pialsurf.mesh.vertices(iP,:);
 atlasViewer.refpts = refpts;
 
 
+
 % --------------------------------------------------------------------
-function menuItemGetSensitivityatMNICoordinates_Callback(hObject, eventdata, handles)
+function menuItemGetSensitivityatMNICoordinates_Callback(~, ~, handles)
 global atlasViewer
-fwmodel    = atlasViewer.fwmodel;
 
 % get user input
-prompt={'MNI Coordinates (x, y, z) one or more separated by semicolumns ','radius (mm)','absorption change (mm-1)'};
-name='Get brain activation sensitivity at MNI coordinates';
-numlines=1;
-defaultanswer={'[0 0 0; 0 0 0]','3','0.001'};
+prompt = {'MNI Coordinates (x, y, z) one or more separated by semicolumns ','radius (mm)','absorption change (mm-1)'};
+name = 'Get brain activation sensitivity at MNI coordinates';
+numlines = 1;
+defaultanswer = {'[0 0 0; 0 0 0]','3','0.001'};
 
-answer=inputdlg(prompt,name,numlines,defaultanswer,'on');
-
+answer = inputdlg(prompt,name,numlines,defaultanswer,'on');
 if isempty(answer)
     return
 end
@@ -2454,8 +2418,9 @@ T_labelssurf2vol = atlasViewer.labelssurf.T_2vol; % mni to colin
 h = waitbar(0,'Please wait while loading volume and calculating...');
 
 % loop around MNI coordinates to get dOD change for each.
-for i = 1: no_mni;
-    
+coordinate_MC = zeros(no_mni,3);
+dOD_blob  = zeros(no_mni,1);
+for i = 1:no_mni
     coordinate_MC(i,:) = xform_apply(coordinate_mni(i,:), (T_headvol2mc*T_labelssurf2vol));
     
     % generate a sphere with MNI at the center
@@ -2463,8 +2428,7 @@ for i = 1: no_mni;
     
     % sum the sensitivity within the sphere (this sensitivity is the sum of
     % all optode sensitivities.)
-    blob_ind = find(vol>1);
-    sum_sensitivity = sum(f(blob_ind));
+    sum_sensitivity = sum(f(vol>1));
     vox_vol = 1; %mm^3   Talk to Jay to get the vox vol from the data structure as it is not necessarily 1 mm^3
     
     % estimate optical density change
@@ -2480,12 +2444,11 @@ close(h);% close waitbar
 atlasViewer.fwmodel.MNI = coordinate_mni;
 atlasViewer.fwmodel.MNI_inMCspace = coordinate_MC;
 
-
 % Create a table associating projected cortex optodes with brain labels
 figname = 'Integrated Sensitivity of a Sphere with MNI Coordinates at the Center';
 MNI_2_sensitivity_Table = figure('name',figname,'toolbar','none',...
-    'menubar','none','numbertitle','off', ...
-    'units','normalized', 'position',[.4 .1 .2 .4]);
+                                 'menubar','none','numbertitle','off', ...
+                                 'units','normalized', 'position',[.4 .1 .2 .4]);
 
 cnames = {'x','y','z','radius', 'deltaMa', 'dOD'};
 rnames = {'1','2','3'};
@@ -2498,10 +2461,8 @@ d(1:no_mni,4) = radius;
 d(1:no_mni,5) = deltaMa;
 d(1:no_mni,6) = dOD_blob;
 
-t = uitable(MNI_2_sensitivity_Table ,'Data',d,...
-    'ColumnName',cnames,...
-    'RowName',rnames,'position',[5 1.5 335 400],'columnwidth',columnwidth,'ColumnFormat', columnformat);
-%[left bottom width height]
+uitable(MNI_2_sensitivity_Table, 'Data',d, 'ColumnName',cnames, 'RowName',rnames, ...
+        'position',[5.0, 1.5, 335.0, 400.0], 'columnwidth',columnwidth, 'ColumnFormat',columnformat);
 
 % Enable display_mni_projection
 set(handles.checkbox_Display_MNI_Projection, 'enable','on');
@@ -2510,13 +2471,9 @@ set(handles.checkbox_Display_MNI_Projection, 'value',0);
 
 
 % --------------------------------------------------------------------
-function checkbox_Display_MNI_Projection_Callback(hObject, eventdata, handles)
+function checkbox_Display_MNI_Projection_Callback(hObject, ~, ~)
 global atlasViewer
 
-fwmodel    = atlasViewer.fwmodel;
-headvol    = atlasViewer.headvol; 
-labelssurf = atlasViewer.labelssurf; 
-headvol    = atlasViewer.headvol; 
 headsurf   = atlasViewer.headsurf;
  
 if get(hObject,'value')==1 % if checkbox is checked
@@ -2532,13 +2489,13 @@ if get(hObject,'value')==1 % if checkbox is checked
         no_mni = size(coordinate_mni,1);
         foo = num2str(coordinate_mni);
         fooi = sprintf(foo(1,:));
-        if no_mni == 1;
+        if no_mni == 1
             defaultanswer = {[fooi]};
         else
-            for i = 2:no_mni;
+            for i = 2:no_mni
                 foon = ['; ' sprintf(foo(i,:))];
                 defaultanswer = {[fooi foon]};
-                fooi = [fooi foon];
+                fooi = [fooi, foon];
             end %defaultanswer = {[sprintf(foo(1,:)) ';' sprintf(foo(2,:))]}
         end
     else
@@ -2554,7 +2511,8 @@ if get(hObject,'value')==1 % if checkbox is checked
     % get coordinate in MC space
     T_headvol2mc     = atlasViewer.headvol.T_2mc; % colin to Monte Carlo space
     T_labelssurf2vol = atlasViewer.labelssurf.T_2vol; % mni to colin
-    for i = 1: no_mni;
+    coordinate_MC = zeros(no_mni,3);
+    for i = 1:no_mni
         coordinate_MC(i,:) = xform_apply(coordinate_mni(i,:), (T_headvol2mc*T_labelssurf2vol));
     end
     
@@ -2565,12 +2523,10 @@ if get(hObject,'value')==1 % if checkbox is checked
     h2 = findobj('Marker','o');
     set(h2,'Visible','off');
     
-    headvol   = atlasViewer.headvol;
     vertices  = atlasViewer.labelssurf.mesh.vertices;
     
     % Project MNI in MC space to head surface and pial surface
-    for i = 1:no_mni;
-        
+    for i = 1:no_mni        
         coordinate_MC_headsurf = ProjectionBI(coordinate_MC(i,:), atlasViewer.headsurf.mesh.vertices);
         coordinate_MC_cortex = ProjectionBI(coordinate_MC_headsurf, vertices);
         
@@ -2597,14 +2553,14 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemSetMCApp_Callback(hObject, eventdata, handles)
+function menuItemSetMCApp_Callback(~, ~, ~)
 global atlasViewer
 fwmodel = atlasViewer.fwmodel;
 
 % Last resort: If none of the above locate MC app then ask user where it is. 
 while 1
     pause(.1)
-    [filenm, pathnm] = uigetfile({'*'; '*.exe'}, ['Monte Carlo executable not found. Please select Monte Carlo executable.']);
+    [filenm, pathnm] = uigetfile({'*'; '*.exe'}, 'Monte Carlo executable not found. Please select Monte Carlo executable.');
     if filenm==0
         return;
     end
@@ -2637,7 +2593,7 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function menuItemSaveAnatomy_Callback(hObject, eventdata, handles)
+function menuItemSaveAnatomy_Callback(~, ~, ~)
 global atlasViewer
 
 headvol      = atlasViewer.headvol;
@@ -2645,7 +2601,6 @@ headsurf     = atlasViewer.headsurf;
 pialsurf     = atlasViewer.pialsurf;
 labelssurf   = atlasViewer.labelssurf;
 refpts       = atlasViewer.refpts;
-dirnameSubj  = atlasViewer.dirnameSubj;
 
 saveHeadvol(headvol);
 saveHeadsurf(headsurf, headvol.T_2mc);
@@ -2656,12 +2611,11 @@ saveRefpts(refpts, headvol.T_2mc);
 
 
 % --------------------------------------------------------------------
-function menuItemLoadPrecalculatedProfile_Callback(hObject, eventdata, handles)
+function menuItemLoadPrecalculatedProfile_Callback(~, ~, handles)
 global atlasViewer
 
 fwmodel = atlasViewer.fwmodel;
 headvol = atlasViewer.headvol;
-pialsurf = atlasViewer.pialsurf;
 probe = atlasViewer.probe;
 T_vol2mc = headvol.T_2mc;
 
@@ -2679,7 +2633,7 @@ menuItemGenerateLoadSensitivityProfile_Callback([], struct('EventName','profile'
 
 
 % --------------------------------------------------------------------
-function popupmenuImageDisplay_Callback(hObject, eventdata, handles)
+function popupmenuImageDisplay_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel  = atlasViewer.fwmodel;
@@ -2688,7 +2642,6 @@ hbconc = atlasViewer.hbconc;
 pialsurf = atlasViewer.pialsurf;
 axesv    = atlasViewer.axesv;
 
-strs = get(hObject,'string');
 val = get(hObject,'value');
 
 % First turn everything off
@@ -2735,11 +2688,14 @@ end
 set(pialsurf.handles.radiobuttonShowPial, 'value',0);
 uipanelBrainDisplay_Callback(pialsurf.handles.radiobuttonShowPial, [], handles);
 
+atlasViewer.fwmodel = fwmodel;
+atlasViewer.imgrecon = imgrecon;
+atlasViewer.hbconc = hbconc;
 
 
 
 % --------------------------------------------------------------------
-function popupmenuImageDisplay_CreateFcn(hObject, eventdata, handles)
+function popupmenuImageDisplay_CreateFcn(hObject, ~, ~)
 global popupmenuorder;
 
 popupmenuorder = struct(...
@@ -2770,17 +2726,14 @@ set(hObject, 'value',1);
 
 
 % --------------------------------------------------------------------
-function editSelectChannel_Callback(hObject, eventdata, handles)
+function editSelectChannel_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc     = atlasViewer.hbconc;
 probe        = atlasViewer.probe;
-mesh         = atlasViewer.pialsurf.mesh;
-headsurf     = atlasViewer.headsurf;
 pialsurf     = atlasViewer.pialsurf;
-axesv        = atlasViewer.axesv; 
 
 ChStr = get(hObject,'string');
 if isempty(ChStr)
@@ -2832,16 +2785,14 @@ atlasViewer.probe = probe;
 
 
 
-
 % --------------------------------------------------------------------
-function editColormapThreshold_Callback(hObject, eventdata, handles)
+function editColormapThreshold_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel = atlasViewer.fwmodel;
 imgrecon = atlasViewer.imgrecon;
 hbconc = atlasViewer.hbconc;
 axesv = atlasViewer.axesv; 
-probe = atlasViewer.probe; 
 
 val = str2num(get(hObject, 'string'));
 if length(val)>1
@@ -2864,7 +2815,7 @@ atlasViewer.hbconc = hbconc;
 
 
 % --------------------------------------------------------------------
-function pushbuttonOpticalPropertiesSet_new_Callback(hObject, eventdata, handles)
+function pushbuttonOpticalPropertiesSet_new_Callback(~, ~, ~)
 global atlasViewer;
 headvol = atlasViewer.headvol;
 fwmodel = atlasViewer.fwmodel;
@@ -2926,10 +2877,11 @@ answer = inputdlg(prompt,name,numlines,defaultanswer,'on');
 if ~isempty(answer)
     jj = 0;
     nw = [];
-    foos = [];
-    for ii=1:length(tiss_prop)
+    foos = [];    
+    outstr = cell(length(tiss_prop),1);
+    for ii = 1:length(tiss_prop)
         jj=jj+1;
-        foo = str2num(answer{jj});
+        foo = str2num(answer{jj}); %#ok<*ST2NM>
         nw(ii,1) = length(foo);
         tiss_prop(ii).scattering = foo;
         outstr{ii} = [outstr{ii} ' ' answer{jj}];
@@ -2970,16 +2922,16 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function pushbuttonCalcMetrics_new_Callback(hObject, eventdata, handles)
+function pushbuttonCalcMetrics_new_Callback(~, ~, handles)
 global atlasViewer
 
 imgrecon     = atlasViewer.imgrecon;
-hbconc     = atlasViewer.hbconc;
+hbconc       = atlasViewer.hbconc;
 fwmodel 	 = atlasViewer.fwmodel;
 pialsurf     = atlasViewer.pialsurf;
 probe        = atlasViewer.probe;
 dirnameSubj  = atlasViewer.dirnameSubj;
-axesv       = atlasViewer.axesv;
+axesv        = atlasViewer.axesv;
 
 % Set image popupmenu to resolution 
 set(imgrecon.handles.popupmenuImageDisplay,'value',imgrecon.menuoffset+1);
@@ -2996,39 +2948,34 @@ imgrecon = genImgReconMetrics(imgrecon, fwmodel, dirnameSubj);
 % Turn off image recon display
 fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
 hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
-
 imgrecon = displayImgRecon(imgrecon, fwmodel, pialsurf, [], probe);
 
 atlasViewer.imgrecon = imgrecon;
+atlasViewer.fwmodel = fwmodel;
+atlasViewer.hbconc = hbconc;
 
 
 
 % --------------------------------------------------------------------
-function menuItemImageReconGUI_Callback(hObject, eventdata, handles)
-global atlasViewer
-
+function menuItemImageReconGUI_Callback(~, ~, ~)
 ImageRecon();
-
 
 
 
 % --------------------------------------------------------------------
 function radiobuttonShowRefpts_Callback(hObject, eventdata, handles)
-
 radiobuttonShowRefpts(hObject, eventdata, handles)
 
 
 
 % --------------------------------------------------------------
 function uipanelBrainDisplay_Callback(hObject, eventdata, handles)
-
 uipanelBrainDisplay(hObject, eventdata, handles);
 
 
 
-
 % --------------------------------------------------------------------
-function menuItemOverlayHbConc_Callback(hObject, eventdata, handles)
+function menuItemOverlayHbConc_Callback(~, ~, ~)
 global atlasViewer
 
 hbconc    = atlasViewer.hbconc;
@@ -3036,7 +2983,6 @@ imgrecon  = atlasViewer.imgrecon;
 fwmodel   = atlasViewer.fwmodel;
 pialsurf  = atlasViewer.pialsurf;
 probe     = atlasViewer.probe;
-axesv     = atlasViewer.axesv;
 
 if isempty(hbconc.HbConcRaw)
     return;
@@ -3074,7 +3020,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function editCondition_Callback(hObject, eventdata, handles)
+function editCondition_Callback(hObject, ~, handles)
 global atlasViewer
 
 hbconc = atlasViewer.hbconc;
@@ -3097,7 +3043,7 @@ if floor(str2num(condstr))~=cond
     set(hObject, 'string', num2str(hbconc.iCond));
     return;
 end
-if (cond < 1) | (cond > size(hbconc.HbConcRaw,4))
+if (cond < 1) || (cond > size(hbconc.HbConcRaw,4))
     set(hObject, 'string', num2str(hbconc.iCond));
     return;
 end
@@ -3105,7 +3051,7 @@ if hbconc.iCond == cond
     return;
 end
 val = get(handles.popupmenuImageDisplay,'value');
-if val ~= hbconc.menuoffset+1 & val ~= hbconc.menuoffset+2
+if val ~= hbconc.menuoffset+1 && val ~= hbconc.menuoffset+2
     return;
 end
 
@@ -3126,7 +3072,7 @@ atlasViewer.hbconc = hbconc;
 
 
 % --------------------------------------------------------------------
-function menuItemClearRefptsToCortex_Callback(hObject, eventdata, handles)
+function menuItemClearRefptsToCortex_Callback(~, ~, ~)
 global atlasViewer
 
 refpts = atlasViewer.refpts;
@@ -3136,7 +3082,7 @@ atlasViewer.refpts = refpts;
 
 
 % --------------------------------------------------------------------
-function menuItemClearProbeProjection_Callback(hObject, eventdata, handles)
+function menuItemClearProbeProjection_Callback(~, ~, ~)
 global atlasViewer
 
 probe = atlasViewer.probe;
@@ -3146,7 +3092,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function closeProjectionTbl(hObject, eventdata)
+function closeProjectionTbl(~, ~)
 global atlasViewer
 
 probe = atlasViewer.probe;
@@ -3156,7 +3102,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemResetViewerState_Callback(hObject, eventdata, handles)
+function menuItemResetViewerState_Callback(~, ~, ~)
 
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
@@ -3182,7 +3128,7 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
 
 
 % --------------------------------------------------------------------
-function editViewAnglesAzimuth_Callback(hObject, eventdata, handles)
+function editViewAnglesAzimuth_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3216,7 +3162,7 @@ updateViewAngles(ii, az, el);
 
 
 % --------------------------------------------------------------------
-function editViewAnglesElevation_Callback(hObject, eventdata, handles)
+function editViewAnglesElevation_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3250,7 +3196,7 @@ updateViewAngles(ii, az, el);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsAnterior_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsAnterior_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3283,7 +3229,7 @@ updateViewAngles(ii, 180, 0);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsPosterior_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsPosterior_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3317,13 +3263,12 @@ updateViewAngles(ii, 0, 0);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsRight_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsRight_Callback(hObject, ~, handles)
 
 global atlasViewer
 
 axesv = atlasViewer.axesv;
 headsurf = atlasViewer.headsurf;
-o = headsurf.orientation;
 
 ax=[];
 for ii=1:length(axesv)
@@ -3353,12 +3298,11 @@ updateViewAngles(ii, 90, 0);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsLeft_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsLeft_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
 headsurf = atlasViewer.headsurf;
-o = headsurf.orientation;
 
 ax=[];
 for ii=1:length(axesv)
@@ -3388,7 +3332,7 @@ updateViewAngles(ii, -90, 0);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsSuperior_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsSuperior_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3420,7 +3364,7 @@ updateViewAngles(ii, 0, 90);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsInferior_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsInferior_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3453,7 +3397,7 @@ updateViewAngles(ii, 0, -90);
 
 
 % --------------------------------------------------------------------
-function menuItemCalcRefpts_Callback(hObject, eventdata, handles)
+function menuItemCalcRefpts_Callback(~, ~, ~)
 global atlasViewer
 
 refpts  = atlasViewer.refpts;
@@ -3483,15 +3427,13 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemConfigureRefpts_Callback(hObject, eventdata, handles)
-
+function menuItemConfigureRefpts_Callback(~, ~, ~)
 RefptsSystemConfigGUI();
 
 
 
 % --------------------------------------------------------------------
-function radiobuttonHeadDimensions_Callback(hObject, eventdata, handles)
-
+function radiobuttonHeadDimensions_Callback(hObject, ~, ~)
 global atlasViewer
 
 refpts = atlasViewer.refpts;
@@ -3508,7 +3450,7 @@ set(refpts.handles.uipanelHeadDimensions, 'visible',valstr);
 
 
 % --------------------------------------------------------------------
-function menuItemInstallAtlas_Callback(hObject, eventdata, handles)
+function menuItemInstallAtlas_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
@@ -3544,7 +3486,7 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
 
-if isempty(digpts.refpts.pos) | isempty(refpts.pos) | isempty(headsurf.mesh.vertices)
+if isempty(digpts.refpts.pos) || isempty(refpts.pos) || isempty(headsurf.mesh.vertices)
     set(atlasViewer.handles.menuItemRegisterAtlasToDigpts,'enable','off')
 else
     set(atlasViewer.handles.menuItemRegisterAtlasToDigpts,'enable','on')
@@ -3553,4 +3495,6 @@ end
 % Set the GUI controls for post-probe-registration controls, 
 % like fw model, image recon, hb overlay, 
 fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf);
+
+atlasViewer.fwmodel = fwmodel;
 

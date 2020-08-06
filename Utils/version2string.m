@@ -1,12 +1,41 @@
-function [verstr, V] = version2string()
+function [verstr, V] = version2string(V)
 
-V = getVernum();
-if str2num(V{2})==0 || isempty(V{2})
-    verstr = sprintf('v%s', [V{1}]);
-else
-    verstr = sprintf('v%s', [V{1} '.' V{2}]);
+verstr = '';
+if ~exist('V','var') || isempty(V)
+    V = getVernum();
+end
+if ischar(V)
+    verstr = V;
+    return
 end
 
-if ~isempty(V{3})
-    verstr = sprintf('%s, %s', verstr, V{3});
-end    
+% Error checking
+for ii = length(V):-1:1
+    if ~ischar(V{ii})
+        return;
+    end
+    if ~isnumber(V{ii}) && ii<4
+        return;
+    end
+    if ii<4
+        break;
+    end
+end
+
+% Generate vresion string from version cell array
+zeroflag = false;
+for kk = length(V):-1:1
+    if kk>2 && strcmp(V{kk},'0') && ~zeroflag
+        continue;
+    end
+    zeroflag = true;
+    if (kk+1)>length(V) || isnumber(V{kk+1})
+        verstr = sprintf('%s.%s', V{kk}, verstr);
+    else
+        verstr = sprintf('%s, %s', V{kk}, verstr);
+    end
+end
+if verstr(end) == '.'
+    verstr(end) = '';
+end
+

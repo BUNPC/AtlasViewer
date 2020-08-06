@@ -1,11 +1,13 @@
-function dirname = getSubjDir(arg)
+function dirname = getGroupDir(arg)
 
-dirname = -1;
+dirname = -1; %#ok<NASGU>
 if length(arg) > 1
+    
     dirname = arg{1};
+    
 else
     
-    % Rules fr determining if current folder is a subject folder    
+    % Rules fr determining if current folder is a group folder    
     % Check for presence of atlasviewer files 
     % in the current folder
     
@@ -69,7 +71,7 @@ else
     
 end
 
-if isempty(dirname) | dirname==0
+if isempty(dirname) | dirname==0 %#ok<OR2>
     return;
 end
 

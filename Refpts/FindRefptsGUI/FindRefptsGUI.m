@@ -199,11 +199,7 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc       = atlasViewer.hbconc;
 probe        = atlasViewer.probe;
-
 dirnameSubj  = atlasViewer.dirnameSubj;
-dirnameAtlas = atlasViewer.dirnameAtlas;
-T_vol2mc     = atlasViewer.headvol.T_2mc;
-hGroupList   = atlasViewer.handles.hGroupList;
 
 cmd = get(hObject,'String');
 

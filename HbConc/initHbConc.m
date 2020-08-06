@@ -45,8 +45,8 @@ hbconc = resetHbConc(hbconc);
 
 if exist('handles','var')
     hbconc.handles.axes = handles.axesSurfDisplay;
-    if ishandles(handles.hGroupList)
-        idx = get(handles.hGroupList, 'value');
+    if ishandles(handles.hGroupTree)
+        idx = get(handles.hGroupTree, 'value');
         if idx==1
             hbconc.iSubj = 0;
         elseif idx > 1
