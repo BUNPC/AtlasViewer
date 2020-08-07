@@ -23,7 +23,6 @@ end
 
 % -------------------------------------------------------------
 function [subjDirs, groupDir, group] = searchDir(dirname)
-
 subjDirs = mydir('');
 groupDir = '';
 

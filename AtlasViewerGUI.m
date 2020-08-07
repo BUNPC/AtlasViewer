@@ -129,7 +129,7 @@ atlasViewer.vrnum = V;
 
 
 % -----------------------------------------------------------------------
-function LoadSubj(hObject, eventdata, handles, argExtern)
+function LoadGroup(hObject, eventdata, handles, argExtern)
 global atlasViewer
 global popupmenuorder
 
@@ -155,6 +155,7 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc       = atlasViewer.hbconc;
 fs2viewer    = atlasViewer.fs2viewer;
+group        = atlasViewer.group;
     
 
 if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
@@ -174,8 +175,8 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
     probe      = getProbe(probe, dirnameSubj, digpts);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
-    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe);
-    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe);
+    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, group);
+    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, group);
     fs2viewer  = getFs2Viewer(fs2viewer, dirnameSubj);
    
 end
@@ -235,8 +236,6 @@ AtlasViewerGUI_enableDisable();
 
 % Set GUI size relative to screen size
 positionGUI(hObject);
-
-
 
 
 
@@ -381,6 +380,8 @@ end
 
 % ---------------------------------------------------------------------
 function [groupSubjList, dirname] = LoadDataTree(argExtern)
+global atlasViewer
+
 if isempty(argExtern)
     argExtern = {''};
 end
@@ -390,7 +391,7 @@ dirname = getGroupDir(argExtern);
 groupSubjList = {};
 
 % To find out the subj
-[subjDirs, groupDir] = findSubjDirs();
+[subjDirs, groupDir, group] = findSubjDirs();
 if isempty(groupDir)
     return;
 end
@@ -400,10 +401,12 @@ for ii = 2:length(subjDirs)+1
     groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name]; %#ok<AGROW>
 end
 
+atlasViewer.group = group;
+
 
 
 % -----------------------------------------------------------------------
-function groupSubjList_Callback(hObject, ~, ~)
+function listboxGroupTree_Callback(hObject, ~, ~)
 global atlasViewer
 
 if isempty(atlasViewer)
@@ -475,7 +478,7 @@ hFig = figure('numbertitle','off','menubar','none','name','Group Subject List','
 
 hGroupTree = uicontrol('parent',hFig,'style','listbox','string',groupSubjList,...
                        'fontsize',10,'units','normalized','position',[.10 .25 .80 .70],'value',1,...
-                       'callback',{@groupSubjList_Callback,'hObject'});
+                       'callback',{@listboxGroupTree_Callback,'hObject'});
 
 setappdata(hGroupTree, 'groupSubjList', groupSubjList0);
 
@@ -508,6 +511,8 @@ end
 
 initAxesv(handles);
 
+atlasViewer.group = [];
+
 [groupSubjList, dirnameSubj] = LoadDataTree(varargin);
 hGroupTree=[];
 if length(varargin)>3
@@ -525,7 +530,7 @@ if ~isempty(dirnameSubj) & dirnameSubj ~= 0 %#ok<AND2>
         varargin{1} = dirnameSubj;
     end
 end
-LoadSubj(hObject, eventdata, handles, varargin);
+LoadGroup(hObject, eventdata, handles, varargin);
 
 fprintf('Subject index = %d\n', atlasViewer.imgrecon.iSubj);
 

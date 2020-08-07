@@ -1,4 +1,4 @@
-function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe)
+function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe, group)
 
 if isempty(imgrecon)
     return;
@@ -48,20 +48,19 @@ if exist([dirnameOut, 'metrics.mat'], 'file')
 end
 
 % Check if there's group acquisition data to load
-[~,~, group] = findSubjDirs();
 if ~isempty(group)
-    SD = getSD(group);
-    
-    k1 = find(SD.MeasList(:,4)==1);
+    ch = group.GetMeasList();
+    SD = group.GetSDG();
+    k1 = find(ch.MeasList(:,4)==1);
     nChGrpData = length(k1);
     nChProbe = size(probe.ml,1);
     if nChGrpData==nChProbe
         imgrecon.subjData.SD = SD;
-        imgrecon.subjData.name = group.name;
+        imgrecon.subjData.name = group.GetName();
         if imgrecon.iSubj==0
-            imgrecon.subjData.procResult = group.procResult;
+            imgrecon.subjData.procResult = group.procStream.output;
         else
-            imgrecon.subjData.procResult = group.subjs(imgrecon.iSubj).procResult;
+            imgrecon.subjData.procResult = group.subjs(imgrecon.iSubj).procStream.output;
         end
         set(imgrecon.handles.menuItemImageReconGUI, 'enable', 'on');
     else
