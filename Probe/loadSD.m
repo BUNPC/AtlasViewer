@@ -1,5 +1,5 @@
 function probe = loadSD(probe,SD)
-
+scale = 1;
 
 if(isfield(SD,'Lambda'))
     probe.lambda=SD.Lambda;
@@ -75,5 +75,12 @@ else
     probe.al=[];
 end
 
-probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
+if(isfield(SD,'SpatialUnit'))
+	% Make sure units agree with AV native units which is mm
+    if strcmp(SD.SpatialUnit, 'cm')
+        scale = 10;
+    end
+end
+
+probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos] * scale;
 probe.noptorig = size([probe.srcpos; probe.detpos],1);

@@ -33,6 +33,9 @@ end
 if ~exist('probe','var') || isempty(probe)
     probe = initProbe();
 end
+if ~exist('group','var')
+    group = [];
+end
     
 
 % Since sensitivity profile exists, enable all image panel controls 
@@ -48,20 +51,20 @@ if exist([dirnameOut, 'metrics.mat'], 'file')
 end
 
 % Check if there's group acquisition data to load
-if ~isempty(group)
-    ch = group.GetMeasList();
-    SD = group.GetSDG();
-    k1 = find(ch.MeasList(:,4)==1);
+currElem = LoadCurrElem(group, imgrecon.iSubj);
+if ~isempty(currElem) && ~currElem.IsEmpty()
+    SD = currElem.GetSDG();
+    ch = currElem.GetMeasList();
+    SD.MeasList = ch.MeasList;
+    SD.MeasListAct = ch.MeasListAct;
+    k1 = find(SD.MeasList(:,4)==1);
     nChGrpData = length(k1);
     nChProbe = size(probe.ml,1);
     if nChGrpData==nChProbe
         imgrecon.subjData.SD = SD;
         imgrecon.subjData.name = group.GetName();
-        if imgrecon.iSubj==0
-            imgrecon.subjData.procResult = group.procStream.output;
-        else
-            imgrecon.subjData.procResult = group.subjs(imgrecon.iSubj).procStream.output;
-        end
+        imgrecon.subjData.procResult = currElem.procStream.output;
+
         set(imgrecon.handles.menuItemImageReconGUI, 'enable', 'on');
     else
         [~, fname, ext] = fileparts(probe.pathname); 
@@ -91,3 +94,4 @@ end
 if ~imgrecon.isempty(imgrecon)
     imgrecon.pathname = dirname;
 end
+

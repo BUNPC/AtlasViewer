@@ -245,19 +245,19 @@ if value2 == 1 & ndims(Adot_scalp) < 3
     menu('You need at least two wavelengths for image reconstruction.','Okay');
     return;
 end
-if cond<1 | cond>size(subjData.procResult.dcAvg,4)
+if cond<1 | cond>size(subjData.procResult.dcAvg.GetDataTimeSeries('reshape'), 4)
     menu('Invalid condition for this time course.','Okay');
     return;
 end
-if cond<1 | cond>size(subjData.procResult.dcAvg,4)
+if cond<1 | cond>size(subjData.procResult.dcAvg.GetDataTimeSeries('reshape'), 4)
     menu('Invalid condition for this time course.','Okay');
     return;
 end
 
 %%%% Get the parameters from subject data for calculating Hb %%%%
 SD   = subjData.SD;
-dc   = subjData.procResult.dcAvg;
-tHRF = subjData.procResult.tHRF;
+dc   = subjData.procResult.dcAvg.GetDataTimeSeries('reshape');
+tHRF = subjData.procResult.dcAvg.GetTime();
 
 if isempty(dc)
     menu('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer2 to generate new groupResults.mat file','Okay');

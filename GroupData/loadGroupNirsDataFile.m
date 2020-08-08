@@ -1,5 +1,8 @@
 function group = loadGroupNirsDataFile(dirname)
 
+currdir = pwd;
+cd(dirname);
+
 group = [];
 if ~exist('dirname','var') || ~exist(dirname, 'dir')
     dirname = pwd;
@@ -30,9 +33,4 @@ if isempty(dataTree)
 end
 group = dataTree.groups(1);
 
-warning('off', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('off', 'MATLAB:load:classNotFound');
-group.LoadSubBranch();
-warning('on', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('on', 'MATLAB:load:classNotFound');
-
+cd(currdir)

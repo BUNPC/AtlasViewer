@@ -21,20 +21,14 @@ end
 if dirname(end)~='/' && dirname(end)~='\'
     dirname(end+1)='/';
 end
-dirnameOut = [dirname 'imagerecon/'];
-
 
 hbconc.mesh = pialsurf.mesh;
 
 % Check if there's group acquisition data to load
-if ~isempty(group)
-    if hbconc.iSubj==0
-        hbconc.subjData = group;
-    else
-        hbconc.subjData = group.subjs(hbconc.iSubj);
-    end
-    hbconc.HbConcRaw = hbconc.subjData.GetDcAvg();
-    hbconc.tHRF = hbconc.subjData.GetTHRF();
+currElem = LoadCurrElem(group, hbconc.iSubj);
+if ~isempty(currElem) && ~currElem.IsEmpty()
+    hbconc.HbConcRaw = currElem.GetDcAvg();
+    hbconc.tHRF      = currElem.GetTHRF();
 end
 
 % If there's subject data 
@@ -59,7 +53,6 @@ end
 if ~hbconc.isempty(hbconc)
     hbconc.pathname = dirname;
 end
-
 
 if length(hbconc.tHRF) >  1
     hbconc.config.tRangeMin = hbconc.tHRF(1);

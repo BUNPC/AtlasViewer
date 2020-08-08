@@ -1,5 +1,9 @@
 function dirname = getGroupDir(arg)
 
+if ~exist('arg','var') || isempty(arg)
+    arg = {''};
+end
+
 dirname = -1; %#ok<NASGU>
 if length(arg) > 1
     

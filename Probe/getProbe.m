@@ -1,4 +1,4 @@
-function probe = getProbe(probe, dirname, digpts)
+function probe = getProbe(probe, dirname, digpts, group)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Parse arguments
@@ -24,12 +24,18 @@ if ~exist('digpts','var') || isempty(digpts)
     digpts = initDigpts();
 end
 
+% Arg 4
+if ~exist('group','var')
+    group = [];
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. Load probe optodes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe2d = initProbe();
 probe3d = initProbe();
+currElem = LoadCurrElem(group);
 
 % 3D probe
 % If digitized points exist and include optode positions then load optode positions 
@@ -44,6 +50,12 @@ if exist([dirname, '/probe.SD'],'file')
     
     filedata = load([dirname, '/probe.SD'], '-mat');
     SD = filedata.SD;
+    
+elseif ~isempty(currElem) && ~currElem.IsEmpty()
+    SD = currElem.GetSDG();
+    foo = currElem.GetMeasList();
+    SD.MeasList = foo.MeasList;
+    save([dirname, 'probe.SD'],'-mat', 'SD');
     
 % Check if flat probe exists in Homer processing output file
 elseif exist([dirname, '/groupResults.mat'], 'file')

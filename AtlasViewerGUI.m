@@ -173,7 +173,7 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     digpts     = getDigpts(digpts, dirnameSubj);
     refpts     = getRefpts(refpts, headsurf.pathname);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
-    probe      = getProbe(probe, dirnameSubj, digpts);
+    probe      = getProbe(probe, dirnameSubj, digpts, group);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
     imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, group);
     hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, group);
@@ -1795,28 +1795,6 @@ caxis(clim);
 axesv(1).handles.axesSurfDisplay = hAxes;
 camzoom(axesv(1).handles.axesSurfDisplay, 1.3*axesv(1).zoomincr);
 
-
-
-
-% --------------------------------------------------------------------
-function menuItemConvertEZStoDigPts_Callback(~, ~, ~)
-global atlasViewer
-
-[filenm,pathnm] = uigetfile('*.ezs','Choose .ezs file to convert');
-if filenm==0
-    return;
-end
-
-wd = cd();
-cd(pathnm)
-ezmapper2txt(filenm);
-cd(wd)
-
-atlasViewer.digpts = getDigpts(atlasViewer.digpts, atlasViewer.dirnameSubj);
-atlasViewer.probe = getProbe(atlasViewer.probe, ...
-                             atlasViewer.dirnameSubj, ...
-                             atlasViewer.digpts);
-atlasViewer.probe = displayProbe(atlasViewer.probe);
 
 
 % --------------------------------------------------------------------
