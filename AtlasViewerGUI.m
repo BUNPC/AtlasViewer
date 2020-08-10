@@ -2965,9 +2965,9 @@ hbconc    = atlasViewer.hbconc;
 imgrecon  = atlasViewer.imgrecon;
 fwmodel   = atlasViewer.fwmodel;
 pialsurf  = atlasViewer.pialsurf;
-probe     = atlasViewer.probe;
 
 if isempty(hbconc.HbConcRaw)
+    MessageBox('No HRF data to display for this group folder. The file groupResults.mat does not exist. Use Homer3 to generate HRF output from the fNIRS acquisition data.');
     return;
 end
 

@@ -31,6 +31,9 @@ end
 if isempty(dataTree)
     return;
 end
+if isempty(dataTree.groups)
+    return;
+end
 group = dataTree.groups(1);
 
 cd(currdir)

@@ -55,18 +55,8 @@ while files.isempty()
         case {'snirf','.snirf'}
             files = DataFilesClass(dirnameGroup, 'snirf');
             if files.isempty()
-                files = DataFilesClass(dirnameGroup, 'nirs');
-                if ~files.isempty()
-                    msg{1} = sprintf('Homer3 did not find any .snirf files in the current folder but did find .nirs files. ');
-                    msg{2} = sprintf('Do you want to convert .nirs files to .snirf format and load them?');
-                    q = MenuBox([msg{:}], {'YES','NO'}, 'center');
-                    if q==2
-                        files = [];
-                        return;
-                    end
-                end
-                Nirs2Snirf(dirnameGroup);
-                files = DataFilesClass(dirnameGroup, 'snirf');
+                files = [];
+                return;
             end
         case {'nirs','.nirs'}
             files = DataFilesClass(dirnameGroup, 'nirs');
@@ -87,18 +77,8 @@ while files.isempty()
             end
     end
     if files.isempty()
-        msg{1} = sprintf('Homer3 did not find any %s data files to load in the current group folder. ', fmt);        
-        msg{2} = sprintf('Do you want to select another group folder?');
-        q = MenuBox([msg{:}], {'YES','NO'});
-        if q==2
-            files = DataFilesClass();
-            return;
-        end
-        dirnameGroup = uigetdir(pwd, 'Please select another group folder ...');
-        if dirnameGroup==0
-            files = DataFilesClass();
-            return;
-        end
+        files = [];
+        return;
     end
 end
 
