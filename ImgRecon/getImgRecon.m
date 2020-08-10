@@ -1,4 +1,4 @@
-function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe)
+function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe, currElem)
 
 if isempty(imgrecon)
     return;
@@ -33,6 +33,9 @@ end
 if ~exist('probe','var') || isempty(probe)
     probe = initProbe();
 end
+if ~exist('currElem','var')
+    currElem = [];
+end
     
 
 % Since sensitivity profile exists, enable all image panel controls 
@@ -47,22 +50,19 @@ if exist([dirnameOut, 'metrics.mat'], 'file')
     imgrecon.resolution = resolution;
 end
 
-% Check if there's group acquisition data to load
-[~,~, group] = findSubjDirs();
-if ~isempty(group)
-    SD = getSD(group);
-    
+% Check if there's currElem acquisition data to load
+if ~isempty(currElem) && ~currElem.IsEmpty()
+    SD = currElem.GetSDG();
+    ch = currElem.GetMeasList();
+    SD.MeasList = ch.MeasList;
+    SD.MeasListAct = ch.MeasListAct;
     k1 = find(SD.MeasList(:,4)==1);
     nChGrpData = length(k1);
     nChProbe = size(probe.ml,1);
     if nChGrpData==nChProbe
         imgrecon.subjData.SD = SD;
-        imgrecon.subjData.name = group.name;
-        if imgrecon.iSubj==0
-            imgrecon.subjData.procResult = group.procResult;
-        else
-            imgrecon.subjData.procResult = group.subjs(imgrecon.iSubj).procResult;
-        end
+        imgrecon.subjData.name = currElem.GetName();
+        imgrecon.subjData.procResult = currElem.procStream.output;
         set(imgrecon.handles.menuItemImageReconGUI, 'enable', 'on');
     else
         [~, fname, ext] = fileparts(probe.pathname); 
@@ -92,3 +92,4 @@ end
 if ~imgrecon.isempty(imgrecon)
     imgrecon.pathname = dirname;
 end
+

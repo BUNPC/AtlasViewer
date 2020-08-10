@@ -1,5 +1,5 @@
 function probe = loadSD(probe,SD)
-
+scale = 1;
 
 if(isfield(SD,'Lambda'))
     probe.lambda=SD.Lambda;
@@ -52,7 +52,7 @@ end
 if(isfield(SD,'MeasList')) && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
     k = find(SD.MeasList(:,4)==1);
     probe.ml = SD.MeasList(k,:);
-    if(isfield(SD,'MeasListAct'))
+    if(isfield(SD,'MeasListAct')) && (size(SD.MeasListAct,1)==size(probe.ml,1)) 
         probe.ml(:,3) = SD.MeasListAct(k);
     else
         probe.ml(:,3) = ones(length(k),1);
@@ -75,5 +75,12 @@ else
     probe.al=[];
 end
 
-probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
+if(isfield(SD,'SpatialUnit'))
+	% Make sure units agree with AV native units which is mm
+    if strcmp(SD.SpatialUnit, 'cm')
+        scale = 10;
+    end
+end
+
+probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos] * scale;
 probe.noptorig = size([probe.srcpos; probe.detpos],1);

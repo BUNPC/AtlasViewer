@@ -1,5 +1,8 @@
 function group = loadGroupNirsDataFile(dirname)
 
+currdir = pwd;
+cd(dirname);
+
 group = [];
 if ~exist('dirname','var') || ~exist(dirname, 'dir')
     dirname = pwd;
@@ -18,26 +21,21 @@ end
 % group folder.
 warning('off', 'MATLAB:load:cannotInstantiateLoadedVariable');
 warning('off', 'MATLAB:load:classNotFound');
-nirsdata = load([dirname, 'groupResults.mat']);
+dataTree = DataTreeClass();
 warning('on', 'MATLAB:load:cannotInstantiateLoadedVariable');
 warning('on', 'MATLAB:load:classNotFound');
 
-if ~isstruct(nirsdata)
+if ~isa(dataTree, 'DataTreeClass')
     return;
 end
-if ~isfield(nirsdata, 'group')
+if isempty(dataTree)
     return;
 end
-if ~isstruct(nirsdata.group) && ~isobject(nirsdata.group)
+if isempty(dataTree.groups)
     return;
 end
-if ~isfield(nirsdata.group, 'procResult')
-    return;
-end
-if ~isfield(nirsdata.group, 'procInput')
-    return;
-end
-if ~isfield(nirsdata, 'group')
-    return;
-end
-group = nirsdata.group;
+group = dataTree.groups(1);
+
+cd(currdir)
+
+

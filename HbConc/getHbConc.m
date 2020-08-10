@@ -1,4 +1,4 @@
-function hbconc = getHbConc(hbconc, dirname, pialsurf, probe)
+function hbconc = getHbConc(hbconc, dirname, pialsurf, probe, currElem)
 
 if isempty(hbconc)
     return;
@@ -21,27 +21,13 @@ end
 if dirname(end)~='/' && dirname(end)~='\'
     dirname(end+1)='/';
 end
-dirnameOut = [dirname 'imagerecon/'];
-
 
 hbconc.mesh = pialsurf.mesh;
 
 % Check if there's group acquisition data to load
-[~,~, group] = findSubjDirs();
-if ~isempty(group)
-    if hbconc.iSubj==0
-        hbconc.subjData = group;
-    else
-        hbconc.subjData = group.subjs(hbconc.iSubj);
-    end
-    if ~isempty(hbconc.subjData)
-        if ~isempty(hbconc.subjData.procResult)
-            if ~isempty(hbconc.subjData.procResult.dcAvg)
-                hbconc.HbConcRaw = hbconc.subjData.procResult.dcAvg;
-                hbconc.tHRF = hbconc.subjData.procResult.tHRF;
-            end
-        end
-    end
+if ~isempty(currElem) && ~currElem.IsEmpty()
+    hbconc.HbConcRaw = currElem.GetDcAvg();
+    hbconc.tHRF      = currElem.GetTHRF();
 end
 
 % If there's subject data 
@@ -66,7 +52,6 @@ end
 if ~hbconc.isempty(hbconc)
     hbconc.pathname = dirname;
 end
-
 
 if length(hbconc.tHRF) >  1
     hbconc.config.tRangeMin = hbconc.tHRF(1);

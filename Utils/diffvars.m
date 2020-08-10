@@ -11,9 +11,8 @@ if isempty(v2name)
     v2name = 'v2';
 end
 
-logger = LogClass();
+logger = Logger();
 varcmp(v1, v2, v1name, v2name, logger);
-clear logger;
 
 
 % --------------------------------------------------------------

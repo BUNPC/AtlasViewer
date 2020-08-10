@@ -2,8 +2,8 @@ function viewAxesXYZ(hAxes, axes_order, origin, mode)
 
 if ~ishandles(hAxes)
     hAxes = gca;
-    setappdata(h, 'hOrigin',[]);
-    setappdata(h, 'hViewOrigin',[]);
+    setappdata(hAxes, 'hOrigin',[]);
+    setappdata(hAxes, 'hViewOrigin',[]);
 end
 if ~exist('origin','var') | isempty(origin)
     origin = [0,0,0];

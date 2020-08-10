@@ -33,7 +33,6 @@ hbconc = struct(...
       'colormin',[.80, .80, .80], ...
       'menuoffset',0, ...
       'subjData',[], ...
-      'iSubj', [], ...
       'center',[], ...
       'orientation', '', ...
       'checkCompatability',[], ...
@@ -42,40 +41,20 @@ hbconc = struct(...
 );
 
 hbconc = resetHbConc(hbconc);
+hbconc.Ch = str2num(get(hbconc.handles.editSelectChannel,'string')); %#ok<ST2NM>
 
-if exist('handles','var')
-    hbconc.handles.axes = handles.axesSurfDisplay;
-    if ishandles(handles.hGroupList)
-        idx = get(handles.hGroupList, 'value');
-        if idx==1
-            hbconc.iSubj = 0;
-        elseif idx > 1
-            hbconc.iSubj = idx-1;
-        end
-    else
-        hbconc.iSubj = 1;
-    end   
-end
-
-hbconc.Ch = str2num(get(hbconc.handles.editSelectChannel,'string'));
 
 
 % ------------------------------------------------------
 function hbconc = prepImgReconForSave(hbconc)
 
-hbconc = rmfield(hbconc, 'iSubj');
-
-
 
 
 % --------------------------------------------------------------
 function b = isempty_loc(hbconc)
-
 b = false;
 if isempty(hbconc.HbO) & isempty(hbconc.HbR)
-
     b = true;
-
 end
 
 

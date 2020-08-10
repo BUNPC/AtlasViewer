@@ -7,23 +7,18 @@ if dirname0(end)~='/' && dirname0(end)~='\'
     dirname0(end+1) = '/';
 end
 
-% Look first in the parent folder for groupResults.mat. If the the current 
-% folder also has groupResults.mat, the parent folder's grouypResults
-% take precedence.
-dirname = fileparts(dirname0(1:end-1));
-[subjDirs, groupDir, group] = searchDir(dirname);
+% Look first in the current folder for groupResults.mat.
+[subjDirs, groupDir, group] = searchDir(dirname0);
 if isempty(groupDir)
-    % try the parent folder one level up. To do that get fileparts of 
-    % dirname without the '/' at the end and fileparts will give 
-    % back the parent folder. 
-    [subjDirs, groupDir, group] = searchDir(dirname0);
+    % Now try looking in the parent folder
+    dirname = fileparts(dirname0(1:end-1));
+    [subjDirs, groupDir, group] = searchDir(dirname);
 end
 
 
 
 % -------------------------------------------------------------
 function [subjDirs, groupDir, group] = searchDir(dirname)
-
 subjDirs = mydir('');
 groupDir = '';
 
@@ -64,20 +59,6 @@ for ii=1:length(subjDirs0)
     end
     cd('../');
 end
-
-% Check to make sure the group results are associated with
-% this folder (dirname)
-% for ii=1:length(group.subjs)
-%     flag = false;
-%     for jj=1:length(subjDirs)
-%         if strcmpi(group.subjs(ii).name, subjDirs(jj).name)
-%             flag = true;
-%         end
-%     end
-%     if flag == false
-%         group = [];
-%     end
-% end
 
 cd(currdir);
 

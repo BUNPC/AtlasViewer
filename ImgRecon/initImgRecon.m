@@ -36,7 +36,6 @@ imgrecon = struct(...
       ... %'colormin',[.74 .47 .40], ...
       'colormin',[.80, .80, .80], ...
       'subjData',[], ...
-      'iSubj', 1, ...
       'Aimg_conc', initAimg_conc(), ...
       'Aimg_conc_scalp', initAimg_conc(), ...
       'center',[], ...
@@ -55,16 +54,7 @@ if exist('handles','var')
     imgrecon.handles.textColormapThreshold = handles.textColormapThreshold;
     imgrecon.handles.popupmenuImageDisplay = handles.popupmenuImageDisplay;
     imgrecon.handles.menuItemImageReconGUI = handles.menuItemImageReconGUI;
-    imgrecon.handles.axes = handles.axesSurfDisplay;
-    if ishandles(handles.hGroupList)
-        idx = get(handles.hGroupList, 'value');
-        if idx==1
-            imgrecon.iSubj = 0;
-        elseif idx > 1
-            imgrecon.iSubj = idx-1;
-        end
-    end
-    
+    imgrecon.handles.axes = handles.axesSurfDisplay;    
     if ishandles(handles.ImageRecon)
         imgrecon.handles.ImageRecon = handles.ImageRecon;
     end
@@ -73,8 +63,6 @@ end
 
 % ------------------------------------------------------
 function imgrecon = prepImgReconForSave(imgrecon)
-
-imgrecon = rmfield(imgrecon, 'iSubj');
 
 
 

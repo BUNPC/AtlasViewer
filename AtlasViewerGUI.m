@@ -52,7 +52,7 @@ fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
 
-checkForAtlasViewerUpdates();
+% checkForAtlasViewerUpdates();
 
 cd(dirnameSubj);
 
@@ -155,6 +155,7 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc       = atlasViewer.hbconc;
 fs2viewer    = atlasViewer.fs2viewer;
+currElem     = atlasViewer.currElem;
     
 
 if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
@@ -172,10 +173,10 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     digpts     = getDigpts(digpts, dirnameSubj);
     refpts     = getRefpts(refpts, headsurf.pathname);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
-    probe      = getProbe(probe, dirnameSubj, headsurf, digpts, refpts);
+    probe      = getProbe(probe, dirnameSubj, digpts, currElem);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
-    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe);
-    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe);
+    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, currElem);
+    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
     fs2viewer  = getFs2Viewer(fs2viewer, dirnameSubj);
    
 end
@@ -383,9 +384,10 @@ for i=1:size(ml,1)
 end
 
 
-% ---------------------------------------------------------------------
-function [groupSubjList, dirname] = InitGroup(argExtern)
 
+
+% ---------------------------------------------------------------------
+function [groupSubjList, dirname, group] = InitGroup(argExtern)
 if isempty(argExtern)
     argExtern = {''};
 end
@@ -395,19 +397,20 @@ dirname = getSubjDir(argExtern);
 groupSubjList = {};
 
 % To find out the subj
-[subjDirs, groupDir] = findSubjDirs();
+[subjDirs, groupDir, group] = findSubjDirs();
 if isempty(groupDir)
     return;
 end
 groupSubjList{1} = groupDir;
 for ii=2:length(subjDirs)+1
-    groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name];
+    groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name]; %#ok<AGROW>
 end
 
 
 
+
 % -----------------------------------------------------------------------
-function groupSubjList_Callback(hObject,eventdata,handles)
+function listboxGroupTree_Callback(hObject, ~, ~)
 global atlasViewer
 
 if isempty(atlasViewer)
@@ -415,7 +418,6 @@ if isempty(atlasViewer)
 end
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
-axesv = atlasViewer.axesv;
 fwmodel = atlasViewer.fwmodel;
 imgrecon = atlasViewer.imgrecon;
 
@@ -453,13 +455,13 @@ end
 
 groupSubjList = {};
 for ii=1:length(groupSubjList0)
-    [pp,fp] = getpathparts(groupSubjList0{ii});
+    pp = getpathparts(groupSubjList0{ii});
     
     subjListboxStr = pp{end};
     if ii>1
         subjListboxStr = ['  ', pp{end}];
     end
-    groupSubjList{ii} = subjListboxStr;
+    groupSubjList{ii} = subjListboxStr; %#ok<AGROW>
 end
 
 if ishandles(hGroupList)
@@ -480,18 +482,17 @@ hFig = figure('numbertitle','off','menubar','none','name','Group Subject List','
 
 hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList,...
                        'fontsize',10,'units','normalized','position',[.10 .25 .80 .70],'value',1,...
-                       'callback',{@groupSubjList_Callback,'hObject'});
+                       'callback',{@listboxGroupTree_Callback,'hObject'});
 
 setappdata(hGroupList, 'groupSubjList', groupSubjList0);
 
 % Initilize listbox selection to current subject folder
-[pp,fs] = getpathparts(pwd);
+pp = getpathparts(pwd);
 subjname = pp{end};
 k =  find(strcmp(strtrim(groupSubjList), subjname));
 if ~isempty(k)
     set(hGroupList, 'value', k);
 end
-
 
 
 
@@ -513,7 +514,9 @@ end
 
 initAxesv(handles);
 
-[groupSubjList, dirnameSubj] = InitGroup(varargin);
+atlasViewer.currElem = [];
+
+[groupSubjList, dirnameSubj, group] = InitGroup(varargin);
 hGroupList=[];
 if length(varargin)>3
     if ~isempty(varargin{4})
@@ -521,6 +524,8 @@ if length(varargin)>3
     end
 end
 handles.hGroupList = displayGroupSubjList(groupSubjList, hGroupList, hObject);
+iSubj = getCurrElemIdx(handles.hGroupList);
+atlasViewer.currElem = LoadCurrElem(group, iSubj);
 
 if ~isempty(dirnameSubj) & dirnameSubj ~= 0
     if length(varargin)<2
@@ -532,13 +537,14 @@ if ~isempty(dirnameSubj) & dirnameSubj ~= 0
 end
 LoadSubj(hObject, eventdata, handles, varargin);
 
-fprintf('Subject index = %d\n', atlasViewer.imgrecon.iSubj);
-
-if ishandles(handles.hGroupList)
-    set(handles.hGroupList, 'enable','on');
-    hParent = get(handles.hGroupList,'parent');
-    set(hParent, 'visible','on');
-    figure(hParent);
+if ishandles(handles.hGroupList) 
+    if ~atlasViewer.currElem.IsEmpty()
+        fprintf('Subject index = %d\n', iSubj);
+        set(handles.hGroupList, 'enable','on');
+        hParent = get(handles.hGroupList,'parent');
+        set(hParent, 'visible','on');
+        figure(hParent);
+    end
 end
 
 atlasViewer.handles.hGroupList = handles.hGroupList;
@@ -560,7 +566,7 @@ varargout{1} = handles.output;
 
 
 % --------------------------------------------------------------------
-function AtlasViewerGUI_DeleteFcn(hObject, eventdata, handles)
+function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
 fclose all;
@@ -687,7 +693,7 @@ end
 
 
 % --------------------------------------------------------------------
-function probe = probeRegisterSpringsMethod(probe,headvol,refpts)
+function probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts)
 
 if isempty(probe)
     menu('probe hasn''t been loaded. Use the Make Probe option in the Tools menu','OK');
@@ -707,7 +713,7 @@ if isempty([probe.sl])
 end
 
 % Get registered optode positions and then display springs 
-probe = registerProbe2Head(probe,headvol,refpts);
+probe = registerProbe2Head(probe, headvol, headsurf, refpts);
 
 
 
@@ -723,9 +729,8 @@ labelssurf  = resetLabelssurf(labelssurf);
 
 
 
-
 % --------------------------------------------------------------------
-function pushbuttonRegisterProbeToSurface_Callback(hObject, eventdata, handles)
+function pushbuttonRegisterProbeToSurface_Callback(~, ~, ~)
 global atlasViewer
 
 refpts       = atlasViewer.refpts;
@@ -747,7 +752,7 @@ end
 
 if isempty(probe.optpos)
     menu('No probe has been loaded or created. Use the SDgui to make or load a probe','ok');
-    probe = resetProbe(probe);
+    atlasViewer.probe = resetProbe(probe);
     return;
 end
 
@@ -771,7 +776,7 @@ else
         return;
     end
     method = 'springs';
-    probe = probeRegisterSpringsMethod(probe,headvol,refpts);
+    probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts);
   
 end
 
@@ -799,10 +804,9 @@ atlasViewer.labelssurf  = labelssurf;
 
 
 % --------------------------------------------------------------------
-function menuItemMakeProbe_Callback(hObject, eventdata, handles)
+function menuItemMakeProbe_Callback(~, ~, ~)
 global atlasViewer
 
-probe        = atlasViewer.probe;
 labelssurf   = atlasViewer.labelssurf;
 
 hSDgui = atlasViewer.probe.handles.hSDgui;
@@ -822,11 +826,12 @@ set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
 % the faces red). It's all new for a new probe.
 labelssurf = resetLabelssurf(labelssurf);
 
+atlasViewer.labelssurf = labelssurf;
 
 
 
 % --------------------------------------------------------------------
-function menuItemExit_Callback(hObject, eventdata, handles)
+function menuItemExit_Callback(~, ~, ~)
 global atlasViewer
 probe = atlasViewer.probe;
 
@@ -841,7 +846,7 @@ atlasViewer=[];
 
 
 % --------------------------------------------------------------------
-function checkboxHideProbe_Callback(hObject, eventdata, handles)
+function checkboxHideProbe_Callback(hObject, ~, ~)
 global atlasViewer;
 probe    = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -861,7 +866,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideMeasList_Callback(hObject, eventdata, handles)
+function checkboxHideMeasList_Callback(hObject, ~, ~)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -874,7 +879,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideSprings_Callback(hObject, eventdata, handles)
+function checkboxHideSprings_Callback(hObject, ~, handles)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -896,7 +901,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function checkboxHideDummyOpts_Callback(hObject, eventdata, handles)
+function checkboxHideDummyOpts_Callback(hObject, ~, ~)
 global atlasViewer;
 probe = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -910,7 +915,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemChangeSubjDir_Callback(hObject, eventdata, handles)
+function menuItemChangeSubjDir_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
@@ -980,7 +985,7 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, 'userargs');
 
 
 % --------------------------------------------------------------------
-function menuItemSaveRegisteredProbe_Callback(hObject, eventdata, handles)
+function menuItemSaveRegisteredProbe_Callback(~, ~, ~)
 global atlasViewer
 
 probe      = atlasViewer.probe;
@@ -992,7 +997,7 @@ nsrc       = probe.nsrc;
 q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
 if q==2
 
-    [filename pathname] = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
+    filename = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
     if filename==0
         return;
     end
@@ -1068,18 +1073,17 @@ if ~isfield(subj,'anchor')
 else
     method = getProbeRegMethod();
 end
-[probe.optpos, T] = reg_subj2atlas(method, subj, atlas);
+probe.optpos = reg_subj2atlas(method, subj, atlas);
 
 
 
 
 
 % --------------------------------------------------------------------
-function menuItemImportProbe_Callback(hObject, eventdata, handles)
+function menuItemImportProbe_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameProbe = atlasViewer.dirnameProbe;
-dirnameSubj  = atlasViewer.dirnameSubj;
 probe        = atlasViewer.probe;
 refpts       = atlasViewer.refpts;
 headsurf     = atlasViewer.headsurf;
@@ -1087,7 +1091,6 @@ labelssurf   = atlasViewer.labelssurf;
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 digpts       = atlasViewer.digpts;
-axesv        = atlasViewer.axesv;
 
 [filename, pathname] = uigetfile([dirnameProbe '*.*'],'Import subject probe');
 if filename==0
@@ -1105,7 +1108,7 @@ fwmodel     = resetFwmodel(fwmodel);
 imgrecon    = resetImgRecon(imgrecon);
 labelssurf  = resetLabelssurf(labelssurf);
 
-probe = getProbe(probe, [pathname, '/', filename], headsurf, digpts, refpts);
+probe = importProbe(probe, [pathname, filename], digpts);
 
 probe = viewProbe(probe,'unregistered');
 
@@ -1854,10 +1857,9 @@ labelssurf  = atlasViewer.labelssurf;
 refpts      = atlasViewer.refpts;
 digpts      = atlasViewer.digpts;
 probe       = atlasViewer.probe;
+hbconc      = atlasViewer.hbconc;
 fwmodel 	= atlasViewer.fwmodel;
 imgrecon    = atlasViewer.imgrecon;
-
-dirnameSubj = atlasViewer.dirnameSubj;
 
 saveObjects('atlasViewer.mat', ...
     axesv, ...
@@ -1869,6 +1871,7 @@ saveObjects('atlasViewer.mat', ...
     labelssurf, ...
     digpts, ...
     probe, ...
+    hbconc, ...
     fwmodel, ...
     imgrecon ...
     );
@@ -3030,19 +3033,17 @@ uipanelBrainDisplay(hObject, eventdata, handles);
 
 
 
-
 % --------------------------------------------------------------------
-function menuItemOverlayHbConc_Callback(hObject, eventdata, handles)
+function menuItemOverlayHbConc_Callback(~, ~, ~)
 global atlasViewer
 
 hbconc    = atlasViewer.hbconc;
 imgrecon  = atlasViewer.imgrecon;
 fwmodel   = atlasViewer.fwmodel;
 pialsurf  = atlasViewer.pialsurf;
-probe     = atlasViewer.probe;
-axesv     = atlasViewer.axesv;
 
 if isempty(hbconc.HbConcRaw)
+    MessageBox('No HRF data to display for the current folder. Use Homer3 to generate HRF output for the current folder.');
     return;
 end
 

@@ -1,5 +1,9 @@
 function dirname = getSubjDir(arg)
 
+if ~exist('arg','var') || isempty(arg)
+    arg = {''};
+end
+
 dirname = -1;
 if length(arg) > 1
     dirname = arg{1};
