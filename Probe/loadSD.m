@@ -52,7 +52,7 @@ end
 if(isfield(SD,'MeasList')) && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
     k = find(SD.MeasList(:,4)==1);
     probe.ml = SD.MeasList(k,:);
-    if(isfield(SD,'MeasListAct'))
+    if(isfield(SD,'MeasListAct')) && (size(SD.MeasListAct,1)==size(probe.ml,1)) 
         probe.ml(:,3) = SD.MeasListAct(k);
     else
         probe.ml(:,3) = ones(length(k),1);
