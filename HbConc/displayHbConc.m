@@ -29,6 +29,7 @@ else
     axes_order = [1,2,3];
 end
 
+hbconc.Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
 val = get(hbconc.handles.popupmenuImageDisplay,'value');
 
 if ~exist('hAxes','var')
@@ -53,8 +54,6 @@ if ~isempty(hbconc.mesh)
 end
 hold off;
 
-hclim = hbconc.handles.editColormapThreshold;
-
 if ~isempty(hAxes)
     axes(hAxes);
 end
@@ -63,11 +62,13 @@ end
 % HbO or HbR handles
 if ishandles(hbconc.handles.HbO) & (val == hbconc.menuoffset+1)
       
+    set(hbconc.handles.editColormapThreshold, 'string',sprintf('%0.2g %0.2g', hbconc.cmThreshold(val-hbconc.menuoffset, 1), hbconc.cmThreshold(val-hbconc.menuoffset, 2)));
+        
     % Turn sensitivity display off
-    fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
+    showFwmodelDisplay(fwmodel, hAxes, 'off');
     
     % Turn localization error on and resolution display off
-    imgrecon = showImgReconDisplay(imgrecon, hAxes, 'off', 'off', 'off', 'off');
+    showImgReconDisplay(imgrecon, hAxes, 'off', 'off', 'off', 'off');
     
     hbconc = showHbConcDisplay(hbconc, hAxes, 'on', 'off');
     set(pialsurf.handles.radiobuttonShowPial, 'value',0);
@@ -75,11 +76,13 @@ if ishandles(hbconc.handles.HbO) & (val == hbconc.menuoffset+1)
     
 elseif ishandles(hbconc.handles.HbR) & (val == hbconc.menuoffset+2)
 
+    set(hbconc.handles.editColormapThreshold, 'string',sprintf('%0.2g %0.2g', hbconc.cmThreshold(val-hbconc.menuoffset, 1), hbconc.cmThreshold(val-hbconc.menuoffset, 2)));
+
     % Turn sensitivity display off
-    fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
+    showFwmodelDisplay(fwmodel, hAxes, 'off');
     
     % Turn localization error on and resolution display off
-    imgrecon = showImgReconDisplay(imgrecon, hAxes, 'off', 'off', 'off', 'off');    
+    showImgReconDisplay(imgrecon, hAxes, 'off', 'off', 'off', 'off');    
        
     hbconc = showHbConcDisplay(hbconc, hAxes, 'off', 'on');
     set(pialsurf.handles.radiobuttonShowPial, 'value',0);

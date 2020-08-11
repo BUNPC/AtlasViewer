@@ -9,13 +9,11 @@ end
 
 
 % Find the channels for which to display Hb Conc
-str = get(hbconc.handles.editSelectChannel, 'string');
-hbconc.Ch = str2num(str);
-iCh = [];
+hbconc.Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
 if hbconc.Ch(1)==0 & hbconc.Ch(2)==0
-  %  iCh = 1:size(hbconc.HbConcRaw,3);
+    % iCh = 1:size(hbconc.HbConcRaw,3);
     ml = probe.ml;
-    mlAct = probe.ml(:,3);
+    % mlAct = probe.ml(:,3);
     lst = find(ml(:,4)==1);
     rhoSD = zeros(length(lst),1);
     posM = zeros(length(lst),3);

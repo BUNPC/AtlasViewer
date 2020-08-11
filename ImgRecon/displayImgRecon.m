@@ -29,10 +29,7 @@ if ~exist('hAxes','var')
 end
 
 % Error checks
-if isempty(imgrecon.localizationError)
-    return;
-end
-if isempty(imgrecon.resolution)
+if isempty(imgrecon.mesh)
     return;
 end
 if isempty(probe.optpos_reg)
@@ -48,20 +45,18 @@ intensityRes = imgrecon.resolution;
 HbO          = imgrecon.Aimg_conc.HbO;
 HbR          = imgrecon.Aimg_conc.HbR;
 
-if ~isempty(imgrecon.mesh)
-    imgrecon.handles.hLocalizationError = ....
-        displayIntensityOnMesh(imgrecon.mesh, intensityLC, 'off','off', axes_order);
-    imgrecon.handles.hResolution = ....
-        displayIntensityOnMesh(imgrecon.mesh, intensityRes, 'off','off', axes_order);
-    
-    if ~isempty(HbO)
-        imgrecon.handles.hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);
-    end
-    if ~isempty(HbR)
-        imgrecon.handles.hHbR = displayIntensityOnMesh(imgrecon.mesh, HbR, 'off','off', axes_order);
-    end
-    
+imgrecon.handles.hLocalizationError = ....
+    displayIntensityOnMesh(imgrecon.mesh, intensityLC, 'off','off', axes_order);
+imgrecon.handles.hResolution = ....
+    displayIntensityOnMesh(imgrecon.mesh, intensityRes, 'off','off', axes_order);
+
+if ~isempty(HbO)
+    imgrecon.handles.hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);
 end
+if ~isempty(HbR)
+    imgrecon.handles.hHbR = displayIntensityOnMesh(imgrecon.mesh, HbR, 'off','off', axes_order); 
+end
+
 hold off;
 
 
@@ -70,7 +65,7 @@ hold off;
 if ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+1
        
     % Turn sensitivity display off
-    fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
+    showFwmodelDisplay(fwmodel, hAxes, 'off');
     
     % Turn localization error on and resolution display off
     imgrecon = showImgReconDisplay(imgrecon, hAxes, 'on', 'off', 'off', 'off');
@@ -81,7 +76,7 @@ if ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+1
 elseif ishandles(imgrecon.handles.hLocalizationError) & val==imgrecon.menuoffset+2
 
     % Turn sensitivity display off
-    fwmodel = showFwmodelDisplay(fwmodel, hAxes, 'off');
+    showFwmodelDisplay(fwmodel, hAxes, 'off');
     
     % Turn localization error on and resolution display off
     imgrecon = showImgReconDisplay(imgrecon, hAxes, 'off', 'on', 'off', 'off');    

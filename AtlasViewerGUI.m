@@ -52,7 +52,7 @@ fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
 
-% checkForAtlasViewerUpdates();
+checkForAtlasViewerUpdates();
 
 cd(dirnameSubj);
 
@@ -129,7 +129,7 @@ atlasViewer.vrnum = V;
 
 
 % -----------------------------------------------------------------------
-function LoadSubj(hObject, eventdata, handles, argExtern)
+function LoadSubj(hObject, ~, handles, argExtern)
 global atlasViewer
 global popupmenuorder
 
@@ -297,10 +297,7 @@ end
     
     
 % --------------------------------------------------------------------
-function Edit_Probe_Callback(hObject, eventdata, handles)
-% hObject    handle to Edit_Probe (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function Edit_Probe_Callback(~, ~, ~) %#ok<*DEFNU>
 global atlasViewer;
 
 %%%% close GUI
@@ -445,6 +442,7 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, [hObject, hImageRe
 
 % -----------------------------------------------------------------------
 function hGroupList = displayGroupSubjList(groupSubjList0, hGroupList, hGui)
+global atlasViewer
 
 if isempty(groupSubjList0)
     if ishandles(hGroupList)
@@ -480,7 +478,7 @@ end
 hFig = figure('numbertitle','off','menubar','none','name','Group Subject List','units','normalized',...
               'position',[.05,.45,.15,.40],'resize','on', 'visible','off');
 
-hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList,...
+hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList, 'tag','listboxGroupTree', ...
                        'fontsize',10,'units','normalized','position',[.10 .25 .80 .70],'value',1,...
                        'callback',{@listboxGroupTree_Callback,'hObject'});
 
@@ -493,6 +491,10 @@ k =  find(strcmp(strtrim(groupSubjList), subjname));
 if ~isempty(k)
     set(hGroupList, 'value', k);
 end
+
+atlasViewer.handles.listboxGroupTree = hFig;
+
+
 
 
 
@@ -553,11 +555,40 @@ atlasViewer.groupSubjList = groupSubjList;
 if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
     ImageRecon();
 end
+set(handles.editSelectChannel,'string','0 0');
+set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
+
+poditionListboxGroupGUI(handles, 'init');
+
 
 
 
 % -------------------------------------------------------------------
-function varargout = AtlasViewerGUI_OutputFcn(hObject, eventdata, handles) 
+function poditionListboxGroupGUI(handles, options)
+global atlasViewer
+
+if ~exist('options','var')
+    options = {};
+end
+if optionExists(options, 'init')
+    k = 1.2;
+else
+    k = 1.05;
+end
+
+% Place helper gui relative to main gui position
+set(handles.AtlasViewerGUI,'units','pixels');
+set(atlasViewer.handles.listboxGroupTree,'units','pixels');
+p1 = get(handles.AtlasViewerGUI,'Position');
+p2 = get(atlasViewer.handles.listboxGroupTree,'Position');
+set(atlasViewer.handles.listboxGroupTree,'Position',[(p1(1)-(p2(3)*k)), p2(2), p2(3), p2(4)]);
+p = guiOutsideScreenBorders(atlasViewer.handles.listboxGroupTree);
+set(atlasViewer.handles.listboxGroupTree, 'units','characters', 'position',p);
+
+
+
+% -------------------------------------------------------------------
+function varargout = AtlasViewerGUI_OutputFcn(~, ~, handles) 
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
@@ -625,7 +656,7 @@ global atlasViewer;
 hHeadSurf = atlasViewer.headsurf.handles.surf;
 
 val_old = get(hHeadSurf,'facealpha');
-val = str2num(get(hObject,'string'));
+val = str2num(get(hObject,'string')); %#ok<*ST2NM>
 
 % Error checking 
 if isempty(val)
@@ -1039,8 +1070,6 @@ elseif strcmpi(extenstion,'mat')
     save(filename,'-mat','optpos_reg','nsrc');
 
 end
-
-
 
 
 
@@ -1522,7 +1551,6 @@ end
 % Set image popupmenu to sensitivity
 set(handles.popupmenuImageDisplay,'value',fwmodel.menuoffset+1);
 set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
-set(handles.editSelectChannel,'string',sprintf('%d %d',fwmodel.Ch(1),fwmodel.Ch(2)));
 
 % Turn off image recon display
 imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off','off');
@@ -1573,7 +1601,7 @@ sectionsize = fwmodel.nFluenceProfPerFile;
 
 fwmodel.fluenceProf(1) = initFluenceProf();
 fwmodel.fluenceProf(2) = initFluenceProf();
-for ii=1:sectionsize:probe.noptorig;
+for ii = 1:sectionsize:probe.noptorig
     fluenceExists = false;
 
     fwmodel.fluenceProf(1).index = fwmodel.fluenceProf(1).index+1;
@@ -1686,7 +1714,6 @@ probe    = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
 
 probe = setOptodeNumbering(probe);
-
 probe = setProbeDisplay(probe, headsurf);
 
 atlasViewer.probe = probe;
@@ -1723,7 +1750,6 @@ end
 % --------------------------------------------------------------------
 function menuItemShowRefpts_Callback(hObject, eventdata, handles)
 global atlasViewer
-
 
 eeg_system_labels = {};
 switch(get(hObject, 'tag'))
@@ -1774,10 +1800,10 @@ global atlasViewer
 fwmodel = atlasViewer.fwmodel;
 
 checked = get(hObject,'checked');
-if strcmp(checked,'on');
+if strcmp(checked,'on')
     set(hObject,'checked','off');
     val=0;
-elseif strcmp(checked,'off');
+elseif strcmp(checked,'off')
     set(hObject,'checked','on');
     val=1;
 else
@@ -1844,10 +1870,10 @@ atlasViewer.probe = getProbe(atlasViewer.probe, ...
 atlasViewer.probe = displayProbe(atlasViewer.probe);
 
 
+
 % --------------------------------------------------------------------
 function menuItemSaveViewerState_Callback(hObject, eventdata, handles)
 global atlasViewer
-
 
 axesv       = atlasViewer.axesv(1);
 headvol     = atlasViewer.headvol;
@@ -1875,8 +1901,6 @@ saveObjects('atlasViewer.mat', ...
     fwmodel, ...
     imgrecon ...
     );
-
-
 
 
 
@@ -2036,9 +2060,6 @@ for ii=1:size(sl,1)
     end
     set(hSprings(ii),'color',cm(k,:));
 end
-
-springLenErr
-
 
 
 
@@ -2350,7 +2371,6 @@ pialsurf         = atlasViewer.pialsurf;
 % Assign variables from the main objects
 hProjectionRays              = refpts.handles.hProjectionRays;
 attractPt          = headvol.center;
-T_headvol2mc       = headvol.T_2mc;
 
 if isempty(pialsurf.mesh.vertices)
     return;
@@ -2461,7 +2481,7 @@ T_labelssurf2vol = atlasViewer.labelssurf.T_2vol; % mni to colin
 h = waitbar(0,'Please wait while loading volume and calculating...');
 
 % loop around MNI coordinates to get dOD change for each.
-for i = 1: no_mni;
+for i = 1: no_mni
     
     coordinate_MC(i,:) = xform_apply(coordinate_mni(i,:), (T_headvol2mc*T_labelssurf2vol));
     
@@ -2539,10 +2559,10 @@ if get(hObject,'value')==1 % if checkbox is checked
         no_mni = size(coordinate_mni,1);
         foo = num2str(coordinate_mni);
         fooi = sprintf(foo(1,:));
-        if no_mni == 1;
+        if no_mni == 1
             defaultanswer = {[fooi]};
         else
-            for i = 2:no_mni;
+            for i = 2:no_mni
                 foon = ['; ' sprintf(foo(i,:))];
                 defaultanswer = {[fooi foon]};
                 fooi = [fooi foon];
@@ -2561,7 +2581,7 @@ if get(hObject,'value')==1 % if checkbox is checked
     % get coordinate in MC space
     T_headvol2mc     = atlasViewer.headvol.T_2mc; % colin to Monte Carlo space
     T_labelssurf2vol = atlasViewer.labelssurf.T_2vol; % mni to colin
-    for i = 1: no_mni;
+    for i = 1: no_mni
         coordinate_MC(i,:) = xform_apply(coordinate_mni(i,:), (T_headvol2mc*T_labelssurf2vol));
     end
     
@@ -2576,7 +2596,7 @@ if get(hObject,'value')==1 % if checkbox is checked
     vertices  = atlasViewer.labelssurf.mesh.vertices;
     
     % Project MNI in MC space to head surface and pial surface
-    for i = 1:no_mni;
+    for i = 1:no_mni
         
         coordinate_MC_headsurf = ProjectionBI(coordinate_MC(i,:), atlasViewer.headsurf.mesh.vertices);
         coordinate_MC_cortex = ProjectionBI(coordinate_MC_headsurf, vertices);
@@ -2602,9 +2622,8 @@ end
 
 
 
-
 % --------------------------------------------------------------------
-function menuItemSetMCApp_Callback(hObject, eventdata, handles)
+function menuItemSetMCApp_Callback(~, ~, ~)
 global atlasViewer
 fwmodel = atlasViewer.fwmodel;
 
@@ -2644,7 +2663,7 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function menuItemSaveAnatomy_Callback(hObject, eventdata, handles)
+function menuItemSaveAnatomy_Callback(~, ~, ~)
 global atlasViewer
 
 headvol      = atlasViewer.headvol;
@@ -2704,19 +2723,20 @@ imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off'
 hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
 colorbar off;
 
+Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
+fwmodel.Ch = Ch;
+hbconc.Ch = Ch;
+
 % Set colormap threshold and channel edit boxes 
 switch(val)
     case fwmodel.menuoffset+1
         set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
-        set(handles.editSelectChannel,'string',sprintf('%d %d',fwmodel.Ch(1), fwmodel.Ch(2))); 
     case {imgrecon.menuoffset+1, imgrecon.menuoffset+2, imgrecon.menuoffset+3, imgrecon.menuoffset+4}
         set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',imgrecon.cmThreshold(val-imgrecon.menuoffset, 1), ...
                                                                imgrecon.cmThreshold(val-imgrecon.menuoffset, 2)));                                                          
-        set(handles.editSelectChannel,'string',sprintf('0 0')); 
     case {hbconc.menuoffset+1, hbconc.menuoffset+2}
         set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',hbconc.cmThreshold(val-hbconc.menuoffset, 1), ...
                                                                hbconc.cmThreshold(val-hbconc.menuoffset, 2)));                                                          
-        set(handles.editSelectChannel,'string',sprintf('%d %d',hbconc.Ch(1), hbconc.Ch(2))); 
     otherwise
         return;
 end
@@ -3059,7 +3079,6 @@ if isempty(probe.ptsProj_cortex)
 end
 
 set(hbconc.handles.popupmenuImageDisplay,'value', hbconc.menuoffset+1);
-set(hbconc.handles.editSelectChannel,'string',sprintf('%d %d',hbconc.Ch(1), hbconc.Ch(2)));
 
 % Calculate Hb concentration interpolation function and display
 hbconc = calcHbConc(hbconc, probe);
@@ -3131,7 +3150,7 @@ atlasViewer.hbconc = hbconc;
 
 
 % --------------------------------------------------------------------
-function menuItemClearRefptsToCortex_Callback(hObject, eventdata, handles)
+function menuItemClearRefptsToCortex_Callback(~, ~, ~)
 global atlasViewer
 
 refpts = atlasViewer.refpts;
@@ -3141,7 +3160,7 @@ atlasViewer.refpts = refpts;
 
 
 % --------------------------------------------------------------------
-function menuItemClearProbeProjection_Callback(hObject, eventdata, handles)
+function menuItemClearProbeProjection_Callback(~, ~, ~)
 global atlasViewer
 
 probe = atlasViewer.probe;
@@ -3161,7 +3180,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemResetViewerState_Callback(hObject, eventdata, handles)
+function menuItemResetViewerState_Callback(~, ~, ~)
 
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
@@ -3425,7 +3444,7 @@ updateViewAngles(ii, 0, 90);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsInferior_Callback(hObject, eventdata, handles)
+function pushbuttonStandardViewsInferior_Callback(hObject, ~, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3458,7 +3477,7 @@ updateViewAngles(ii, 0, -90);
 
 
 % --------------------------------------------------------------------
-function menuItemCalcRefpts_Callback(hObject, eventdata, handles)
+function menuItemCalcRefpts_Callback(~, ~, ~)
 global atlasViewer
 
 refpts  = atlasViewer.refpts;
@@ -3488,7 +3507,7 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemConfigureRefpts_Callback(hObject, eventdata, handles)
+function menuItemConfigureRefpts_Callback(~, ~, ~)
 
 RefptsSystemConfigGUI();
 
@@ -3513,7 +3532,7 @@ set(refpts.handles.uipanelHeadDimensions, 'visible',valstr);
 
 
 % --------------------------------------------------------------------
-function menuItemInstallAtlas_Callback(hObject, eventdata, handles)
+function menuItemInstallAtlas_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
@@ -3534,5 +3553,38 @@ copyfile(dirnameAtlasNew, [dirnameDst, '/', pparts{end}]);
 waitbar(1, h, 'Installion completed.');
 pause(2);
 close(h);
+
+
+
+
+% -------------------------------------------------------------------------------
+function togglebuttonMinimizeGUI_Callback(hObject, ~, handles)
+u0 = get(handles.AtlasViewerGUI, 'units');
+k = [1.0, 1.0, 0.8, 0.8];
+p1_0 = get(handles.AtlasViewerGUI, 'position');
+if strcmp(get(hObject, 'string'), '--')
+    set(hObject, 'tooltipstring', 'Maximize GUI Window')
+    set(hObject, 'string', '+');
+    p1 = k.*p1_0;
+
+    % Shift position closer to screen edge since GUI got smaller
+	p1(1) = p1(1) + abs(p1_0(3)-p1(3));
+	p1(2) = p1(2) + abs(p1_0(4)-p1(4));
+elseif strcmp(get(hObject, 'string'), '+')
+    set(hObject, 'tooltipstring', 'Minimize GUI Window')
+    set(hObject, 'string', '--');
+    p1 = p1_0./k;
+
+    % Shift position away from screen edge since GUI got bigger
+	p1(1) = p1(1) - abs(p1_0(3)-p1(3));
+	p1(2) = p1(2) - abs(p1_0(4)-p1(4));
+end
+pause(.2)
+set(handles.AtlasViewerGUI, 'position', p1);
+p1 = guiOutsideScreenBorders(handles.AtlasViewerGUI);
+set(handles.AtlasViewerGUI, 'units','characters', 'position',p1);
+set(handles.AtlasViewerGUI, 'units',u0);
+
+poditionListboxGroupGUI(handles);
 
 

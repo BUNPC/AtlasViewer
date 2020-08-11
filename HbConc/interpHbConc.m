@@ -10,8 +10,6 @@ function [Cout, k] = interpHbConc(v, C, r, iCh)
 %     r - Projected locations on the cortex
 %    
 % 
-C = C(:,:,iCh); % include only long distance and active channels
-r = r(iCh,:); % include only long distance and active channels
 
 Cout = zeros(size(v,1),1);
 Cmean = [];

@@ -139,8 +139,6 @@ fwmodel.handles.axes = handles.axesSurfDisplay;
 
 set(handles.menuItemEnableSensitivityMatrixVolume,'enable','off');
 
-set(fwmodel.handles.editSelectChannel,'string','0 0');
-
 set(fwmodel.handles.menuItemGenerateLoadSensitivityProfile,'enable','off');
 set(fwmodel.handles.menuItemGenerateMCInput,'enable','off');
 

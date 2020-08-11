@@ -1,3 +1,10 @@
-function b = optionExists(option, value)
-
-b = ~isempty(findstr(option, value)); %#ok<*FSTR>
+function b = optionExists(options, value)
+if isempty(options)
+    b = false;
+    return;
+end
+if ~exist('value','var') || isempty(value)
+    b = false;
+    return;
+end
+b = ~isempty(findstr(options, value)); %#ok<*FSTR>
