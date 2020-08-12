@@ -444,6 +444,8 @@ AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, [hObject, hImageRe
 function hGroupList = displayGroupSubjList(groupSubjList0, hGroupList, hGui)
 global atlasViewer
 
+atlasViewer.handles.listboxGroupTree = [];
+
 if isempty(groupSubjList0)
     if ishandles(hGroupList)
         delete(hGroupList);
@@ -558,14 +560,18 @@ end
 set(handles.editSelectChannel,'string','0 0');
 set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
 
-poditionListboxGroupGUI(handles, 'init');
+positionListboxGroupGUI(handles, 'init');
 
 
 
 
 % -------------------------------------------------------------------
-function poditionListboxGroupGUI(handles, options)
+function positionListboxGroupGUI(handles, options)
 global atlasViewer
+
+if isempty(atlasViewer.handles.listboxGroupTree)
+    return;
+end
 
 if ~exist('options','var')
     options = {};
@@ -3585,6 +3591,6 @@ p1 = guiOutsideScreenBorders(handles.AtlasViewerGUI);
 set(handles.AtlasViewerGUI, 'units','characters', 'position',p1);
 set(handles.AtlasViewerGUI, 'units',u0);
 
-poditionListboxGroupGUI(handles);
+positionListboxGroupGUI(handles);
 
 
