@@ -55,9 +55,10 @@ if ~isempty(filename)
         setGuiFonts(hObject);        
         return;
     end
-else
-    sd_file_panel_SetPathname(handles, pathname);
+elseif ~isempty(varargin)
+    SDgui_display(handles, varargin{1})
 end
+sd_file_panel_SetPathname(handles, pathname);
 
 % Set the AtlasViewerGUI version number
 SDgui_version(hObject);
@@ -69,10 +70,8 @@ setGuiFonts(hObject);
 
 % -------------------------------------------------------------------
 function SDgui_DeleteFcn(hObject, eventdata, handles)
-global SD
 global filedata
 
-SD = [];
 filedata.SD = [];
 
 hSDgui = get(get(hObject,'parent'),'parent');
@@ -178,6 +177,8 @@ end
 
 % -------------------------------------------------------------------
 function [fname, pname] = getCurrPathname(arg)
+fname = '';
+pname = '';
 if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
     if(fname == 0)
@@ -186,6 +187,9 @@ if isempty(arg)
     end
     pname = filesepStandard(pname);
     return
+elseif ~ischar(arg{1})
+    pname = pwd;
+    return;
 end
 
 filename = arg{1};

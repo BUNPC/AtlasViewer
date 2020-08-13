@@ -1,4 +1,8 @@
-function probe = preRegistrationPositioning(probe, headsurf, refpts)
+function probe = preRegister(probe, headsurf, refpts)
+
+if ~isProbeFlat(probe)
+    return
+end
 
 % Check if the probe is already registered. One indicator is if
 % the probe isn't flat. Another is if all optodes are on or close to the head surface.

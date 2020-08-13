@@ -1,4 +1,4 @@
-function probe = getProbe(probe, dirname, digpts, currElem)
+function probe = getProbe(probe, dirname, digpts, headsurf, refpts, currElem)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Parse arguments
@@ -80,7 +80,7 @@ probe2d = loadSD(probe2d, SD);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 3. Check for consustency between 2D and 3D probes if both exist
+% 3. Check for consistency between 2D and 3D probes if both exist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TBD:
 
@@ -95,4 +95,5 @@ else
     probe = probe.copy(probe, probe2d);
 end
 
+probe = preRegister(probe, headsurf, refpts);
 

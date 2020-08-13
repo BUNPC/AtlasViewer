@@ -173,7 +173,7 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     digpts     = getDigpts(digpts, dirnameSubj);
     refpts     = getRefpts(refpts, headsurf.pathname);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
-    probe      = getProbe(probe, dirnameSubj, digpts, currElem);
+    probe      = getProbe(probe, dirnameSubj, digpts, headsurf, refpts, currElem);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
     imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, currElem);
     hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
@@ -1143,9 +1143,12 @@ fwmodel     = resetFwmodel(fwmodel);
 imgrecon    = resetImgRecon(imgrecon);
 labelssurf  = resetLabelssurf(labelssurf);
 
-probe = importProbe(probe, [pathname, filename], digpts);
+probe = importProbe(probe, [pathname, filename], headsurf, refpts);
 
+hAxesCurr = gca;
+axes(atlasViewer.axesv(1).handles.axesSurfDisplay);
 probe = viewProbe(probe,'unregistered');
+axes(hAxesCurr)
 
 % This is done to not display dummy points by default. It does nothing 
 % if the method isn't spring registration.

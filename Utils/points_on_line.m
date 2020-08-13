@@ -1,4 +1,4 @@
-function p3 = points_on_line(p1, p2, crop, mode)
+function p3 = points_on_line(p1, p2, crop, mode, gridsize)
 
 %
 % USAGE:
@@ -27,8 +27,11 @@ function p3 = points_on_line(p1, p2, crop, mode)
 % DATE:   7/7/2012
 %
 
-if ~exist('mode','var')
+if ~exist('mode','var') || isempty(mode)
     mode = 'relative';
+end
+if ~exist('gridsize','var') || isempty(gridsize)
+    gridsize = 0;
 end
 
 p3 = p1;
@@ -41,7 +44,7 @@ if all(p1==p2)
 end
 
 if ~exist('crop','var') || isempty(crop)
-    crop = set_line_crop(p2, p1);
+    crop = set_line_crop(p2, p1, gridsize);
 end
 
 dx0 = p1(1)-p2(1);
@@ -81,8 +84,8 @@ end
 
 
 % ------------------------------------------------------------------------
-function gapRelative = set_line_crop(p1, p2)
-gapRelative = 0;
+function gapRelative = set_line_crop(p1, p2, gridsize)
+gapRelative = .05;
 
 if isempty(p1) || isempty(p2) 
     return;
@@ -95,4 +98,11 @@ lineSize     = dist3(p1, p2);
 % Get relative gap distance
 gapRelative = gapAbsolute / lineSize;
 % fprintf('Line gap: relative = %0.2f, absolute: %0.2f\n', gapRelative, gapAbsolute);
+
+if gapRelative > .10
+    gapRelative = .02;
+end
+
+
+    
 
