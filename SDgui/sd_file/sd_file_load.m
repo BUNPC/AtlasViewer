@@ -1,4 +1,4 @@
-function [filedata, err] = sd_file_load(filename, handles)
+function [filedata, filename, err] = sd_file_load(filename, handles)
 
 filedata = [];
 err = 0;
@@ -20,7 +20,7 @@ if file.isdir()
 end
 
 try
-    filedata = load(filename,'-mat');
+    [filedata, filename] = loadFile(filename);
 catch
     err=3;
     SDgui_disp_msg(handles, sprintf('ERROR: File %s is not in .mat format.', filename), err);
@@ -32,3 +32,24 @@ if ~isfield(filedata,'SD')
     SDgui_disp_msg(handles, sprintf('ERROR: SD data doesn''t exist or is corrupt in %s.', [fname,ext]), err);
     return;
 end
+
+
+
+
+% ----------------------------------------------------------------------
+function [filedata, filename] = loadFile(filename)
+filedata = [];
+[~, fname, ext] = fileparts(filename);
+if strcmpi(ext,'.SD') || strcmpi(ext,'.nirs')
+    filedata = load(filename,'-mat');
+elseif strcmp(ext, '.snirf')
+    if ~exist('SnirfClass','class')
+        return;
+    end
+    snirf = SnirfClass(filename);
+    filedata.SD = snirf.GetSDG();
+    filedata.SD.MeasList = snirf.GetMeasList();
+    filename = [fname, '.SD'];
+end
+
+

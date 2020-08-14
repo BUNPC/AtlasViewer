@@ -1,5 +1,4 @@
 function probe = loadSD(probe,SD)
-scale = 1;
 
 if(isfield(SD,'Lambda'))
     probe.lambda=SD.Lambda;
@@ -13,18 +12,18 @@ if(isfield(SD,'SpatialUnit'))
 else
     unitsStr = 'mm';
 end
-sdUnitsFactor = 1;
+scaleFactor = 1;
 if ischar(unitsStr) && strcmp(unitsStr,'cm')
-    sdUnitsFactor = 10;   % convert to mm if SD units are cm
+    scaleFactor = 10;   % convert to mm if SD units are cm
 end
 
 if(isfield(SD,'SrcPos'))
-    probe.srcpos=sdUnitsFactor*SD.SrcPos;
+    probe.srcpos=scaleFactor*SD.SrcPos;
 else
     probe.srcpos=[];
 end
 if(isfield(SD,'DetPos'))
-    probe.detpos=sdUnitsFactor*SD.DetPos;
+    probe.detpos=scaleFactor*SD.DetPos;
 else
     probe.detpos=[];
 end
@@ -82,5 +81,5 @@ if(isfield(SD,'SpatialUnit'))
     end
 end
 
-probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos] * scale;
+probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
 probe.noptorig = size([probe.srcpos; probe.detpos],1);

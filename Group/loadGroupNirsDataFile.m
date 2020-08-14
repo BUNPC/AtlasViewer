@@ -19,11 +19,7 @@ end
 
 % Error checks: If groupResults exists but is corrupt then it's not a
 % group folder.
-warning('off', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('off', 'MATLAB:load:classNotFound');
 dataTree = DataTreeClass();
-warning('on', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('on', 'MATLAB:load:classNotFound');
 
 if ~isa(dataTree, 'DataTreeClass')
     return;

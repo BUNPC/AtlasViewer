@@ -28,7 +28,7 @@ classdef ProcStreamClass < handle
             
             % By the time this class constructor is called we should already have a saved registry 
             % to load. (Defintiely would not want to be generating the registry for each instance of this class!!)
-            obj.reg = [];
+            obj.reg = RegistriesClass();
             
             obj.input = ProcInputClass(acquired, copyOptions);
             obj.output = ProcResultClass();
@@ -53,6 +53,14 @@ classdef ProcStreamClass < handle
                 obj = ProcStreamClass();
             end
                         
+            for ii=1:length(obj2.fcalls)
+                obj.fcalls(ii) = FuncCallClass();
+                obj.fcalls(ii).Copy(obj2.fcalls(ii), obj.reg);
+            end
+            
+            % Delete any fcalls entries not ovewritten by the copy process
+            obj.fcalls(ii+1:end) = [];
+            
             obj.input.Copy(obj2.input);
             obj.output.Copy(obj2.output, filename);
         end
@@ -63,9 +71,6 @@ classdef ProcStreamClass < handle
             if ~isa(obj, 'ProcStreamClass')
                 return;
             end
-            if nargin<3
-                reg = RegistriesClass.empty();
-            end            
             delete(obj.fcalls);
             obj.fcalls = FuncCallClass().empty();
             for ii=1:length(obj2.fcalls)

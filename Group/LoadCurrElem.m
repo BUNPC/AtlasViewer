@@ -13,9 +13,6 @@ if iSubj==0
 else
     currElem = group.subjs(iSubj);
 end
-warning('off', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('off', 'MATLAB:load:classNotFound');
+
 currElem.LoadSubBranch();
-warning('on', 'MATLAB:load:cannotInstantiateLoadedVariable');
-warning('on', 'MATLAB:load:classNotFound');
 

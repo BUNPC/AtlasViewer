@@ -17,7 +17,7 @@ ml           = sd_data_GetMeasList();
 sl           = sd_data_GetSpringList();
 al           = sd_data_GetAnchorList();
 Lambda       = sd_data_Get('Lambda');
-
+SpatialUnit  = sd_data_Get('SpatialUnit');
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES %%%%%%%
 probe_geometry_axes_Init(handles,SrcPos,DetPos,DummyPos,ml);
@@ -66,4 +66,12 @@ end
 if sd_data_AnyGrommetTypeSet()
     set(handles.checkboxNinjaCap, 'value',1)
 end
+
+% Set spatial unit dropdown menu
+strs = get(handles.popupmenuSpatialUnit, 'string');
+idx = find(strcmp(strs, SpatialUnit));
+if ~isempty(idx) && (idx <= length(strs))
+    set(handles.popupmenuSpatialUnit, 'value', idx);
+end
+
 

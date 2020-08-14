@@ -21,7 +21,7 @@ classdef DataTreeClass <  handle
             
             obj.groups              = GroupClass().empty();
             obj.currElem            = TreeNodeClass().empty();
-            obj.reg                 = [];
+            obj.reg                 = RegistriesClass().empty();
             obj.dirnameGroups       = {};
             obj.logger              = InitLogger(logger, 'DataTree');
                         
@@ -73,10 +73,10 @@ classdef DataTreeClass <  handle
             cd(obj.groups(end).path);
             
             % Load user function registry
-            %             obj.reg = RegistriesClass();
-            %             if ~isempty(obj.reg.GetSavedRegistryPath())
-            %                 obj.logger.Write(sprintf('Loaded saved registry %s\n', obj.reg.GetSavedRegistryPath()));
-            %             end
+            obj.reg = RegistriesClass();
+            if ~isempty(obj.reg.GetSavedRegistryPath())
+                obj.logger.Write(sprintf('Loaded saved registry %s\n', obj.reg.GetSavedRegistryPath()));
+            end
             
             % Initialize the current processing element within the group
             obj.SetCurrElem(1,1,1);

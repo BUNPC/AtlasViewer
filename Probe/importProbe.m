@@ -36,7 +36,7 @@ if isProbeFlat(SD) && ~registrationInfo(SD)
     if q==2
         return;
     end
-    h = SDgui(SD);    
+    h = SDgui(filename, 'userargs');    
     probe = loadSD(probe, SD);
 end
 probe = preRegister(probe, headsurf, refpts);

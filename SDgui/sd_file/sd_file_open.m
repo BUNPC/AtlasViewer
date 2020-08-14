@@ -18,7 +18,7 @@ end
 SDgui_clear_all(handles);
 
 % Load new SD file
-[filedata, err] = sd_file_load([pathname, filename], handles);
+[filedata, filename, err] = sd_file_load([pathname, filename], handles);
 if err
     return;
 end
@@ -32,3 +32,4 @@ SDgui_disp_msg(handles, sprintf('Loaded %s', [fname,ext]));
 
 sd_file_panel_SetPathname(handles,pathname);
 sd_filename_edit_Set(handles,filename);
+

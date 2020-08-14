@@ -15,7 +15,7 @@ if ~isempty(filename)
 end
 if isempty(file)
     % if exist([pathname, filename],'file')~=2
-    [filename, pathname] = uigetfile({'*.SD; *.sd';'*.nirs'}, 'Open SD file', [pathname, filename]);
+    [filename, pathname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'}, 'Open SD file', [pathname, filename]);
     if filename==0
         set(handles.sd_filename_edit, 'string', filename0);
         return;

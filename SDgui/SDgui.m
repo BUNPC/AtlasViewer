@@ -66,6 +66,9 @@ SDgui_version(hObject);
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 setGuiFonts(hObject);
 
+popupmenuSpatialUnit_Callback([], [], handles)
+
+
 
 
 % -------------------------------------------------------------------
@@ -101,7 +104,7 @@ function SDgui_openmenuitem_Callback(hObject, eventdata, handles)
 pathname = sd_file_panel_GetPathname(handles);
 
 % Change directory SDgui
-[filename, pathname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pathname);
+[filename, pathname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pathname);
 if(filename == 0)
     return;
 end
@@ -180,7 +183,7 @@ function [fname, pname] = getCurrPathname(arg)
 fname = '';
 pname = '';
 if isempty(arg)
-    [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pwd);
+    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pwd);
     if(fname == 0)
         pname = filesepStandard(pwd);
         fname = [];        
@@ -209,7 +212,7 @@ if isempty(directory)
     pname = filesepStandard(pwd);
 end
 if isempty(file)
-    [fname, pname] = uigetfile({'*.SD; *.sd';'*.nirs'},'Open SD file',pname);
+    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pname);
     if(fname == 0)
         pname = filesepStandard(pwd);
         fname = [];
@@ -270,4 +273,23 @@ end
 
 % ------------------------------------------------------------------
 function checkboxNinjaCap_Callback(hObject, eventdata, handles)
+
+
+
+% ------------------------------------------------------------------
+function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
+global SD
+
+if ~ishandles(hObject)
+    set(handles.popupmenuSpatialUnit, 'string', {'cm', 'mm'});
+    hObject = handles.popupmenuSpatialUnit;
+    strs = get(hObject, 'string');
+    idx = find(strcmp(strs, SD.SpatialUnit));
+    if ~isempty(idx) && (idx <= length(strs))
+        set(hObject, 'value', idx);
+    end
+end
+strs = get(hObject, 'string');
+idx = get(hObject, 'value');
+SD.SpatialUnit = strs{idx};
 
