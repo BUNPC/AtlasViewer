@@ -1,8 +1,8 @@
 function userfuncdir = FindUserFuncDir(obj)
 userfuncdir = {};
-dirnameApp = getAppDir();
+dirnameApp = getAppDir_av();
 
-userfuncdir{1} = [dirnameApp, 'FuncRegistry/UserFunctions/'];
+userfuncdir{1} = [dirnameApp, 'Group/FuncRegistry/UserFunctions/'];
 dirs = dir([userfuncdir{1}, '*']);
 for ii = 1:length(dirs)
     if ~dirs(ii).isdir()

@@ -528,7 +528,7 @@ classdef FuncHelpClass < matlab.mixin.Copyable
             if ~isdeployed()
                 func = obj.funcname;
             else
-                func = [getAppDir(), 'FuncRegistry/UserFunctions/', obj.funcname];
+                func = [getAppDir_av(), 'FuncRegistry/UserFunctions/', obj.funcname];
             end
             if isempty(func)
                 return
