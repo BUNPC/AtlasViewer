@@ -39,7 +39,7 @@ else
 end
 if(isfield(SD,'nDets'))
     probe.ndet=SD.nDets;
-else size(probe.detpos,1)
+else
     probe.ndet=size(probe.detpos,1);
 end
 if(isfield(SD,'nDummys'))

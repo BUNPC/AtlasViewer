@@ -1,6 +1,10 @@
 function checkForAtlasViewerUpdates()
+    cfg = ConfigFileClass(); 
+    if (strcmp(cfg.GetValue('Check For Updates'),'off'))
+        return;
+    end
+    
     url = 'http://bu.edu/neurophotonics/research/fnirs/atlasviewer';
-%     cfg = ConfigFileClass(); TODO implement cfg
     promptFlag = 0;
     try
         % Open a hidden web browser 
