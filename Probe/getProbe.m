@@ -14,10 +14,6 @@ end
 if ~exist('dirname','var') || isempty(dirname)
     dirname = pwd;
 end
-if dirname(end)~='/' && dirname(end)~='\'
-    dirname(end+1)='/';
-end
-dirname = fullpath(dirname);
 
 % Arg 3
 if ~exist('digpts','var') || isempty(digpts)
@@ -25,9 +21,26 @@ if ~exist('digpts','var') || isempty(digpts)
 end
 
 % Arg 4
-if ~exist('group','var')
-    group = [];
+if ~exist('headsurf','var')
+    headsurf = [];
 end
+
+% Arg 5
+if ~exist('refpts','var')
+    refpts = [];
+end
+
+% Arg 6
+if ~exist('currElem','var')
+    currElem = [];
+end
+
+
+% Modify arguments 
+if dirname(end)~='/' && dirname(end)~='\'
+    dirname(end+1)='/';
+end
+dirname = fullpath(dirname);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,10 +77,10 @@ elseif exist([dirname, '/groupResults.mat'], 'file')
     save([dirname, 'probe.SD'],'-mat', 'SD');
     
 % Check if flat probe exists in fnirs data acquisition files
-elseif ~isempty(dir([dirname, '*.nirs']))
+elseif existDataFiles()
     
-    files = dir([dirname, '*.nirs']);
-    filedata = load([dirname, files(1).name], '-mat');
+    files = getDataFiles();
+    filedata = load([dirname, files(1).folder, files(1).name], '-mat');
     SD = filedata.SD;
     save([dirname, 'probe.SD'],'-mat', 'SD');
     
@@ -96,4 +109,66 @@ else
 end
 
 probe = preRegister(probe, headsurf, refpts);
+
+
+
+
+
+% ----------------------------------------------------------------------
+function b = existDataFiles(dirname)
+if ~exist('dirname','var') || isempty(dirname)
+    dirname = '.';
+end
+b = true;
+
+files = dir([dirname, '/*.nirs']);
+if ~isempty(files)    
+    return;
+end
+
+dirs = dir([dirname, '/*']);
+for ii = 1:length(dirs)
+    if ~dirs(ii).isdir()
+        continue
+    end
+    if strcmp(dirs(ii).name, '.')
+        continue
+    end
+    if strcmp(dirs(ii).name, '..')
+        continue
+    end
+    if existDataFiles(filesepStandard([dirname, '/', dirs(ii).name]))
+        return
+    end    
+end
+b = false;
+
+
+
+% ----------------------------------------------------------------------
+function files = getDataFiles(dirname)
+if ~exist('dirname','var') || isempty(dirname)
+    dirname = '.';
+end
+    
+files = dir([dirname, '/*.nirs']);
+for jj = 1:length(files)
+    files(jj).folder = filesepStandard(dirname);
+end
+
+dirs = dir([dirname, '/*']);
+for ii = 1:length(dirs)
+    if ~dirs(ii).isdir()
+        continue
+    end
+    if strcmp(dirs(ii).name, '.')
+        continue
+    end
+    if strcmp(dirs(ii).name, '..')
+        continue
+    end
+    fileNew = getDataFiles(filesepStandard([dirname, '/', dirs(ii).name]));
+    files = [files; fileNew]; %#ok<AGROW>
+end
+
 
