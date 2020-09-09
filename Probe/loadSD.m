@@ -1,9 +1,9 @@
 function probe = loadSD(probe,SD)
 
 if(isfield(SD,'Lambda'))
-    probe.lambda=SD.Lambda;
+    probe.lambda = SD.Lambda;
 else
-    probe.lambda=[];
+    probe.lambda = [];
 end
 
 % Determine units of src/det coordinates
@@ -18,34 +18,34 @@ if ischar(unitsStr) && strcmp(unitsStr,'cm')
 end
 
 if(isfield(SD,'SrcPos'))
-    probe.srcpos=scaleFactor*SD.SrcPos;
+    probe.srcpos = scaleFactor*SD.SrcPos;
 else
-    probe.srcpos=[];
+    probe.srcpos = [];
 end
 if(isfield(SD,'DetPos'))
-    probe.detpos=scaleFactor*SD.DetPos;
+    probe.detpos = scaleFactor*SD.DetPos;
 else
-    probe.detpos=[];
+    probe.detpos = [];
 end
 if(isfield(SD,'DummyPos'))
-    probe.dummypos=SD.DummyPos;
+    probe.dummypos = SD.DummyPos;
 else
-    probe.dummypos=[];
+    probe.dummypos = [];
 end
 if(isfield(SD,'nSrcs'))
-    probe.nsrc=SD.nSrcs;
+    probe.nsrc = SD.nSrcs;
 else
-    probe.nsrc=size(probe.srcpos,1);
+    probe.nsrc = size(probe.srcpos,1);
 end
 if(isfield(SD,'nDets'))
-    probe.ndet=SD.nDets;
+    probe.ndet = SD.nDets;
 else
-    probe.ndet=size(probe.detpos,1);
+    probe.ndet = size(probe.detpos,1);
 end
 if(isfield(SD,'nDummys'))
-    probe.ndummy=SD.nDummys;
+    probe.ndummy = size(probe.dummypos,1);
 else
-    probe.ndummy=0;
+    probe.ndummy = 0;
 end
 
 if(isfield(SD,'MeasList')) && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
@@ -64,22 +64,17 @@ else
 end
 
 if(isfield(SD,'SpringList'))
-    probe.sl=SD.SpringList;
+    probe.sl = SD.SpringList;
 else
-    probe.sl=[];
+    probe.sl = [];
 end
 if(isfield(SD,'AnchorList'))
-    probe.al=SD.AnchorList;
+    probe.al = SD.AnchorList;
 else
-    probe.al=[];
-end
-
-if(isfield(SD,'SpatialUnit'))
-	% Make sure units agree with AV native units which is mm
-    if strcmp(SD.SpatialUnit, 'cm')
-        scale = 10;
-    end
+    probe.al = [];
 end
 
 probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
+probe.nopt = size(probe.optpos, 1);
 probe.noptorig = size([probe.srcpos; probe.detpos],1);
+

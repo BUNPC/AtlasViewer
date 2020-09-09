@@ -7,12 +7,11 @@ noptorig        = probe.noptorig;
 sl              = probe.sl;
 hOidx           = probe.hOptodesIdx;
 nopt            = size(probe.handles.hOptodes,1);
-nsrc            = probe.nsrc;
 optViewMode     = probe.optViewMode;
 
 % Parse arguments
 if ~exist('method','var') || isempty(method)
-    if ~ishandles(hSprings)
+    if isempty(probe.al)
         method = 'digpts';
     else
         method = 'springs';
@@ -48,7 +47,7 @@ if ishandles(hMeasList)
 end
 
 % Enable/disable gui objects
-probe = updateProbeGuiControls(probe,headsurf,method, 'silent');
+probe = updateProbeGuiControls(probe, headsurf, method);
 
 probe = setOptodeNumbering(probe);
 

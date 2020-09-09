@@ -61,12 +61,10 @@ while 1
         k = find(str==':');
         if lower(str(1))=='s' && isnumber(str(2))
             iS=str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
-            digpts.srcmap(1,iS) = str2num(str(2:k-1));
             digpts.srcpos(iS,:) = str2num(str(k+1:end));
             % iS=iS+1;
         elseif lower(str(1))=='d' && isnumber(str(2))
             iD=str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
-            digpts.detmap(1,iD) = str2num(str(2:k-1));
             digpts.detpos(iD,:) = str2num(str(k+1:end));
             % iD=iD+1;
         elseif str(1)=='@'

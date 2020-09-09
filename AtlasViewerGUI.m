@@ -797,12 +797,12 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isempty(probe.sl)
+if isempty(probe.al)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
     method = 'digpts';
-    probe = pullProbeToHeadsurf(probe,headobj);
+    probe = pullProbeToHeadsurf(probe, headobj);
     probe.hOptodesIdx = 1;
    
 else
@@ -1364,7 +1364,7 @@ labelssurf     = displayLabelssurf(labelssurf);
 refpts         = displayRefpts(refpts);
 digpts         = displayDigpts(digpts);
 probe          = displayProbe(probe, headsurf);
-axesv(1) = displayAxesv(axesv(1), headsurf, headvol, initDigpts());
+axesv(1)       = displayAxesv(axesv(1), headsurf, headvol, initDigpts());
 
 set(axesv(1).handles.axesSurfDisplay,{'xlimmode','ylimmode','zlimmode'},{'manual','manual','manual'});
 
@@ -1374,7 +1374,7 @@ else
     set(labelssurf.handles.menuItemSelectLabelsColormap,'enable','off');
 end
 
-probe = updateProbeGuiControls(probe,headsurf,'digpts');
+probe = updateProbeGuiControls(probe, headsurf, 'digpts');
 
 %%% Save new atlas coordinates in atlasViewer
 atlasViewer.headsurf    = headsurf;
