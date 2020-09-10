@@ -730,7 +730,7 @@ end
 
 
 % --------------------------------------------------------------------
-function probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts)
+function probe = probeRegisterSpringsMethod(probe, headvol, refpts)
 
 if isempty(probe)
     menu('probe hasn''t been loaded. Use the Make Probe option in the Tools menu','OK');
@@ -750,8 +750,7 @@ if isempty([probe.sl])
 end
 
 % Get registered optode positions and then display springs 
-probe = registerProbe2Head(probe, headvol, headsurf, refpts);
-
+probe = registerProbe2Head(probe, headvol, refpts);
 
 
 
@@ -778,6 +777,7 @@ dirnameSubj  = atlasViewer.dirnameSubj;
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
+digpts       = atlasViewer.digpts;
 
 % for displayAxesv whichever head object (headsurf or headvol) 
 % is not empty will work. 
@@ -813,7 +813,7 @@ else
         return;
     end
     method = 'springs';
-    probe = probeRegisterSpringsMethod(probe, headvol, headsurf, refpts);
+    probe = probeRegisterSpringsMethod(probe, headvol, refpts);
   
 end
 
@@ -833,9 +833,17 @@ fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, lab
 probe.hOptodesIdx = 1; 
 probe = setProbeDisplay(probe, headsurf, method);
 
+
+% If digitized points exist but are missing probe optodes, artificially digitize them 
+if ~digpts.isempty(digpts) && digpts.isemptyProbe(digpts)
+    digpts = digpts.copyProbe(digpts, probe, refpts);
+    saveDigpts(digpts, 'overwrite');
+end
+
 atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
 atlasViewer.labelssurf  = labelssurf;
+atlasViewer.digpts      = digpts;
 
 
 
@@ -1182,7 +1190,7 @@ drawnow();
 
 
 % --------------------------------------------------------------------
-function menuItemChooseLabelsColormap_Callback(hObject, eventdata, handles)
+function menuItemChooseLabelsColormap_Callback(~, ~, ~)
 global atlasViewer
 
 hLabelsSurf     = atlasViewer.labelssurf.handles.surf;
@@ -1217,7 +1225,7 @@ atlasViewer.labelssurf.colormapsIdx = ch;
 
 
 % --------------------------------------------------------------------
-function menuItemRegisterAtlasToDigpts_Callback(hObject, eventdata, handles)
+function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 global DEBUG
 
@@ -1228,8 +1236,6 @@ headvol      = atlasViewer.headvol;
 pialsurf     = atlasViewer.pialsurf;
 probe        = atlasViewer.probe;
 labelssurf   = atlasViewer.labelssurf;
-dirnameAtlas = atlasViewer.dirnameAtlas;
-dirnameSubj  = atlasViewer.dirnameSubj;
 axesv        = atlasViewer.axesv;
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon; 

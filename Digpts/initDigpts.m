@@ -25,6 +25,8 @@ digpts(1) = struct( ...
     'orientation', '', ...
     'checkCompatability',@checkDigptsCompatability, ...
     'isempty',@isempty_loc, ...
+    'isemptyProbe',@isemptyProbe_loc, ...
+    'copyProbe',@copyProbe_loc, ...
     'prepObjForSave',[], ...
     'digpts',[] ...
     );
@@ -75,3 +77,40 @@ end
 if ~isempty(digpts.pcpos)
     b = false;
 end
+
+
+
+
+% --------------------------------------------------------------
+function b = isemptyProbe_loc(digpts)
+
+b = true;
+if isempty(digpts)
+    return;
+end
+if ~isempty(digpts.srcpos)
+    b = false;
+end
+if ~isempty(digpts.detpos)
+    b = false;
+end
+
+
+
+% --------------------------------------------------------------
+function digpts = copyProbe_loc(digpts, probe, refpts)
+if isempty(probe.optpos_reg)
+    return;
+end
+% Generate transformation from head volume to digitized points space
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
+
+srcpos = probe.optpos_reg(1:probe.nsrc, :);
+detpos = probe.optpos_reg(probe.nsrc+1:probe.nsrc+probe.ndet,:);
+
+digpts.srcpos = xform_apply(srcpos, T_2digpts);
+digpts.detpos = xform_apply(detpos, T_2digpts);
+
+
+

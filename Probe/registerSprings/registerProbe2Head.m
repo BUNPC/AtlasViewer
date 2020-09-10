@@ -1,4 +1,4 @@
-function probe = registerProbe2Head(probe, headvol, headsurf, refpts)
+function probe = registerProbe2Head(probe, headvol, refpts)
 
 [optconn, anchor_pts] = spring2posprobe(probe, refpts, headvol);
 posprobe_data = gen_positionprobe_dat(probe.optpos, optconn, anchor_pts);
@@ -14,4 +14,3 @@ optpos_reg = positionprobe(posprobe_data, ...
                            400);
 % Shed dummy points                      
 probe.optpos_reg    = optpos_reg;
-probe.posprobe_data = posprobe_data;
