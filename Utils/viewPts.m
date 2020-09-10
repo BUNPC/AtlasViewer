@@ -43,11 +43,6 @@ if isempty(pts)
     return;
 end
 
-% Check arg 2
-if isempty(ctr)
-    dx = 0; dy = 0; dz = 0;
-end
-
 % Check arg 3
 if ~exist('lift','var')
    lift=0; 
@@ -58,13 +53,14 @@ if ~exist('axes_order','var')
     axes_order=[1 2 3];
 end
 
+hPts = zeros(size(pts,1), 1);
 
 % Display points
 if isfield(pts,'pos')
     
     hPts = zeros(length(pts),2);
     hPtsTxt = zeros(length(pts),2);
-    for i=1:length(pts);
+    for i = 1:length(pts)
         ptPos0 = [pts(i).pos(axes_order(1)) pts(i).pos(axes_order(2)) pts(i).pos(axes_order(3))];
         ptCol = pts(i).col;
         textSz  = pts(i).textsize;
@@ -72,7 +68,6 @@ if isfield(pts,'pos')
         ptStr = pts(i).str;
         
         if ~isempty(ctr)
-            dr = dist3(ptPos0, ctr);
             ptPos = points_on_line(ptPos0, ctr, -lift/100);
         else
             ptPos = ptPos0;
@@ -99,9 +94,8 @@ if isfield(pts,'pos')
 else
     
     pts0 = [pts(:,axes_order(1)) pts(:,axes_order(2)) pts(:,axes_order(3))];
-    for i=1:size(pts,1);       
+    for i = 1:size(pts,1)
         if ~isempty(ctr)
-            dr = dist3(pts0(i,:), ctr);
             pts(i,:) = points_on_line(pts0(i,:),ctr,-lift/100);
         else
             pts(i,:) = pts0(i,:);

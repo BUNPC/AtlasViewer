@@ -64,6 +64,5 @@ probe.ml                = [];
 probe.sl                = [];
 probe.al                = [];
 probe.hOptodesIdx       = 1;
-probe.posprobe_data     = [];
 
 
