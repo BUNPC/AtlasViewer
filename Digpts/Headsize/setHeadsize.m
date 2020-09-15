@@ -1,6 +1,9 @@
-function headsize = setHeadsize(headsize, answer)
+function headsize = setHeadsize(headsize, headsizeParams)
 
-headsize.HC = str2num(answer{1})*10;
-headsize.NzCzIz = str2num(answer{2})*10;
-headsize.LPACzRPA = str2num(answer{3})*10;
+% This function expects headsizeParams to be numeric strings of 
+% head size in cm units 
+
+headsize.HC = str2num(headsizeParams{1})*10;
+headsize.NzCzIz = str2num(headsizeParams{2})*10;
+headsize.LPACzRPA = str2num(headsizeParams{3})*10;
 
