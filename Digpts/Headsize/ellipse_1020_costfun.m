@@ -1,6 +1,6 @@
-function f = ellipse_1020_costfun( x, headSize )
+function f = ellipse_1020_costfun(x, headsize)
 
-a = x(1); %  Al to Ar axis
+a = x(1); % Al to Ar axis
 b = x(2); % Nz to Iz axis
 c = x(3); % Cz axis
 
@@ -16,8 +16,6 @@ IzNz = 3.14159 * (b+c) * (1+3*h/(10+sqrt(4-3*h))) * 1.2/2;
 h = (a-c)^2 / (a+c)^2;
 AlAr = 3.14159 * (a+c) * (1+3*h/(10+sqrt(4-3*h))) * 1.2/2;
 
-
-
 %[HC IzNz AlAr]
-f = (HC-headSize.HC)^2 + (IzNz-headSize.IzNz)^2 + (AlAr-headSize.LPARPA)^2;
+f = (HC-headsize.HC)^2 + (IzNz-headsize.NzCzIz)^2 + (AlAr-headsize.LPACzRPA)^2;
 

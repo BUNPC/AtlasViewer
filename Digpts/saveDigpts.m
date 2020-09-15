@@ -1,4 +1,4 @@
-function digpts = saveDigpts(digpts, mode)
+function digpts = saveDigpts(digpts, options)
 
 if isempty(digpts) | isempty([digpts.srcpos; digpts.detpos; digpts.refpts.pos; digpts.pcpos])
     return;
@@ -12,11 +12,11 @@ dirname = digpts.pathname;
 if ~exist(dirname, 'dir')
     mkdir(dirname);
 end
-if ~exist('mode', 'var')
-    mode='nooverwrite';
+if ~exist('options', 'var')
+    options='matrixonly';
 end
 
-if ~exist([dirname 'digpts.txt'], 'file') | strcmp(mode, 'overwrite')
+if ~exist([dirname 'digpts.txt'], 'file') | optionExists(options, 'overwrite')
     % Save points: unapply T_2mc to get back to original dig pts
     digpts.srcpos = xform_apply(digpts.srcpos, inv(digpts.T_2mc));
     digpts.detpos = xform_apply(digpts.detpos, inv(digpts.T_2mc));
@@ -38,8 +38,19 @@ if ~exist([dirname 'digpts.txt'], 'file') | strcmp(mode, 'overwrite')
     fclose(fid);
 end
 
-if ~exist([dirname 'digpts2mc.txt'], 'file') | strcmp(mode, 'overwrite')
-    T_digpts2mc = digpts.T_2mc;
-    save([dirname 'digpts2mc.txt'], 'T_digpts2mc', '-ascii');
+if ~exist([dirname 'digpts2mc.txt'], 'file')
+    if optionExists(options, 'overwrite') | optionExists(options, 'matrixonly')
+        if ~isidentity(digpts.T_2mc)
+            T_digpts2mc = digpts.T_2mc;
+            save([dirname 'digpts2mc.txt'], 'T_digpts2mc', '-ascii');
+        end
+    end
 end
-
+if ~exist([dirname 'digpts2vol.txt'], 'file')
+    if optionExists(options, 'overwrite') | optionExists(options, 'matrixonly')
+        if ~isidentity(digpts.T_2vol)
+            T_digpts2vol = digpts.T_2vol;
+            save([dirname 'digpts2vol.txt'], 'T_digpts2vol', '-ascii');
+        end
+    end
+end

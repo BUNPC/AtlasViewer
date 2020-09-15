@@ -1,5 +1,9 @@
 function digpts = initDigpts(handles)
 
+if ~exist('handles','var')
+    handles = [];
+end
+
 digpts(1) = struct( ...
     'name', 'digpts', ...
     'pathname', '', ...
@@ -21,6 +25,7 @@ digpts(1) = struct( ...
     'T_2xyz',eye(4), ...
     'T_2ref',eye(4), ...
     'T_2refras',eye(4), ...
+    'T_2vol',eye(4), ...
     'center',[], ...
     'orientation', '', ...
     'checkCompatability',@checkDigptsCompatability, ...
@@ -28,10 +33,11 @@ digpts(1) = struct( ...
     'isemptyProbe',@isemptyProbe_loc, ...
     'copyProbe',@copyProbe_loc, ...
     'prepObjForSave',[], ...
-    'digpts',[] ...
+    'digpts',[], ...
+    'headsize', initHeadsize(handles) ...
     );
 
-if exist('handles','var')
+if ishandles(handles) 
     digpts.handles.radiobuttonShowDigpts = handles.radiobuttonShowDigpts;
     digpts.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
     set(digpts.handles.radiobuttonShowDigpts,'enable','off');
@@ -74,6 +80,9 @@ end
 if ~isempty(digpts.detpos)
     b = false;
 end
+if ~digpts.headsize.isempty(digpts.headsize)
+    b = false;
+end
 if ~isempty(digpts.pcpos)
     b = false;
 end
@@ -102,15 +111,17 @@ function digpts = copyProbe_loc(digpts, probe, refpts)
 if isempty(probe.optpos_reg)
     return;
 end
+
+digpts = calcDigptsFromHeadsize(digpts);
+
 % Generate transformation from head volume to digitized points space
 [rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
 T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
+digpts.T_2vol = inv(T_2digpts);
 
 srcpos = probe.optpos_reg(1:probe.nsrc, :);
 detpos = probe.optpos_reg(probe.nsrc+1:probe.nsrc+probe.ndet,:);
 
 digpts.srcpos = xform_apply(srcpos, T_2digpts);
 digpts.detpos = xform_apply(detpos, T_2digpts);
-
-
 

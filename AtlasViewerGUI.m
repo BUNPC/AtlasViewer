@@ -17,6 +17,7 @@ if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
+    
 end
 % End AtlasViewerGUI initialization code - DO NOT EDIT
 
@@ -833,11 +834,11 @@ fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, lab
 probe.hOptodesIdx = 1; 
 probe = setProbeDisplay(probe, headsurf, method);
 
-
 % If digitized points exist but are missing probe optodes, artificially digitize them 
 if ~digpts.isempty(digpts) && digpts.isemptyProbe(digpts)
-    digpts = digpts.copyProbe(digpts, probe, refpts);
+    digpts = digpts.copyProbe(digpts, probe, refpts);    
     saveDigpts(digpts, 'overwrite');
+    probe.T_2digpts = inv(digpts.T_2vol);
 end
 
 atlasViewer.probe       = probe;
@@ -1245,7 +1246,16 @@ hbconc       = atlasViewer.hbconc;
 % Check conditions which would make us exit early
 if digpts.refpts.isempty(digpts.refpts)
     return;
-end 
+end
+
+% Unconditionally generate transformation from head volume to digitized points space
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+headvol.T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
+digpts.T_2vol = inv(headvol.T_2digpts);
+saveDigpts(digpts, 'matrixonly'); 
+
+headvol.imgOrig = headvol.img;
+
 if refpts.isempty(refpts)
     return;
 end 
@@ -1268,11 +1278,6 @@ end
 
 % First determine transformation to monte carlo space from volume 
 
-% Generate transformation from head volume to digitized points space
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
-
-headvol.imgOrig = headvol.img;
-headvol.T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
 
 % Register headvol to digpts but first check fwmodel if it's volume 
 % is already registered to digpts. if it is then set the headvol object 
@@ -1312,7 +1317,11 @@ digpts.optpos     = [digpts.srcpos; digpts.detpos];
 digpts.center     = digpts.refpts.center;
 
 % Copy digitized optodes to probe object
-probe.optpos = digpts.optpos;
+if ~isempty(probe.optpos_reg)
+    probe.optpos_reg = xform_apply(probe.optpos_reg, digpts.T_2mc * probe.T_2digpts);
+else
+    probe.optpos_reg = xform_apply(probe.optpos, digpts.T_2mc * probe.T_2digpts);
+end
 
 % move head surface to monte carlo space 
 headsurf.mesh.vertices   = xform_apply(headsurf.mesh.vertices, headvol.T_2mc);
@@ -1985,45 +1994,24 @@ plotProbePlacementVariation();
 function menuItemRegisterAtlasToHeadSize_Callback(hObject, eventdata, handles)
 global atlasViewer
 
-dirnameSubj  = atlasViewer.dirnameSubj;
 digpts       = atlasViewer.digpts;
 
+% Get head size measurements from input dialog
 prompt = {'Head Circumference (cm):','Iz to Nz (cm):','RPA to LPA (cm):'};
 dlg_title = 'Input Head Size';
 num_lines = 1;
-def = {'50','31','37'};
+[HC, NzCzIz, LPACzRPA] = extractHeadsize(digpts.headsize);
+def = {num2str(HC), num2str(NzCzIz), num2str(LPACzRPA)};
 answer = inputdlg(prompt,dlg_title,num_lines,def);
-
 if isempty(answer)
     return
 end
+digpts.headsize = setHeadsize(digpts.headsize, answer);
 
-headSize.HC = str2num(answer{1})*10;
-headSize.IzNz = str2num(answer{2})*10;
-headSize.LPARPA = str2num(answer{3})*10;
-
-xo = [70 70 70];
-x = fminsearch( @(x) ellipse_1020_costfun(x,headSize),xo);
-
-a = x(1); %  LPA to RPA axis
-b = x(2); % Nz to Iz axis
-c = x(3); % Cz axis
-
-r10p = 18*3.14159/180;
-
-Cz  = [0,            0,            c];
-RPA = [a*cos(r10p),  0,           -c*sin(r10p)];
-LPA = [-a*cos(r10p), 0,           -c*sin(r10p)];
-Nz  = [0,            b*cos(r10p), -c*sin(r10p)];
-Iz  = [0,           -b*cos(r10p), -c*sin(r10p)];
-
-digpts.refpts.pos    = [Nz; Iz; RPA; LPA; Cz];
-digpts.refpts.labels = {'nz', 'iz', 'rpa', 'lpa', 'cz'};
-saveDigpts(digpts, 'overwrite');
-digpts = getDigpts(digpts, dirnameSubj);
+% Calculate digitized points
+digpts = calcDigptsFromHeadsize(digpts);
 
 atlasViewer.digpts = digpts;
-
 menuItemRegisterAtlasToDigpts_Callback(hObject, eventdata, handles)
 
 

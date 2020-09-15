@@ -1,11 +1,8 @@
-function probe = pullProbeToHeadsurf(probe,head, mode)
+function probe = pullProbeToHeadsurf(probe, head)
 
-if ~exist('mode','var')
-    mode='center';
-end
-
-if 1
-    probe.optpos_reg = pullPtsToSurf(probe.optpos, head, probe.pullToSurfAlgorithm);
+if isempty(probe.optpos_reg)
+    optpos = probe.optpos;
 else
-    probe.optpos_reg = pullPtsToSurf(probe.optpos, head, 'normal');
+    optpos = probe.optpos_reg;
 end
+probe.optpos_reg = pullPtsToSurf(optpos, head, probe.pullToSurfAlgorithm);

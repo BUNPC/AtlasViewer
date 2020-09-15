@@ -13,4 +13,5 @@ optpos_reg = positionprobe(posprobe_data, ...
                            headvol.center, ...
                            400);
 % Shed dummy points                      
-probe.optpos_reg    = optpos_reg;
+probe.optpos_reg  = optpos_reg;
+probe.orientation = headvol.orientation;
