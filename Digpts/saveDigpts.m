@@ -1,8 +1,14 @@
-function digpts = saveDigpts(digpts, options)
+function digpts = saveDigpts(digpts, mode)
 
-if isempty(digpts) | isempty([digpts.srcpos; digpts.detpos; digpts.refpts.pos; digpts.pcpos])
+if digpts.isempty(digpts)
     return;
 end
+
+% Check if this digpts object is the result of mean of subjects' digpts. In
+% this case avoid creating a digpts file
+% if ~digpts.digpts.isempty()
+%     return;
+% end
 
 if isempty(digpts.pathname)
     digpts.pathname = [pwd, '/'];
@@ -12,11 +18,11 @@ dirname = digpts.pathname;
 if ~exist(dirname, 'dir')
     mkdir(dirname);
 end
-if ~exist('options', 'var')
-    options='matrixonly';
+if ~exist('mode', 'var')
+    mode='nooverwrite';
 end
 
-if ~exist([dirname 'digpts.txt'], 'file') | optionExists(options, 'overwrite')
+if ~exist([dirname 'digpts.txt'], 'file') | strcmp(mode, 'overwrite')
     % Save points: unapply T_2mc to get back to original dig pts
     digpts.srcpos = xform_apply(digpts.srcpos, inv(digpts.T_2mc));
     digpts.detpos = xform_apply(digpts.detpos, inv(digpts.T_2mc));
@@ -38,19 +44,8 @@ if ~exist([dirname 'digpts.txt'], 'file') | optionExists(options, 'overwrite')
     fclose(fid);
 end
 
-if ~exist([dirname 'digpts2mc.txt'], 'file')
-    if optionExists(options, 'overwrite') | optionExists(options, 'matrixonly')
-        if ~isidentity(digpts.T_2mc)
-            T_digpts2mc = digpts.T_2mc;
-            save([dirname 'digpts2mc.txt'], 'T_digpts2mc', '-ascii');
-        end
-    end
+if ~exist([dirname 'digpts2mc.txt'], 'file') | strcmp(mode, 'overwrite')
+    T_digpts2mc = digpts.T_2mc;
+    save([dirname 'digpts2mc.txt'], 'T_digpts2mc', '-ascii');
 end
-if ~exist([dirname 'digpts2vol.txt'], 'file')
-    if optionExists(options, 'overwrite') | optionExists(options, 'matrixonly')
-        if ~isidentity(digpts.T_2vol)
-            T_digpts2vol = digpts.T_2vol;
-            save([dirname 'digpts2vol.txt'], 'T_digpts2vol', '-ascii');
-        end
-    end
-end
+

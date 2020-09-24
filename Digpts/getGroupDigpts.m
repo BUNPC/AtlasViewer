@@ -1,6 +1,9 @@
-function digpts = getGroupDigpts(digpts, dirname)
+function digpts = getGroupDigpts(digpts, dirname, refpts)
 
-pts = [];
+if ~exist('refpts','var')
+    refpts = [];
+end
+
 dirs  = dir([dirname, '/*']);
 
 kk=1;
@@ -28,7 +31,7 @@ for ii=1:length(dirs)
     else
         digpts.digpts(kk) = initDigpts();
     end
-    digpts.digpts(kk) = getDigpts(digpts.digpts(kk), [dirname, dirs(ii).name]);    
+    digpts.digpts(kk) = getDigpts(digpts.digpts(kk), [dirname, dirs(ii).name], refpts);    
     
     kk=kk+1;
 end
@@ -37,7 +40,7 @@ end
 % Check that all the digpts are of the same probe
 if ~isempty(digpts.digpts)
 
-    digpts.digpts(1) = xformDigpts(digpts.digpts(1));
+    digpts.digpts(1) = xformDigpts(digpts.digpts(1), refpts);
     printDigpts(digpts.digpts(1));
 
     digpts1 = digpts.digpts(1);
@@ -55,7 +58,7 @@ if ~isempty(digpts.digpts)
         end
         
         % Calculate running mean of dig point positions         
-        digpts.digpts(jj) = xformDigpts(digpts.digpts(jj));
+        digpts.digpts(jj) = xformDigpts(digpts.digpts(jj), refpts);
         printDigpts(digpts.digpts(jj));
         
         digpts1.refpts.pos = (digpts.digpts(jj).refpts.pos + ((jj-1) * digpts1.refpts.pos)) / jj;

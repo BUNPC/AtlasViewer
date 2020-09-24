@@ -1,9 +1,13 @@
-function [digpts, pts] = getDigpts(digpts, dirname)
+function [digpts, pts] = getDigpts(digpts, dirname, refpts)
+
+if ~exist('refpts','var')
+    refpts = [];
+end
 
 pts = [];
 if iscell(dirname)
     for ii=1:length(dirname)
-        digpts = getDigpts(digpts, dirname{ii});
+        digpts = getDigpts(digpts, dirname{ii}, refpts);
         if ~digpts.isempty(digpts)
             return;
         end
@@ -36,7 +40,7 @@ end
 % folder. If yes then create a group of dig pt structures to represent
 % them. They'll be used when importing a group probe, which will be the
 % mean of all the subjects' dig pts.
-digpts = getGroupDigpts(digpts, dirname);
+digpts = getGroupDigpts(digpts, dirname, refpts);
 
 % Check if dig pts file exists in current subject folder
 if ~exist(inputfile,'file')

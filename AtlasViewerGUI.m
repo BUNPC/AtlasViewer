@@ -171,8 +171,8 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     % subject folders
     [headvol, headsurf, pialsurf] = checkAnatomy(headvol, headsurf, pialsurf, handles);
     
-    digpts     = getDigpts(digpts, dirnameSubj);
     refpts     = getRefpts(refpts, headsurf.pathname);
+    digpts     = getDigpts(digpts, dirnameSubj, refpts);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
     probe      = getProbe(probe, dirnameSubj, digpts, headsurf, refpts, currElem);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
@@ -1247,15 +1247,6 @@ hbconc       = atlasViewer.hbconc;
 if digpts.refpts.isempty(digpts.refpts)
     return;
 end
-
-% Unconditionally generate transformation from head volume to digitized points space
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
-headvol.T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
-digpts.T_2vol = inv(headvol.T_2digpts);
-saveDigpts(digpts, 'matrixonly'); 
-
-headvol.imgOrig = headvol.img;
-
 if refpts.isempty(refpts)
     return;
 end 
@@ -1277,6 +1268,10 @@ end
 %%%% volume space. 
 
 % First determine transformation to monte carlo space from volume 
+% Generate transformation from head volume to digitized points space
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+headvol.T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
+headvol.imgOrig = headvol.img;
 
 
 % Register headvol to digpts but first check fwmodel if it's volume 
