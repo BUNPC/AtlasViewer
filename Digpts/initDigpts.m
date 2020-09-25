@@ -107,21 +107,14 @@ end
 
 
 % --------------------------------------------------------------
-function digpts = copyProbe_loc(digpts, probe, refpts)
+function digpts = copyProbe_loc(digpts, probe)
 if isempty(probe.optpos_reg)
     return;
 end
 
-digpts = calcDigptsFromHeadsize(digpts);
-
-% Generate transformation from head volume to digitized points space
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
-T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
-digpts.T_2vol = inv(T_2digpts);
-
 srcpos = probe.optpos_reg(1:probe.nsrc, :);
 detpos = probe.optpos_reg(probe.nsrc+1:probe.nsrc+probe.ndet,:);
 
-digpts.srcpos = xform_apply(srcpos, T_2digpts);
-digpts.detpos = xform_apply(detpos, T_2digpts);
+digpts.srcpos = xform_apply(srcpos, inv(digpts.T_2vol));
+digpts.detpos = xform_apply(detpos, inv(digpts.T_2vol));
 

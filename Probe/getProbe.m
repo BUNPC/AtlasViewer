@@ -158,7 +158,7 @@ end
 
 dirs = dir([dirname, '/*']);
 for ii = 1:length(dirs)
-    if ~dirs(ii).isdir()
+    if ~dirs(ii).isdir
         continue
     end
     if strcmp(dirs(ii).name, '.')

@@ -834,13 +834,6 @@ fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, lab
 probe.hOptodesIdx = 1; 
 probe = setProbeDisplay(probe, headsurf, method);
 
-% If digitized points exist but are missing probe optodes, artificially digitize them 
-if ~digpts.isempty(digpts) && digpts.isemptyProbe(digpts)
-    digpts = digpts.copyProbe(digpts, probe, refpts);    
-    saveDigpts(digpts, 'overwrite');
-    probe.T_2digpts = inv(digpts.T_2vol);
-end
-
 atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
 atlasViewer.labelssurf  = labelssurf;
@@ -1989,7 +1982,22 @@ plotProbePlacementVariation();
 function menuItemRegisterAtlasToHeadSize_Callback(hObject, eventdata, handles)
 global atlasViewer
 
-digpts       = atlasViewer.digpts;
+digpts      = atlasViewer.digpts;
+probe       = atlasViewer.probe;
+refpts      = atlasViewer.refpts;
+
+% If unregistered flat probe exists, warn user that itshould be registed
+% before generating simulated digitized optodes.
+% if isempty(probe.optpos_reg) && ~isempty(probe.al)
+%     msg{1} = sprintf('Warning: Unregistered probe exists. Generating simulated digitized points from unregistred probe');
+%     msg{2} = sprintf('will yeild incorrect results. Please register probe to head surface before generating simulated ');
+%     msg{3} = sprintf('digitized points. Do you still want to proceed?');
+%     q = MenuBox([msg{:}], {'YES','NO'});
+%     if q==2
+%         return;
+%     end
+% end
+
 
 % Get head size measurements from input dialog
 prompt = {'Head Circumference (cm):','Iz to Nz (cm):','RPA to LPA (cm):'};
@@ -2004,16 +2012,26 @@ end
 digpts.headsize = setHeadsize(digpts.headsize, answer);
 
 % Calculate digitized points
-digpts = calcDigptsFromHeadsize(digpts);
+digpts = calcDigptsFromHeadsize(digpts, refpts);
+
+% If digitized points exist but are missing probe optodes, generate 
+% artificial digitize optodes 
+if ~digpts.isempty(digpts) && digpts.isemptyProbe(digpts)
+    digpts = digpts.copyProbe(digpts, probe);    
+    saveDigpts(digpts, 'overwrite');
+    probe.T_2digpts = inv(digpts.T_2vol);
+end
 
 atlasViewer.digpts = digpts;
+atlasViewer.probe = probe;
+
 menuItemRegisterAtlasToDigpts_Callback(hObject, eventdata, handles)
 
 
 
 
 % --------------------------------------------------------------------
-function editSpringLenThresh_Callback(hObject, eventdata, handles)
+function editSpringLenThresh_Callback(hObject, ~, ~)
 global atlasViewer;
 
 probe = atlasViewer.probe;

@@ -1,4 +1,4 @@
-function digpts = calcDigptsFromHeadsize(digpts)
+function digpts = calcDigptsFromHeadsize(digpts, refpts)
 
 xo = [70, 70, 70];
 x = fminsearch( @(x) ellipse_1020_costfun(x,digpts.headsize),xo);
@@ -19,4 +19,8 @@ digpts.refpts.pos    = [Nz; Iz; LPA; RPA; Cz];
 digpts.refpts.labels = {'nz', 'iz', 'lpa', 'rpa', 'cz'};
 saveDigpts(digpts, 'overwrite');
 digpts = getDigpts(digpts, pwd);
+
+% Generate transformation from digitized point space to head volume
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+digpts.T_2vol = inv(gen_xform_from_pts(rp_atlas, rp_subj));
 
