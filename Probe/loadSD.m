@@ -1,5 +1,9 @@
 function probe = loadSD(probe,SD)
 
+if isempty(SD)
+    return;
+end
+
 if isfield(SD,'Lambda')
     probe.lambda = SD.Lambda;
 else

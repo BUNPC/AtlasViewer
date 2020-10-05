@@ -37,13 +37,20 @@ digpts(1) = struct( ...
     'headsize', initHeadsize(handles) ...
     );
 
-if ishandles(handles) 
-    digpts.handles.radiobuttonShowDigpts = handles.radiobuttonShowDigpts;
-    digpts.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
-    set(digpts.handles.radiobuttonShowDigpts,'enable','off');
-    set(digpts.handles.radiobuttonShowDigpts,'value',0);
-    digpts.handles.axes = handles.axesSurfDisplay;
+if ~isempty(handles)
+    if isfield(handles, 'radiobuttonShowDigpts')
+        digpts.handles.radiobuttonShowDigpts = handles.radiobuttonShowDigpts;
+        set(digpts.handles.radiobuttonShowDigpts,'enable','off');
+        set(digpts.handles.radiobuttonShowDigpts,'value',0);
+    end
+    if isfield(handles, 'menuItemRegisterAtlasToDigpts')
+        digpts.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
+    end
+    if isfield(handles, 'axesSurfDisplay')
+        digpts.handles.axes = handles.axesSurfDisplay;
+    end
 end
+
 
 
 

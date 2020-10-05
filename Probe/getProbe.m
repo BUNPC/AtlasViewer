@@ -48,6 +48,7 @@ dirname = fullpath(dirname);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe2d = initProbe();
 probe3d = initProbe();
+SD = [];
 
 % 3D probe
 % If digitized points exist and include optode positions then load optode positions 
@@ -83,10 +84,6 @@ elseif existDataFiles()
     filedata = load([dirname, files(1).folder, files(1).name], '-mat');
     SD = filedata.SD;
     save([dirname, 'probe.SD'],'-mat', 'SD');
-    
-else
-    
-    return;
     
 end
 probe2d = loadSD(probe2d, SD);
