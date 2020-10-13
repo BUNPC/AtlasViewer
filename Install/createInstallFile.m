@@ -84,6 +84,9 @@ for ii=1:length(platform.setup_exe)
         end
 	end
 end
+if exist([dirnameApp, 'Group/FuncRegistry'],'dir')
+    copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, 'atlasviewer_install/Group/FuncRegistry']);
+end
 if exist([dirnameApp, 'Test'],'dir')
     copyfile([dirnameApp, 'Test'], [dirnameInstall, 'atlasviewer_install/Test']);
 end
@@ -100,6 +103,10 @@ end
 
 if exist([dirnameInstall, 'makefinalapp.pl'],'file')
     copyfile([dirnameInstall, 'makefinalapp.pl'], [dirnameInstall, 'atlasviewer_install']);
+end
+
+if exist([dirnameInstall, 'generateDesktopPath.bat'],'file')
+    copyfile([dirnameInstall, 'generateDesktopPath.bat'], [dirnameInstall, 'homer3_install']);
 end
 
 if exist([dirnameInstall, 'README.txt'],'file')

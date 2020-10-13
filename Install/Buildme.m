@@ -14,7 +14,7 @@ currDir = pwd;
 
 % Args 
 if ~exist('appName','var')
-    [pp,fs] = getpathparts(currDir);
+    pp = getpathparts(currDir);
     appName = pp{end};
 end
 if ~exist('inclList','var')
@@ -27,7 +27,7 @@ if ~exist('flags','var')
     flags = {};
 end
 
-% Matlab compiler generates a readme file that overwrites the atlasviewer one
+% Matlab compiler generates a readme file that overwrites the app readme
 % that already xists. Before we start build , move readme to temp file and 
 % at end of build delete the newly generated readme and move the temp one 
 % back. 
@@ -50,7 +50,7 @@ while ~exist(appDotMFilesStr, 'file')
         if filenm==0
             return;
         end
-        [~, appName, ext] = fileparts(filenm);
+        [~, appName] = fileparts(filenm);
         appDotMFileMain = [pathnm, filenm];
         appDotMFilesStr = appDotMFileMain;
     else
@@ -67,13 +67,13 @@ appDotMFilesStr = sprintf('-v %s', appDotMFileMain');
 
 % Get all .m files which will go into making the app executable
 appDotMFiles = findDotMFiles('.', exclList);
-for ii=1:length(inclList)
+for ii = 1:length(inclList)
     appDotMFiles = [appDotMFiles, findDotMFiles(inclList{ii}, exclList)];
 end
 
 % Create compile switches string
 compileSwitches = '';
-for ii=1:length(flags)
+for ii = 1:length(flags)
     compileSwitches = [compileSwitches, flags{ii}, ' '];
 end
 compileSwitches = [compileSwitches, ' -w enable:specified_file_mismatch'];

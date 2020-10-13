@@ -260,11 +260,11 @@ dc   = subjData.procResult.dcAvg.GetDataTimeSeries('reshape');
 tHRF = subjData.procResult.dcAvg.GetTime();
 
 if isempty(dc)
-    menu('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer2 to generate new groupResults.mat file','Okay');
+    menu('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
     return;
 end
 if isempty(tHRF)
-    menu('Error: tHRFis missing from subject data. Check groupResults.mat use Homer2 to generate new groupResults.mat file','Okay');
+    menu('Error: tHRFis missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
     return;
 end
 

@@ -35,9 +35,9 @@ end
 platform = setplatformparams();
 
 v = getVernum();
-fprintf('=================================\n', v{1}, v{2});
+fprintf('=================================\n');
 fprintf('Setup script for Homer2 v%s.%s:\n', v{1}, v{2});
-fprintf('=================================\n\n', v{1}, v{2});
+fprintf('=================================\n\n');
 
 fprintf('Platform params:\n');
 fprintf('  arch: %s\n', platform.arch);
@@ -50,43 +50,7 @@ fprintf('  mcrpath: %s\n', platform.mcrpath);
 fprintf('  iso2meshmex: %s\n', platform.iso2meshmex{1});
 fprintf('  iso2meshbin: %s\n\n', platform.iso2meshbin);
 
-try
-    if ispc()
-        cmd = sprintf('IF EXIST %%userprofile%%\\desktop\\%s.lnk (del /Q /F %%userprofile%%\\desktop\\%s.lnk)', ...
-            platform.atlasviewer_exe{1}, platform.atlasviewer_exe{1});
-        system(cmd);
-               
-        cmd = sprintf('IF EXIST %%userprofile%%\\desktop\\Test.lnk (del /Q /F %%userprofile%%\\desktop\\Test.lnk)');
-        system(cmd);
-    elseif islinux()
-        if exist('~/Desktop/AtlasViewerGUI.sh','file')
-            delete('~/Desktop/AtlasViewerGUI.sh');
-        end
-        % For symbolic links exist doesn't work if the file/folder that is
-        % pointed to does not exist. Delete symbolic link unconditionally. 
-        % If the link itself isn't there then you get only a warning from
-        % matlab when you try to delete it.
-        delete('~/Desktop/Test');
-        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir')
-            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
-        end
-    elseif ismac()
-        if exist('~/Desktop/AtlasViewerGUI.command','file')
-            delete('~/Desktop/AtlasViewerGUI.command');
-        end
-        % For symbolic links exist doesn't work if the file/folder that is
-        % pointed to does not exist. Delete symbolic link unconditionally. 
-        % If the link itself isn't there then you get only a warning from
-        % matlab when you try to delete it.
-        delete('~/Desktop/Test');
-
-        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir')
-            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
-        end
-    end
-catch
-    menu('Warning: Could not delete Desktop icons Homer2_UI and AtlasViewerGUI. They might be in use by other applications.', 'OK');
-end
+deleteShortcuts(platform, dirnameSrc);
 
 pause(2);
 
@@ -118,9 +82,11 @@ catch ME
     rethrow(ME)
 end
 
+
 % Get full paths for source and destination directories
 dirnameSrc = fullpath(dirnameSrc);
 dirnameDst = fullpath(dirnameDst);
+
 
 % Copy all the AtlasViewerGUI app folder files
 
@@ -132,6 +98,7 @@ dirnameDst = fullpath(dirnameDst);
 for ii=1:length(platform.atlasviewer_exe)
     copyFileToInstallation([dirnameSrc, platform.atlasviewer_exe{ii}],  [dirnameDst, platform.atlasviewer_exe{ii}]);
 end
+
 
 % Copy all the Colin atlas folder files
 copyFileToInstallation([dirnameSrc, 'headsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
@@ -148,6 +115,8 @@ copyFileToInstallation([dirnameSrc, 'refpts.txt'],            [dirnameDst, 'Coli
 copyFileToInstallation([dirnameSrc, 'refpts2vol.txt'],        [dirnameDst, 'Colin/anatomical']);
 copyFileToInstallation([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']);
 copyFileToInstallation([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
+copyFileToInstallation([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
+
 
 % Check if there a fluence profile to load in this particular search path
 fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
@@ -155,9 +124,9 @@ for ii=1:length(fluenceProfFnames)
     copyFileToInstallation([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
     genMultWavelengthSimInFluenceFiles([dirnameSrc, fluenceProfFnames(ii).name], 2);
 end
-
 copyFileToInstallation([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Colin/fw']);
 copyFileToInstallation([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
+
 
 for ii=1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a
@@ -174,32 +143,11 @@ for ii=1:length(platform.iso2meshmex)
         fprintf('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
     end
 end
-
 copyFileToInstallation([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
 
-% Create desktop shortcuts to Homer2_UI and AtlasViewerGUI
-try
-    if ispc()
-        k = dirnameDst=='/';
-        dirnameDst(k)='\';
-        
-        cmd = sprintf('call "%s\\createShortcut.bat" "%s" AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
-        system(cmd);
-        
-        cmd = sprintf('call "%s\\createShortcut.bat" "%s" Test', dirnameSrc(1:end-1), dirnameDst(1:end-1));
-        system(cmd);        
-    elseif islinux()
-        cmd = sprintf('sh %s/createShortcut.sh sh', dirnameSrc(1:end-1));
-        system(cmd);
-    elseif ismac()
-        cmd = sprintf('sh %s/createShortcut.sh command', dirnameSrc(1:end-1));
-        system(cmd);
-    end
-catch
-    msg{1} = sprintf('Error: Could not create Homer2 shortcuts on Desktop. Exiting installation.');
-    menu([msg{:}], 'OK');
-    return;    
-end
+
+% Create desktop shortcut to AtlasViewerGUI
+createDesktopShortcuts(dirnameSrc, dirnameDst);
 
 waitbar(iStep/nSteps, h); iStep = iStep+1;
 pause(2);
@@ -229,8 +177,9 @@ close(h);
 % cleanup();
 
 
+
 % -----------------------------------------------------------------
-function cleanup()
+function cleanup() %#ok<DEFNU>
 
 % Cleanup
 if exist('~/Desktop/atlasviewer_install/','dir')
@@ -258,9 +207,6 @@ global iStep
 if ~exist('type', 'var')
     type = 'file';
 end
-if ~exist('errtype', 'var')
-    errtype = 'Error';
-end
 
 try
     % If src is one of several possible filenames, then src to any one of
@@ -277,7 +223,7 @@ try
     assert(logical(exist(src, type)));
     
     % Check if we need to untar the file 
-    k = findstr(src,'.tar.gz');
+    k = findstr(src,'.tar.gz'); %#ok<*FSTR>
     if ~isempty(k)
         untar(src,fileparts(src));
         src = src(1:k-1);
@@ -299,4 +245,101 @@ catch ME
     pause(5);
     rethrow(ME);
 end
+
+
+
+% ---------------------------------------------------------
+function desktopPath = generateDesktopPath(dirnameSrc)
+if ~exist([dirnameSrc, 'desktopPath.txt'],'file')
+    system(sprintf('call %sgenerateDesktopPath.bat', dirnameSrc));
+end
+
+if exist([dirnameSrc, 'desktopPath.txt'],'file')
+    fid = fopen([dirnameSrc, 'desktopPath.txt'],'rt');
+    line = fgetl(fid);
+    line(line=='"')='';
+    desktopPath = strtrim(line);
+    fclose(fid);
+else
+    desktopPath = sprintf('%%userprofile%%');
+end
+
+
+
+
+% --------------------------------------------------------------
+function deleteShortcuts(platform, dirnameSrc)
+
+try
+    if ispc()
+        desktopPath = generateDesktopPath(dirnameSrc);
+        cmd = sprintf('IF EXIST %s\\%s.lnk (del /Q /F %s\\desktop\\%s.lnk)', ...
+            desktopPath, platform.atlasviewer_exe{1}, desktopPath, platform.atlasviewer_exe{1});
+        system(cmd);
+               
+        cmd = sprintf('IF EXIST %s\\Test.lnk (del /Q /F %s\\Test.lnk)', desktopPath, desktopPath);
+        system(cmd);
+    elseif islinux()
+        if exist('~/Desktop/AtlasViewerGUI.sh','file')
+            delete('~/Desktop/AtlasViewerGUI.sh');
+        end
+        % For symbolic links exist doesn't work if the file/folder that is
+        % pointed to does not exist. Delete symbolic link unconditionally. 
+        % If the link itself isn't there then you get only a warning from
+        % matlab when you try to delete it.
+        delete('~/Desktop/Test');
+        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir') %#ok<*OR2>
+            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
+        end
+    elseif ismac()
+        if exist('~/Desktop/AtlasViewerGUI.command','file')
+            delete('~/Desktop/AtlasViewerGUI.command');
+        end
+        % For symbolic links exist doesn't work if the file/folder that is
+        % pointed to does not exist. Delete symbolic link unconditionally. 
+        % If the link itself isn't there then you get only a warning from
+        % matlab when you try to delete it.
+        delete('~/Desktop/Test');
+
+        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir')
+            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
+        end
+    end
+catch
+    menu('Warning: Could not delete Desktop icon AtlasViewer. They might be in use by other applications.', 'OK');
+end
+
+
+
+
+% ---------------------------------------------------------
+function createDesktopShortcuts(dirnameSrc, dirnameDst)
+
+try
+    if ispc()
+        
+        k = dirnameDst=='/';
+        dirnameDst(k)='\';
+        
+        cmd = sprintf('call %s"\\createShortcut.bat" "%s" %s\\AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
+        system(cmd);
+        
+       
+    elseif islinux()
+        
+        cmd = sprintf('sh %s/createShortcut.sh sh', dirnameSrc(1:end-1));        
+        system(cmd);
+        
+    elseif ismac()
+        
+        cmd = sprintf('sh %s/createShortcut.sh command', dirnameSrc(1:end-1));
+        system(cmd);
+        
+    end
+catch
+    msg{1} = sprintf('Error: Could not create AtlasViewerGUI shortcuts on Desktop. Exiting installation.');
+    menu([msg{:}], 'OK');
+    return;    
+end
+
 

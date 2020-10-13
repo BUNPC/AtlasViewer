@@ -4,7 +4,7 @@ filenameFinal = '';
 
 switch(appName)
     
-    case 'Homer2_UI'
+    case 'Homer3'
         
         if verLessThan('matlab','8.5')
             for ii=2009:2014

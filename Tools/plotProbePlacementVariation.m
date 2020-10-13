@@ -315,8 +315,8 @@ if (userSelection == 2)
 else
     
     % Setup and Plot Atlas
-    %atlas = load('atlasViewer.mat', '-mat'); % An unmodified atlasViewer.mat file 
-    % for the common head volume. If possible, pull this from the Homer2 package.
+    % atlas = load('atlasViewer.mat', '-mat'); % An unmodified atlasViewer.mat file 
+    % for the common head volume.
 
     atlas = load(subjDirs{1}, '-mat');
     T = atlas.headvol.T_2mc; % Translation matrix to individual subject space

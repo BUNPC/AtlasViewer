@@ -15,7 +15,7 @@ end
 dirnameInstall = pwd;
 cd(dirnameApp);
 
-Buildme('AtlasViewerGUI', {}, {'.git'});
+Buildme('AtlasViewerGUI', {}, {'.git','Install','FuncRegistry','UserFunctions'});
 for ii=1:length(platform.atlasviewer_exe)
     if exist(['./',  platform.atlasviewer_exe{ii}],'file')
         movefile(['./',  platform.atlasviewer_exe{ii}], dirnameInstall);

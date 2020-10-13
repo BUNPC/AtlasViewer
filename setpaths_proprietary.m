@@ -20,8 +20,10 @@ end
 
 pause(2);
 
-fullpathappl = fileparts(which('Homer2_UI.m'));
+fullpathappl = fileparts(which('AtlasViewerGUI.m'));
 
 msg{1} = sprintf('For instructions to perform basic test of AtlasViewerGUI, open the PDF file %s', ...
                  [fullpathappl, '/Test/Testing_procedure.pdf']);
 fprintf('\n\n*** %s ***\n\n', [msg{:}]);
+
+
