@@ -85,7 +85,13 @@ for ii=1:length(platform.setup_exe)
 	end
 end
 if exist([dirnameApp, 'Group/FuncRegistry'],'dir')
-    copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, 'atlasviewer_install/Group/FuncRegistry']);
+    try
+        copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, 'atlasviewer_install/Group/FuncRegistry']);
+    catch
+        mkdir([dirnameInstall, 'atlasviewer_install/Group'])
+        mkdir([dirnameInstall, 'atlasviewer_install/Group/FuncRegistry'])
+        copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, 'atlasviewer_install/Group/FuncRegistry']);
+    end
 end
 if exist([dirnameApp, 'Test'],'dir')
     copyfile([dirnameApp, 'Test'], [dirnameInstall, 'atlasviewer_install/Test']);
