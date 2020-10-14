@@ -70,12 +70,20 @@ end
 
 function v1_greater = compareVernum(v1, v2)
     v1_greater = false;
-    for i = 1:min([length(v1), length(v2)])
-        v1_part = str2num(v1{i});
-        v2_part = str2num(v2{i});
+    for i = 1:max([length(v1), length(v2)])
+        try
+            v1_part = str2num(v1{i});
+        catch
+            v1_part = 0;
+        end
+        try
+            v2_part = str2num(v2{i});
+        catch
+            v2_part = 0;
+        end
         try  % Version format is unstable
             if v1_part > v2_part
-               v1_greater = true
+               v1_greater = true;
                return
             elseif v1_part < v2_part
                 return
