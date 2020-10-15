@@ -112,7 +112,7 @@ if exist([dirnameInstall, 'makefinalapp.pl'],'file')
 end
 
 if exist([dirnameInstall, 'generateDesktopPath.bat'],'file')
-    copyfile([dirnameInstall, 'generateDesktopPath.bat'], [dirnameInstall, 'homer3_install']);
+    copyfile([dirnameInstall, 'generateDesktopPath.bat'], [dirnameInstall, 'atlasviewer_install']);
 end
 
 if exist([dirnameInstall, 'README.txt'],'file')

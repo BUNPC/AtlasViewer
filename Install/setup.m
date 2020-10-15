@@ -35,9 +35,9 @@ end
 platform = setplatformparams();
 
 v = getVernum();
-fprintf('=================================\n');
-fprintf('Setup script for Homer2 v%s.%s:\n', v{1}, v{2});
-fprintf('=================================\n\n');
+fprintf('==============================================\n');
+fprintf('Setup script for AtlasViewer v%s.%s.%s:\n', v{1}, v{2}, v{3});
+fprintf('==============================================\n\n');
 
 fprintf('Platform params:\n');
 fprintf('  arch: %s\n', platform.arch);
@@ -273,7 +273,7 @@ function deleteShortcuts(platform, dirnameSrc)
 try
     if ispc()
         desktopPath = generateDesktopPath(dirnameSrc);
-        cmd = sprintf('IF EXIST %s\\%s.lnk (del /Q /F %s\\desktop\\%s.lnk)', ...
+        cmd = sprintf('IF EXIST %s\\%s.lnk (del /Q /F %s\\%s.lnk)', ...
             desktopPath, platform.atlasviewer_exe{1}, desktopPath, platform.atlasviewer_exe{1});
         system(cmd);
                
@@ -321,10 +321,9 @@ try
         k = dirnameDst=='/';
         dirnameDst(k)='\';
         
-        cmd = sprintf('call %s"\\createShortcut.bat" "%s" %s\\AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
+        cmd = sprintf('call %s"\\createShortcut.bat" "%s" AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
         system(cmd);
-        
-       
+              
     elseif islinux()
         
         cmd = sprintf('sh %s/createShortcut.sh sh', dirnameSrc(1:end-1));        
