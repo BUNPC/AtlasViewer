@@ -48,7 +48,7 @@ end
 dirnameSubj = getSubjDir(argExtern);
 dirnameAtlas = getAtlasDir(argExtern);
 
-fprintf('AtlasViewerGUI (%s):\n', version2string());
+fprintf('%s\n', banner);
 fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
@@ -78,6 +78,7 @@ objs.fs2viewer   = initFs2Viewer(handles,dirnameSubj);
 
 fprintf('   MC application path = %s\n', objs.fwmodel.mc_exepath);
 fprintf('   MC application binary = %s\n', objs.fwmodel.mc_exename);
+fprintf('\n');
 
 fields = fieldnames(objs);
 
@@ -520,6 +521,8 @@ end
 initAxesv(handles);
 
 atlasViewer.currElem = [];
+
+PrintSystemInfo([], 'AtlasViewer');
 
 [groupSubjList, dirnameSubj, group] = InitGroup(varargin);
 hGroupList=[];
