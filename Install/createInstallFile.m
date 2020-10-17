@@ -56,7 +56,6 @@ if ~strcmp(options, 'nobuild')
     end
 end
 
-
 % Zip up MC application 
 if exist([dirnameApp,  platform.mc_exe_name],'dir')
     tar([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar'], [dirnameApp, platform.mc_exe_name]);
@@ -64,9 +63,9 @@ if exist([dirnameApp,  platform.mc_exe_name],'dir')
     delete([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar']);
 end
 
-for ii=1:length(platform.atlasviewer_exe)
-    if exist([dirnameInstall, platform.atlasviewer_exe{ii}],'file')
-        copyfile([dirnameInstall, platform.atlasviewer_exe{ii}], [dirnameInstall, 'atlasviewer_install/', platform.atlasviewer_exe{ii}]);
+for ii=1:length(platform.exename)
+    if exist([dirnameInstall, platform.exename{ii}],'file')
+        copyfile([dirnameInstall, platform.exename{ii}], [dirnameInstall, 'atlasviewer_install/', platform.exename{ii}]);
     end
 end
 if exist([dirnameInstall, platform.setup_script],'file')==2

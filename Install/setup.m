@@ -1,11 +1,45 @@
 function setup()
+global h
+global nSteps
+global iStep
 
+dirnameDst = getAppDir_av('isdeployed');
+
+h = waitbar(0,'Installation Progress ...');
+
+main(dirnameDst);
+
+% Check that everything was installed properly
+r = finishInstallGUI();
+
+% waitbar(iStep/nSteps, h); iStep = iStep+1;
+% pause(2);
+% 
+% if r==0
+%     try
+%         open([dirnameDst, 'Test/Testing_procedure.pdf']);
+%     catch ME
+%         MessageBox(sprintf('Warning in setup: %s', ME.message));
+%         close(h);
+%         fprintf('Error at in setup: %s\n', ME.message); 
+%         rethrow(ME);
+%     end
+% end
+
+waitbar(nSteps/nSteps, h);
+close(h);
+
+cleanup();
+
+
+
+% ------------------------------------------------------------
+function main(dirnameDst)
 global h
 global nSteps
 global iStep
 
 
-h = waitbar(0,'Installation Progress ...');
 nSteps = 100;
 iStep = 1;
 
@@ -14,7 +48,6 @@ if ismac()
 else
 	dirnameSrc = [pwd, '/'];
 end
-dirnameDst = getAppDir_av('isdeployed');
 
 % Uninstall
 try
@@ -42,7 +75,7 @@ fprintf('==============================================\n\n');
 fprintf('Platform params:\n');
 fprintf('  arch: %s\n', platform.arch);
 fprintf('  mc_exe: %s%s\n', platform.mc_exe_name, platform.mc_exe_ext);
-fprintf('  atlasviewer_exe: %s\n', platform.atlasviewer_exe{1});
+fprintf('  exename: %s\n', platform.exename{1});
 fprintf('  setup_exe: %s\n', platform.setup_exe{1});
 fprintf('  setup_script: %s\n', platform.setup_script);
 fprintf('  dirnameApp: %s\n', platform.dirnameApp);
@@ -50,7 +83,7 @@ fprintf('  mcrpath: %s\n', platform.mcrpath);
 fprintf('  iso2meshmex: %s\n', platform.iso2meshmex{1});
 fprintf('  iso2meshbin: %s\n\n', platform.iso2meshbin);
 
-deleteShortcuts(platform, dirnameSrc);
+deleteShortcuts(platform);
 
 pause(2);
 
@@ -95,8 +128,8 @@ dirnameDst = fullpath(dirnameDst);
 % for mac installation because the executable is actually a directory.
 % Copyfile only copies the contents of a folder so to copy the whole thing
 % you need to specify the root foder same as the source.
-for ii=1:length(platform.atlasviewer_exe)
-    copyFileToInstallation([dirnameSrc, platform.atlasviewer_exe{ii}],  [dirnameDst, platform.atlasviewer_exe{ii}]);
+for ii=1:length(platform.exename)
+    copyFileToInstallation([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
 end
 
 
@@ -153,46 +186,12 @@ waitbar(iStep/nSteps, h); iStep = iStep+1;
 pause(2);
 
 
-% Check that everything was installed properly
-r = finishInstallGUI();
-
-waitbar(iStep/nSteps, h); iStep = iStep+1;
-pause(2);
-
-if r==0
-    try
-        open([dirnameDst, 'Test/Testing_procedure.pdf']);
-    catch ME
-        msg{1} = sprintf('Warning at line 225 in setup.m: %s', ME.message);
-        menu([msg{:}], 'OK');
-        close(h);
-        fprintf('Error at line 225 in setup.m: %s\n', ME.message); 
-        rethrow(ME);
-    end
-end
-
-waitbar(nSteps/nSteps, h);
-close(h);
-
-% cleanup();
-
-
 
 % -----------------------------------------------------------------
-function cleanup() %#ok<DEFNU>
-
-% Cleanup
-if exist('~/Desktop/atlasviewer_install/','dir')
-    rmdir('~/Desktop/atlasviewer_install/', 's');
-end
-if exist('~/Desktop/atlasviewer_install.zip','file')
-    delete('~/Desktop/atlasviewer_install.zip');
-end
-if exist('~/Downloads/atlasviewer_install/','dir')
-    rmdir('~/Downloads/atlasviewer_install/', 's');
-end
-if exist('~/Downloads/atlasviewer_install.zip','file')
-    delete('~/Downloads/atlasviewer_install.zip');
+function cleanup()
+if ismac()
+    rmdir_safe('~/Desktop/atlasviewer_install/');
+    rmdir_safe('~/Downloads/atlasviewer_install/');
 end
 
 
@@ -247,68 +246,20 @@ catch ME
 end
 
 
-
-% ---------------------------------------------------------
-function desktopPath = generateDesktopPath(dirnameSrc)
-if ~exist([dirnameSrc, 'desktopPath.txt'],'file')
-    system(sprintf('call %sgenerateDesktopPath.bat', dirnameSrc));
-end
-
-if exist([dirnameSrc, 'desktopPath.txt'],'file')
-    fid = fopen([dirnameSrc, 'desktopPath.txt'],'rt');
-    line = fgetl(fid);
-    line(line=='"')='';
-    desktopPath = strtrim(line);
-    fclose(fid);
-else
-    desktopPath = sprintf('%%userprofile%%');
-end
-
-
-
-
 % --------------------------------------------------------------
-function deleteShortcuts(platform, dirnameSrc)
-
-try
-    if ispc()
-        desktopPath = generateDesktopPath(dirnameSrc);
-        cmd = sprintf('IF EXIST %s\\%s.lnk (del /Q /F %s\\%s.lnk)', ...
-            desktopPath, platform.atlasviewer_exe{1}, desktopPath, platform.atlasviewer_exe{1});
-        system(cmd);
-               
-        cmd = sprintf('IF EXIST %s\\Test.lnk (del /Q /F %s\\Test.lnk)', desktopPath, desktopPath);
-        system(cmd);
-    elseif islinux()
-        if exist('~/Desktop/AtlasViewerGUI.sh','file')
-            delete('~/Desktop/AtlasViewerGUI.sh');
-        end
-        % For symbolic links exist doesn't work if the file/folder that is
-        % pointed to does not exist. Delete symbolic link unconditionally. 
-        % If the link itself isn't there then you get only a warning from
-        % matlab when you try to delete it.
-        delete('~/Desktop/Test');
-        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir') %#ok<*OR2>
-            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
-        end
-    elseif ismac()
-        if exist('~/Desktop/AtlasViewerGUI.command','file')
-            delete('~/Desktop/AtlasViewerGUI.command');
-        end
-        % For symbolic links exist doesn't work if the file/folder that is
-        % pointed to does not exist. Delete symbolic link unconditionally. 
-        % If the link itself isn't there then you get only a warning from
-        % matlab when you try to delete it.
-        delete('~/Desktop/Test');
-
-        if ~exist(platform.mcrpath,'dir') | ~exist([platform.mcrpath, '/mcr'],'dir') | ~exist([platform.mcrpath, '/runtime'],'dir')
-            menu('Error: Invalid MCR path under ~/libs/mcr. Terminating installation...\n','OK');
-        end
+function deleteShortcuts(platform)
+if exist(platform.exenameDesktopPath, 'file')
+    try
+        delete(platform.exenameDesktopPath);
+    catch
     end
-catch
-    menu('Warning: Could not delete Desktop icon AtlasViewer. They might be in use by other applications.', 'OK');
 end
-
+if exist([platform.desktopPath, '/Test'], 'dir')
+    try
+        rmdir([platform.desktopPath, '/Test'], 's');
+    catch
+    end
+end
 
 
 
@@ -321,7 +272,7 @@ try
         k = dirnameDst=='/';
         dirnameDst(k)='\';
         
-        cmd = sprintf('call %s"\\createShortcut.bat" "%s" AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
+        cmd = sprintf('call "%s\\createShortcut.bat" "%s" AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
         system(cmd);
               
     elseif islinux()
