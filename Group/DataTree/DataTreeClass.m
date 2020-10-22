@@ -22,10 +22,21 @@ classdef DataTreeClass <  handle
             obj.groups              = GroupClass().empty();
             obj.currElem            = TreeNodeClass().empty();
             obj.reg                 = RegistriesClass().empty();
+            obj.config              = ConfigFileClass().empty();
             obj.dirnameGroups       = {};
             obj.logger              = InitLogger(logger, 'DataTree');
-                        
-            obj.dataStorageScheme = 'file';
+            
+            if nargin==0
+                groupDirs = {};
+            end
+            
+            if isa(groupDirs, 'DataTreeClass')
+               obj.Copy(groupDirs);
+               return;
+            end
+            
+            cfg = ConfigFileClass();
+            obj.dataStorageScheme = cfg.GetValue('Data Storage Scheme');
             
             %%%% Parse args
             
@@ -35,12 +46,6 @@ classdef DataTreeClass <  handle
             elseif ~iscell(groupDirs)
                 groupDirs = {groupDirs};                
             end
-            
-            % convert group directories to full paths
-            for ii = 1:length(groupDirs)
-                groupDirs{ii} = fullpath(groupDirs{ii}); 
-            end
-            
             
             % Arg 2: get the file format of the data files
             if ~exist('fmt','var')
@@ -60,7 +65,7 @@ classdef DataTreeClass <  handle
             % Estimate amount of memory required and set the data storage scheme
             obj.SetDataStorageScheme(options);
             
-            obj.FindAndLoadGroups(groupDirs, fmt, procStreamCfgFile);
+            obj.FindAndLoadGroups(groupDirs, fmt, procStreamCfgFile, options);
             if obj.IsEmpty()
                 return;
             end
@@ -91,6 +96,30 @@ classdef DataTreeClass <  handle
             if isa(obj.logger, 'Logger')
                 obj.logger.Close('DataTree');
             end
+        end
+        
+        
+        % --------------------------------------------------------------
+        function Copy(obj, obj2)
+            idx = obj2.currElem.GetIndexID();
+            iG = idx(1);
+            iS = idx(2);
+            iR = idx(3);
+            if isempty(obj.groups) 
+                obj.groups = GroupClass(obj2.groups(iG));
+            else
+                obj.groups(iG).Copy(obj.groups(iG))
+            end
+            obj.SetCurrElem(iG, iS, iR);
+            obj.groups(iG).SetConditions();
+        end
+        
+        
+        % --------------------------------------------------------------
+        function CopyStims(obj, obj2)
+            idx = obj2.currElem.GetIndexID();
+            iG = idx(1);
+            obj.groups(iG).CopyStims(obj2.groups(iG));            
         end
         
         
@@ -173,7 +202,7 @@ classdef DataTreeClass <  handle
         
         
         % --------------------------------------------------------------
-        function FindAndLoadGroups(obj, groupDirs, fmt, procStreamCfgFile)
+        function FindAndLoadGroups(obj, groupDirs, fmt, procStreamCfgFile, options)
 
             tic;            
             for kk = 1:length(groupDirs)
@@ -187,7 +216,7 @@ classdef DataTreeClass <  handle
                     obj.files    = FileClass().empty();
                     obj.filesErr = FileClass().empty();
                     
-                    dataInit = FindFiles(obj.dirnameGroups{kk}, fmt);
+                    dataInit = FindFiles(obj.dirnameGroups{kk}, fmt, options);
                     if isempty(dataInit) || dataInit.isempty()
                         return;
                     end
@@ -220,16 +249,18 @@ classdef DataTreeClass <  handle
                 options = '';
             end
             
-            if optionExists(options, 'file')
-                obj.dataStorageScheme = 'file';
+            if optionExists(options, 'files')
+                obj.dataStorageScheme = 'files';
+            elseif isempty(obj.dataStorageScheme)
+                obj.dataStorageScheme = 'files';
             end
             
             % Estimate memory requirement based on number of acquired files and their
             % average size
             % obj.logger.Write(sprintf('Memory required for data tree: %0.1f MB\n', obj.MemoryRequired() / 1e6));            
-            if strcmp(obj.dataStorageScheme, 'file') || strcmp(obj.dataStorageScheme, 'disk')
+            if strcmpi(obj.dataStorageScheme, 'files') || strcmpi(obj.dataStorageScheme, 'disk')
                 onoff = true;
-            elseif strcmp(obj.dataStorageScheme, 'memory') || strcmpi(obj.dataStorageScheme, 'ram')
+            elseif strcmpi(obj.dataStorageScheme, 'memory') || strcmpi(obj.dataStorageScheme, 'ram')
                 onoff = false;
             else
                 onoff = false;
@@ -265,7 +296,7 @@ classdef DataTreeClass <  handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Initialize procStream for all tree nodes
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % obj.groups(iG).InitProcStream(procStreamCfgFile);
+            obj.groups(iG).InitProcStream(procStreamCfgFile);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Generate the stimulus conditions for the group tree

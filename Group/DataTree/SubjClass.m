@@ -87,6 +87,15 @@ classdef SubjClass < TreeNodeClass
         end
         
         
+        % --------------------------------------------------------------
+        function CopyStims(obj, obj2)
+            obj.CondNames = obj2.CondNames;
+            for ii = 1:length(obj.runs)
+                obj.runs(ii).CopyStims(obj2.runs(ii));
+            end
+        end
+               
+        
         % ----------------------------------------------------------------------------------
         % Check whether run R exists in this subject and return
         % its index if it does exist. Else return 0.
@@ -187,12 +196,12 @@ classdef SubjClass < TreeNodeClass
             if ~exist('option','var')
                 option = 'down';
             end
-            obj.procStream.output.Reset(obj.GetFilename);
             if strcmp(option, 'down')
                 for jj=1:length(obj.runs)
                     obj.runs(jj).Reset();
                 end
             end
+            Reset@TreeNodeClass(obj);
         end
         
         

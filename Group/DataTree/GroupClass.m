@@ -8,7 +8,6 @@ classdef GroupClass < TreeNodeClass
     end
     
     properties % (Access = private)
-        path
         pathOutput
     end
     
@@ -225,6 +224,15 @@ classdef GroupClass < TreeNodeClass
             end
         end
 
+        
+        % --------------------------------------------------------------
+        function CopyStims(obj, obj2)
+            obj.CondNames = obj2.CondNames;
+            for ii = 1:length(obj.subjs)
+                obj.subjs(ii).CopyStims(obj2.subjs(ii));
+            end
+        end
+        
         
         
         % ----------------------------------------------------------------------------------
@@ -495,13 +503,12 @@ classdef GroupClass < TreeNodeClass
             if exist([obj.path, 'groupResults.mat'],'file')
                 delete([obj.path, 'groupResults.mat']);
             end
-                
-            obj.procStream.output.Reset(obj.GetFilename);
             if strcmp(option, 'down')
                 for jj=1:length(obj.subjs)
                     obj.subjs(jj).Reset();
                 end
             end
+            Reset@TreeNodeClass(obj);
         end
         
         
