@@ -26,19 +26,10 @@ classdef DataTreeClass <  handle
             obj.dirnameGroups       = {};
             obj.logger              = InitLogger(logger, 'DataTree');
             
-            if nargin==0
-                groupDirs = {};
-            end
             
-            if isa(groupDirs, 'DataTreeClass')
-               obj.Copy(groupDirs);
-               return;
-            end
-            
-            cfg = ConfigFileClass();
-            obj.dataStorageScheme = cfg.GetValue('Data Storage Scheme');
-            
-            %%%% Parse args
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Parse args
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             % Arg 1: get folder of the group being loaded
             if ~exist('groupDirs','var') || isempty(groupDirs)
@@ -62,6 +53,19 @@ classdef DataTreeClass <  handle
                 options = '';
             end
                         
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Now that we have all the arguments, ready to start
+            % condtructing object
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if isa(groupDirs, 'DataTreeClass')
+               obj.Copy(groupDirs);
+               return;
+            end
+            
+            cfg = ConfigFileClass();
+            obj.dataStorageScheme = cfg.GetValue('Data Storage Scheme');
+
             % Estimate amount of memory required and set the data storage scheme
             obj.SetDataStorageScheme(options);
             
@@ -250,8 +254,6 @@ classdef DataTreeClass <  handle
             end
             
             if optionExists(options, 'files')
-                obj.dataStorageScheme = 'files';
-            elseif isempty(obj.dataStorageScheme)
                 obj.dataStorageScheme = 'files';
             end
             

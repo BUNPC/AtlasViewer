@@ -199,7 +199,10 @@ classdef Logger < handle
             if ~strcmp(self.appname, appname)
                 return;
             end
-            fclose(self.fhandle);
+            try
+                fclose(self.fhandle);
+            catch
+            end            
             self.fhandle = -1;
         end
         
