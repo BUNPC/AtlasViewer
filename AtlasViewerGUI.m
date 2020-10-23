@@ -3572,7 +3572,9 @@ close(h);
 % -------------------------------------------------------------------------------
 function togglebuttonMinimizeGUI_Callback(hObject, ~, handles)
 u0 = get(handles.AtlasViewerGUI, 'units');
+
 k = [1.0, 1.0, 0.8, 0.8];
+set(handles.AtlasViewerGUI, 'units','characters');
 p1_0 = get(handles.AtlasViewerGUI, 'position');
 if strcmp(get(hObject, 'string'), '--')
     set(hObject, 'tooltipstring', 'Maximize GUI Window')
@@ -3593,10 +3595,9 @@ elseif strcmp(get(hObject, 'string'), '+')
 end
 pause(.2)
 set(handles.AtlasViewerGUI, 'position', p1);
-p1 = guiOutsideScreenBorders(handles.AtlasViewerGUI);
-set(handles.AtlasViewerGUI, 'units','characters', 'position',p1);
-set(handles.AtlasViewerGUI, 'units',u0);
+rePositionGuiWithinScreen(handles.AtlasViewerGUI);
 
+set(handles.AtlasViewerGUI, 'units',u0);
 positionListboxGroupGUI(handles);
 
 
