@@ -584,8 +584,9 @@ set(atlasViewer.handles.listboxGroupTree,'units','pixels');
 p1 = get(handles.AtlasViewerGUI,'Position');
 p2 = get(atlasViewer.handles.listboxGroupTree,'Position');
 set(atlasViewer.handles.listboxGroupTree,'Position',[(p1(1)-(p2(3)*k)), p2(2), p2(3), p2(4)]);
-p = guiOutsideScreenBorders(atlasViewer.handles.listboxGroupTree);
-set(atlasViewer.handles.listboxGroupTree, 'units','characters', 'position',p);
+
+% Make sure dialog is within screen bounds
+rePositionGuiWithinScreen(atlasViewer.handles.listboxGroupTree);
 
 
 
