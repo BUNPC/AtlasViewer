@@ -157,8 +157,8 @@ if ~isempty(dir([dirnameSrc, 'fluenceProfs.tar']))
 end
 fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
 for ii=1:length(fluenceProfFnames)
-    copyFileToInstallation([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
     genMultWavelengthSimInFluenceFiles([dirnameSrc, fluenceProfFnames(ii).name], 2);
+    copyFileToInstallation([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
 end
 copyFileToInstallation([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Colin/fw']);
 copyFileToInstallation([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
