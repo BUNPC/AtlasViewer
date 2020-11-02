@@ -152,6 +152,9 @@ copyFileToInstallation([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
 
 
 % Check if there a fluence profile to load in this particular search path
+if ~isempty(dir([dirnameSrc, 'fluenceProfs.tar']))
+    untar('fluenceProfs.tar');
+end
 fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
 for ii=1:length(fluenceProfFnames)
     copyFileToInstallation([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);

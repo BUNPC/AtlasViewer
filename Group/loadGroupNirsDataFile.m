@@ -19,7 +19,7 @@ end
 
 % Error checks: If groupResults exists but is corrupt then it's not a
 % group folder.
-dataTree = DataTreeClass();
+dataTree = DataTreeClass({},'snirf','','oneformat');
 
 if ~isa(dataTree, 'DataTreeClass')
     return;

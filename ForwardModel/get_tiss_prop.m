@@ -84,7 +84,7 @@ REFRACTION_OTHER_DEF_VAL = 1.0000;
 % Arg 1 
 names = {};
 if length(varargin)>=1
-    if ischar(varargin{1}) && exist(varargin{1},'file')
+    if isvalidfile(varargin{1}, 'checkextension')
         
         filename = varargin{1};
         fid = fopen(filename,'rt');
@@ -100,7 +100,7 @@ if length(varargin)>=1
         
         names0 = varargin{1};
         
-        % Exract and separate all tissue names into cells
+        % Extract and separate all tissue names into cells
         if ~iscell(names0)
             iname = [1 strfind(names0, ':')+1 size(names0,2)+2];
             for i=1:length(iname)-1
