@@ -136,7 +136,7 @@ end
 if size('handles.refpts',2)>1
     elec = [];
     for i=1:size(handles.refpts,1)
-        Elc = handles.refpts{i,1};
+        Elc = handles.refpts{i,1}(:,axes_order);
         elec = [elec ; Elc];
         elec_labels{1,i} = handles.refpts{i,2};
     end

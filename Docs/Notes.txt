@@ -1,0 +1,29 @@
+Oct 26, 2020 
+
+Probe Repeatability Exercise notes:
+
+-- Inter subject variablity (standard deviation in digitized probe positions) is shown in the Inter-Subject variation option with color - from purple (least variation) to yellow (most variation). 
+
+-- The Probe Fabrication Error option also shows inter subject variablity but instead of using color, it uses ellipse size and shape to show inter-subject variability - the bigger the ellipse in 
+the x or y the gretaer the variability in that direction. In addtion to the inter-subject varibility Probe Fabrication Error uses color to show how far the mean subject optiode position is from 
+the design. The design poaition is shown by the black dot
+
+
+How to improve tool Inter-Subject Variability:
+
+-- Need to be able to make short separation optodes in the main gui hidden. 
+
+-- Make single gui with rotation buttons, which will have 3 head displays which would 
+rotate synchronously: the two current displays which are at present in separate figures, 
+Digitized Probe Positions and Standard Deviation across Digitized Probes and a 3rd axes 
+with mean positions design probe.
+
+-- GUI would also contain the optode pos table
+
+
+Oct 27, 2020
+======================================================
+
+-- Would be useful feature in AV twhen displaying ref points letters to control the font size. 
+-- In AV File menu, change menu option name Change Subject to Change Group to bring it in line 
+with Homer3 

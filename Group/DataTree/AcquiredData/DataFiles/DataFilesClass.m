@@ -16,6 +16,7 @@ classdef DataFilesClass < handle
         function obj = DataFilesClass(varargin)
             obj.type = '';
             obj.pathnm = pwd;
+            skipconfigfile = false;
             
             if nargin>0
                 obj.pathnm = varargin{1};
@@ -30,6 +31,25 @@ classdef DataFilesClass < handle
             end
             obj.errmsg = {};
                                    
+            if nargin>2
+                if strcmp(varargin{3}, 'standalone')
+                    skipconfigfile = true;
+                end
+            end
+            
+            obj.config = struct('RegressionTestActive','');
+            if skipconfigfile==false
+                cfg = ConfigFileClass();
+                str = cfg.GetValue('Regression Test Active');
+                if strcmp(str,'true')
+                    obj.config.RegressionTestActive=true;
+                else
+                    obj.config.RegressionTestActive=false;
+                end
+            else
+                obj.config.RegressionTestActive=false;
+            end
+            
             if nargin==0
                 return;
             end

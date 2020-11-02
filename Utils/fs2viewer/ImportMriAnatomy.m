@@ -192,8 +192,6 @@ importMriAnatomyUI.cancel = true;
 delete(handles.ImportMriAnatomy);
 
 
-
-
 % -------------------------------------------------------------------
 function layer = assignEditboxFilePath(layer, handle)
 
@@ -208,4 +206,11 @@ if ~strcmp([p1,f1,e1],[p2,f2,e2])
     layer.filename = get(handle, 'string');
 end
 
+
+% -------------------------------------------------------------------
+function ImportMriAnatomy_CloseRequestFcn(hObject, eventdata, handles)
+global importMriAnatomyUI
+
+importMriAnatomyUI.cancel = true;
+delete(handles.ImportMriAnatomy);
 

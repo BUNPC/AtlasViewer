@@ -99,23 +99,24 @@ classdef RunClass < TreeNodeClass
             if isempty(obj)
                 return;
             end
-            if nargin==1 || isempty(dirname)
+            if ~exist('dirname','var') || isempty(dirname)
                 dirname = convertToStandardPath('.');
             end
             
-            if ~isempty(obj.SaveMemorySpace(obj.name))
-                options = 'file';
+            if isempty(obj.SaveMemorySpace(obj.name))
+                % Storage scheme is memory: In this case load acquisition data unconditionally.  
+                dataStorageScheme = 'memory';
             else
-                options = 'memory';
+                dataStorageScheme = 'files';
             end
             
             if isempty(obj.acquired)
                 if obj.IsNirs()
-                    obj.acquired = NirsClass([dirname, obj.name], options);
+                    obj.acquired = NirsClass([dirname, obj.name], dataStorageScheme);
                 else
-                    obj.acquired = SnirfClass([dirname, obj.name], options);
+                    obj.acquired = SnirfClass([dirname, obj.name], dataStorageScheme);
                 end
-            elseif strcmp(options, 'file')
+            else
                 obj.acquired.Load([dirname, obj.name]);
             end
             
@@ -163,16 +164,6 @@ classdef RunClass < TreeNodeClass
         end
 
         
-        
-        % ----------------------------------------------------------------------------------
-        % Deletes derived data in procResult
-        % ----------------------------------------------------------------------------------
-        function Reset(obj)
-            obj.procStream.output.Reset(obj.GetFilename);
-        end
-        
-        
-        
         % ----------------------------------------------------------------------------------
         % Copy processing params (procInut and procResult) from
         % N2 to N1 if N1 and N2 are same nodes
@@ -195,6 +186,13 @@ classdef RunClass < TreeNodeClass
             end
         end
 
+        
+        % --------------------------------------------------------------
+        function CopyStims(obj, obj2)
+            obj.CondNames = obj2.CondNames;
+            obj.procStream.CopyStims(obj2.procStream);
+        end
+               
         
         % ----------------------------------------------------------------------------------
         % Subjects obj1 and obj2 are considered equivalent if their names
@@ -388,25 +386,45 @@ classdef RunClass < TreeNodeClass
         
         
         % ----------------------------------------------------------------------------------
+        function InitMlActMan(obj, iBlk)
+            if ~exist('iBlk','var')
+                iBlk = 1;
+            end
+            ch = obj.acquired.GetMeasList(iBlk);
+            obj.procStream.input.SetMeasListActMan(ones(size(ch, 1), 1));
+        end
+        
+        % ----------------------------------------------------------------------------------
+        function InitMlVis(obj, iBlk)
+            if ~exist('iBlk','var')
+                iBlk = 1;
+            end
+            ch = obj.acquired.GetMeasList(iBlk);
+            obj.procStream.input.SetMeasListVis(ones(size(ch, 1), 1));
+        end
+            
+        % ----------------------------------------------------------------------------------
         function ch = GetMeasList(obj, iBlk)
             if ~exist('iBlk','var') || isempty(iBlk)
                 iBlk=1;
             end
-            ch                    = InitMeasLists();
+            
+            ch = struct('MeasList',[], 'MeasListVis',[], 'MeasListActMan',[], 'MeasListActAuto',[]);
             
             ch.MeasList        = obj.acquired.GetMeasList(iBlk);
             ch.MeasListActMan  = obj.procStream.GetMeasListActMan(iBlk);
             ch.MeasListActAuto = obj.procStream.GetMeasListActAuto(iBlk);
             ch.MeasListVis     = obj.procStream.GetMeasListVis(iBlk);
-            
             if isempty(ch.MeasListActMan)
-                ch.MeasListActMan  = ones(size(ch.MeasList,1),1);
+                obj.InitMlActMan();  % TODO find a more sensical place to do this
+                ch.MeasListActMan  = obj.procStream.GetMeasListActMan(iBlk);
             end
             if isempty(ch.MeasListActAuto)
                 ch.MeasListActAuto = ones(size(ch.MeasList,1),1);
             end
             if isempty(ch.MeasListVis)
-                ch.MeasListVis = ones(size(ch.MeasList,1),1);
+                obj.InitMlVis();
+                ch.MeasListVis = obj.procStream.GetMeasListVis(iBlk);
             end
             ch.MeasListAct     = bitand(ch.MeasListActMan, ch.MeasListActMan);
         end
@@ -511,6 +529,10 @@ classdef RunClass < TreeNodeClass
                 iBlk = 1;
             end
             tIncMan = obj.procStream.input.GetTincMan(iBlk);
+            if isempty(tIncMan)  % If the Tinc array is unitialized TODO find a more sensical place to do this
+               obj.InitTincMan();
+               tIncMan = obj.procStream.input.GetTincMan(iBlk);
+        end
         end
         
         
@@ -534,7 +556,7 @@ classdef RunClass < TreeNodeClass
         
         % ----------------------------------------------------------------------------------
         function InitTincMan(obj)
-            iBlk = 1;
+            iBlk = 1;  % TODO implement multiple data blocks
             while 1
                 t = obj.acquired.GetTime(iBlk);
                 if isempty(t)
@@ -545,7 +567,6 @@ classdef RunClass < TreeNodeClass
                 iBlk = iBlk+1;
             end
         end
-                
     end        % Public Set/Get methods
     
     
@@ -738,4 +759,3 @@ classdef RunClass < TreeNodeClass
     end  % Private methods
 
 end
-

@@ -23,7 +23,7 @@ end
 % ----------------------------------------------------------------------
 function Edit_Probe_OpeningFcn(hObject, eventdata, handles, varargin)
 global EditProbe;
-EditProbe=[];
+EditProbe = [];
 
 % Choose default command line output for Edit_Probe
 set(handles.figure1,'Name','Manual Correction','NumberTitle','off')
@@ -33,10 +33,10 @@ if isempty(varargin)
     return;
 end
 
-handles.headsurf=varargin{1,1};
-handles.refpts=varargin{1,2};
-handles.probe=varargin{1,3};
-handles.axes_order=varargin{1,4};
+handles.headsurf   = varargin{1,1};
+handles.refpts     = varargin{1,2};
+handles.probe      = varargin{1,3};
+handles.axes_order = varargin{1,4};
 
 %%%% read head surface mesh
 axes_order = handles.axes_order;
@@ -45,9 +45,9 @@ faces = handles.headsurf.faces;
 normals = handles.headsurf.normals(:,axes_order);
 
 %%%% load optode position
-Num_Scr=handles.probe.nsrc;
-Num_Det=handles.probe.ndet;
-Num_Chn=size(handles.probe.mlmp,1);
+Num_Scr = handles.probe.nsrc;
+Num_Det = handles.probe.ndet;
+Num_Chn = size(handles.probe.mlmp,1);
 Chspos = [handles.probe.optpos_reg(1:Num_Scr,:), ones(Num_Scr,1)];
 Chspos = [Chspos; handles.probe.optpos_reg(Num_Scr+1:Num_Scr+Num_Det,:), 2*ones(Num_Det,1)];
 Chspos = [Chspos; handles.probe.mlmp 3*ones(Num_Chn,1)];
@@ -56,12 +56,12 @@ Chspos = [Chspos(:,axes_order(1:3)), Chspos(:,4)];
 %%%% plot head model and optodes
 Edit_Optode_Positions
 
-EditProbe.handles=handles;
+EditProbe.handles = handles;
 
 if size(handles.refpts,1)<=1
-    set(handles.Show_EEG_Electrodes,'Enable','off');
-    set(handles.Show_EEG_Labels,'Enable','off');
-    set(handles.Show_Optode_Labels,'Enable','off');
+    set(handles.Show_EEG_Electrodes, 'Enable','off');
+    set(handles.Show_EEG_Labels, 'Enable','off');
+    set(handles.Show_Optode_Labels, 'Enable','off');
 end
 
 %%%% show arrows/ NIRS channels
@@ -78,8 +78,12 @@ else
     set(h,'Visible','off')
 end
 
+axes(handles.axes1)
+
+
 % UIWAIT makes Edit_Probe wait for user response (see UIRESUME)
 uiwait(handles.figure1);
+
 
 
 % ----------------------------------------------------------------------
@@ -93,49 +97,51 @@ if isempty(EditProbe.handles)
     return;
 end
 
-Num_Scr=EditProbe.handles.probe.nsrc;
-Num_Det=EditProbe.handles.probe.ndet;
-Num_Chn=size(EditProbe.handles.probe.mlmp,1);
-axes_order=EditProbe.handles.axes_order;
+Num_Scr    = EditProbe.handles.probe.nsrc;
+Num_Det    = EditProbe.handles.probe.ndet;
+Num_Chn    = size(EditProbe.handles.probe.mlmp,1);
+axes_order = EditProbe.handles.axes_order;
 
-Optodes_update=[];
+Optodes_update = [];
 
 %%% sort sources
-for i=1:Num_Scr
+for i = 1:Num_Scr
     hj = findobj(EditProbe.handles.hj, 'AmbientStrength',.2,'DiffuseStrength',.8,'SpecularStrength',.5,'Tag',['S' num2str(i)]); % find optodes and their tags
-    H=get(hj);
-    Position=H.UserData;
-    Optodes_update=[Optodes_update; Position];
+    H = get(hj);
+    Position = H.UserData;
+    Optodes_update = [Optodes_update; Position];
 end
 
 %%% sort Detectors
-for i=1:Num_Det
+for i = 1:Num_Det
     hj = findobj(EditProbe.handles.hj, 'AmbientStrength',.2,'DiffuseStrength',.8,'SpecularStrength',.5,'Tag',['D' num2str(i)]); % find optodes and their tags
-    H=get(hj);
-    Position=H.UserData;
-    Optodes_update=[Optodes_update; Position];
+    H = get(hj);
+    Position = H.UserData;
+    Optodes_update = [Optodes_update; Position];
 end
 
 %%% sort Channels
-Channels=[];
-for i=1:Num_Chn
+Channels = [];
+for i = 1:Num_Chn
     hj = findobj(EditProbe.handles.hj, 'AmbientStrength',.2,'DiffuseStrength',.8,'SpecularStrength',.5,'Tag',['Ch' num2str(i)]); % find optodes and their tags
-    H=get(hj);
-    Position=H.UserData;
-    Channels=[Channels; Position];
+    H = get(hj);
+    Position = H.UserData;
+    Channels = [Channels; Position];
 end
 
 varargout{1} = Optodes_update(:,axes_order(1:3));
 varargout{2} = Channels(:,axes_order(1:3));
+varargout{2} = hObject;
 
 h=get(hObject);
 for i=1:length(h.Children)
-    h1=get(h.Children(i));
+    h1 = get(h.Children(i));
     if strcmp(h1.Type,'axes')
-       h1.Children=[]; 
+       h1.Children = []; 
     end
 end
 delete(hObject);
+
 
 
 % ----------------------------------------------------------------------
@@ -201,6 +207,7 @@ else
     set(h,'Visible','off')
 end
 
+
 % ----------------------------------------------------------------------
 function Show_Cortex_Callback(hObject, eventdata, handles)
 
@@ -213,7 +220,6 @@ else
     set(hgm,'FaceAlpha',0.5)
     set(hsk,'FaceAlpha',0.7)
 end
-
 
 
 % ----------------------------------------------------------------------
@@ -240,3 +246,4 @@ guidata(hObject, handles);
 % Use UIRESUME instead of delete because the OutputFcn needs
 % to get the updated handles structure.
 uiresume(handles.figure1);
+

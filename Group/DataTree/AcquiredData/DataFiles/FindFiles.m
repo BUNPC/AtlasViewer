@@ -33,11 +33,19 @@ if nargin==1
 elseif nargin==2
     dirnameGroup = varargin{1};
     fmt = varargin{2};
+elseif nargin==3
+    dirnameGroup = varargin{1};
+    fmt = varargin{2};
+    options = varargin{3};
+    if optionExists(options, 'oneformat')
+        fmt = [fmt, 'only'];
+    end
 end
 
 if ~exist('dirnameGroup','var') || isempty(dirnameGroup)
     dirnameGroup = pwd;
 end
+
 
 if ~exist('fmt','var') || isempty(fmt)
     if ~isempty(maingui) && isstruct(maingui) && isfield(maingui,'format')
@@ -53,6 +61,26 @@ files = DataFilesClass();
 while files.isempty()
     switch fmt
         case {'snirf','.snirf'}
+            files = DataFilesClass(dirnameGroup, 'snirf');
+            if files.isempty()
+                files = DataFilesClass(dirnameGroup, 'nirs');
+                if ~files.isempty()
+                    if files.config.RegressionTestActive
+                        q = 1;
+                    else
+                        msg{1} = sprintf('Homer3 did not find any .snirf files in the current folder but did find .nirs files. ');
+                        msg{2} = sprintf('Do you want to convert .nirs files to .snirf format and load them?');
+                        q = MenuBox([msg{:}], {'YES','NO'}, 'center');
+                    end
+                    if q==2
+                        files = [];
+                        return;
+                    end
+                end
+                Nirs2Snirf(dirnameGroup);
+                files = DataFilesClass(dirnameGroup, 'snirf');
+            end
+        case {'snirfonly'}
             files = DataFilesClass(dirnameGroup, 'snirf');
             if files.isempty()
                 files = [];
@@ -76,9 +104,25 @@ while files.isempty()
                 continue;
             end
     end
+    
     if files.isempty()
-        files = [];
-        return;
+        switch fmt
+            case {'snirf','.snirf'}
+                msg{1} = sprintf('Homer3 did not find any %s data files to load in the current group folder. ', fmt);
+                msg{2} = sprintf('Do you want to select another group folder?');
+                q = MenuBox([msg{:}], {'YES','NO'});
+                if q==2
+                    files = DataFilesClass();
+                    return;
+                end
+                dirnameGroup = uigetdir(pwd, 'Please select another group folder ...');
+                if dirnameGroup==0
+                    files = DataFilesClass();
+                    return;
+                end
+            case {'snirfonly'}
+                files = [];
+        end
     end
 end
 
