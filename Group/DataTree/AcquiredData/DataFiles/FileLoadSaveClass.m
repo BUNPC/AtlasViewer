@@ -1,6 +1,6 @@
 classdef FileLoadSaveClass < matlab.mixin.Copyable
     
-    properties
+    properties (Access = private)
         filename;
         fileformat;
         supportedFomats;
@@ -98,5 +98,47 @@ classdef FileLoadSaveClass < matlab.mixin.Copyable
             end
         end
         
+        
+        % -------------------------------------------------------
+        function SetFileFormat(obj, fmt)
+            obj.fileformat = fmt;
+        end
+        
+        
+        % -------------------------------------------------------
+        function SetFilename(obj, fname)
+            obj.filename = fname;
     end
+        
+        
+        % -------------------------------------------------------
+        function fname = GetFilename(obj)
+            fname = obj.filename;
+        end
+        
+        
+        % -------------------------------------------------------
+        function SetDataStorageScheme(obj, scheme)
+            obj.dataStorageScheme = scheme;
+        end
+        
+        
+        % -------------------------------------------------------
+        function scheme = GetDataStorageScheme(obj)
+            scheme = obj.dataStorageScheme;
+        end
+        
+        
+        % -------------------------------------------------------
+        function SetError(obj, err)
+            obj.err = err;
+        end
+        
+        % -------------------------------------------------------
+        function err = GetError(obj)
+            err = obj.err;
+        end
+        
+    end    
+    
 end

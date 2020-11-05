@@ -34,7 +34,7 @@ classdef DataTreeClass <  handle
             % Arg 1: get folder of the group being loaded
             if ~exist('groupDirs','var') || isempty(groupDirs)
                 groupDirs{1} = pwd;
-            elseif ~iscell(groupDirs)
+            elseif ~isa(groupDirs, 'DataTreeClass') && ~iscell(groupDirs)
                 groupDirs = {groupDirs};                
             end
             
@@ -274,7 +274,7 @@ classdef DataTreeClass <  handle
             g.group = GroupClass();
             if isvalidfile('./groupResults.mat')
                 g = load('./groupResults.mat');
-                if g.group.IsEmpty()
+                if isa(g.group, 'GroupClass') && g.group.IsEmpty()
                     if isvalidfile('../groupResults.mat')
                         g = load('../groupResults.mat');
                     end
@@ -282,7 +282,7 @@ classdef DataTreeClass <  handle
             elseif isvalidfile('../groupResults.mat')
                 g = load('../groupResults.mat');
             end
-            if g.group.IsEmpty()
+            if isa(g.group, 'GroupClass') && g.group.IsEmpty()
                 if g.group.subjs(1).runs(1).acquired.IsEmpty()
                     obj.dataStorageScheme = 'files';
                 else

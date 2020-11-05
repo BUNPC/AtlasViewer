@@ -6,6 +6,9 @@ DEBUG=0;
 DEBUG2=0;
 
 % Parse args 
+if iscell(msg)
+    msg = [msg{:}];
+end
 if ~exist('bttns','var') || isempty(bttns)
     bttns = {'OK'};
 elseif exist('bttns','var') && ischar(bttns)

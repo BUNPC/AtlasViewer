@@ -221,7 +221,6 @@ classdef ProcInputClass < handle
             end
         end
 
-
         % ----------------------------------------------------------------------------------
         function ml = GetMeasListVis(obj, iBlk)
 	        if ~exist('iBlk','var')

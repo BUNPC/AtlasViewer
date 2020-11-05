@@ -67,7 +67,9 @@ if ~isempty(digpts.digpts)
         digpts1.pcpos      = (digpts.digpts(jj).pcpos + ((jj-1) * digpts1.pcpos)) / jj;        
     end
     
-    q = menu(sprintf('AtlasViewer has detected dig points in the current subject''s sub-folders.\nDo you want to load the mean of the group dig points?'), 'YES', 'NO');    
+    msg{1} = sprintf('AtlasViewer has detected dig points in the current subject''s sub-folders. ');
+    msg{2} = sprintf('Do you want to load the mean of the group dig points?');
+    q = MenuBox(msg, {'YES', 'NO'});
     if q==1
         digpts = digpts1;
         digpts = setDigptsOrientation(digpts, dirname);
