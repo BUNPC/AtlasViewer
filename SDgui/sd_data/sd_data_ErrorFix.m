@@ -13,6 +13,10 @@ if(~isfield(SD,'DetPos'))
     SD.DetPos = [];
 end
 
+if(~isfield(SD,'DummyPos'))
+    SD.DummyPos = [];
+end
+
 % SrcPos
 SD.nSrcs = size(SD.SrcPos,1);
 
@@ -70,29 +74,29 @@ if ~isfield(SD,'AnchorList')
 end
 
 % SpatialUnit
-if isfield(SD,'SpatialUnit')
-    if strcmpi(SD.SpatialUnit,'cm')
-        ch = menu(sprintf('We recommend Spatial Units of mm to be consistent with Homer.\nWe will convert cm to mm for you.'),'Okay','Cancel');
-        if ch==1
-            SD.SpatialUnit = 'mm';
-            SD.SrcPos = SD.SrcPos * 10;
-            SD.DetPos = SD.DetPos * 10;
-            if isfield(SD,'SpringList')
-                if size(SD.SpringList,2)==3
-                    lst = find(SD.SpringList(:,3)~=-1);
-                    SD.SpringList(lst,3) = SD.SpringList(lst,3) * 10;
-                end
+if isfield(SD,'SpatialUnit') && strcmpi(SD.SpatialUnit,'cm')
+    ch = MenuBox(sprintf('We recommend Spatial Units of mm to be consistent with Homer. We will convert cm to mm for you.'), {'Okay','Cancel'}, 'upperleft');
+    if ch==1
+        SD.SpatialUnit = 'mm';
+        SD.SrcPos = SD.SrcPos * 10;
+        SD.DetPos = SD.DetPos * 10;
+        SD.DummyPos = SD.DummyPos * 10;
+        if isfield(SD,'SpringList')
+            if size(SD.SpringList,2)==3
+                lst = find(SD.SpringList(:,3)~=-1);
+                SD.SpringList(lst,3) = SD.SpringList(lst,3) * 10;
             end
         end
     end
-elseif ~isfield(SD,'SpatialUnit')
-    ch = menu('What spatial units are used for the optode positions?','cm','mm','Do not know');
+elseif ~isfield(SD,'SpatialUnit') || isempty(SD.SpatialUnit)
+    ch = MenuBox('Spatial units not provided in SD file. Please specify spatial units used for the optode positions?',{'cm','mm','Do not know'}, 'upperleft');
     if ch==1
-        ch = menu('We will convert cm to mm for you.','Okay','Cancel');
+        ch = MenuBox('We will convert cm to mm for you.',{'Okay','Cancel'});
         if ch==1
             SD.SpatialUnit = 'mm';
             SD.SrcPos = SD.SrcPos * 10;
             SD.DetPos = SD.DetPos * 10;
+            SD.DummyPos = SD.DummyPos * 10;
             if isfield(SD,'SpringList')
                 if size(SD.SpringList,2)==3
                     lst = find(SD.SpringList(:,3)~=-1);
@@ -105,6 +109,7 @@ elseif ~isfield(SD,'SpatialUnit')
     elseif ch==2
         SD.SpatialUnit = 'mm';
     elseif ch==3
+        MessageBox('Assuming spatial mm spatial units.');
         SD.SpatialUnit = 'mm';
     end
 end

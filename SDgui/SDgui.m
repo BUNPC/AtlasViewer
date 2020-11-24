@@ -281,15 +281,24 @@ function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
 global SD
 
 if ~ishandles(hObject)
-    set(handles.popupmenuSpatialUnit, 'string', {'cm', 'mm'});
     hObject = handles.popupmenuSpatialUnit;
-    strs = get(hObject, 'string');
-    idx = find(strcmp(strs, SD.SpatialUnit));
-    if ~isempty(idx) && (idx <= length(strs))
-        set(hObject, 'value', idx);
-    end
+    set(hObject, 'string', {'mm','cm'});
+    set(hObject, 'value', 1);
 end
 strs = get(hObject, 'string');
 idx = get(hObject, 'value');
+
+if strcmp(strs{idx}, 'mm') && strcmp(SD.SpatialUnit, 'cm')
+    k = 10;
+elseif strcmp(strs{idx}, 'cm') && strcmp(SD.SpatialUnit, 'mm')
+    k = 1/10;
+else
+    k = 1;
+end
+SD.SrcPos = k * SD.SrcPos;
+SD.DetPos = k * SD.DetPos;
+SD.DummyPos = k * SD.DummyPos;
 SD.SpatialUnit = strs{idx};
+SDgui_display(handles, SD)
+
 
