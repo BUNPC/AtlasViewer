@@ -75,7 +75,7 @@ end
 
 % SpatialUnit
 if isfield(SD,'SpatialUnit') && strcmpi(SD.SpatialUnit,'cm')
-    ch = MenuBox(sprintf('We recommend Spatial Units of mm to be consistent with Homer. We will convert cm to mm for you.'), {'Okay','Cancel'}, 'upperleft');
+    ch = MenuBox('We recommend using spatial units of mm to be consistent with Homer. Convert cm to mm?', {'Okay','Cancel'}, 'upperleft');
     if ch==1
         SD.SpatialUnit = 'mm';
         SD.SrcPos = SD.SrcPos * 10;
@@ -89,9 +89,9 @@ if isfield(SD,'SpatialUnit') && strcmpi(SD.SpatialUnit,'cm')
         end
     end
 elseif ~isfield(SD,'SpatialUnit') || isempty(SD.SpatialUnit)
-    ch = MenuBox('Spatial units not provided in SD file. Please specify spatial units used for the optode positions?',{'cm','mm','Do not know'}, 'upperleft');
+    ch = MenuBox('Spatial units not provided in SD file. Please specify spatial units used for the optode positions in this file?',{'cm','mm','Do not know'}, 'upperleft');
     if ch==1
-        ch = MenuBox('We will convert cm to mm for you.',{'Okay','Cancel'});
+        ch = MenuBox('We recommend using spatial units of mm to be consistent with Homer. Convert cm to mm?', {'Okay','Cancel'}, 'upperleft');
         if ch==1
             SD.SpatialUnit = 'mm';
             SD.SrcPos = SD.SrcPos * 10;

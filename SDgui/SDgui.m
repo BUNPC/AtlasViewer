@@ -66,7 +66,7 @@ SDgui_version(hObject);
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 setGuiFonts(hObject);
 
-popupmenuSpatialUnit_Callback([], [], handles)
+popupmenuSpatialUnit_Callback([], [], handles);
 
 
 
@@ -280,25 +280,11 @@ function checkboxNinjaCap_Callback(hObject, eventdata, handles)
 function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
 global SD
 
+choices = {'mm','cm'};
 if ~ishandles(hObject)
     hObject = handles.popupmenuSpatialUnit;
-    set(hObject, 'string', {'mm','cm'});
-    set(hObject, 'value', 1);
 end
-strs = get(hObject, 'string');
-idx = get(hObject, 'value');
-
-if strcmp(strs{idx}, 'mm') && strcmp(SD.SpatialUnit, 'cm')
-    k = 10;
-elseif strcmp(strs{idx}, 'cm') && strcmp(SD.SpatialUnit, 'mm')
-    k = 1/10;
-else
-    k = 1;
-end
-SD.SrcPos = k * SD.SrcPos;
-SD.DetPos = k * SD.DetPos;
-SD.DummyPos = k * SD.DummyPos;
-SD.SpatialUnit = strs{idx};
-SDgui_display(handles, SD)
-
+set(hObject, 'string', choices);
+k = find(strcmp(SD.SpatialUnit, choices));
+set(hObject, 'value', k);
 
