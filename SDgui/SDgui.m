@@ -286,5 +286,8 @@ if ~ishandles(hObject)
 end
 set(hObject, 'string', choices);
 k = find(strcmp(SD.SpatialUnit, choices));
+if isempty(k)
+    k = 1;
+end
 set(hObject, 'value', k);
 
