@@ -61,6 +61,8 @@ classdef DataTreeClass <  handle
             if isa(groupDirs, 'DataTreeClass')
                obj.Copy(groupDirs);
                return;
+            elseif strcmp(options, 'empty')
+                return;
             end
             
             cfg = ConfigFileClass();
@@ -226,7 +228,7 @@ classdef DataTreeClass <  handle
                     end
                     obj.files = dataInit.files;
                     
-                    obj.LoadGroup(iGnew, procStreamCfgFile);
+                    obj.LoadGroup(iGnew, procStreamCfgFile, options);
                     if length(obj.groups) < iGnew
                         if obj.FoundDataFilesInOtherFormat(dataInit, kk)
                             continue;
@@ -296,10 +298,13 @@ classdef DataTreeClass <  handle
         
         
         % ---------------------------------------------------------------
-        function LoadGroup(obj, iG, procStreamCfgFile)
+        function LoadGroup(obj, iG, procStreamCfgFile, options)
             
             if ~exist('procStreamCfgFile','var')
                 procStreamCfgFile = '';
+            end
+            if ~exist('options','var')
+                options = '';
             end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -322,13 +327,14 @@ classdef DataTreeClass <  handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Initialize procStream for all tree nodes
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.groups(iG).InitProcStream(procStreamCfgFile);
+            if ~optionExists(options, 'noloadconfig')
+                obj.groups(iG).InitProcStream(procStreamCfgFile);
+            end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Generate the stimulus conditions for the group tree
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             obj.groups(iG).SetConditions();
-
             
         end
         
@@ -489,6 +495,39 @@ classdef DataTreeClass <  handle
         end
 
 
+        % ----------------------------------------------------------
+        function CopyCurrElem(obj, obj2, options)
+            if isempty(obj)
+                return;
+            end
+            if isempty(obj2)
+                return;
+            end
+            if ~exist('options', 'var')
+                options = 'reference';
+            end
+            
+            if optionExists(options, 'reference')
+                obj3 = obj2;
+            elseif optionExists(options, 'value')
+                obj3 = obj;
+            end
+            
+            idx = obj2.currElem.GetIndexID();
+            iGroup = idx(1);
+            iSubj  = idx(2);
+            iRun   = idx(3);
+                                    
+            if iSubj==0 && iRun==0
+                obj.currElem = obj3.groups(iGroup);
+            elseif iSubj>0 && iRun==0
+                obj.currElem = obj3.groups(iGroup).subjs(iSubj);
+            elseif iSubj>0 && iRun>0
+                obj.currElem = obj3.groups(iGroup).subjs(iSubj).runs(iRun);
+            end
+        end
+
+
         % ----------------------------------------------------------------------------------
         function nbytes = MemoryRequired(obj)
             nbytes = 0;
@@ -564,6 +603,15 @@ classdef DataTreeClass <  handle
                 return;
             end
             b = false;
+        end
+        
+        % ----------------------------------------------------------
+        function b = IsFlatFileDir(obj)
+            if obj.files(1).isdir
+                b = false;
+            else
+                b = true;
+            end
         end
 
     end

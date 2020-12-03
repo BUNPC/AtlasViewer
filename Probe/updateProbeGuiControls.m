@@ -25,28 +25,23 @@ end
 % springs and anchor points, if they exist. The button 
 % pushbuttonRegisterProbeToSurface is used for both cases but has to be 
 % enabled
-if exist('headsurf','var')
+b = false;
+
+% Check if proble is flat and has registration info
+if isProbeFlat(probe)
+   b = probeHasRegistrationInfo(probe);
+elseif exist('headsurf','var')
     if ~isempty(headsurf)
         if ~isempty(probe.optpos_reg)
             p = probe.optpos_reg;
         else
             p = probe.optpos;
         end
-        [~, ~, d] = nearest_point(headsurf.mesh.vertices, p);
-        
-        % Check if proble is flat and has 
-        if ~isempty(probe.sl) & ~isempty(probe.al)
+        [~, ~, d] = nearest_point(headsurf.mesh.vertices, p);        
+        if mean(d)<20 & max(d)<31 & std(d,1,1)<10
             b = true;
-        elseif mean(d)<20 & max(d)<31 & std(d,1,1)<10
-            b = true;
-        else
-            b = false;
         end
-    else
-        b = false;
     end
-else
-    b = false;
 end
 
 if ~isempty(probe.optpos) & b==true
