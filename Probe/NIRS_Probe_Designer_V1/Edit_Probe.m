@@ -128,10 +128,11 @@ for i = 1:Num_Chn
     Position = H.UserData;
     Channels = [Channels; Position];
 end
+p = pullPtsToSurf(Optodes_update, EditProbe.handles.headsurf, 'center');
 
 varargout{1} = Optodes_update(:,axes_order(1:3));
 varargout{2} = Channels(:,axes_order(1:3));
-varargout{2} = hObject;
+varargout{3} = hObject;
 
 h=get(hObject);
 for i=1:length(h.Children)
