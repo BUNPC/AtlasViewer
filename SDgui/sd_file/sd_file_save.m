@@ -40,8 +40,7 @@ end
 sd_data_ErrorFix();
 SD = sd_data_Get('all');
 if ~isempty(ext) && strcmp(ext,'.nirs')
-    filedata.SD = SD;
-    sd_file_save2nirs([pathname, filename], filedata);
+    sd_file_save2nirs([pathname, filename]);
 else
     try
         [~, ~, ext] = fileparts(filename);

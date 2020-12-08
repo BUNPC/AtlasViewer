@@ -70,7 +70,7 @@ function probe_geometry_axes_DetUpdate(handles, dpos, i, event)
 
         % Redraw nodes that might have been obscured by 
         % the redrawn edges 
-        [h_nodes_s h_nodes_d]=redraw_text_many(h_nodes_s,h_nodes_d);
+        h_nodes_s = redraw_text_many(h_nodes_s,h_nodes_d);
     end
  
     % Draw grid to fit the updated probe
@@ -80,8 +80,7 @@ function probe_geometry_axes_DetUpdate(handles, dpos, i, event)
     axes_view=set_view_probe_geometry_axes(hObject,optpos);
 
     % Update SD data
-    k=sd_data_SetMeasList(ml);
-    h_edges(k) = h_edges;
+    sd_data_SetMeasList(ml);
 
     % Update object's user data
     probe_geometry_axes_data.optselect=optselect;

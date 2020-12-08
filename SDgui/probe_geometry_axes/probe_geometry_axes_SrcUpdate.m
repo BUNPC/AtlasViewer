@@ -79,8 +79,7 @@ function probe_geometry_axes_SrcUpdate(handles,spos,i,event)
     axes_view = set_view_probe_geometry_axes(hObject,optpos);
 
     % Update SD data
-    k = sd_data_SetMeasList(ml);
-    h_edges(k) = h_edges;
+    sd_data_SetMeasList(ml);
 
     % Update object's user data
     probe_geometry_axes_data.optselect      = optselect;

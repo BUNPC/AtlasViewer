@@ -23,12 +23,14 @@ end
 function SDgui_OpeningFcn(hObject, eventdata, handles, varargin)
 global SD
 global filedata
+global sdgui   % Global variable used only in this file for keeping track of any child gui handles
+
 
 set(hObject, 'visible','off');
 
 SD = [];
 filedata.SD = [];
-
+sdgui = struct('hViewChannelsGUI',[]);
 
 % Choose default command line output for SDgui
 handles.output = hObject;
@@ -73,12 +75,19 @@ popupmenuSpatialUnit_Callback([], [], handles);
 
 % -------------------------------------------------------------------
 function SDgui_DeleteFcn(hObject, eventdata, handles)
+global sdgui
 global filedata
 
 filedata.SD = [];
 
 hSDgui = get(get(hObject,'parent'),'parent');
 delete(hSDgui);
+
+if ~isempty(sdgui)
+    if ishandles(sdgui.hViewChannelsGUI)
+        delete(sdgui.hViewChannelsGUI);
+    end
+end
 
 
 
@@ -177,54 +186,6 @@ end
 
 
 
-
-% -------------------------------------------------------------------
-function [fname, pname] = getCurrPathname(arg)
-fname = '';
-pname = '';
-if isempty(arg)
-    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pwd);
-    if(fname == 0)
-        pname = filesepStandard(pwd);
-        fname = [];        
-    end
-    pname = filesepStandard(pname);
-    return
-elseif ~ischar(arg{1})
-    pname = pwd;
-    return;
-end
-
-filename = arg{1};
-[pname, fname, ext] = fileparts(filename);
-pname = filesepStandard(pname);
-if ~isempty(fname) && isempty(ext)
-    ext = '.SD';
-end
-directory = dir(pname);
-
-file = [];
-if ~isempty(fname)
-    file = dir([pname, fname, ext]);
-end
-
-if isempty(directory)
-    pname = filesepStandard(pwd);
-end
-if isempty(file)
-    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pname);
-    if(fname == 0)
-        pname = filesepStandard(pwd);
-        fname = [];
-        return
-    end
-    ext = '';
-end
-pname = filesepStandard(pname);
-fname = [fname, ext];
-
-
-
 % -------------------------------------------------------------------
 function sd_filename_edit_Callback(hObject, eventdata, handles)
 filename = get(hObject,'string');
@@ -290,4 +251,12 @@ if isempty(k)
     k = 1;
 end
 set(hObject, 'value', k);
+
+
+
+% --------------------------------------------------------------------
+function menuItemViewChannels_Callback(hObject, eventdata, handles)
+global sdgui
+sdgui.hViewChannelsGUI = ViewChannelsGUI();
+
 

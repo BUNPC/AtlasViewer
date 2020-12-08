@@ -8,8 +8,7 @@ function probe_geometry_axes_Init(handles,optpos_src,optpos_det,optpos_dummy,ml)
 
     axes(hObject);
     cla;
-    zoom off;
-    
+    zoom off;    
     
     probe_geometry_axes_data = get(hObject,'userdata');
     fs = probe_geometry_axes_data.fontsize;
@@ -33,16 +32,15 @@ function probe_geometry_axes_Init(handles,optpos_src,optpos_det,optpos_dummy,ml)
     % by edges.
     if(~isempty(ml))
         h_edges=zeros(nmeas,1);
-        for i=1:nmeas
-            s=optpos_src(ml(i,1),:);
-            d=optpos_det(ml(i,2),:);
+        for i = 1:nmeas
+            s = optpos_src(ml(i,1),:);
+            d = optpos_det(ml(i,2),:);
             hold on;
             h_edges(i) = line([s(:,1) d(:,1)],[s(:,2) d(:,2)],[s(:,3) d(:,3)],'color',edges.color,...
                               'linewidth',edges.thickness,'hittest','off','ButtonDownFcn',...
                               'probe_geometry_axes_ButtonDownFcn');
         end
-        i = sd_data_SetMeasList(ml);
-        h_edges(i) = h_edges;
+        sd_data_SetMeasList(ml);
     end
 
 

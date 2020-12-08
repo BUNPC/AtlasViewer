@@ -69,9 +69,9 @@ if size(p,1)>1
     src = optpos_src(isrc,:);
     det = optpos_det(idet,:);
     if length(isrc)==1 & length(idet)==1
-        action = actions{menu('What action do you want to take with the selected optodes?',actions)};
+        action = actions{MenuBox('What action do you want to take with the selected optodes?', actions)};
     elseif ~isempty(isrc) | ~isempty(idet)
-        action = actions{menu('Are you sure you want to delete the selected optodes?',actions{2:3})+1};
+        action = actions{MenuBox('Are you sure you want to delete the selected optodes?', actions(2:3))+1};
     end
     
     % Clean up
@@ -159,7 +159,7 @@ switch(action)
         end
         
         % Update SD Measuremnt List
-        i = sd_data_SetMeasList(ml);
+        sd_data_SetMeasList(ml);
         
         % reset node all node selections zero
         optselect.src(:) = 0;
