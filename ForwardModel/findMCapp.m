@@ -38,12 +38,11 @@ end
 
 
 %%%% SEARCH 3: Try to locate MC app root folder using matlab search paths
-foos = which('AtlasViewerGUI.m');
-if ~isempty(foos)
-    [pp,fs] = getpathparts(foos);
-    foos = buildpathfrompathparts(pp(1:end-1),fs(1:end-1,:));
+mainAppFilePath = which('AtlasViewerGUI.m');
+if ~isempty(mainAppFilePath)
+    mainAppRootDir = [filesepStandard(fileparts(mainAppFilePath))];
     for ii=1:length(mc_appnamelist)
-        mc_exepath = sprintf('/%s/bin/%s/', foos, mc_appnamelist{ii}, fwmodel.platform);
+        mc_exepath = sprintf('%sForwardModel/%s/bin/%s/', mainAppRootDir, mc_appnamelist{ii}, fwmodel.platform);
         [mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(mc_exepath, fwmodel.platform);
         fwmodel = setMCFields(fwmodel, mc_exepath, mc_exename, mc_appname, ext);
         if ~isempty(fwmodel.mc_exename)

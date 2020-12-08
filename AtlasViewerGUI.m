@@ -1853,32 +1853,6 @@ camzoom(axesv(1).handles.axesSurfDisplay, 1.3*axesv(1).zoomincr);
 
 
 
-
-% --------------------------------------------------------------------
-function menuItemConvertEZStoDigPts_Callback(hObject, eventdata, handles)
-global atlasViewer
-
-[filenm,pathnm] = uigetfile('*.ezs','Choose .ezs file to convert');
-if filenm==0
-    return;
-end
-
-wd = cd();
-cd(pathnm)
-ezmapper2txt(filenm);
-cd(wd)
-
-atlasViewer.digpts = getDigpts(atlasViewer.digpts, atlasViewer.dirnameSubj);
-atlasViewer.probe = getProbe(atlasViewer.probe, ...
-                             atlasViewer.dirnameSubj, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.digpts, ...
-                             atlasViewer.refpts);
-atlasViewer.probe = displayProbe(atlasViewer.probe);
-
-
-
 % --------------------------------------------------------------------
 function menuItemSaveViewerState_Callback(hObject, eventdata, handles)
 global atlasViewer
