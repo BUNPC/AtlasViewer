@@ -8,24 +8,15 @@ if exist('./Install','dir')
 end
 
 % Find installation path and add it to matlab search paths
-dirnameInstall = fileparts(which('createInstallFile.m'));
+dirnameInstall = filesepStandard(fileparts(which('createInstallFile.m')));
 if isempty(dirnameInstall)
-    m1 = sprintf('Cannot create installation package.\n');
-    menu([m1],'OK');
+    MessageBox('Cannot create installation package. Could not find root installation folder.');
     return;
 end
-[pp,fs] = getpathparts(dirnameInstall);
-dirnameApp = buildpathfrompathparts(pp(1:end-1), fs(1:end-1,:));
+dirnameApp = getAppDir_av;
 if isempty(dirnameApp)
-    m1 = sprintf('Cannot create installation package.\n');
-    menu([m1],'OK');
+    MessageBox('Cannot create installation package. Could not find root application folder.');
     return;
-end
-if dirnameInstall(end)~='/' & dirnameInstall(end)~='\'
-    dirnameInstall(end+1)='/';
-end
-if dirnameApp(end)~='/' & dirnameApp(end)~='\'
-    dirnameApp(end+1)='/';
 end
 addpath(dirnameInstall, '-end')
 
@@ -57,8 +48,9 @@ if ~strcmp(options, 'nobuild')
 end
 
 % Zip up MC application 
-if exist([dirnameApp,  platform.mc_exe_name],'dir')
-    tar([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar'], [dirnameApp, platform.mc_exe_name]);
+mc_exe_dir = [dirnameApp,  'ForwardModel/', platform.mc_exe_name];
+if exist(mc_exe_dir,'dir') == 7
+    tar([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar'], mc_exe_dir);
     gzip([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar']);
     delete([dirnameInstall, 'atlasviewer_install/', platform.mc_exe_name, '.tar']);
 end

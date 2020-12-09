@@ -33,8 +33,7 @@ imgrecon   = atlasViewer.imgrecon;
 dirnameSubj = atlasViewer.dirnameSubj;
 
 imgrecon.handles.ImageRecon = hObject;
-pparts = getpathparts(dirnameSubj);
-subjName = pparts{end};
+[~, subjName] = fileparts(dirnameSubj(1:end-1));
 
 if isempty(imgrecon.subjData)
     menu('groupResults not loaded, Cannot do image reconstruction','Okay');

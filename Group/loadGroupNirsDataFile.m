@@ -7,9 +7,8 @@ group = [];
 if ~exist('dirname','var') || ~exist(dirname, 'dir')
     dirname = pwd;
 end
-if dirname(end)~='/' && dirname(end)~='\'
-    dirname(end+1) = '/';
-end
+dirname = filesepStandard(dirname);
+
 
 % If groupResult.mat does not exist in the folder dirname then it's not a
 % group folder. 

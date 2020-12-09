@@ -14,8 +14,7 @@ currDir = pwd;
 
 % Args 
 if ~exist('appName','var')
-    pp = getpathparts(currDir);
-    appName = pp{end};
+    [~, appName] = fileparts(currDir);
 end
 if ~exist('inclList','var')
     inclList = {};

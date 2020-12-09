@@ -79,11 +79,8 @@ end
 
 cd(dirname);
 
-dirname(dirname=='\') = '/';
+dirname = filesepStandard(dirname);
 
-if dirname(end) ~= '/'
-    dirname(end+1) = '/';
-end
 
 
 

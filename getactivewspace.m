@@ -11,7 +11,7 @@ if isempty(wsname)
 end
 
 for ii=1:length(paths_all)
-    if ~all(strcmp(getpathparts(paths_all{ii}), wsname)==0)
+    if ~all(strcmp(str2cell(paths_all{ii}, {'/','\'}), wsname)==0)
         paths_excl{kk,1} = paths_all{ii};
         kk=kk+1;
     end

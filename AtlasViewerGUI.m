@@ -449,11 +449,9 @@ end
 
 groupSubjList = {};
 for ii=1:length(groupSubjList0)
-    pp = getpathparts(groupSubjList0{ii});
-    
-    subjListboxStr = pp{end};
+    [~, subjListboxStr] = fileparts(groupSubjList0{ii});    
     if ii>1
-        subjListboxStr = ['  ', pp{end}];
+        subjListboxStr = ['  ', subjListboxStr];
     end
     groupSubjList{ii} = subjListboxStr; %#ok<AGROW>
 end
@@ -481,8 +479,7 @@ hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList, '
 setappdata(hGroupList, 'groupSubjList', groupSubjList0);
 
 % Initilize listbox selection to current subject folder
-pp = getpathparts(pwd);
-subjname = pp{end};
+[~, subjname] = fileparts(pwd);
 k =  find(strcmp(strtrim(groupSubjList), subjname));
 if ~isempty(k)
     set(hGroupList, 'value', k);
@@ -3519,23 +3516,20 @@ set(refpts.handles.uipanelHeadDimensions, 'visible',valstr);
 
 % --------------------------------------------------------------------
 function menuItemInstallAtlas_Callback(~, ~, ~)
-global atlasViewer
-
-dirnameAtlas = atlasViewer.dirnameAtlas;
 
 % Find default folder where AV searches for atlases
-dirnameDst = fileparts(fileparts(getAtlasDir()));
-dirnameAtlasNew = selectAtlasDir();
+dirnameDst = filesepStandard(fileparts(fileparts(getAtlasDir())));
+dirnameAtlasNew = filesepStandard(selectAtlasDir());
 if isempty(dirnameAtlasNew)
     return;
 end
-pparts = getpathparts(dirnameAtlasNew);
+[~, pname] = fileparts(dirnameAtlasNew(1:end-1));
 h = waitbar(0,'Installing new atlas, please wait...');
-if exist([dirnameDst, '/', pparts{end}], 'dir') == 7
-    fprintf('%s is already installed ... moving %s to %s_old\n', pparts{end}, pparts{end}, pparts{end});
-    copyfile(dirnameAtlas, [dirnameAtlas(1:end-1), '_old']); 
+if exist([dirnameDst, pname], 'dir') == 7
+    fprintf('%s is already installed ... moving %s to %s_old\n', pname, pname, pname);
+    copyfile([dirnameDst, pname], [dirnameDst, pname, '_old']); 
 end
-copyfile(dirnameAtlasNew, [dirnameDst, '/', pparts{end}]);
+copyfile(dirnameAtlasNew, [dirnameDst, pname]);
 waitbar(1, h, 'Installion completed.');
 pause(2);
 close(h);

@@ -3,9 +3,7 @@ function [subjDirs, groupDir, group] = findSubjDirs(dirname0)
 if ~exist('dirname0','var') || ~exist(dirname0, 'dir')
     dirname0 = pwd;
 end
-if dirname0(end)~='/' && dirname0(end)~='\'
-    dirname0(end+1) = '/';
-end
+dirname0 = filesepStandard(dirname0);
 
 % Look first in the current folder for groupResults.mat.
 [subjDirs, groupDir, group] = searchDir(dirname0);
