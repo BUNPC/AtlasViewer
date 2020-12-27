@@ -23,14 +23,12 @@ end
 function SDgui_OpeningFcn(hObject, eventdata, handles, varargin)
 global SD
 global filedata
-global sdgui   % Global variable used only in this file for keeping track of any child gui handles
-
 
 set(hObject, 'visible','off');
 
 SD = [];
 filedata.SD = [];
-sdgui = struct('hViewChannelsGUI',[]);
+
 
 % Choose default command line output for SDgui
 handles.output = hObject;
@@ -68,26 +66,19 @@ SDgui_version(hObject);
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 setGuiFonts(hObject);
 
-popupmenuSpatialUnit_Callback([], [], handles);
+popupmenuSpatialUnit_Callback([], [], handles)
 
 
 
 
 % -------------------------------------------------------------------
 function SDgui_DeleteFcn(hObject, eventdata, handles)
-global sdgui
 global filedata
 
 filedata.SD = [];
 
 hSDgui = get(get(hObject,'parent'),'parent');
 delete(hSDgui);
-
-if ~isempty(sdgui)
-    if ishandles(sdgui.hViewChannelsGUI)
-        delete(sdgui.hViewChannelsGUI);
-    end
-end
 
 
 
@@ -186,6 +177,54 @@ end
 
 
 
+
+% -------------------------------------------------------------------
+function [fname, pname] = getCurrPathname(arg)
+fname = '';
+pname = '';
+if isempty(arg)
+    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pwd);
+    if(fname == 0)
+        pname = filesepStandard(pwd);
+        fname = [];        
+    end
+    pname = filesepStandard(pname);
+    return
+elseif ~ischar(arg{1})
+    pname = pwd;
+    return;
+end
+
+filename = arg{1};
+[pname, fname, ext] = fileparts(filename);
+pname = filesepStandard(pname);
+if ~isempty(fname) && isempty(ext)
+    ext = '.SD';
+end
+directory = dir(pname);
+
+file = [];
+if ~isempty(fname)
+    file = dir([pname, fname, ext]);
+end
+
+if isempty(directory)
+    pname = filesepStandard(pwd);
+end
+if isempty(file)
+    [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pname);
+    if(fname == 0)
+        pname = filesepStandard(pwd);
+        fname = [];
+        return
+    end
+    ext = '';
+end
+pname = filesepStandard(pname);
+fname = [fname, ext];
+
+
+
 % -------------------------------------------------------------------
 function sd_filename_edit_Callback(hObject, eventdata, handles)
 filename = get(hObject,'string');
@@ -235,28 +274,38 @@ end
 % ------------------------------------------------------------------
 function checkboxNinjaCap_Callback(hObject, eventdata, handles)
 
-
+    optode_src_tbl_Update(handles);
+    optode_det_tbl_Update(handles);
+    optode_dummy_tbl_Update(handles);
 
 % ------------------------------------------------------------------
 function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
 global SD
 
-choices = {'mm','cm'};
 if ~ishandles(hObject)
+    set(handles.popupmenuSpatialUnit, 'string', {'cm', 'mm'});
     hObject = handles.popupmenuSpatialUnit;
+    strs = get(hObject, 'string');
+    idx = find(strcmp(strs, SD.SpatialUnit));
+    if ~isempty(idx) && (idx <= length(strs))
+        set(hObject, 'value', idx);
+    end
 end
-set(hObject, 'string', choices);
-k = find(strcmp(SD.SpatialUnit, choices));
-if isempty(k)
-    k = 1;
-end
-set(hObject, 'value', k);
+strs = get(hObject, 'string');
+idx = get(hObject, 'value');
+SD.SpatialUnit = strs{idx};
 
 
 
-% --------------------------------------------------------------------
-function menuItemViewChannels_Callback(hObject, eventdata, handles)
-global sdgui
-sdgui.hViewChannelsGUI = ViewChannelsGUI();
+% --- Executes during object creation, after setting all properties.
+function optode_tbls_panel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to optode_tbls_panel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
 
 
+% --- Executes during object creation, after setting all properties.
+function optode_src_tbl_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to optode_src_tbl (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called

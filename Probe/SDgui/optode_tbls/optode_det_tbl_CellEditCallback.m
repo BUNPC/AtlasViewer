@@ -9,6 +9,9 @@ tbl_data = get(hObject,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
 
+% if c == 5
+%     tbl_data(r,c) = string(tbl_data(r,c));
+% end
 ncoord = sd_data_GetCoordNum();
 detdata = zeros(1, ncoord);
 action = '';
@@ -71,6 +74,9 @@ sd_data_SetDetPos(tbl_data(1:tbl_size,:))
 
 % GrommetType 
 sd_data_SetDetGrommetType(tbl_data(1:tbl_size, ncoord+1))
+
+% GrommetType 
+sd_data_SetDetGrommetRot(tbl_data(1:tbl_size, ncoord+2))
 
 % Update table
 optode_tbl_Update(hObject, tbl_data, tbl_size, r, c);

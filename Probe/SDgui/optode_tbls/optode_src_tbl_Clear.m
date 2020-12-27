@@ -1,6 +1,6 @@
 function optode_src_tbl_Clear(handles)
 
-optode_tbl_CreateFcn(handles.optode_src_tbl, 100, {'x','y','z','Grommet Type'});
+optode_tbl_CreateFcn(handles.optode_src_tbl, 100, {'x','y','z','Grommet Type','Grommet Rot'});
 if get(handles.optode_src_tbl_srcmap_show, 'value')
     init_srcmap_tbl(handles.optode_src_tbl)
 end
