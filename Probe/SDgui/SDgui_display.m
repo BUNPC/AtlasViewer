@@ -63,9 +63,10 @@ else
 end
 
 % Set ninja cap checkbox if any of the grommet types set to None
-if sd_data_AnyGrommetTypeSet()
-    set(handles.checkboxNinjaCap, 'value',1)
-end
+% DAB also default to not display. 
+%if sd_data_AnyGrommetTypeSet()
+%    set(handles.checkboxNinjaCap, 'value',1)
+%end
 
 % Set spatial unit dropdown menu
 strs = get(handles.popupmenuSpatialUnit, 'string');
