@@ -27,16 +27,17 @@ if ~get(handles.checkboxNinjaCap, 'value')
     return
 end
 
-if isfield(SD,'SrcGrommetType')
-    if ~all(strcmpi(SD.SrcGrommetType, 'none')==0)
-        msg = accumulateWanings(msg, 'Not all source grommet types have been set.');
-    end
-end
-if isfield(SD,'DetGrommetType')
-    if ~all(strcmpi(SD.DetGrommetType, 'none')==0)
-        msg = accumulateWanings(msg, 'Not all detector grommet types have been set.');
-    end
-end
+% DAB REMOVED THIS 12/26/20.... not sure why we want it.
+% if isfield(SD,'SrcGrommetType')
+%     if ~all(strcmpi(SD.SrcGrommetType, 'none')==0)
+%         msg = accumulateWanings(msg, 'Not all source grommet types have been set.');
+%     end
+% end
+% if isfield(SD,'DetGrommetType')
+%     if ~all(strcmpi(SD.DetGrommetType, 'none')==0)
+%         msg = accumulateWanings(msg, 'Not all detector grommet types have been set.');
+%     end
+% end
 
 
 

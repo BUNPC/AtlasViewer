@@ -70,12 +70,12 @@ elseif numel(dir([dirname, '*.SD'])) ~= 0
     SD_files = dir([dirname, '*.SD']);
     if numel(SD_files) == 1
         filedata = load([dirname, SD_files.name], '-mat');
-%         SD = filedata.SD;
+        SD = filedata.SD;
 %         save([dirname, 'probe.SD'],'-mat', 'SD');
     else
         [filename,pathname] = uigetfile('*.SD','Please select the SD file you want to load');
         filedata = load([pathname filename], '-mat');
-%         SD = filedata.SD;
+        SD = filedata.SD;
 %         save([dirname, 'probe.SD'],'-mat', 'SD');
     end
     

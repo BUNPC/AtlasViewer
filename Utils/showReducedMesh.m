@@ -35,11 +35,12 @@ if q==1
             mesh = fv;
         end
     end
+    
+    close(hf);
 end
 
 nodeX = mesh.vertices;
 elem  = mesh.faces; 
 nNode = size(nodeX,1);
 
-close(hf);
 
