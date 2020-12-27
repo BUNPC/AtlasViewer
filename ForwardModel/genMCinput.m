@@ -14,6 +14,8 @@
 
 function fwmodel = genMCinput(fwmodel, probe, dirnameSubj)
 
+hWait = waitbar(0,'Generating MC input files');
+
 if ~isempty(dir([dirnameSubj, './fw/fw*.inp']))
     delete([dirnameSubj, './fw/fw*.inp']);
 end
@@ -56,6 +58,7 @@ if ~exist([fwmodel.mc_exepath, '/', fwmodel.mc_exename], 'file')
     % Find MC application
     fwmodel = findMCapp(fwmodel);
     if isempty(fwmodel.mc_exename)
+        close(hWait);
         return;
     end
     
@@ -216,4 +219,7 @@ for iWav = 1:num_wavelengths
 end
 
 fclose(fid_batch);
+
+close(hWait);
+
 
