@@ -82,6 +82,9 @@ sd_data_SetDummyPos(tbl_data(1:tbl_size, coordCols));
 % GrommetType 
 sd_data_SetDummyGrommetType(tbl_data(1:tbl_size, coordCols(end)+1))
 
+% GrommetRot
+sd_data_SetDummyGrommetRot(tbl_data(1:tbl_size, coordCols(end)+2))
+
 %%%% Add source map to table data
 userdata.tbl_size = tbl_size;
 set(hObject,'data',tbl_data,'userdata',userdata);

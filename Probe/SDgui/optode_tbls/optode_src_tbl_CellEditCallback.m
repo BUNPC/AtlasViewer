@@ -72,6 +72,9 @@ sd_data_SetSrcPos(tbl_data(1:tbl_size,:))
 % GrommetType 
 sd_data_SetSrcGrommetType(tbl_data(1:tbl_size, ncoord+1))
 
+% GrommetRot 
+sd_data_SetSrcGrommetRot(tbl_data(1:tbl_size, ncoord+2))
+
 % SrcMap
 sd_data_SetSrcMap()
 

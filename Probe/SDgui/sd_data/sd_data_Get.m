@@ -32,6 +32,30 @@ switch lower(datatype)
             SD.DummyGrommetType = repmat(c(end), size(SD.DummyPos,1), 1);
         end
 	    data = SD.DummyGrommetType;
+    case {'srcgrommetrot'}
+        if ~isfield(SD,'SrcGrommetRot')
+            SD.SrcGrommetRot = repmat({0}, size(SD.SrcPos,1), 1);
+        end
+        if isempty(SD.SrcGrommetRot)
+            SD.SrcGrommetRot = repmat({0}, size(SD.SrcPos,1), 1);
+        end
+        data = SD.SrcGrommetRot;
+    case {'detgrommetrot'}
+        if ~isfield(SD,'DetGrommetRot')
+            SD.DetGrommetRot = repmat({0}, size(SD.DetPos,1), 1);
+        end
+        if isempty(SD.DetGrommetRot)
+            SD.DetGrommetRot = repmat({0}, size(SD.DetPos,1), 1);
+        end
+        data = SD.DetGrommetRot;
+    case {'dummygrommetrot'}
+        if ~isfield(SD,'DummyGrommetRot')
+            SD.DummyGrommetRot = repmat({0}, size(SD.DummyPos,1), 1);
+        end
+        if isempty(SD.DummyGrommetRot)
+            SD.DummyGrommetRot = repmat({0}, size(SD.DummyPos,1), 1);
+        end
+        data = SD.DummyGrommetRot;
     case {'dummypos'}
         data = SD.DummyPos;
     case {'nsrcs'}
