@@ -113,7 +113,7 @@ num_phot = fwmodel.nphotons;
 if ispc()
     fid_batch   = fopen([dirnameOut, 'fw_all.bat'], 'wt');
     fprintf(fid_batch, 'echo 0 > "%s/.fw_all_start"\n', dirnameOut);
-    stopFileCmdStr = sprintf('echo. 2>"%s/.fw_all_stop"\n', dirnameOut);
+    stopFileCmdStr = sprintf('echo 2 >"%s/.fw_all_stop"\n', dirnameOut);
 else
     fid_batch = fopen([dirnameOut, 'fw_all.csh'], 'wt');
     fprintf(fid_batch, 'touch "%s/.fw_all_start"\n', dirnameOut);
