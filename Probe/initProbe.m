@@ -156,3 +156,13 @@ probe.SrcGrommetType = probe2.SrcGrommetType;
 probe.DetGrommetType = probe2.DetGrommetType;
 probe.DummyGrommetType = probe2.DummyGrommetType;
 
+if isfield(probe2,'SrcGrommetRot')
+    probe.SrcGrommetRot = probe2.SrcGrommetRot;
+end
+if isfield(probe2,'DetGrommetRot')
+    probe.DetGrommetRot = probe2.DetGrommetRot;
+end
+if isfield(probe2,'DummyGrommetRot')
+    probe.DummyGrommetRot = probe2.DummyGrommetRot;
+end
+

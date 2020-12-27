@@ -94,6 +94,24 @@ else
     probe.DummyGrommetType = {};
 end
 
+% get grommet rotation informationf from SD and add it to the probe. If not
+% intialize the grommet rotations to zero.
+if isfield(SD,'SrcGrommetRot')
+    probe.SrcGrommetRot = SD.SrcGrommetRot;
+else
+    probe.SrcGrommetRot = zeros(size(probe.SrcGrommetType));
+end
+if isfield(SD,'DetGrommetRot')
+    probe.DetGrommetRot = SD.DetGrommetRot;
+else
+    probe.DetGrommetRot = zeros(size(probe.DetGrommetType));
+end
+if isfield(SD,'DummyGrommetRot')
+    probe.DummyGrommetRot = SD.DummyGrommetRot;
+else
+    probe.DummyGrommetRot = zeros(size(probe.DummyGrommetType));
+end
+
 probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
 probe.nopt = size(probe.optpos, 1);
 probe.noptorig = size([probe.srcpos; probe.detpos],1);
