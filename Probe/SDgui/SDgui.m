@@ -315,13 +315,11 @@ function optode_src_tbl_CreateFcn(hObject, eventdata, handles)
 function menuItemReorderOptodes_Callback(hObject, eventdata, handles)
 global SD
 
-x = inputdlg({'Source Order (leave empty to skip)','Detector Order (leave empty to skip)','Dummy Order (leave empty to skip)'})
+x = inputdlg({'Source Order (leave empty to skip)','Detector Order (leave empty to skip)'});
 
 if isempty(x)
     return
 end
-
-msg = '';
 
 
 MeasList = SD.MeasList;
@@ -334,7 +332,8 @@ if ~isempty(x{1})
     lstS = str2num(x{1});
     
     if length(unique(lstS))~=SD.nSrcs
-        msg=sprintf('%sSource list must reorder all sources\n',msg);
+        warndlg('Source list must reorder all sources');
+        return
     else
         SD.SrcPos = SD.SrcPos(lstS,:);
         
@@ -364,7 +363,8 @@ if ~isempty(x{2})
     lstD = str2num(x{2});
     
     if length(unique(lstD))~=SD.nDets
-        msg=sprintf('%sDetector list must reorder all detectors\n',msg);
+        warndlg('Detector list must reorder all sources');
+        return
     else
         SD.DetPos = SD.DetPos(lstD,:);
         
@@ -388,8 +388,32 @@ if ~isempty(x{2})
 end
 
 
+
+
+
+% Sort the MeasList
+MeasList2 = [];
+for iS = 1:SD.nSrcs
+    lst = find(MeasList(:,1)==iS & MeasList(:,4)==1);
+    mlTmp = MeasList(lst,:);
+    [foo,lst] = sort(mlTmp(:,2));
+    mlTmp = mlTmp(lst,:);
+    for ii=1:length(lst)
+        MeasList2(end+1,:) = mlTmp(ii,:);
+    end
+end
+
+nWav = length(SD.Lambda);
+MeasList3 = MeasList2;
+for ii=2:nWav
+    foo = MeasList2;
+    foo(:,4) = ii;
+    MeasList3 = [MeasList3; foo];
+end
+
+
 % Update
-SD.MeasList = MeasList;
+SD.MeasList = MeasList3;
 SD.SpringList = SpringList;
 SD.AnchorList = AnchorList;
 
