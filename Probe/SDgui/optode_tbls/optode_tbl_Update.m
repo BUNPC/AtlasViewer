@@ -31,7 +31,7 @@ end
 % -------------------------------------------------
 function [r, c] = getNextCell(tbl_data, r, c)
 
-if c < size(tbl_data,1)
+if c < size(tbl_data,2)
     c = c+1;
     return
 end
