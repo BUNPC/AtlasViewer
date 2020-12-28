@@ -34,6 +34,13 @@ end
 
 [mc_output_ext, loadMCFuncPtr] = getMCoutputExt(fwmodel.mc_appname);
 
+if ~isempty( fwmodel.Adot)
+    q = menu('The Adot sensitivity profile has already been generated. Do you want to generate it again?','Yes','No');
+    if q==1
+        fwmodel.Adot=[];
+    end
+end
+
 if isempty(fwmodel.Adot)
 
     [mapMesh2Vox, fwmodel]        = projVoltoMesh_brain(fwmodel, dirnameOut); 
@@ -50,8 +57,10 @@ if isempty(fwmodel.Adot)
     ny = size(fwmodel.headvol.img,2);
     nz = size(fwmodel.headvol.img,3);
         
-    nMeas = size(probe.ml,1);
-    if nMeas==0;
+    iWav = unique(probe.ml(:,4));
+    lst = find(probe.ml(:,4)==iWav(1));
+    nMeas = length(lst);
+    if nMeas==0
         return;
     end
     
@@ -60,6 +69,8 @@ if isempty(fwmodel.Adot)
      
     nWav = fwmodel.nWavelengths;
 
+    hwait = waitbar(0,sprintf('Loading measurement %d of %d',0,nMeas*nWav));
+    
     % Sensitivity values for low-res pial mesh for all measurement pair
 
     Adot = single(zeros(nMeas,nNode,nWav));
@@ -79,7 +90,6 @@ if isempty(fwmodel.Adot)
     end
     
     % loop over measurements
-    hwait = waitbar(0,sprintf('Loading measurement %d of %d',0,nMeas*nWav));
     iM2 = 0;
     for iW = 1:nWav
         % Get tissue absorption and replace voxels equal to that tissue value
