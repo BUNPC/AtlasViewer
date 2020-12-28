@@ -1441,21 +1441,21 @@ if qAdotExists~=1
         end
     else
         if ismember(-1,fwmodel.errMCoutput)
-            q = menu(sprintf('MC input does not match current probe. Generate new input and output?'),...
+            q = menu(sprintf('MC input does not match current probe. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
                 'Yes','No');
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         elseif ismember(-2,fwmodel.errMCoutput)
-            q = menu(sprintf('MC input doesn''t match current MC settings. Generate new input and output?'),...
+            q = menu(sprintf('MC input doesn''t match current MC settings. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
                 'Yes','No');
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         elseif all(fwmodel.errMCoutput>1)
-            q = menu(sprintf('MC input exists but newer than ouput. Generate new input and output?'),...
+            q = menu(sprintf('MC input exists but newer than ouput. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
                 'Yes','No');
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
@@ -1463,7 +1463,7 @@ if qAdotExists~=1
             end
         elseif all(fwmodel.errMCoutput>0)
             q = menu(sprintf('MC input exists but no output.'),...
-                'Overwrite input and generate output',...
+                sprintf('Overwrite input and generate output for MC app %s',fwmodel.mc_appname),...
                 'Generate new output only',...
                 'Cancel');
             if q==1
@@ -1473,8 +1473,12 @@ if qAdotExists~=1
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         else
-            fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
-            fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
+            q = menu(sprintf('Generate new input and output for MC app %s?',fwmodel.mc_appname),...
+                'Yes','No');
+            if q==1
+                fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
+                fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
+            end
         end
     end
 end
