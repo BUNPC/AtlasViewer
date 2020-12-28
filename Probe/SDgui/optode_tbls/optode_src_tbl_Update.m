@@ -36,17 +36,13 @@ if srcmap_show
 end
 
 if get(handles.checkboxNinjaCap,'Value') == 0
-    A(:,4:end) = [];
-    cnames(4:end) = [];
-    cwidth(4:end) = [];
-    ceditable(4:end) = [];
+    cwidth{4} = 0;
+    cwidth{5} = 0;
 else
-    if length(cnames) == 3
-        cnames{4} = 'Grommet Type';
-        cnames{5} = 'Grommet Rot';
-        cwidth{4} = 100;
-        cwidth{5} = 100;
-    end
+    cnames{4} = 'Grommet Type';
+    cnames{5} = 'Grommet Rot';
+    cwidth{4} = 100;
+    cwidth{5} = 100;
 end
 % Update uitable with table data
 set(handles.optode_src_tbl, 'Data',A, 'ColumnName',cnames, 'ColumnWidth',cwidth);
