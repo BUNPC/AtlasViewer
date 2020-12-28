@@ -48,7 +48,7 @@ end
 dirnameSubj = getSubjDir(argExtern);
 dirnameAtlas = getAtlasDir(argExtern);
 
-fprintf('AtlasViewerGUI (%s):\n', version2string());
+fprintf('%s\n', banner);
 fprintf('   dirnameApp = %s\n', getAppDir_av());
 fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', dirnameSubj);
@@ -78,6 +78,7 @@ objs.fs2viewer   = initFs2Viewer(handles,dirnameSubj);
 
 fprintf('   MC application path = %s\n', objs.fwmodel.mc_exepath);
 fprintf('   MC application binary = %s\n', objs.fwmodel.mc_exename);
+fprintf('\n');
 
 fields = fieldnames(objs);
 
@@ -298,7 +299,7 @@ end
     
     
 % --------------------------------------------------------------------
-function Edit_Probe_Callback(~, ~, ~) %#ok<*DEFNU>
+function Edit_Probe_Callback(~, ~, ~) %#ok<DEFNU>
 global atlasViewer;
 
 %%%% close GUI
@@ -308,76 +309,68 @@ if ~isempty(hij)
 end
 
 %%%% replace Edit_Probe.fig if it's oversized
-if ismac()
-    P=regexp(path, ':', 'split'); %%% search path for Probe designer path
-else
-    P=regexp(path, ';', 'split'); %%% search path for Probe designer path
-end
-for i=1:size(P,2)
-    if findstr(P{1,i},'NIRS_Probe_Designer_V1')
-        CP=P{1,i}; %%% current path
-        L=findstr(CP,'NIRS_Probe_Designer_V1');
-        %%% check for path seperator
-        if ~isempty(findstr(CP,'/'))
-            PS='/';
-        elseif ~isempty(findstr(CP,'\'))
-            PS='\';
-        end
-        
-        Main_Folder=[CP PS];
-        File_Full_Path=[Main_Folder 'Edit_Probe.fig'];
-        fileInfo=dir(File_Full_Path);
-        fileSize = fileInfo.bytes;
-        if fileSize>100000  %%% check if the file is oversized
-            delete(File_Full_Path);
-            
-            SOURCE=[Main_Folder 'functions' PS 'Edit_Probe_backup.fig'];
-            DESTINATION=Main_Folder;
-            copyfile(SOURCE,DESTINATION,'f');
-            
-            %%% rename file
-            movefile([Main_Folder 'Edit_Probe_backup.fig'],[Main_Folder 'Edit_Probe.fig']);
-        end
-        break;
+SOURCE      = which('Edit_Probe_backup.fig');
+DESTINATION = which('Edit_Probe.fig');
+if ~isempty(SOURCE) && ~isempty(DESTINATION)
+    if GetFileSize(DESTINATION) > 100000  %%% check if the file is oversized
+        delete(DESTINATION);
+        copyfile(SOURCE,DESTINATION,'f');
     end
+elseif isempty(DESTINATION)
+    return;
 end
-%%%% read meshes and optode positions
-Hh=get(atlasViewer.headsurf.handles.surf); %%% head surface mesh
-headsurf.vertices=Hh.Vertices;
-headsurf.faces=Hh.Faces;
-headsurf.normals=Hh.VertexNormals;
 
-Hc=get(atlasViewer.pialsurf.handles.surf); %%% head surface mesh
-cortexsurf.vertices=Hc.Vertices;
-cortexsurf.faces=Hc.Faces;
-elec=[];
-for i=1:size(atlasViewer.refpts.handles.circles,1)
-    refpts{i,1}=atlasViewer.refpts.pos(i,:);
-    elec=[elec; refpts{i,1}];
-    h1=get(atlasViewer.refpts.handles.labels(i,1));
-    refpts{i,2}=h1.String;
-    refpts{i,3}=atlasViewer.refpts.orientation;
+%%%% NOTE: since we're getting the true vertex positions from the graphics handle
+%%%% rather than the mesh field of headsurf (which does contain the true
+%%%% positions) we need to apply axes_order. The reason to get it from the 
+%%%% graphics handle rather than headsurf.mesh is for the normals, to keep that 
+%%%% straight between vertices and normals we use the graphics handle. 
+if leftRightFlipped(atlasViewer.refpts)
+    axes_order = [2,1,3];
+else
+    axes_order = [1,2,3];
 end
-probe=atlasViewer.probe;   %%%% probe
-[optodes,channels]=Edit_Probe(headsurf,cortexsurf,refpts,probe);
-atlasViewer.probe.optpos_reg=optodes;   
-atlasViewer.probe.mlmp=channels;   
+Hh = get(atlasViewer.headsurf.handles.surf); %%% head surface mesh
+headsurf.vertices = Hh.Vertices(:,axes_order);
+headsurf.faces    = Hh.Faces;
+if ~isempty(Hh.VertexNormals)
+    headsurf.normals = Hh.VertexNormals(:,axes_order);
+else
+    fv.vertices      = headsurf.vertices;
+    fv.faces         = headsurf.faces;
+    headsurf.normals = patchnormals(fv);
+end
 
+for i = 1:size(atlasViewer.refpts.handles.circles,1)
+    refpts{i,1} = atlasViewer.refpts.pos(i,:);
+    refpts{i,2} = atlasViewer.refpts.labels{i};
+    refpts{i,3} = atlasViewer.refpts.orientation;
+end
+probe = atlasViewer.probe;   %%%% probe
+if isempty(probe.optpos_reg)
+    menu('There was a problem launching Edit_Probe. Probe is missing or is not registered to head.', 'OK');
+    return;
+end
+[optodes, channels] = Edit_Probe(headsurf, refpts, probe, axes_order, 'userargs');
+if isempty(optodes)
+    return;
+end
+atlasViewer.probe.mlmp = channels;   
 
 %%% update optode positions    
 for i=1:size(optodes,1)
-    set(atlasViewer.probe.handles.hOptodes(i,1),'Position',optodes(i,:));
-    set(atlasViewer.probe.handles.hOptodesCircles(i,1),'XData',optodes(i,1),'YData',optodes(i,2),'ZData',optodes(i,3));
+    atlasViewer.probe.optpos_reg(i,:) = optodes(i,:);   
+    set(atlasViewer.probe.handles.hOptodes(i,1),'Position',optodes(i,axes_order));
+    set(atlasViewer.probe.handles.hOptodesCircles(i,1),'XData',optodes(i,axes_order(1)),'YData',optodes(i,axes_order(2)),'ZData',optodes(i,axes_order(3)));
 end
 
 %%%% update NIRS channel positions
-ml=atlasViewer.probe.ml;
-Num_Scr=atlasViewer.probe.nsrc;
-for i=1:size(ml,1)
-%     h=get(atlasViewer.probe.handles.hMeasList(i,1));
-    XData=[optodes(ml(i,1),1) optodes(ml(i,2)+Num_Scr,1)];
-    YData=[optodes(ml(i,1),2) optodes(ml(i,2)+Num_Scr,2)];
-    ZData=[optodes(ml(i,1),3) optodes(ml(i,2)+Num_Scr,3)];
+ml = atlasViewer.probe.ml;
+Num_Scr = atlasViewer.probe.nsrc;
+for i = 1:size(ml,1)
+    XData = [optodes(ml(i,1),axes_order(1)) optodes(ml(i,2)+Num_Scr,axes_order(1))];
+    YData = [optodes(ml(i,1),axes_order(2)) optodes(ml(i,2)+Num_Scr,axes_order(2))];
+    ZData = [optodes(ml(i,1),axes_order(3)) optodes(ml(i,2)+Num_Scr,axes_order(3))];
     set(atlasViewer.probe.handles.hMeasList(i,1),'XData',XData,'YData',YData,'ZData',ZData)
 end
 
@@ -456,11 +449,9 @@ end
 
 groupSubjList = {};
 for ii=1:length(groupSubjList0)
-    pp = getpathparts(groupSubjList0{ii});
-    
-    subjListboxStr = pp{end};
+    [~, subjListboxStr] = fileparts(groupSubjList0{ii});    
     if ii>1
-        subjListboxStr = ['  ', pp{end}];
+        subjListboxStr = ['  ', subjListboxStr];
     end
     groupSubjList{ii} = subjListboxStr; %#ok<AGROW>
 end
@@ -488,8 +479,7 @@ hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList, '
 setappdata(hGroupList, 'groupSubjList', groupSubjList0);
 
 % Initilize listbox selection to current subject folder
-pp = getpathparts(pwd);
-subjname = pp{end};
+[~, subjname] = fileparts(pwd);
 k =  find(strcmp(strtrim(groupSubjList), subjname));
 if ~isempty(k)
     set(hGroupList, 'value', k);
@@ -520,6 +510,8 @@ end
 initAxesv(handles);
 
 atlasViewer.currElem = [];
+
+PrintSystemInfo([], 'AtlasViewer');
 
 [groupSubjList, dirnameSubj, group] = InitGroup(varargin);
 hGroupList=[];
@@ -589,8 +581,9 @@ set(atlasViewer.handles.listboxGroupTree,'units','pixels');
 p1 = get(handles.AtlasViewerGUI,'Position');
 p2 = get(atlasViewer.handles.listboxGroupTree,'Position');
 set(atlasViewer.handles.listboxGroupTree,'Position',[(p1(1)-(p2(3)*k)), p2(2), p2(3), p2(4)]);
-p = guiOutsideScreenBorders(atlasViewer.handles.listboxGroupTree);
-set(atlasViewer.handles.listboxGroupTree, 'units','characters', 'position',p);
+
+% Make sure dialog is within screen bounds
+rePositionGuiWithinScreen(atlasViewer.handles.listboxGroupTree);
 
 
 
@@ -1858,32 +1851,6 @@ caxis(clim);
 
 axesv(1).handles.axesSurfDisplay = hAxes;
 camzoom(axesv(1).handles.axesSurfDisplay, 1.3*axesv(1).zoomincr);
-
-
-
-
-% --------------------------------------------------------------------
-function menuItemConvertEZStoDigPts_Callback(hObject, eventdata, handles)
-global atlasViewer
-
-[filenm,pathnm] = uigetfile('*.ezs','Choose .ezs file to convert');
-if filenm==0
-    return;
-end
-
-wd = cd();
-cd(pathnm)
-ezmapper2txt(filenm);
-cd(wd)
-
-atlasViewer.digpts = getDigpts(atlasViewer.digpts, atlasViewer.dirnameSubj);
-atlasViewer.probe = getProbe(atlasViewer.probe, ...
-                             atlasViewer.dirnameSubj, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.headsurf, ...
-                             atlasViewer.digpts, ...
-                             atlasViewer.refpts);
-atlasViewer.probe = displayProbe(atlasViewer.probe);
 
 
 
@@ -3553,23 +3520,20 @@ set(refpts.handles.uipanelHeadDimensions, 'visible',valstr);
 
 % --------------------------------------------------------------------
 function menuItemInstallAtlas_Callback(~, ~, ~)
-global atlasViewer
-
-dirnameAtlas = atlasViewer.dirnameAtlas;
 
 % Find default folder where AV searches for atlases
-dirnameDst = fileparts(fileparts(getAtlasDir()));
-dirnameAtlasNew = selectAtlasDir();
+dirnameDst = filesepStandard(fileparts(fileparts(getAtlasDir())));
+dirnameAtlasNew = filesepStandard(selectAtlasDir());
 if isempty(dirnameAtlasNew)
     return;
 end
-pparts = getpathparts(dirnameAtlasNew);
+[~, pname] = fileparts(dirnameAtlasNew(1:end-1));
 h = waitbar(0,'Installing new atlas, please wait...');
-if exist([dirnameDst, '/', pparts{end}], 'dir') == 7
-    fprintf('%s is already installed ... moving %s to %s_old\n', pparts{end}, pparts{end}, pparts{end});
-    copyfile(dirnameAtlas, [dirnameAtlas(1:end-1), '_old']); 
+if exist([dirnameDst, pname], 'dir') == 7
+    fprintf('%s is already installed ... moving %s to %s_old\n', pname, pname, pname);
+    copyfile([dirnameDst, pname], [dirnameDst, pname, '_old']); 
 end
-copyfile(dirnameAtlasNew, [dirnameDst, '/', pparts{end}]);
+copyfile(dirnameAtlasNew, [dirnameDst, pname]);
 waitbar(1, h, 'Installion completed.');
 pause(2);
 close(h);
@@ -3580,7 +3544,9 @@ close(h);
 % -------------------------------------------------------------------------------
 function togglebuttonMinimizeGUI_Callback(hObject, ~, handles)
 u0 = get(handles.AtlasViewerGUI, 'units');
+
 k = [1.0, 1.0, 0.8, 0.8];
+set(handles.AtlasViewerGUI, 'units','characters');
 p1_0 = get(handles.AtlasViewerGUI, 'position');
 if strcmp(get(hObject, 'string'), '--')
     set(hObject, 'tooltipstring', 'Maximize GUI Window')
@@ -3601,10 +3567,9 @@ elseif strcmp(get(hObject, 'string'), '+')
 end
 pause(.2)
 set(handles.AtlasViewerGUI, 'position', p1);
-p1 = guiOutsideScreenBorders(handles.AtlasViewerGUI);
-set(handles.AtlasViewerGUI, 'units','characters', 'position',p1);
-set(handles.AtlasViewerGUI, 'units',u0);
+rePositionGuiWithinScreen(handles.AtlasViewerGUI);
 
+set(handles.AtlasViewerGUI, 'units',u0);
 positionListboxGroupGUI(handles);
 
 
