@@ -19,8 +19,8 @@ offsetIdx = coordCols(1)-1;
 l = zeros(1, length(coordGrommetCols));
 jj = 1;
 for ii = coordGrommetCols
-    if ii>ncoord %strcmpi(tbl_data{r,ii},'none')
-        if all(l(1:ncoord)==0)
+    if ii>coordCols(end) %strcmpi(tbl_data{r,ii},'none')
+        if all(l(1:coordCols(end))==0)
             tbl_data{r,ii} = '';
         end
     end

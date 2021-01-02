@@ -23,17 +23,13 @@ end
 A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
 
 if get(handles.checkboxNinjaCap,'Value') == 0
-    A(:,5:end) = [];
-    cnames(5:end) = [];
-    cwidth(5:end) = [];
-    ceditable(5:end) = [];
+    cwidth{5} = 0;
+    cwidth{6} = 0;
 else
-    if length(cnames) == 4
-        cnames{5} = 'Grommet Type';
-        cnames{6} = 'Grommet Rot';
-        cwidth{5} = 100;
-        cwidth{6} = 100;
-    end
+    cnames{5} = 'Grommet Type';
+    cnames{6} = 'Grommet Rot';
+    cwidth{5} = 100;
+    cwidth{6} = 100;
 end
 
 % Update uitable with table data
