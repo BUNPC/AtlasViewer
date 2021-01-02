@@ -555,7 +555,12 @@ set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
 
 positionListboxGroupGUI(handles, 'init');
 
-
+% check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
+if exist('mcxlab.m','file')
+    set(handles.menuItemRunMCXlab,'enable','on');
+else
+    set(handles.menuItemRunMCXlab,'enable','off');
+end
 
 
 % -------------------------------------------------------------------
@@ -3572,4 +3577,61 @@ rePositionGuiWithinScreen(handles.AtlasViewerGUI);
 set(handles.AtlasViewerGUI, 'units',u0);
 positionListboxGroupGUI(handles);
 
+
+
+
+% --------------------------------------------------------------------
+function menuItemRunMCXlab_Callback(hObject, eventdata, handles)
+global atlasViewer
+
+fwmodel       = atlasViewer.fwmodel;
+imgrecon      = atlasViewer.imgrecon;
+dirnameSubj   = atlasViewer.dirnameSubj;
+probe         = atlasViewer.probe;
+axesv       = atlasViewer.axesv;
+hbconc      = atlasViewer.hbconc;
+pialsurf    = atlasViewer.pialsurf;
+
+qAdotExists = 0;
+
+% Check if there's a sensitivity profile which already exists
+if exist([dirnameSubj 'fw/Adot.mat'],'file')
+    qAdotExists = menu('Do you want to use the existing sensitivity profile in Adot.mat','Yes','No');
+    if qAdotExists == 1
+        fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, struct('EventName','Action'), handles);
+        if ~isempty(fwmodel.Adot)
+            enableDisableMCoutputGraphics(fwmodel, 'on');
+        end
+        return;
+    else
+        delete([dirnameSubj 'fw/Adot*.mat']);
+        fwmodel.Adot=[];
+    end
+end
+
+% run MCXlab
+fwmodel = runMCXlab( fwmodel, probe, dirnameSubj);
+
+% Set image popupmenu to sensitivity
+set(handles.popupmenuImageDisplay,'value',fwmodel.menuoffset+1);
+set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
+
+% Turn off image recon display
+imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off','off');
+hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
+
+fwmodel = displaySensitivity(fwmodel, pialsurf, [], probe);
+
+set(pialsurf.handles.radiobuttonShowPial, 'value',0);
+uipanelBrainDisplay_Callback(pialsurf.handles.radiobuttonShowPial, [], handles);
+
+if ~isempty(fwmodel.Adot)
+    imgrecon = enableImgReconGen(imgrecon,'on');
+    imgrecon.mesh = fwmodel.mesh;
+else
+    imgrecon = enableImgReconGen(imgrecon,'off');
+end
+
+atlasViewer.fwmodel = fwmodel;
+atlasViewer.imgrecon = imgrecon;
 
