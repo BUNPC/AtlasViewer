@@ -232,6 +232,8 @@ for iWav = 1:num_wavelengths
         cfg.detpos=[];
         
         cfg.issrcfrom0=1;
+        cfg.isnormalized = 1;
+        cfg.outputtype = 'fluence';
         
         cfg.prop=[         0         0    1.0000    1.0000 % background/air
             tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
@@ -255,7 +257,8 @@ for iWav = 1:num_wavelengths
         % by t_step and divide by flue.stat.normalizer (which appears to
         % equal 1 / scale)
 %         scale = flue.stat.energyabs / sum(flue.data(i_head) .* mua(i_head));
-         flue.data = flue.data * cfg.tstep / flue.stat.normalizer;
+%         flue.data = flue.data * cfg.tstep / flue.stat.normalizer;
+         flue.data = flue.data * cfg.tstep / flue.stat.normalizer;  % isfluence=1
         
         
         % Get fluence at all other optodes for Rytov approximation
