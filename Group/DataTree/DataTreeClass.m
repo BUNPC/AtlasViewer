@@ -35,7 +35,7 @@ classdef DataTreeClass <  handle
             if ~exist('groupDirs','var') || isempty(groupDirs)
                 groupDirs{1} = pwd;
             elseif ~isa(groupDirs, 'DataTreeClass') && ~iscell(groupDirs)
-                groupDirs = {groupDirs};                
+                groupDirs = {groupDirs};
             end
             
             % Arg 2: get the file format of the data files
@@ -52,7 +52,7 @@ classdef DataTreeClass <  handle
             if ~exist('options','var')
                 options = '';
             end
-                        
+            
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Now that we have all the arguments, ready to start
@@ -228,6 +228,14 @@ classdef DataTreeClass <  handle
                     end
                     obj.files = dataInit.files;
                     
+                    % Print file and folder numbers stats
+                    nfolders = length(dataInit.files)-dataInit.nfiles;
+                    if nfolders==0
+                        nfolders = 1;
+                    end
+                    obj.logger.Write(sprintf('DataTreeClass.FindAndLoadGroups: Found %d data files in %d folders\n', ...
+                            dataInit.nfiles, nfolders));
+                    
                     obj.LoadGroup(iGnew, procStreamCfgFile, options);
                     if length(obj.groups) < iGnew
                         if obj.FoundDataFilesInOtherFormat(dataInit, kk)
@@ -238,17 +246,15 @@ classdef DataTreeClass <  handle
                     end
                 end
                 
-            end
-            
-            obj.logger.Write(sprintf('Loaded data set in %0.1f seconds\n', toc));            
-            
+            end           
+            obj.logger.Write(sprintf('Loaded data set in %0.1f seconds\n', toc));
         end
         
         
                 
         % ---------------------------------------------------------------
         function SetDataStorageScheme(obj)
-            
+
             % If there is no config option that was used to set
             % dataStorageScheme then try to determine from saved data 
             % what the storage scheme is. Main user of this is AtlasViewer            
@@ -269,10 +275,11 @@ classdef DataTreeClass <  handle
             obj.groups.SaveMemorySpace(onoff);            
         end 
         
-        
+          
         
         % ---------------------------------------------------------------
         function AutoSetDataStorageScheme(obj)
+            % First try to load group
             g.group = GroupClass();
             if isvalidfile('./groupResults.mat')
                 g = load('./groupResults.mat');
@@ -284,6 +291,8 @@ classdef DataTreeClass <  handle
             elseif isvalidfile('../groupResults.mat')
                 g = load('../groupResults.mat');
             end
+            
+            % Now try to figure out how the derived data is stored
             if isa(g.group, 'GroupClass') && g.group.IsEmpty()
                 if g.group.subjs(1).runs(1).acquired.IsEmpty()
                     obj.dataStorageScheme = 'files';
@@ -328,14 +337,14 @@ classdef DataTreeClass <  handle
             % Initialize procStream for all tree nodes
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if ~optionExists(options, 'noloadconfig')
-                obj.groups(iG).InitProcStream(procStreamCfgFile);
+            	obj.groups(iG).InitProcStream(procStreamCfgFile);
             end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Generate the stimulus conditions for the group tree
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             obj.groups(iG).SetConditions();
-            
+
         end
         
         
