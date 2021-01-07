@@ -282,6 +282,16 @@ if ndims(dc) == 4   % if more than one condition
     dc = squeeze(dc(:,:,:,cond));
 end
 
+% use only active channels
+ml = SD.MeasList;
+if isfield(SD, 'MeasListAct') == 1
+    lstAct1 = find(ml(:,4)==1 & SD.MeasListAct==1);
+    lstAct = [lstAct1; lstAct1+length(lstAct1)/2];
+    Adot = Adot(lstAct1,:,:);
+    dc = dc(:,:,lstAct1,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
+end
+    
+    
 % convert dc back to dod
 dc(find(isnan(dc))) = 0;
 dod = hmrConc2OD( dc, SD, [6 6] );
@@ -290,25 +300,24 @@ dod = hmrConc2OD( dc, SD, [6 6] );
 yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
 
 % get long separation channels only for reconstruction
-ml = SD.MeasList;
-mlAct = SD.MeasListAct;
-lst = find(ml(:,4)==1);
+lst = find(ml(:,4)==1 & SD.MeasListAct==1);
 rhoSD = zeros(length(lst),1);
 posM = zeros(length(lst),3);
 for iML = 1:length(lst)
     rhoSD(iML) = sum((SD.SrcPos(ml(lst(iML),1),:) - SD.DetPos(ml(lst(iML),2),:)).^2).^0.5;
     posM(iML,:) = (SD.SrcPos(ml(lst(iML),1),:) + SD.DetPos(ml(lst(iML),2),:)) / 2;
 end
-lstLS = lst(find(rhoSD>=rhoSD_ssThresh));%%& mlAct(lst)==1) %#########NEED TO ADD mlAct LATER AND CORRECT SENSITIVITY MATRIX ACCORDINGLY
+lstLS = lst(find(rhoSD>=rhoSD_ssThresh));
 lstLS_all = [lstLS; lstLS+size(ml,1)/2]; % both wavelengths
 
 if isempty(lstLS_all)
-    menu('No channels selected. No channels meet the short separation threshold. Please lower the threshold and retry', 'Okay');
+    menu(sprintf('All channels meet short separation threshold.\nYou need some long separation channels for image recon.\nPlease lower the threshold and retry.'), 'Okay');
     return;
 end
 
 yavgimg = yavgimg(lstLS_all,:);
 SD.MeasList = SD.MeasList(lstLS_all,:);
+Adot = Adot(lstLS,:,:);
 
 if ~exist([dirnameSubj, '/imagerecon/'],'dir')
     mkdir([dirnameSubj, '/imagerecon']);
@@ -321,15 +330,7 @@ if value1 == 1 % brain only reconstruction after short separation regression
     E = E/10; %convert from /cm to /mm  E raws: wavelength, columns 1:HbO, 2:HbR
     Amatrix = [squeeze(Adot(:,:,1))*E(1,1) squeeze(Adot(:,:,1))*E(1,2);
                squeeze(Adot(:,:,2))*E(2,1) squeeze(Adot(:,:,2))*E(2,2)];
-    %########### CORRECT A MATRIX WITH LIST OF long and ACTIVE CHANNELS
-    
-    if isfield(SD, 'MeasListAct') == 1
-        lstA = SD.MeasListAct;
-        lstAct = find(lstA(1:size(lstA,1)/2) == 1);
-        lstAct = [lstAct; lstAct+size(lstA,1)/2];
-        Amatrix = Amatrix(lstAct,:);
-        yavgimg = yavgimg(lstAct);
-    end
+
     
     alpha = str2num(get(handles.alpha_brainonly,'String'));
     [HbO, HbR, err] = hmrImageReconConc(yavgimg, [], alpha, Amatrix);
