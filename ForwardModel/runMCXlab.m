@@ -171,12 +171,17 @@ if isempty(mapMesh2Vox)
     close(hWait);
     return;
 end
+[mapMesh2Vox_scalp, fwmodel]        = projVoltoMesh_scalp(fwmodel, dirnameOut);
+if isempty(mapMesh2Vox_scalp)
+    close(hWait);
+    return;
+end
 
 % Init stuff ---- ALREADY DEFINED nx, ny, nz, nWav ABOVE BY Dx, Dy, Dz, num_wavelengths
 %                 although nWav from from MeasList and num_wavelengths comes from tiss_prop 
 % from genSensitivityProfile.m
 nNode = size(fwmodel.mesh.vertices,1);
-% nNode_scalp = size(fwmodel.mesh_scalp.vertices,1);
+nNode_scalp = size(fwmodel.mesh_scalp.vertices,1);
 
 %nx = size(fwmodel.headvol.img,1);
 %ny = size(fwmodel.headvol.img,2);
@@ -187,7 +192,7 @@ nNode = size(fwmodel.mesh.vertices,1);
 %nMeas = length(lst);
 
 maxNVoxPerNode = size(mapMesh2Vox,2);
-% maxNVoxPerNode_scalp = size(mapMesh2Vox_scalp,2);
+maxNVoxPerNode_scalp = size(mapMesh2Vox_scalp,2);
 
 %nWav = fwmodel.nWavelengths;
 
@@ -199,6 +204,7 @@ close(hWait)
 hWait = waitbar(0,sprintf('Running MCXlab for optode 0 of %d',(num_wavelengths*nopt)) );
  
 flueMesh = zeros( nNode, nopt, num_wavelengths );
+flueMesh_scalp = zeros( nNode_scalp, nopt, num_wavelengths );
 flueDet = zeros( nopt, nopt, num_wavelengths ); % matrix for fluence detected at every optode from every other optode
 
 for iWav = 1:num_wavelengths
@@ -277,8 +283,9 @@ for iWav = 1:num_wavelengths
         end
         
         
-        % Project to the brain surface
+        % Project to the brain surface and scalp surface
         flueMesh(:,ii,iWav) = sum(reshape(flue.data(mapMesh2Vox(:)), [nNode,maxNVoxPerNode]),2);
+        flueMesh_scalp(:,ii,iWav) = sum(reshape(flue.data(mapMesh2Vox_scalp(:)), [nNode_scalp,maxNVoxPerNode_scalp]),2);
         
     end
 end
@@ -297,13 +304,15 @@ close(hWait)
 % We will want to add scalp as well
 iM2 = 0;
 Adot = single(zeros(nMeas,nNode,num_wavelengths));
+Adot_scalp = single(zeros(nMeas,nNode_scalp,num_wavelengths));
 hWait = waitbar(0,sprintf('Calculating Adot for measurement %d of %d',0,nMeas*num_wavelengths));
 for iWav = 1:num_wavelengths
     for iM=1:nMeas
         iM2 = iM2 + 1;
         waitbar(iM2/(nMeas*num_wavelengths),hWait,sprintf('Calculating Adot for measurement %d of %d',iM2,nMeas*num_wavelengths));
         
-        % load 2pt for given measurement from mc2 mcextreme output
+        % load 2pt for given measurement from mc2 mcextreme output for
+        % BRAIN
         iS = probe.ml(iM,1);
         As = flueMesh(:,iS,iWav);
         
@@ -317,6 +326,22 @@ for iWav = 1:num_wavelengths
             fprintf('No photons detected between Src %d and Det %d\n',iS,iD)
             Adot(iM,:,iWav) = zeros(size(As'));
         end
+        
+        % load 2pt for given measurement from mc2 mcextreme output for
+        % SCALP
+        iS = probe.ml(iM,1);
+        As = flueMesh_scalp(:,iS,iWav);
+        
+        iD = probe.ml(iM,2);
+        Ad = flueMesh_scalp(:,nsrc+iD,iWav);
+        
+        normfactor = (flueDet(iS,nsrc+iD,iWav) + flueDet(nsrc+iD,iS,iWav)) / 2;
+        if normfactor~=0
+            Adot_scalp(iM,:,iWav) = (As.*Ad)'/normfactor;
+        else
+            fprintf('No photons detected between Src %d and Det %d\n',iS,iD)
+            Adot_scalp(iM,:,iWav) = zeros(size(As'));
+        end
     end
 end
 
@@ -325,9 +350,9 @@ end
 tiss_prop = fwmodel.headvol.tiss_prop;
 nphotons = fwmodel.nphotons;
 save([dirnameOut 'Adot.mat'],'Adot', 'tiss_prop','nphotons');
-% save([dirnameOut 'Adot_scalp.mat'],'Adot_scalp','tiss_prop','nphotons');
+save([dirnameOut 'Adot_scalp.mat'],'Adot_scalp','tiss_prop','nphotons');
 fwmodel.Adot = Adot;
-% fwmodel.Adot_scalp = Adot_scalp;
+fwmodel.Adot_scalp = Adot_scalp;
 
 
 % ??? SET GUI VISIBILITY??? BACK IN CALLBACK
