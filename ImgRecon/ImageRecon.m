@@ -211,14 +211,11 @@ subjData    = imgrecon.subjData;
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
 
+HbO = []; %#ok<NASGU>
+HbR = []; %#ok<NASGU>
 
 % Error checking 
-if  isempty(subjData)
-    msg = sprintf('Subject data is missing. Cannot generate reconstructed image without it.');
-    menu(msg,'OK');
-    return;
-end
-if  value1 == 0 & value2 == 0
+if  value1 == 0 & value2 == 0 %#ok<*AND2>
     msg = sprintf('Please choose one image reconstruction option.');
     menu(msg,'OK');
     return;
@@ -232,7 +229,7 @@ if value1 == 1 & isempty(Adot)
     menu('You need the file fw/Adot.mat to perform this image reconstruction.','Okay');
     return;
 end
-if value1 == 1 & ndims(Adot) < 3
+if value1 == 1 & ndims(Adot) < 3 %#ok<*ISMAT>
     menu('You need at least two wavelengths for image reconstruction.','Okay');
     return;
 end
@@ -244,12 +241,11 @@ if value2 == 1 & ndims(Adot_scalp) < 3
     menu('You need at least two wavelengths for image reconstruction.','Okay');
     return;
 end
-if cond<1 | cond>size(subjData.procResult.dcAvg.GetDataTimeSeries('reshape'), 4)
-    menu('Invalid condition for this time course.','Okay');
-    return;
-end
-if cond<1 | cond>size(subjData.procResult.dcAvg.GetDataTimeSeries('reshape'), 4)
-    menu('Invalid condition for this time course.','Okay');
+
+% Error checking to make sure subject data exists before accessing it
+if  isempty(subjData) || isempty(subjData.procResult) || isempty(subjData.procResult.dcAvg)
+    msg = sprintf('Subject data is missing. Cannot generate reconstructed image without it.');
+    menu(msg,'OK');
     return;
 end
 
@@ -258,16 +254,23 @@ SD   = subjData.SD;
 dc   = subjData.procResult.dcAvg.GetDataTimeSeries('reshape');
 tHRF = subjData.procResult.dcAvg.GetTime();
 
+% Error checking of subject data itself
+if isempty(tHRF)
+    menu('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
+    return;
+end
 if isempty(dc)
     menu('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
     return;
 end
-if isempty(tHRF)
-    menu('Error: tHRFis missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
+if cond<1 | cond>size(dc, 4)
+    menu('Invalid condition for this time course.','Okay');
     return;
 end
-
-% More error checking 
+if cond<1 | cond>size(dc, 4)
+    menu('Invalid condition for this time course.','Okay');
+    return;
+end
 if tRangeimg(1)<tHRF(1) | tRangeimg(1)>tHRF(end) | tRangeimg(2)<tHRF(1) | tRangeimg(2)>tHRF(end)
     menu(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
     return;    
@@ -275,7 +278,7 @@ end
 
 h = waitbar(0,'Please wait, running...');
 
-if ndims(dc) == 4;   % if more than one condition
+if ndims(dc) == 4   % if more than one condition
     dc = squeeze(dc(:,:,:,cond));
 end
 
@@ -320,8 +323,6 @@ if ~exist([dirnameSubj, '/imagerecon/'],'dir')
     mkdir([dirnameSubj, '/imagerecon']);
 end
 
-HbO = [];
-HbR = [];
 if value1 == 1 % brain only reconstruction after short separation regression
        
     % put A matrix together and combine with extinction coefficients
@@ -345,11 +346,11 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     
        
     % get alpha and beta for regularization
-    alpha = str2num(get(handles.alpha_brain_scalp,'String'));
+    alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>
     beta = str2num(get(handles.beta_brain_scalp,'String'));
     
     % spatial regularization on brain only
-    for j = 1:size(Adot,3);
+    for j = 1:size(Adot,3)
         J = single(squeeze(Adot(:,:,j)));
         try
             JTJ = diag(J'*J);
@@ -423,7 +424,7 @@ if value1 == 1
     Aimg_conc = imgrecon.Aimg_conc;
     HbO = Aimg_conc.HbO;
     HbR = Aimg_conc.HbR;
-elseif value2 == 1;
+elseif value2 == 1
     Aimg_conc_scalp = imgrecon.Aimg_conc_scalp;
     HbO = Aimg_conc_scalp.HbO;
     HbR = Aimg_conc_scalp.HbR;
@@ -448,12 +449,12 @@ end
 
 hHbO = [];
 hHbR = [];
-if value1 == 1; % brain only
+if value1 == 1 % brain only
     
     HbO = Aimg_conc.HbO;
     HbR = Aimg_conc.HbR;
         
-elseif value2 == 1;
+elseif value2 == 1
     
     HbO = Aimg_conc_scalp.HbO;
     HbR = Aimg_conc_scalp.HbR;

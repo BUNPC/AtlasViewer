@@ -53,9 +53,9 @@ classdef ProcStreamClass < handle
             if isempty(obj)
                 obj = ProcStreamClass();
             end
-                        
+            
             kk=1;
-            for ii=1:length(obj2.fcalls)
+            for ii = 1:length(obj2.fcalls)                
                 % If registry is empty, then add fcall entries unconditionally.
                 % Otherwise only include those user function calls that exist in the registry.
                 if ~isempty(obj.reg.GetUsageName(obj2.fcalls(ii)))
@@ -506,7 +506,7 @@ classdef ProcStreamClass < handle
                 % to current usage name string length 
                 if lenName > maxnamelen
                     maxnamelen = lenName+1;
-                end
+                end                
             end
         end
         
@@ -651,7 +651,7 @@ classdef ProcStreamClass < handle
             obj.fcalls = FuncCallClass().empty();
             obj.ParseFile(fid, type);
             fclose(fid);
-            err=0;            
+            err=0;
         end
         
         
@@ -1036,7 +1036,7 @@ classdef ProcStreamClass < handle
                         end
                     end
                 end
-            end            
+            end
         end
         
     end
@@ -1385,7 +1385,7 @@ classdef ProcStreamClass < handle
         function [tpts, duration, vals] = GetStimData(obj, icond)
             tpts     = obj.GetStimTpts(icond);
             duration = obj.GetStimDuration(icond);
-            vals     = obj.GetStimValues(icond);
+            vals     = obj.GetStimAmplitudes(icond);
         end
         
     
@@ -1420,17 +1420,17 @@ classdef ProcStreamClass < handle
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimValues(obj, icond, vals)
-            obj.input.SetStimValues(icond, vals);
+        function SetStimAmplitudes(obj, icond, vals)
+            obj.input.SetStimAmplitudes(icond, vals);
         end
         
     
         % ----------------------------------------------------------------------------------
-        function vals = GetStimValues(obj, icond)
+        function vals = GetStimAmplitudes(obj, icond)
             if ~exist('icond','var')
                 icond=1;
             end
-            vals = obj.input.GetStimValues(icond);
+            vals = obj.input.GetStimAmplitudes(icond);
         end
                        
         
