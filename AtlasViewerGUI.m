@@ -181,6 +181,9 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
     fs2viewer  = getFs2Viewer(fs2viewer, dirnameSubj);
    
+else
+    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, currElem);    
+    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
 end
 
 
@@ -3598,6 +3601,7 @@ qAdotExists = 0;
 if exist([dirnameSubj 'fw/Adot.mat'],'file')
     qAdotExists = menu('Do you want to use the existing sensitivity profile in Adot.mat','Yes','No');
     if qAdotExists == 1
+        % JAY, I NEED TO FIX THIS FOR runMCXlab. WHAT DO I DO?
         fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, struct('EventName','Action'), handles);
         if ~isempty(fwmodel.Adot)
             enableDisableMCoutputGraphics(fwmodel, 'on');

@@ -288,6 +288,7 @@ if isfield(SD, 'MeasListAct') == 1
     lstAct1 = find(ml(:,4)==1 & SD.MeasListAct==1);
     lstAct = [lstAct1; lstAct1+length(lstAct1)/2];
     Adot = Adot(lstAct1,:,:);
+    Adot_scalp = Adot_scalp(lstAct1,:,:);
     dc = dc(:,:,lstAct1,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
     
@@ -318,6 +319,7 @@ end
 yavgimg = yavgimg(lstLS_all,:);
 SD.MeasList = SD.MeasList(lstLS_all,:);
 Adot = Adot(lstLS,:,:);
+Adot_scalp = Adot_scalp(lstLS,:,:);
 
 if ~exist([dirnameSubj, '/imagerecon/'],'dir')
     mkdir([dirnameSubj, '/imagerecon']);
@@ -387,8 +389,11 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     % all regularization (alpha and beta) is done above so here we put 0 to alpha!
     [HbO, HbR] = hmrImageReconConc(yavgimg, [], 0, Amatrix);
        
-    imgrecon.Aimg_conc_scalp.HbO = HbO;
-    imgrecon.Aimg_conc_scalp.HbR = HbR;
+    imgrecon.Aimg_conc.HbO = HbO(1:size(Adot,2));
+    imgrecon.Aimg_conc.HbR = HbR(1:size(Adot,2));
+
+    imgrecon.Aimg_conc_scalp.HbO = HbO((size(Adot,2)+1):end);
+    imgrecon.Aimg_conc_scalp.HbR = HbR((size(Adot,2)+1):end);
 end
 
 close(h); % close waitbar
@@ -425,9 +430,18 @@ if value1 == 1
     HbO = Aimg_conc.HbO;
     HbR = Aimg_conc.HbR;
 elseif value2 == 1
-    Aimg_conc_scalp = imgrecon.Aimg_conc_scalp;
-    HbO = Aimg_conc_scalp.HbO;
-    HbR = Aimg_conc_scalp.HbR;
+    if 1
+        Aimg_conc = imgrecon.Aimg_conc;
+        HbO = Aimg_conc.HbO;
+        HbR = Aimg_conc.HbR;
+    else
+	    Aimg_conc_scalp = imgrecon.Aimg_conc_scalp;
+	    HbO = Aimg_conc_scalp.HbO;
+	    HbR = Aimg_conc_scalp.HbR;
+	end
+else   
+    q = menu('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
+    return;
 end
 
 if isempty(imgrecon)
@@ -449,22 +463,6 @@ end
 
 hHbO = [];
 hHbR = [];
-if value1 == 1 % brain only
-    
-    HbO = Aimg_conc.HbO;
-    HbR = Aimg_conc.HbR;
-        
-elseif value2 == 1
-    
-    HbO = Aimg_conc_scalp.HbO;
-    HbR = Aimg_conc_scalp.HbR;
-                         
-else
-    
-    q = menu('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
-    return;
-    
-end
 
 % plot HbO
 hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);
