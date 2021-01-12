@@ -22,39 +22,36 @@ if isempty(answer)
     return;
 end
 while 1
-    err=zeros(1,length(params));
-    for ii=1:length(answer)
+    err = zeros(1,length(params));
+    for ii = 1:length(answer)
         if ~isnumber(answer{ii})
             err(ii)=1;
         end
         if length(str2num(answer{ii})) > 1
             err(ii)=2;
-        end
+        end        
+        if err(ii) ~= 0
+            q = MenuBox(sprintf('Invalid input for parameter # %d. Do you want to try again?', ii), {'Yes','No'});
+            if q==2
+                hbconc = [];
+                return;
+            end
+            answer = inputdlg(params,'Hb Conc Parameters', 1, defaultVals,'on');
+            if isempty(answer)
+                hbconc = [];
+                return;
+            end
+        end        
     end
     if ~all(err==0)
-        q = menu(sprintf('Invalid input for parameter # %d. Do you want to try again?', ii),'Yes','No');
-        if q==2
-            hbconc = [];
-            return;
-        end
-        answer = inputdlg(params,'Hb Conc Parameters', 1, defaultVals,'on');
-        if isempty(answer)
-            hbconc = [];
-            return;
-        end
         continue;
     end
-    for ii=1:length(answer)
-        eval(sprintf('hbconc.config.%s = str2num(answer{ii});', params{ii}));
-    end
-    break;
+    break
 end
 
 % Restore old values if there is input error
 for ii=1:length(params)
-    if errCheckParam(params{ii}, str2num(answer{ii}), hbconc.tHRF)
-        eval(sprintf('hbconc.config.%s = str2num(defaultVals{ii});', params{ii}));
-    end
+    eval(sprintf('hbconc.config.%s = str2num(answer{ii});', params{ii}));
 end
 
 

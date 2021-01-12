@@ -285,11 +285,8 @@ end
 % use only active channels
 ml = SD.MeasList;
 if isfield(SD, 'MeasListAct') == 1
-    lstAct1 = find(ml(:,4)==1 & SD.MeasListAct==1);
-    lstAct = [lstAct1; lstAct1+length(lstAct1)/2];
-    Adot = Adot(lstAct1,:,:);
-    Adot_scalp = Adot_scalp(lstAct1,:,:);
-    dc = dc(:,:,lstAct1,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
+    activeChLst = find(ml(:,4)==1 & SD.MeasListAct==1);
+    dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
     
     
@@ -308,8 +305,8 @@ for iML = 1:length(lst)
     rhoSD(iML) = sum((SD.SrcPos(ml(lst(iML),1),:) - SD.DetPos(ml(lst(iML),2),:)).^2).^0.5;
     posM(iML,:) = (SD.SrcPos(ml(lst(iML),1),:) + SD.DetPos(ml(lst(iML),2),:)) / 2;
 end
-lstLS = lst(find(rhoSD>=rhoSD_ssThresh));
-lstLS_all = [lstLS; lstLS+size(ml,1)/2]; % both wavelengths
+longSepChLst = lst(find(rhoSD>=rhoSD_ssThresh));
+lstLS_all = [longSepChLst; longSepChLst+size(ml,1)/2]; % both wavelengths
 
 if isempty(lstLS_all)
     menu(sprintf('All channels meet short separation threshold.\nYou need some long separation channels for image recon.\nPlease lower the threshold and retry.'), 'Okay');
@@ -318,8 +315,6 @@ end
 
 yavgimg = yavgimg(lstLS_all,:);
 SD.MeasList = SD.MeasList(lstLS_all,:);
-Adot = Adot(lstLS,:,:);
-Adot_scalp = Adot_scalp(lstLS,:,:);
 
 if ~exist([dirnameSubj, '/imagerecon/'],'dir')
     mkdir([dirnameSubj, '/imagerecon']);
@@ -327,6 +322,9 @@ end
 
 if value1 == 1 % brain only reconstruction after short separation regression
        
+    Adot = Adot(activeChLst,:,:);
+    Adot = Adot(longSepChLst,:,:);
+
     % put A matrix together and combine with extinction coefficients
     E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
     E = E/10; %convert from /cm to /mm  E raws: wavelength, columns 1:HbO, 2:HbR
@@ -346,6 +344,11 @@ if value1 == 1 % brain only reconstruction after short separation regression
     
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
     
+    Adot = Adot(activeChLst,:,:);
+    Adot = Adot(longSepChLst,:,:);
+
+    Adot_scalp = Adot_scalp(activeChLst,:,:);
+    Adot_scalp = Adot_scalp(longSepChLst,:,:);
        
     % get alpha and beta for regularization
     alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>

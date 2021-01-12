@@ -46,20 +46,28 @@ tRangeMax = hbconc.config.tRangeMax;
 if isempty(tHRF)
     startIdx = 1; 
     endIdx = length(tHRF);
-elseif tRangeMin<tHRF(1) | tRangeMin>tHRF(end) | tRangeMax<tHRF(1) | tRangeMax>tHRF(end)
+elseif tRangeMin<tHRF(1) && tRangeMax>tHRF(end)
     startIdx = 1; 
     endIdx = length(tHRF);
-    menu(sprintf('Invalid time rage entered; tHRF range [%0.1f - %0.1f]. Using whole tHRF...', tHRF(1), tHRF(end)), 'OK');
-elseif tRangeMin >= tRangeMax
-    startIdx = 1; 
+    MessageBox(sprintf('Invalid time range entered; Using whole tHRF range [%0.1f - %0.1f] ...', tHRF(1), tHRF(end)));
+elseif tRangeMin<tHRF(1) && tRangeMax<tHRF(end)
+    startIdx = 1;
+    [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
+    MessageBox(sprintf('Invalid min limit entered;  will use min tHRF of %0.1f ...', tHRF(1)));
+elseif tRangeMin>tHRF(1) && tRangeMax>tHRF(end)
+    [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
     endIdx = length(tHRF);
-    menu(sprintf('Invalid time rage entered; tHRF range [%0.1f - %0.1f]. Using whole tHRF...', tHRF(1), tHRF(end)), 'OK');
+    MessageBox(sprintf('Invalid max limit entered;  will use max tHRF of %0.1f ...', tHRF(end)));
 else
     [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
     [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
 end
+hbconc.config.tRangeMin = tHRF(startIdx);
+hbconc.config.tRangeMax = tHRF(endIdx);
+fprintf('Using tHRF range of [%0.1f - %0.1f]...\n', hbconc.config.tRangeMin, hbconc.config.tRangeMax);
+
 hbconc.HbO = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 1, :, iCond),  probe.ptsProj_cortex,  iCh);
 hbconc.HbR = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 2, :, iCond),  probe.ptsProj_cortex,  iCh);
 
-probe = setProbeDisplay(probe, [], [], iCh);
+setProbeDisplay(probe, [], [], iCh);
 
