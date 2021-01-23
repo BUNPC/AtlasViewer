@@ -1,6 +1,17 @@
-function C = str2cell(str, delimiters)
+function [C,k] = str2cell(str, delimiters, options)
 
-if ~exist('delimiters','var')
+% Option tells weather to keep leading whitespaces. 
+% (Trailing whitespaces are always removed)
+if ~exist('options','var')
+    options = '';
+end
+
+if ~strcmpi(options, 'keepblanks')
+    str = strtrim(str);
+end
+str = deblank(str);
+
+if ~exist('delimiters','var') || isempty(delimiters)
     delimiters{1} = sprintf('\n');
 elseif ~iscell(delimiters)
     foo{1} = delimiters;
@@ -8,23 +19,28 @@ elseif ~iscell(delimiters)
 end
 
 % Get indices of all the delimiters
-k=1;
+k=[];
 for kk=1:length(delimiters)
     k = [k, find(str==delimiters{kk})];
 end
-k = [k, length(str)];
+j = find(~ismember(1:length(str),k));
 
-% 
-C = cell(length(k)-1,1);
-for ii=1:length(C)
-    if ii==1 && ii==length(C)
-        C{ii} = str(k(ii):k(ii+1));
-    elseif ii==1
-        C{ii} = str(k(ii):k(ii+1)-1);
-    elseif ii==length(C)
-        C{ii} = str(k(ii)+1:k(ii+1));
-    else
-        C{ii} = str(k(ii)+1:k(ii+1)-1);
+% The following line seems to hurt performance a little bit. It was 
+% meant to preallocate to speed things up but it does not seem to do that.
+% C = repmat({blanks(max(diff([k,length(str)])))}, length(k)+1, 1);
+C = {};
+ii=1; kk=1; 
+while ii<=length(j)
+    C{kk} = str(j(ii));
+    ii=ii+1;
+    jj=2;
+    while (ii<=length(j)) && ((j(ii)-j(ii-1))==1)
+        C{kk}(jj) = str(j(ii));
+        jj=jj+1;
+        ii=ii+1;
     end
+    C{kk}(jj:end)='';
+    kk=kk+1;
 end
+C(kk:end) = [];
 

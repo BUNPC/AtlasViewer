@@ -5,7 +5,7 @@ if options.fluence_simulate
     genMultWlFluenceFiles_CurrWorkspace;
 end
 
-r = checkToolboxes_AtlasViewer();
+r = checkToolboxes('AtlasViewer');
 
 fprintf('\n');
 if all(r==1)
