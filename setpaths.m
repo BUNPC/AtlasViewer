@@ -71,6 +71,13 @@ if ~options.add
 end
 
 [paths, wspaths, paths_excl_str] = getpaths(options);
+% if ~isempty(wspaths)
+%     if pathscompare(wspaths{1}, pwd)
+%         fprintf('Current workspace %s already at the top of the search path.\n', wspaths{1});
+%         addwspaths(wspaths, paths_excl_str, options);
+%         return;
+%     end
+% end
 
 % Add or remove paths for this application
 rootpath = pwd;

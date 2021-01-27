@@ -84,7 +84,7 @@ REFRACTION_OTHER_DEF_VAL = 1.0000;
 % Arg 1 
 names = {};
 if length(varargin)>=1
-    if isvalidfile(varargin{1}, 'checkextension')
+    if ispathvalid(varargin{1}, 'file:checkextension')
         
         filename = varargin{1};
         fid = fopen(filename,'rt');

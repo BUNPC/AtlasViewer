@@ -49,6 +49,7 @@ if ~isempty(dir([stats.dirnameApp, '.finished']))
 end
 
 
+
 % ---------------------------------------------------------------------------
 function msgSuccess()
 global stats
@@ -71,6 +72,8 @@ set(handles.msgMoreInfo,'string', msgSuccess{2}, 'fontsize',14);
 fd = fopen([stats.dirnameApp, '.finished'], 'w');
 fprintf(fd, '%d', stats.err);
 fclose(fd);
+
+
 
 
 % ---------------------------------------------------------------------------
@@ -135,12 +138,13 @@ end
 
 
 
-
 % ---------------------------------------------------------------------------
 function varargout = finishInstallGUI_OutputFcn(hObject, eventdata, handles) 
 global stats
 
 varargout{1} = stats.err;
+
+
 
 
 % ---------------------------------------------------------------------------

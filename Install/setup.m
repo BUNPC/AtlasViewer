@@ -1,30 +1,13 @@
 function setup()
 global h
 global nSteps
-global iStep
-
-dirnameDst = getAppDir_av('isdeployed');
 
 h = waitbar(0,'Installation Progress ...');
 
-main(dirnameDst);
+main();
 
 % Check that everything was installed properly
 r = finishInstallGUI();
-
-% waitbar(iStep/nSteps, h); iStep = iStep+1;
-% pause(2);
-% 
-% if r==0
-%     try
-%         open([dirnameDst, 'Test/Testing_procedure.pdf']);
-%     catch ME
-%         MessageBox(sprintf('Warning in setup: %s', ME.message));
-%         close(h);
-%         fprintf('Error at in setup: %s\n', ME.message); 
-%         rethrow(ME);
-%     end
-% end
 
 waitbar(nSteps/nSteps, h);
 close(h);
@@ -34,7 +17,7 @@ cleanup();
 
 
 % ------------------------------------------------------------
-function main(dirnameDst)
+function main()
 global h
 global nSteps
 global iStep
@@ -48,6 +31,7 @@ if ismac()
 else
 	dirnameSrc = [pwd, '/'];
 end
+dirnameDst = getAppDir_av('isdeployed');
 
 % Uninstall
 try
@@ -201,7 +185,6 @@ end
 
 % -------------------------------------------------------------------
 function copyFileToInstallation(src, dst, type)
-
 global h
 global nSteps
 global iStep
@@ -225,7 +208,7 @@ try
     assert(logical(exist(src, type)));
     
     % Check if we need to untar the file 
-    k = findstr(src,'.tar.gz'); %#ok<*FSTR>
+    k = findstr(src,'.tar.gz'); %#ok<FSTR>
     if ~isempty(k)
         untar(src,fileparts(src));
         src = src(1:k-1);
@@ -249,6 +232,8 @@ catch ME
 end
 
 
+
+
 % --------------------------------------------------------------
 function deleteShortcuts(platform)
 if exist(platform.exenameDesktopPath, 'file')
@@ -268,7 +253,6 @@ end
 
 % ---------------------------------------------------------
 function createDesktopShortcuts(dirnameSrc, dirnameDst)
-
 try
     if ispc()
         

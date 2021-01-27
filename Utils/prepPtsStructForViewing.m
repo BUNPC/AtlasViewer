@@ -55,7 +55,8 @@ if isempty(str)
     cdet = str2cell(num2str(1:ndet),' ');
     cdet(strcmp(cdet,'')) = [];
     
-    strarr = [csrc; cdet];
+    % Use (:) to make sure concatanated vectors are column vectors
+    strarr = [csrc(:); cdet(:)];
 else
     strarr = str;
 end

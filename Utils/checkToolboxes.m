@@ -9,7 +9,7 @@ function [r, toolboxes] = checkToolboxes(appname, options)
 %   folder are installed. It returns 1 if all required toolboxes are
 %   installed, 0 if some or all required toolboxes are not installed, and -1
 %   if the operation to discover which toolboxes are needed and whether they are 
-%   installed failed
+%   installed failed     
 %   It first checks for the presense of the toolboxesRequired.txt file
 %   for the list of required toolboxes to check for. If this file
 %   does not exist, then it prompts the user to generate this file.
@@ -26,8 +26,8 @@ function [r, toolboxes] = checkToolboxes(appname, options)
 %
 % Examples:
 %
-%   [r, toolboxes] = checkToolboxes('Homre3')
-%   [r, toolboxes] = checkToolboxes('Homer3','regeneratelist')
+%   [r, toolboxes] = checkToolboxes('Homer3')
+%   [r, toolboxes] = checkToolboxes('AtlasViewerGUI','regeneratelist')
 %
 if nargin==0
     return;

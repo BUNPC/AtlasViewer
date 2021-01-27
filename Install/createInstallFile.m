@@ -3,33 +3,29 @@ function createInstallFile(options)
 if ~exist('options','var') | isempty(options)
     options = 'all';
 end
-if exist('./Install','dir')
-    cd('./Install');
-end
 
 % Find installation path and add it to matlab search paths
-dirnameInstall = filesepStandard(fileparts(which('createInstallFile.m')));
-if isempty(dirnameInstall)
-    MessageBox('Cannot create installation package. Could not find root installation folder.');
-    return;
-end
 dirnameApp = getAppDir_av;
 if isempty(dirnameApp)
     MessageBox('Cannot create installation package. Could not find root application folder.');
     return;
 end
+dirnameInstall = filesepStandard(fileparts(which('createInstallFile.m')));
+if isempty(dirnameInstall)
+    MessageBox('Cannot create installation package. Could not find root installation folder.');
+    return;
+end
 addpath(dirnameInstall, '-end')
-
 cd(dirnameInstall);
 
 % Start with a clean slate
-cleanup(dirnameInstall, dirnameApp);
+cleanup(dirnameInstall, dirnameApp, 'start');
 
 % Set the executable names based on the platform type
 platform = setplatformparams();
 
-if exist([dirnameInstall, 'atlasviewer_install'],'dir')
-    rmdir([dirnameInstall, 'atlasviewer_install'],'s');
+if exist([dirnameInstall, 'homer3_install'],'dir')
+    rmdir_safe([dirnameInstall, 'homer3_install']);
 end
 if exist([dirnameInstall, 'atlasviewer_install.zip'],'file')
     delete([dirnameInstall, 'atlasviewer_install.zip']);
@@ -38,8 +34,8 @@ mkdir([dirnameInstall, 'atlasviewer_install']);
 
 % Generate executables
 if ~strcmp(options, 'nobuild')
-	Buildme_Setup(pwd);
-	Buildme_AtlasViewerGUI(dirnameApp);
+	Buildme_Setup();
+	Buildme_AtlasViewerGUI();
     if islinux()
         perl('./makesetup.pl','./run_setup.sh','./setup.sh');
     elseif ismac()
@@ -130,6 +126,4 @@ zip([dirnameInstall, 'atlasviewer_install.zip'], [dirnameInstall, 'atlasviewer_i
 % Clean up 
 fclose all;
 cleanup(dirnameInstall, dirnameApp);
-
-
 
