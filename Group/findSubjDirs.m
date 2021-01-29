@@ -17,6 +17,8 @@ end
 
 % -------------------------------------------------------------
 function [subjDirs, groupDir, group] = searchDir(dirname)
+global supportedFormats
+
 subjDirs = mydir('');
 groupDir = '';
 
@@ -50,8 +52,8 @@ for ii=1:length(subjDirs0)
     end
     
     cd(subjDirs0(ii).name);
-    foos = mydir({'*.nirs','*.sd','*.SD','atlasViewer.mat'});
-    if length(foos) > 0
+    foos = mydir([supportedFormats(:,1); {'groupResults.mat'}]);
+    if ~isempty(foos)
         subjDirs(kk) = subjDirs0(ii);
         kk=kk+1;
     end
@@ -72,7 +74,11 @@ if ~exist('strs','var')
 else
     kk=1;
     for ii=1:length(strs) 
-        new = dir(strs{ii});
+        filenames = strs{ii};
+        if strs{ii}(1)=='.'
+            filenames = ['*', strs{ii}];
+        end
+        new = dir(filenames);
         for jj=1:length(new)
             files0{kk} = new(jj).name;
             kk=kk+1;
