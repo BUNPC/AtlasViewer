@@ -6,11 +6,11 @@ function headsurf = setHeadsurfHandles(headsurf, handles)
     headsurf.handles.editTransparency = handles.editHeadTransparency;
     set(headsurf.handles.editTransparency,'enable','off');
 
-    headsurf.handles.menuItemMakeProbe = handles.menuItemMakeProbe;
-    set(headsurf.handles.menuItemMakeProbe,'enable','off');
+    headsurf.handles.menuItemProbeCreate = handles.menuItemProbeCreate;
+    set(headsurf.handles.menuItemProbeCreate,'enable','off');
 
-    headsurf.handles.menuItemImportProbe = handles.menuItemImportProbe;
-    set(headsurf.handles.menuItemImportProbe,'enable','off');
+    headsurf.handles.menuItemProbeImport = handles.menuItemProbeImport;
+    set(headsurf.handles.menuItemProbeImport,'enable','off');
 
     headsurf.handles.axes = handles.axesSurfDisplay;
     

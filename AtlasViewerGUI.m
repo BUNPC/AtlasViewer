@@ -766,7 +766,6 @@ labelssurf  = resetLabelssurf(labelssurf);
 
 
 
-
 % --------------------------------------------------------------------
 function pushbuttonRegisterProbeToSurface_Callback(~, ~, ~)
 global atlasViewer
@@ -839,35 +838,6 @@ atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
 atlasViewer.labelssurf  = labelssurf;
 atlasViewer.digpts      = digpts;
-
-
-
-
-% --------------------------------------------------------------------
-function menuItemMakeProbe_Callback(~, ~, ~)
-global atlasViewer
-
-labelssurf   = atlasViewer.labelssurf;
-
-hSDgui = atlasViewer.probe.handles.hSDgui;
-if isempty(which('SDgui'))
-    menu('SDgui doesn''t exist in the search path.','OK');
-    return;
-end
-if ishandles(hSDgui)
-    menu('SDgui already active.','OK');
-    return;
-end
-atlasViewer.probe = resetProbe(atlasViewer.probe);
-atlasViewer.probe.handles.hSDgui = SDgui(atlasViewer.dirnameProbe,'userargs');
-set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
-
-% Clear labels faces associated with probe to cortex projection (we mark 
-% the faces red). It's all new for a new probe.
-labelssurf = resetLabelssurf(labelssurf);
-
-atlasViewer.labelssurf = labelssurf;
-
 
 
 % --------------------------------------------------------------------
@@ -1112,59 +1082,6 @@ else
     method = getProbeRegMethod();
 end
 probe.optpos = reg_subj2atlas(method, subj, atlas);
-
-
-
-
-
-% --------------------------------------------------------------------
-function menuItemImportProbe_Callback(~, ~, ~)
-global atlasViewer
-
-dirnameProbe = atlasViewer.dirnameProbe;
-probe        = atlasViewer.probe;
-refpts       = atlasViewer.refpts;
-headsurf     = atlasViewer.headsurf;
-labelssurf   = atlasViewer.labelssurf;
-fwmodel      = atlasViewer.fwmodel;
-imgrecon     = atlasViewer.imgrecon;
-digpts       = atlasViewer.digpts;
-
-[filename, pathname] = uigetfile([dirnameProbe '*.*'],'Import subject probe');
-if filename==0
-    return;
-end
-
-% Make sure we are using all available eeg points. Select locally so that
-% we don't change anything in refpts
-refpts.eeg_system.selected = '10-5';
-refpts = set_eeg_active_pts(refpts, [], false);
-
-% New probe means resetting probe, anatomical labels and sensitivity profile
-probe       = resetProbe(probe);
-fwmodel     = resetFwmodel(fwmodel);
-imgrecon    = resetImgRecon(imgrecon);
-labelssurf  = resetLabelssurf(labelssurf);
-
-probe = importProbe(probe, [pathname, filename], headsurf, refpts);
-
-hAxesCurr = gca;
-axes(atlasViewer.axesv(1).handles.axesSurfDisplay);
-probe = viewProbe(probe,'unregistered');
-axes(hAxesCurr)
-
-% This is done to not display dummy points by default. It does nothing 
-% if the method isn't spring registration.
-probe = setProbeDisplay(probe,headsurf);
-
-atlasViewer.probe        = probe;
-atlasViewer.dirnameProbe = pathname;
-atlasViewer.labelssurf   = labelssurf;
-atlasViewer.digpts       = digpts;
-atlasViewer.fwmodel      = fwmodel;
-atlasViewer.imgrecon     = imgrecon;
-
-
 
 
 % --------------------------------------------------------------------
@@ -3638,4 +3555,92 @@ end
 
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
+
+
+
+% --------------------------------------------------------------------
+function menuItemProbeCreate_Callback(hObject, eventdata, handles)
+global atlasViewer
+
+labelssurf   = atlasViewer.labelssurf;
+
+hSDgui = atlasViewer.probe.handles.hSDgui;
+if isempty(which('SDgui'))
+    menu('SDgui doesn''t exist in the search path.','OK');
+    return;
+end
+if ishandles(hSDgui)
+    menu('SDgui already active.','OK');
+    return;
+end
+atlasViewer.probe = resetProbe(atlasViewer.probe);
+atlasViewer.probe.handles.hSDgui = SDgui(atlasViewer.dirnameProbe,'userargs');
+set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
+
+% Clear labels faces associated with probe to cortex projection (we mark 
+% the faces red). It's all new for a new probe.
+labelssurf = resetLabelssurf(labelssurf);
+
+atlasViewer.labelssurf = labelssurf;
+
+
+% --------------------------------------------------------------------
+function menuItemProbeImport_Callback(hObject, eventdata, handles)
+global atlasViewer
+
+dirnameProbe = atlasViewer.dirnameProbe;
+probe        = atlasViewer.probe;
+refpts       = atlasViewer.refpts;
+headsurf     = atlasViewer.headsurf;
+labelssurf   = atlasViewer.labelssurf;
+fwmodel      = atlasViewer.fwmodel;
+imgrecon     = atlasViewer.imgrecon;
+digpts       = atlasViewer.digpts;
+
+[filename, pathname] = uigetfile([dirnameProbe '*.*'],'Import subject probe');
+if filename==0
+    return;
+end
+
+% Make sure we are using all available eeg points. Select locally so that
+% we don't change anything in refpts
+refpts.eeg_system.selected = '10-5';
+refpts = set_eeg_active_pts(refpts, [], false);
+
+% New probe means resetting probe, anatomical labels and sensitivity profile
+probe       = resetProbe(probe);
+fwmodel     = resetFwmodel(fwmodel);
+imgrecon    = resetImgRecon(imgrecon);
+labelssurf  = resetLabelssurf(labelssurf);
+
+probe = importProbe(probe, [pathname, filename], headsurf, refpts);
+
+hAxesCurr = gca;
+axes(atlasViewer.axesv(1).handles.axesSurfDisplay);
+probe = viewProbe(probe,'unregistered');
+axes(hAxesCurr)
+
+% This is done to not display dummy points by default. It does nothing 
+% if the method isn't spring registration.
+probe = setProbeDisplay(probe,headsurf);
+
+atlasViewer.probe        = probe;
+atlasViewer.dirnameProbe = pathname;
+atlasViewer.labelssurf   = labelssurf;
+atlasViewer.digpts       = digpts;
+atlasViewer.fwmodel      = fwmodel;
+atlasViewer.imgrecon     = imgrecon;
+
+
+% --------------------------------------------------------------------
+function menuItemProbeEdit_Callback(hObject, eventdata, handles)
+global atlasViewer
+SD = convert2SD(atlasViewer.probe);
+SDgui(SD);
+
+
+% --------------------------------------------------------------------
+function menuItemProbeAdjust3DRegistration_Callback(hObject, eventdata, handles)
+Edit_Probe_Callback
+
 

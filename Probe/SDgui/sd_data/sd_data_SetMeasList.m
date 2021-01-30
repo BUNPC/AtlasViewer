@@ -6,8 +6,6 @@ if isempty(ml)
     return;
 end
 
-sd_file_nirsFixError(ml);
-
 nwl = sd_data_GetNwl();
 nmeas = size(ml,1);
 if nwl>0

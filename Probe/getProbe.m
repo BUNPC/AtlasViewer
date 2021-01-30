@@ -59,11 +59,9 @@ end
 
 % 2D probe with measurement list
 % Check if flat probe exists in default SD file
-if exist([dirname, '/probe.SD'],'file')
-    
+if exist([dirname, '/probe.SD'],'file')    
     filedata = load([dirname, '/probe.SD'], '-mat');
     SD = filedata.SD;
-
 % If probe.SD doesn't exixts, then load SD file present in the folder.
 % If multiple probes exists then ask user to select the probe
 elseif numel(dir([dirname, '*.SD'])) ~= 0
@@ -71,44 +69,34 @@ elseif numel(dir([dirname, '*.SD'])) ~= 0
     if numel(SD_files) == 1
         filedata = load([dirname, SD_files.name], '-mat');
         SD = filedata.SD;
-%         save([dirname, 'probe.SD'],'-mat', 'SD');
     else
         [filename,pathname] = uigetfile('*.SD','Please select the SD file you want to load');
         filedata = load([pathname filename], '-mat');
         SD = filedata.SD;
-%         save([dirname, 'probe.SD'],'-mat', 'SD');
     end
-    
 elseif ~isempty(currElem) && ~currElem.IsEmpty()
     SD = currElem.GetSDG();
     foo = currElem.GetMeasList();
     SD.MeasList = foo.MeasList;
-    save([dirname, 'probe.SD'],'-mat', 'SD');
-    
+    save([dirname, 'probe.SD'],'-mat', 'SD');    
 % Check if flat probe exists in Homer processing output file
-elseif exist([dirname, '/groupResults.mat'], 'file')
-    
+elseif exist([dirname, '/groupResults.mat'], 'file')    
     filedata = load([dirname, '/groupResults.mat'], '-mat');
     SD = getSD(filedata.group);
-    save([dirname, 'probe.SD'],'-mat', 'SD');
-    
+    save([dirname, 'probe.SD'],'-mat', 'SD');    
 % Check if flat probe exists in fnirs data acquisition files
-elseif existDataFiles()
-    
+elseif existDataFiles()    
     files = getDataFiles();
     filedata = load([dirname, files(1).folder, files(1).name], '-mat');
     SD = filedata.SD;
     save([dirname, 'probe.SD'],'-mat', 'SD');
-    
 end
 probe2d = loadSD(probe2d, SD);
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. Check for consistency between 2D and 3D probes if both exist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TBD:
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 4. Consolidate 2D and 3D probes into fine probe 
@@ -119,7 +107,6 @@ if ~probe3d.isempty(probe3d)
 else
     probe = probe.copy(probe, probe2d);
 end
-
 probe = preRegister(probe, headsurf, refpts);
 
 

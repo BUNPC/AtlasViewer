@@ -5,7 +5,7 @@ if isempty(SD)
 end
 
 if isfield(SD,'Lambda')
-    probe.lambda = SD.Lambda;
+    probe.lambda = SD.Lambda(:)';
 else
     probe.lambda = [];
 end

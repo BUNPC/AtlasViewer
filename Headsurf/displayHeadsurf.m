@@ -52,14 +52,14 @@ if ishandles(headsurf.handles.surf)
         set(headsurf.handles.radiobuttonShowHead,'enable','on');
         set(headsurf.handles.editTransparency,'enable','on');
         set(headsurf.handles.editTransparency,'string', num2str(get(headsurf.handles.surf,'facealpha')));
-        set(headsurf.handles.menuItemMakeProbe,'enable','on');
-        set(headsurf.handles.menuItemImportProbe,'enable','on');
+        set(headsurf.handles.menuItemProbeCreate,'enable','on');
+        set(headsurf.handles.menuItemProbeImport,'enable','on');
     end
 else
     if ishandles(headsurf.handles.radiobuttonShowHead)
         set(headsurf.handles.radiobuttonShowHead,'enable','off');
-        set(headsurf.handles.menuItemMakeProbe,'enable','off');
-        set(headsurf.handles.menuItemImportProbe,'enable','off');
+        set(headsurf.handles.menuItemProbeCreate,'enable','off');
+        set(headsurf.handles.menuItemProbeImport,'enable','off');
     end
 end
 

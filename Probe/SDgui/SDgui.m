@@ -296,31 +296,14 @@ idx = get(hObject, 'value');
 SD.SpatialUnit = strs{idx};
 
 
-
-% --- Executes during object creation, after setting all properties.
-function optode_tbls_panel_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to optode_tbls_panel (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-
-% --- Executes during object creation, after setting all properties.
-function optode_src_tbl_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to optode_src_tbl (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-
 % --------------------------------------------------------------------
 function menuItemReorderOptodes_Callback(hObject, eventdata, handles)
 global SD
 
 x = inputdlg({'Source Order (leave empty to skip)','Detector Order (leave empty to skip)'});
-
 if isempty(x)
     return
 end
-
 
 MeasList = SD.MeasList;
 SpringList = SD.SpringList;
@@ -356,40 +339,29 @@ if ~isempty(x{1})
     
 end
 
-
 % reorder the detectors
 if ~isempty(x{2})
-    
-    lstD = str2num(x{2});
-    
+    lstD = str2num(x{2});    
     if length(unique(lstD))~=SD.nDets
         warndlg('Detector list must reorder all sources');
         return
     else
-        SD.DetPos = SD.DetPos(lstD,:);
-        
+        SD.DetPos = SD.DetPos(lstD,:);        
         for iD=1:SD.nDets
             lst = find(SD.MeasList(:,2)==lstD(iD));
-            MeasList(lst,2) = iD;
-            
+            MeasList(lst,2) = iD;            
             lst = find(SD.SpringList(:,1)==(SD.nSrcs+lstD(iD)));
             SpringList(lst,1) = (SD.nSrcs+iD);
             lst = find(SD.SpringList(:,2)==(SD.nSrcs+lstD(iD)));
-            SpringList(lst,2) = (SD.nSrcs+iD);
-            
+            SpringList(lst,2) = (SD.nSrcs+iD);            
             for iA=1:size(SD.AnchorList,1)
                 if SD.AnchorList{iA,1}==(SD.nSrcs+lstD(iD))
                     AnchorList{iA,1} = (SD.nSrcs+iD);
                 end
             end
         end
-    end
-    
+    end    
 end
-
-
-
-
 
 % Sort the MeasList
 MeasList2 = [];
@@ -410,7 +382,6 @@ for ii=2:nWav
     foo(:,4) = ii;
     MeasList3 = [MeasList3; foo];
 end
-
 
 % Update
 SD.MeasList = MeasList3;
