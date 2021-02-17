@@ -576,13 +576,13 @@ classdef FuncCallClass < handle
             if isa(arg, 'RegistriesClass')
                 reg = arg;
                 
-            usagename = reg.GetUsageName(obj);
-            fcallstr = reg.GetFuncCallStrDecoded(obj.name, usagename);
-            obj.AddHelpUsageStr(fcallstr);            
-            
-            if length(reg.GetUsageNames(obj.name))<2
-                usagename = '';
-            end
+                usagename = reg.GetUsageName(obj);
+                fcallstr = reg.GetFuncCallStrDecoded(obj.name, usagename);
+                obj.AddHelpUsageStr(fcallstr);
+                
+                if length(reg.GetUsageNames(obj.name))<2
+                    usagename = '';
+                end
             elseif ischar(arg)
                 usagename = arg;
             end
@@ -607,6 +607,22 @@ classdef FuncCallClass < handle
             end
             nbytes = sum(nbytes);
         end
+
+        
+        % ----------------------------------------------------------------------------------        
+        function val = GetVar(obj, name)
+            val = [];
+            if isempty(obj)
+                return;
+            end
+            for ii = 1:length(obj.paramIn)
+                if strcmp(name, obj.paramIn(ii).GetName())
+                    val = obj.paramIn(ii).GetValue();
+                    break;
+                end
+            end
+        end
+        
         
     end
 
