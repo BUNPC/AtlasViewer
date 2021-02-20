@@ -32,6 +32,12 @@ if nargin==0
     return
 end
 
+if ~isfield(SDo,'SrcPos') && ~isfield(SDo,'DetPos')
+    if isfield(SDo,'srcpos') && isfield(SDo,'detpos')
+        SDo = convert2SD(SDo);
+    end
+end
+
 if isfield(SDo,'Lambda')
     SD.Lambda = SDo.Lambda;
 end

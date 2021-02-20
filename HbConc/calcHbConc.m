@@ -69,5 +69,5 @@ fprintf('Using tHRF range of [%0.1f - %0.1f]...\n', hbconc.config.tRangeMin, hbc
 hbconc.HbO = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 1, :, iCond),  probe.ptsProj_cortex,  iCh);
 hbconc.HbR = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 2, :, iCond),  probe.ptsProj_cortex,  iCh);
 
-setProbeDisplay(probe, [], [], iCh);
+setProbeDisplay(probe, [], iCh);
 

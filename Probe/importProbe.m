@@ -2,15 +2,23 @@ function probe = importProbe(probe, filename, headsurf, refpts)
 global SD
 
 SD = [];
+if ~exist('headsurf','var')
+    headsurf = [];
+end
+if ~exist('refpts','var')
+    refpts = [];
+end
+
 
 [pname, fname, ext] = fileparts(filename);
 pname = filesepStandard(pname);
 switch lower(ext)
     case '.txt'
 
-        probe.optpos   = load([pname, fname, ext], '-ascii');
-        probe.nopt     = size(probe.optpos,1);
-        probe.noptorig = size(probe.optpos,1);
+        probe = loadProbeFormTextFile(probe, [pname, fname, ext]);
+        if isPreRegisteredProbe(probe, headsurf)
+            probe.optpos_reg = probe.optpos;
+        end
 
     case {'.sd','.nirs'}
 
@@ -31,8 +39,8 @@ end
 probe = loadSD(probe, SD0);
 probe = preRegister(probe, headsurf, refpts);
 sd_data_Init(SD0);
-if isProbeFlat(SD) && ~registrationInfo(SD)
-    q = MenuBox('Flat probe does not contain enough data to register it to the head. Do you want to open probe in SDgui to add registration data?', {'Yes','No'});
+if ~probeHasSpringRegistrationInfo(SD)
+    q = MenuBox('Probe does not contain enough data to register it to the head. Do you want to open probe in SDgui to add registration data?', {'Yes','No'});
     if q==2
         return;
     end
@@ -41,19 +49,5 @@ if isProbeFlat(SD) && ~registrationInfo(SD)
 end
 probe = preRegister(probe, headsurf, refpts);
 
-
-
-% ------------------------------------------------------------
-function waitForGUI(h)
-
-timer = tic;
-fprintf('SDgui is busy ...\n');
-while ishandle(h)
-    if mod(toc(timer), 5)>4.5
-        fprintf('SDgui is busy ...\n');
-        timer = tic;
-    end
-    pause(.1);
-end
 
 

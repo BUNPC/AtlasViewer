@@ -28,6 +28,7 @@ catch
 end
 
 if ~isfield(filedata,'SD')
+    [~, fname, ext] = fileparts(filename);
     err=4;
     SDgui_disp_msg(handles, sprintf('ERROR: SD data doesn''t exist or is corrupt in %s.', [fname,ext]), err);
     return;

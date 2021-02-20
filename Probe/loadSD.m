@@ -32,9 +32,9 @@ else
     probe.detpos = [];
 end
 if isfield(SD,'DummyPos')
-    probe.dummypos = SD.DummyPos;
+    probe.registration.dummypos = SD.DummyPos;
 else
-    probe.dummypos = [];
+    probe.registration.dummypos = [];
 end
 if isfield(SD,'nSrcs')
     probe.nsrc = SD.nSrcs;
@@ -45,11 +45,6 @@ if isfield(SD,'nDets')
     probe.ndet = SD.nDets;
 else
     probe.ndet = size(probe.detpos,1);
-end
-if isfield(SD,'nDummys')
-    probe.ndummy = size(probe.dummypos,1);
-else
-    probe.ndummy = 0;
 end
 
 if isfield(SD,'MeasList') && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
@@ -68,14 +63,14 @@ else
 end
 
 if isfield(SD,'SpringList')
-    probe.sl = SD.SpringList;
+    probe.registration.sl = SD.SpringList;
 else
-    probe.sl = [];
+    probe.registration.sl = [];
 end
 if isfield(SD,'AnchorList')
-    probe.al = SD.AnchorList;
+    probe.registration.al = SD.AnchorList;
 else
-    probe.al = [];
+    probe.registration.al = [];
 end
 
 if isfield(SD,'SrcGrommetType')
@@ -112,7 +107,7 @@ else
     probe.DummyGrommetRot = zeros(size(probe.DummyGrommetType));
 end
 
-probe.optpos = [probe.srcpos; probe.detpos; probe.dummypos];
+probe.optpos = [probe.srcpos; probe.detpos; probe.registration.dummypos];
 probe.nopt = size(probe.optpos, 1);
 probe.noptorig = size([probe.srcpos; probe.detpos],1);
 

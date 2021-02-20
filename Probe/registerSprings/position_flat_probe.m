@@ -1,12 +1,12 @@
 function probe = position_flat_probe(probe, refpts, headvol)
 
 optpos = probe.optpos;
-al = probe.al;
+al = probe.registration.al;
 
-if isempty(probe.al)
+if isempty(probe.registration.al)
     return;
 end
-if isempty(probe.sl)
+if isempty(probe.registration.sl)
     return;
 end
 if isempty(probe.optpos)

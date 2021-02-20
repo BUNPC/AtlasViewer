@@ -61,8 +61,8 @@ probe.mlmp                        = [];
 probe.ptsProj_cortex              = [];
 probe.ptsProj_cortex_mni          = [];
 probe.ml                = [];
-probe.sl                = [];
-probe.al                = [];
+probe.registration.sl             = [];
+probe.registration.al             = [];
 probe.hOptodesIdx       = 1;
 
 

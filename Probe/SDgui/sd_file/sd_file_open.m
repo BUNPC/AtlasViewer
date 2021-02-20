@@ -9,7 +9,7 @@ if SDgui_EditsMade()
     msg{1} = 'SD data has been edited. Are you sure you want to load a new file and lose your changes? ';
     msg{2} = 'If you''re not sure, click ''No'' to return to main GUI and save your changes before ';
     msg{3} = 'loading a new file. Otherwise click ''Yes'' to proceed with loading new file';
-    q = MenuBox([msg{:}], {'Yes','No'});
+    q = MenuBox(msg, {'Yes','No'});
     if q==2
         return;
     end

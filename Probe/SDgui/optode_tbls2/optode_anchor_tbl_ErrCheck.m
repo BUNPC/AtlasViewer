@@ -52,7 +52,8 @@ function labels=refpts_label()
 global atlasViewer
 
 if isfield(atlasViewer,'refpts')
-    labels = atlasViewer.refpts.labels;
+    r = initRefpts();    
+    labels = r.eeg_system.labels.labels_10_5;
     return
 end
 

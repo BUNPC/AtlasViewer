@@ -22,7 +22,7 @@ end
 % End AtlasViewerGUI initialization code - DO NOT EDIT
 
         
-        
+
 % ------------------------------------------------------------------
 function InitSubj(hObject,handles,argExtern)
 global atlasViewer
@@ -732,31 +732,6 @@ end
 
 
 % --------------------------------------------------------------------
-function probe = probeRegisterSpringsMethod(probe, headvol, refpts)
-
-if isempty(probe)
-    menu('probe hasn''t been loaded. Use the Make Probe option in the Tools menu','OK');
-    return;
-end
-if isempty(probe.optpos)
-    menu('No source/detector positions. Use Make Probe in the Tools menu','OK');
-    return;
-end
-if isempty([probe.al])
-    menu('No anchor points positions. Use Make Probe in the Tools menu','OK');
-    return;
-end
-if isempty([probe.sl])
-    menu('No springs list. Use Make Probe in the Tools menu','OK');
-    return;
-end
-
-% Get registered optode positions and then display springs 
-probe = registerProbe2Head(probe, headvol, refpts);
-
-
-
-% --------------------------------------------------------------------
 function [probe, fwmodel, labelssurf] = ...
     clearRegistration(probe, fwmodel, labelssurf, dirname)
 
@@ -798,11 +773,10 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isempty(probe.al)
+if isempty(probe.registration.al)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
-    method = 'digpts';
     probe = pullProbeToHeadsurf(probe, headobj);
     probe.hOptodesIdx = 1;
    
@@ -810,11 +784,20 @@ else
     
     % Register probe using springs based method
     if headvol.isempty(headvol)
-        menu('Error registering probe using spring relaxation. Headvol object is empty','OK');
+        MessageBox('Error registering probe using spring relaxation. Headvol object is empty');
         return;
     end
-    method = 'springs';
-    probe = probeRegisterSpringsMethod(probe, headvol, refpts);
+    if ~probeHasSpringRegistrationInfo(probe)
+        msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
+        msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
+        msg{3} = sprintf('registration data using SDgui application.\n\n');
+        fprintf([msg{:}]);
+        MessageBox([msg{:}])
+        return
+    end
+        
+    % Get registered optode positions and then display springs
+    probe = registerProbe2Head(probe, headvol, refpts);
   
 end
 
@@ -832,7 +815,7 @@ probe = findMeasMidPts(probe);
 fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf);
 
 probe.hOptodesIdx = 1; 
-probe = setProbeDisplay(probe, headsurf, method);
+probe = setProbeDisplay(probe, headsurf);
 
 atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
@@ -863,14 +846,9 @@ headsurf = atlasViewer.headsurf;
 
 hideProbe = get(hObject,'value');
 probe.hideProbe = hideProbe;
-sl = probe.sl;
+sl = probe.registration.sl;
 
-if isempty(sl)
-    probe = setProbeDisplay(probe, headsurf, 'digpts');
-else
-    probe = setProbeDisplay(probe, headsurf, 'springs');
-end
-
+probe = setProbeDisplay(probe, headsurf);
 atlasViewer.probe = probe;
 
 
@@ -1003,85 +981,48 @@ refpts     = atlasViewer.refpts;
 
 optpos_reg = probe.optpos_reg;
 nsrc       = probe.nsrc;
+ndet       = probe.noptorig-nsrc;
+ndummy     = probe.noptorig-(nsrc+ndet);
 
 q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
 if q==2
-
     filename = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
     if filename==0
         return;
     end
-
 elseif q==1
-
     filename = 'probe_reg.txt';
-
 end
-
-qq = menu('Do you want to include the 10-20 reference points?','Yes','No');
-
 
 k = find(filename=='.');
 ext = filename(k(end)+1:end);
 if strcmpi(ext,'txt') || isempty(ext)
-    
     fid = fopen(filename,'w');
-    optpos_s = optpos_reg(1:nsrc,:);
-    optpos_d = optpos_reg(nsrc+1:end,:);
-    for ii=1:size(optpos_s,1)
+    optpos_s        = optpos_reg(1:nsrc, :);
+    optpos_d        = optpos_reg(nsrc+1:nsrc+ndet, :);
+    optpos_dummy    = optpos_reg(nsrc+ndet+1:end, :);
+    for ii=1:nsrc
         fprintf(fid,'s%d: %0.15f %0.15f %0.15f\n',ii,optpos_s(ii,:));
     end
-    for ii=1:size(optpos_d,1)
+    for ii=1:ndet
         fprintf(fid,'d%d: %0.15f %0.15f %0.15f\n',ii,optpos_d(ii,:));
     end
+    for ii=1:ndummy
+        fprintf(fid,'m%d: %0.15f %0.15f %0.15f\n',ii,optpos_dummy(ii,:));
+    end
     
+    qq = menu('Do you want to include the 10-20 reference points?','Yes','No');
     if qq==1
         fprintf(fid,'\n\n\n');
         for ii=1:size(refpts.pos,1)
             fprintf(fid,'%s: %.1f %.1f %.1f\n',refpts.labels{ii},refpts.pos(ii,1),refpts.pos(ii,2),refpts.pos(ii,3) );
         end
-    end
-    
+    end    
     fclose(fid);
-
 elseif strcmpi(extenstion,'mat')
-
     save(filename,'-mat','optpos_reg','nsrc');
-
 end
 
-
-
-% --------------------------------------------------------------------
-function probe = probe2atlasSpace(headsurf,probe,digpts,refpts)
-
-if isempty(probe.optpos)
-    return;
-end
-
-% Assign the final atlas and subj fields
-atlas.head   = headsurf.mesh.vertices;
-jj=1;
-for ii=1:length(refpts.labels)
-    k = find(strcmpi(digpts.refpts.labels, refpts.labels{ii}));
-    if ~isempty(k)
-        subj.p1020(jj,:)  = digpts.refpts.pos(k,:);
-        subj.l1020{jj}    = digpts.refpts.labels{k};
-        atlas.p1020(jj,:) = refpts.pos(ii,:);
-        atlas.l1020{jj}   = refpts.labels{ii};
-        jj=jj+1;
-    end
-end
-
-% Bring optodes to atlas space
-subj.optodes = probe.optpos;
-if ~isfield(subj,'anchor')
-    menu('Subject data has no anchor point(s). Defaulting to canonical registration','OK');
-    method = 'canonical';
-else
-    method = getProbeRegMethod();
-end
-probe.optpos = reg_subj2atlas(method, subj, atlas);
 
 
 % --------------------------------------------------------------------
@@ -1295,7 +1236,7 @@ else
     set(labelssurf.handles.menuItemSelectLabelsColormap,'enable','off');
 end
 
-probe = updateProbeGuiControls(probe, headsurf, 'digpts');
+probe = updateProbeGuiControls(probe, headsurf);
 
 %%% Save new atlas coordinates in atlasViewer
 atlasViewer.headsurf    = headsurf;
@@ -1888,7 +1829,7 @@ refpts      = atlasViewer.refpts;
 %     msg{1} = sprintf('Warning: Unregistered probe exists. Generating simulated digitized points from unregistred probe');
 %     msg{2} = sprintf('will yeild incorrect results. Please register probe to head surface before generating simulated ');
 %     msg{3} = sprintf('digitized points. Do you still want to proceed?');
-%     q = MenuBox([msg{:}], {'YES','NO'});
+%     q = MenuBox(msg, {'YES','NO'});
 %     if q==2
 %         return;
 %     end
@@ -1931,7 +1872,7 @@ function editSpringLenThresh_Callback(hObject, ~, ~)
 global atlasViewer;
 
 probe = atlasViewer.probe;
-sl         = probe.sl;
+sl = probe.registration.sl;
 hSprings = probe.handles.hSprings;
 
 if ~isempty(probe.optpos_reg)

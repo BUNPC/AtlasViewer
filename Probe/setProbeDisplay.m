@@ -4,14 +4,14 @@ hProjectionRays = probe.handles.hProjectionRays;
 hSprings        = probe.handles.hSprings;
 hMeasList       = probe.handles.hMeasList;
 noptorig        = probe.noptorig;
-sl              = probe.sl;
+sl              = probe.registration.sl;
 hOidx           = probe.hOptodesIdx;
 nopt            = size(probe.handles.hOptodes,1);
 optViewMode     = probe.optViewMode;
 
 % Parse arguments
 if ~exist('method','var') || isempty(method)
-    if isempty(probe.al)
+    if isempty(probe.registration.al)
         method = 'digpts';
     else
         method = 'springs';
@@ -47,7 +47,7 @@ if ishandles(hMeasList)
 end
 
 % Enable/disable gui objects
-probe = updateProbeGuiControls(probe, headsurf, method);
+probe = updateProbeGuiControls(probe, headsurf);
 
 probe = setOptodeNumbering(probe);
 

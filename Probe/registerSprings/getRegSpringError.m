@@ -13,7 +13,7 @@ else
 end
 
 hOptodes   = probe.handles.hOptodes;
-sl         = probe.sl;
+sl         = probe.registration.sl;
 
 ncol = 5;
 cm = [0 0 1; 0 1 1; 0 0 0; 1 1 0; 1 0 0];

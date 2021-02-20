@@ -5,18 +5,18 @@ if isempty(probe)
     return;
 end
 SD.Lambda               = probe.lambda;
-SD.SpatialUnit          = 'mm';
+SD.SpatialUnit          = '';
 SD.SrcPos               = probe.srcpos;
 SD.DetPos               = probe.detpos;
-SD.DummyPos             = probe.dummypos;
+SD.DummyPos             = probe.registration.dummypos;
 SD.nSrcs                = probe.nsrc;
 SD.nDets                = probe.ndet;
 SD.MeasList             = [];
 for ii = 1:length(SD.Lambda)
     SD.MeasList         = [SD.MeasList; [probe.ml(:,[1,2]), ones(size(probe.ml,1),1), ii*ones(size(probe.ml,1),1)]];
 end
-SD.SpringList           = probe.sl;
-SD.AnchorList           = probe.al;
+SD.SpringList           = probe.registration.sl;
+SD.AnchorList           = probe.registration.al;
 SD.SrcGrommetType       = probe.SrcGrommetType;
 SD.DetGrommetType       = probe.DetGrommetType;
 SD.DummyGrommetType     = probe.DummyGrommetType;

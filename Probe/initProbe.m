@@ -2,7 +2,7 @@ function probe = initProbe(handles)
 
 probe = struct( ...
                'name', 'probe', ...
-               'pathname', '', ...
+               'pathname', filesepStandard(pwd), ...
                'handles',struct( ...
                                 'hSrcpos', [], ...
                                 'hDetpos', [], ...
@@ -33,7 +33,6 @@ probe = struct( ...
                'lambda',[], ...
                'srcpos',[], ...
                'detpos',[], ...
-               'dummypos',[], ...
                'optpos',[], ...
                'optpos_reg',[], ...
                'optpos_reg_mean',[], ...
@@ -46,8 +45,13 @@ probe = struct( ...
                'ptsProj_cortex',[], ...
                'ptsProj_cortex_mni',[], ...
                'ml',[], ...
-               'sl',[], ...
-               'al',[], ...
+               'registration', struct(...
+                           'sl',[], ...
+                           'al',[], ...
+                           'dummypos',[], ...
+                           'isempty',@isempty_reg_loc, ...
+                           'refpts',initRefpts() ...
+                           ), ...
                'SrcGrommetType',{{}}, ...
                'DetGrommetType',{{}}, ...
                'DummyGrommetType',{{}}, ...
@@ -66,6 +70,7 @@ probe = struct( ...
                'checkCompatability',[], ...
                'isempty',@isempty_loc, ...
                'copy',@copy_loc, ...
+               'save',@save_loc, ...
                'prepObjForSave',[], ...
                'pullToSurfAlgorithm','center', ...
                'rhoSD_ssThresh', 15, ...
@@ -125,42 +130,82 @@ end
 % --------------------------------------------------------------
 function b = isempty_loc(probe)
 
-b = false;
+b = true;
 if isempty(probe)
-    b = true;
-elseif isempty(probe.optpos)
-    b = true;
+    return;
 end
+if isempty(probe.optpos)
+    return;
+end
+if isempty(probe.srcpos) && isempty(probe.detpos) && isempty(probe.optpos)
+    return;
+end
+b = false;
 
+
+% --------------------------------------------------------------
+function b = isempty_reg_loc(probe)
+b = true;
+if isempty(probe.registration)
+    return;
+end
+if ~probeHasSpringRegistrationInfo(probe)
+    if ~probeHasDigptsRegistrationInfo(probe)
+        return;
+    end
+end
+b = false;
 
 
 
 % --------------------------------------------------------------
-function probe = copy_loc(probe, probe2)
+function probe = copy_loc(probe, probe2, overwrite)
+if isempty(probe2)
+    return;
+end
+if probe2.isempty(probe2)
+    return;
+end
+if ~similarProbes(probe, probe2)
+    return;
+end
+if ~exist('overwrite','var')
+    overwrite = 0;
+end
 
-probe.lambda        = probe2.lambda;
-
-probe.srcpos        = probe2.srcpos;
-probe.nsrc          = size(probe2.srcpos,1);
-
-probe.detpos        = probe2.detpos;
-probe.ndet          = size(probe2.detpos,1);
-
-probe.dummypos      = probe2.dummypos;
-probe.optpos        = [probe2.srcpos; probe2.detpos; probe2.dummypos];
-
-probe.noptorig      = probe.nsrc + probe.ndet;
-probe.nopt          = size(probe2.optpos,1);
+if probe.registration.isempty(probe)
+    probe.registration  = probe2.registration;
+end
+if isempty(probe.lambda)
+    probe.lambda        = probe2.lambda;
+end
+if isempty(probe.srcpos) || overwrite
+    probe.srcpos        = probe2.srcpos;
+end
+if probe.nsrc == 0
+    probe.nsrc          = probe2.nsrc;
+end
+if probe.ndet == 0
+    probe.ndet          = probe2.ndet;
+end
+if isempty(probe.detpos) || overwrite
+    probe.detpos        = probe2.detpos;
+end
+if isempty(probe.optpos) || overwrite
+    probe.optpos        = probe2.optpos;
+end
+if isempty(probe.optpos_reg)
+    probe.optpos_reg    = probe2.optpos_reg;
+end
+if isempty(probe.ml)
+    probe.ml            = probe2.ml;
+end
+if probe.noptorig == 0
+    probe.noptorig      = probe2.noptorig;
+end
 
 probe.center        = probe2.center;
 probe.orientation   = probe2.orientation;
-probe.ml            = probe2.ml;
-probe.sl            = probe2.sl;
-probe.al            = probe2.al;
-
-probe.SrcGrommetType = probe2.SrcGrommetType;
-probe.DetGrommetType = probe2.DetGrommetType;
-probe.DummyGrommetType = probe2.DummyGrommetType;
 
 if isfield(probe2,'SrcGrommetRot')
     probe.SrcGrommetRot = probe2.SrcGrommetRot;
@@ -171,4 +216,15 @@ end
 if isfield(probe2,'DummyGrommetRot')
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
 end
+
+
+
+
+% ------------------------------------------------
+function save_loc(probe)
+SD = convert2SD(probe);
+if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
+    save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+end
+
 

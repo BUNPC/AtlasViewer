@@ -49,7 +49,7 @@ end
 
 digpts = resetDigpts(digpts);
 
-iP=1; iS=1; iD=1; iR=1;
+iP=1; iR=1;
 fid = fopen(inputfile,'r');
 while 1
     try
@@ -74,6 +74,9 @@ while 1
             iD=str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
             digpts.detpos(iD,:) = str2num(str(k+1:end));
             % iD=iD+1;
+        elseif lower(str(1))=='m' && isnumber(str(2))
+            iM = str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
+            digpts.dummypos(iM,:) = str2num(str(k+1:end));
         elseif str(1)=='@'
             digpts.pcpos(iP,:) = str2num(str(k+1:end));
             iP=iP+1;
