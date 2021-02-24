@@ -174,7 +174,7 @@ elseif exist([dirname, 'groupResults.mat'], 'file')
 % Check if probe exists in old-style acquisition files
 elseif existDotNirsFiles(dirname)
     files = getDotNirsFiles(dirname);
-    filedata = load([dirname, files(1).folder, files(1).name], '-mat');
+    filedata = load([files(1).folder, files(1).name], '-mat');
     SD = filedata.SD;
     
 end
@@ -186,8 +186,17 @@ probe = loadSD(probe, SD);
 
 
 % ----------------------------------------------------------------------
-function b = existDotNirsFiles(dirname)
+function b = existDotNirsFiles(dirname, depth)
 b = true;
+if ~exist('depth','var')
+    depth = 0;
+end
+depth = depth+1;
+if depth>2
+    b = false;
+    return;
+end
+
 files = dir([dirname, '*.nirs']);
 if ~isempty(files)
     return;
@@ -204,7 +213,13 @@ for ii = 1:length(dirs)
     if strcmp(dirs(ii).name, '..')
         continue
     end
-    if existDotNirsFiles(filesepStandard([dirname, dirs(ii).name]))
+    if strcmp(dirs(ii).name, '.git')
+        continue
+    end
+    if strcmp(dirs(ii).name, '.svn')
+        continue
+    end
+    if existDotNirsFiles(filesepStandard([dirname, dirs(ii).name]), depth)
         return
     end    
 end
@@ -219,15 +234,12 @@ if ~exist('dirname','var') || isempty(dirname)
 end
    
 files = dir([dirname, '/*.nirs']);
-for jj = 1:length(files)
-    dirname2 = dirname;
-    if dirname2(end)=='/'
-        dirname2(end) = '';
+if ~isempty(files)
+    for jj = 1:length(files)
+        files(jj).folder = dirname;
     end
-    [~, dname, ext] = fileparts(dirname2);
-    files(jj).folder = filesepStandard([dname, ext]);
+    return;
 end
-
 dirs = dir([dirname, '*']);
 for ii = 1:length(dirs)
     if ~dirs(ii).isdir
@@ -237,6 +249,12 @@ for ii = 1:length(dirs)
         continue
     end
     if strcmp(dirs(ii).name, '..')
+        continue
+    end
+    if strcmp(dirs(ii).name, '.git')
+        continue
+    end
+    if strcmp(dirs(ii).name, '.svn')
         continue
     end
     fileNew = getDotNirsFiles(filesepStandard([dirname, dirs(ii).name]));

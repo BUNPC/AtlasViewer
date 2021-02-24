@@ -45,13 +45,7 @@ probe = struct( ...
                'ptsProj_cortex',[], ...
                'ptsProj_cortex_mni',[], ...
                'ml',[], ...
-               'registration', struct(...
-                           'sl',[], ...
-                           'al',[], ...
-                           'dummypos',[], ...
-                           'isempty',@isempty_reg_loc, ...
-                           'refpts',initRefpts() ...
-                           ), ...
+               'registration',[], ...
                'SrcGrommetType',{{}}, ...
                'DetGrommetType',{{}}, ...
                'DummyGrommetType',{{}}, ...
@@ -77,7 +71,8 @@ probe = struct( ...
                'T_2digpts',eye(4), ...
                'T_2mc',eye(4) ...
               );
-
+          
+probe = initRegistration(probe);
 
 if exist('handles','var')
     probe.handles.pushbuttonRegisterProbeToSurface = handles.pushbuttonRegisterProbeToSurface;
@@ -172,6 +167,7 @@ end
 if ~exist('overwrite','var')
     overwrite = 0;
 end
+probe = scaleFactor(probe);
 
 if probe.registration.isempty(probe)
     probe.registration  = probe2.registration;
@@ -222,9 +218,69 @@ end
 
 % ------------------------------------------------
 function save_loc(probe)
+if isempty(probe)
+    return;
+end
+if probe.isempty(probe)
+    return;
+end
 SD = convert2SD(probe);
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
 end
 
+
+% ------------------------------------------------
+function probe = scaleFactor(probe)
+if strcmp(guessUnit(probe), 'cm')
+    probe.optpos    = 10 * probe.optpos;
+    probe.srcpos    = 10 * probe.srcpos;
+    probe.detpos    = 10 * probe.detpos;
+    probe.registration.dummypos = 10 * probe.registration.dummypos;
+end
+if strcmp(guessUnit(probe.optpos_reg), 'cm')
+    probe.optpos_reg = 10 * probe.optpos_reg;
+end
+
+
+
+% ------------------------------------------------
+function u = guessUnit(probe)
+u = '';
+if isempty(probe)
+    return;
+end
+if isempty(probe.isempty(probe))
+    return;
+end
+if isempty(probe.ml)
+    return;
+end
+
+th = 10;
+d = zeros(size(probe.ml,1), 1)+th;
+for ii = 1:size(probe.ml,1)
+    d(ii) = dist3(probe.srcpos(probe.ml(ii,1),:), probe.detpos(probe.ml(ii,2),:));
+end
+if isempty(d)
+    return;
+end
+if all(d<th)
+    u = 'cm';
+else
+    u = 'mm';
+end
+
+
+
+% -------------------------------------------------
+function probe = initRegistration(probe)
+probe.registration = struct(...
+    'sl',[], ...
+    'al',[], ...
+    'dummypos',[], ...
+    'refpts',initRefpts(), ...
+    'isempty',@isempty_reg_loc, ...
+    'init',@initRegistration ...
+    );
 

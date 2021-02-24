@@ -47,7 +47,7 @@ if ~isempty(probe.optpos)
     % enabled
     if isPreRegisteredProbe(probe, headsurf) || probeHasSpringRegistrationInfo(probe)
         set(probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
-    elseif ~~probeHasDigptsRegistrationInfo(probe)
+    elseif ~probeHasDigptsRegistrationInfo(probe)
         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
         msg{3} = sprintf('registration data using SDgui application.\n\n');
