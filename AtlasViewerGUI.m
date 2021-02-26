@@ -3585,3 +3585,18 @@ function menuItemProbeAdjust3DRegistration_Callback(hObject, eventdata, handles)
 Edit_Probe_Callback
 
 
+
+% --------------------------------------------------------------------
+function menuItemRefptsFontSize_Callback(~, ~, ~)
+global atlasViewer
+waitForGui(FontSizeDlg(atlasViewer.refpts.handles.labels(:,1), [5,15], 'Reference Points Font Resize'));
+atlasViewer.refpts = setRefptsFontSize(atlasViewer.refpts);
+
+
+
+% --------------------------------------------------------------------
+function menuItemProbeFontSize_Callback(~, ~, ~)
+global atlasViewer
+waitForGui(FontSizeDlg(atlasViewer.probe.handles.hOptodes, [5,15], 'Probe Font Resize'));
+atlasViewer.probe = setProbeFontSize(atlasViewer.probe);
+

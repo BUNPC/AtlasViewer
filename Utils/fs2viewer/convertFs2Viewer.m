@@ -13,16 +13,7 @@ status = zeros(1,5);
 
 % Show user the actual files found for each layer of the anatomy. The Gui
 % also allows user to choose the file corresponding to each layer.
-h = ImportMriAnatomy(fs2viewer, 'userargs');
-timer = tic;
-fprintf('ImportMriAnatomy GUI is busy...\n');
-while ishandle(h)
-    if mod(toc(timer), 5)>4.5
-        fprintf('ImportMriAnatomy GUI is busy...\n');
-        timer = tic;
-    end
-    pause(.1);
-end
+waitForGui(ImportMriAnatomy(fs2viewer, 'userargs'));
 
 % If user hit cancel then we assume they changed their mind about wanting
 % to import the subject anatomy

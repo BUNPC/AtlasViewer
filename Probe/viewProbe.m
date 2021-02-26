@@ -19,7 +19,7 @@ end
 
 hold on;
 
-pts = prepPtsStructForViewing(optpos, probe.nsrc, 'probenum',[], 12);
+pts = prepPtsStructForViewing(optpos, probe.nsrc, 'probenum',[], probe.handles.textSize);
 
 % Not sure we should do this for probe
 if leftRightFlipped(probe)

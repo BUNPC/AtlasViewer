@@ -34,7 +34,6 @@ if isempty(fwmodel.mc_exename)
 end
 
 q=0;
-status = 0;
 while q~=1
     if strcmp(mode,'interactive')
     q = menu('Run MC application to generate output and click Done button when done.',...
