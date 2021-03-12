@@ -3,8 +3,8 @@ function [rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts)
 rp_atlas = [];
 rp_subj = [];
 
-refpts = makeLandmarksBackwardCompatible(refpts);
-[digpts.refpts.pos, digpts.refpts.labels] = makeLandmarksBackwardCompatible(digpts.refpts.pos, digpts.refpts.labels);
+refpts          = makeLandmarksBackwardCompatible(refpts);
+digpts.refpts   = makeLandmarksBackwardCompatible(digpts.refpts);
 
 jj=1;
 for ii=1:length(refpts.labels)
