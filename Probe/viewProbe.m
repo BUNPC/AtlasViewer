@@ -19,7 +19,7 @@ end
 
 hold on;
 
-pts = prepPtsStructForViewing(optpos, probe.nsrc, 'probenum',[], probe.handles.textSize);
+pts = prepPtsStructForViewing(optpos, probe.nsrc, 'probenum',[], [probe.handles.textSize, probe.handles.circleSize]);
 
 % Not sure we should do this for probe
 if leftRightFlipped(probe)
@@ -27,7 +27,7 @@ if leftRightFlipped(probe)
 else
     axes_order = [1,2,3];
 end
-[probe.handles.hOptodes, probe.handles.hOptodesCircles] = viewPts(pts, probe.center, lift, axes_order);
+[probe.handles.labels, probe.handles.circles] = viewPts(pts, probe.center, lift, axes_order);
 probe = setOptodeNumbering(probe);
 probe = drawMeasChannels(probe);
 probe = displaySprings(probe);

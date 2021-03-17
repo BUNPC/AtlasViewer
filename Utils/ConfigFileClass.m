@@ -380,6 +380,38 @@ classdef ConfigFileClass < FileClass
         end
         
         
+        % -------------------------------------------------------------------------------------------------
+        function b = eq(obj, obj2)
+            b = false;
+            if ~isempty(obj) && isempty(obj2)
+                return;
+            end
+            if isempty(obj) && ~isempty(obj2)
+                return;
+            end
+            for ii = 1:length(obj.sections)
+                if ~strcmpi(obj.sections(ii).name, obj2.sections(ii).name)
+                    return;
+                end
+                if ~strcmpi(obj.sections(ii).val, obj2.sections(ii).val)
+                    return;
+                end
+            end
+            b = true;
+        end
+
+        
+        % -------------------------------------------------------------------------------------------------
+        function b = Modified(obj)
+            obj2 = ConfigFileClass();
+            if obj == obj2
+                b = false;
+            else
+                b = true;
+            end
+        end
+        
+        
     end
 end
 

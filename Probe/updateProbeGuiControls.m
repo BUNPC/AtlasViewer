@@ -14,7 +14,7 @@ end
 % Set probe control handles 
 if ~isempty(probe.optpos)
     
-    set(probe.handles.checkboxHideProbe,'enable','off');
+    set(probe.handles.checkboxHideProbe,'enable','on');
     set(probe.handles.checkboxOptodeSDMode,'enable','on');
     set(probe.handles.checkboxOptodeCircles,'enable','on');
     if ~isempty(probe.ml)

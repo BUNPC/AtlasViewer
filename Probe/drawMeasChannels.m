@@ -1,6 +1,6 @@
 function probe = drawMeasChannels(probe)
 
-if isempty(probe.ml) || (probe.noptorig == 0) || isempty(probe.handles.hOptodes) 
+if isempty(probe.ml) || (probe.noptorig == 0) || isempty(probe.handles.labels) 
     % warning('optode handles don''t exist. Can''t draw measurement channels list');
     return;
 end
@@ -15,16 +15,16 @@ for ii=1:size(probe.ml,1)
     idet = probe.ml(ii,2);
     iopt1 = isrc;
     iopt2 = probe.nsrc+idet;
-    if strcmpi('text',get(probe.handles.hOptodes(iopt1,1),'type'))
-        o1 = get(probe.handles.hOptodes(iopt1,1),'position');
-        o2 = get(probe.handles.hOptodes(iopt2,1),'position');
-    elseif strcmpi('line',get(probe.handles.hOptodes(iopt1,1),'type'))
-        x1 = get(probe.handles.hOptodes(iopt1,1),'xdata');
-        y1 = get(probe.handles.hOptodes(iopt1,1),'ydata');
-        z1 = get(probe.handles.hOptodes(iopt1,1),'zdata');
-        x2 = get(probe.handles.hOptodes(iopt2,1),'xdata');
-        y2 = get(probe.handles.hOptodes(iopt2,1),'ydata');
-        z2 = get(probe.handles.hOptodes(iopt2,1),'zdata');
+    if strcmpi('text',get(probe.handles.labels(iopt1,1),'type'))
+        o1 = get(probe.handles.labels(iopt1,1),'position');
+        o2 = get(probe.handles.labels(iopt2,1),'position');
+    elseif strcmpi('line',get(probe.handles.labels(iopt1,1),'type'))
+        x1 = get(probe.handles.labels(iopt1,1),'xdata');
+        y1 = get(probe.handles.labels(iopt1,1),'ydata');
+        z1 = get(probe.handles.labels(iopt1,1),'zdata');
+        x2 = get(probe.handles.labels(iopt2,1),'xdata');
+        y2 = get(probe.handles.labels(iopt2,1),'ydata');
+        z2 = get(probe.handles.labels(iopt2,1),'zdata');
         o1 = [x1,y1,z1];
         o2 = [x2,y2,z2];
     end
