@@ -1392,8 +1392,6 @@ headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
 axesv       = atlasViewer.axesv;
 
-T_vol2mc    = atlasViewer.headvol.T_2mc;
-
 try 
     if isempty(eventdata) | strcmp(eventdata.EventName,'Action')
         fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf,dirnameSubj);
@@ -3443,7 +3441,6 @@ axesv       = atlasViewer.axesv;
 hbconc      = atlasViewer.hbconc;
 pialsurf    = atlasViewer.pialsurf;
 
-qAdotExists = 0;
 
 % Check if there's a sensitivity profile which already exists
 if exist([dirnameSubj 'fw/Adot.mat'],'file')
