@@ -48,7 +48,7 @@ if ~isempty(pc)
     digpts.handles.hPcpos = viewPts(pts, [], 0, axes_order);
 end
 if ~isempty(rp)
-    pts = prepPtsStructForViewing(rp,size(rp,1), 'refptslabels', [0.25,0.50,0.00], 11, digpts.refpts.labels);
+    pts = prepPtsStructForViewing(rp,size(rp,1), 'refptslabels', [0.25,0.50,0.00], [11,22], digpts.refpts.labels);
     digpts.handles.hRefpts = viewPts(pts, [], 0, axes_order);
 end
 digpts.handles.hOptodes = [digpts.handles.hSrcpos; digpts.handles.hDetpos];

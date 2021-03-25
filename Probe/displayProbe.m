@@ -10,14 +10,13 @@ if ~exist('hAxes','var')
     hAxes = probe.handles.axes;
 end
 
-if ishandles(probe.handles.hSrcpos)
-    delete(probe.handles.hSrcpos);
-end 
-if ishandles(probe.handles.hDetpos)
-    delete(probe.handles.hDetpos);
-end 
-if ishandles(probe.handles.hOptodes)
-    delete(probe.handles.hOptodes);
+if ishandles(probe.handles.labels)
+    probe.handles.textSize = get(probe.handles.labels(1),'fontsize');
+    delete(probe.handles.labels);
+end
+if ishandles(probe.handles.circles)
+    probe.handles.circleSize = get(probe.handles.circles(1),'markersize');
+    delete(probe.handles.circles);
 end
 
 if leftRightFlipped(headsurf)

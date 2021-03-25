@@ -1,8 +1,8 @@
 function probe = resetProbeGui(probe)
 
 hSprings = probe.handles.hSprings;
-hOptodes = probe.handles.hOptodes;
-hOptodesCircles = probe.handles.hOptodesCircles;
+hOptodes = probe.handles.labels;
+hOptodesCircles = probe.handles.circles;
 hMeasList = probe.handles.hMeasList;
 hProjectionPts = probe.handles.hProjectionPts;
 hProjectionRays = probe.handles.hProjectionRays;

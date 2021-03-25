@@ -2,17 +2,10 @@ function Buildme_AtlasViewerGUI(dirnameApp)
 
 platform = setplatformparams();
 
-if ~exist('dirnameApp','var') | isempty(dirnameApp)
-    dirnameApp = ffpath('setpaths.m');
-    if exist('./Install','dir')
-        cd('./Install');
-    end
+if  ~exist('dirnameApp','var') || isempty(dirnameApp)
+    dirnameApp = filesepStandard(ffpath('AtlasViewerGUI.m'));
 end
-if dirnameApp(end)~='/' & dirnameApp(end)~='\'
-    dirnameApp(end+1)='/';
-end
-
-dirnameInstall = pwd;
+dirnameInstall = filesepStandard(pwd);
 cd(dirnameApp);
 
 Buildme('AtlasViewerGUI', {}, {'.git','Install','FuncRegistry','UserFunctions'});

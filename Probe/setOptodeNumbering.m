@@ -3,15 +3,15 @@ function probe = setOptodeNumbering(probe)
 hOidx         = probe.hOptodesIdx;
 nsrc          = probe.nsrc;
 optViewMode   = probe.optViewMode;
-if strcmp(optViewMode,'numbers') & ~isempty(probe.handles.hOptodes)
-    set(probe.handles.hOptodes(:,hOidx), 'visible','on');
-    set(probe.handles.hOptodesCircles(:,hOidx), 'visible','off');
-    hOptodes      = probe.handles.hOptodes;
+if strcmp(optViewMode,'numbers') & ~isempty(probe.handles.labels)
+    set(probe.handles.labels(:,hOidx), 'visible','on');
+    set(probe.handles.circles(:,hOidx), 'visible','off');
+    hOptodes      = probe.handles.labels;
     val2 = 0;
-elseif strcmp(optViewMode,'circles') & ~isempty(probe.handles.hOptodes)
-    set(probe.handles.hOptodes(:,hOidx), 'visible','off');
-    set(probe.handles.hOptodesCircles(:,hOidx), 'visible','on');
-    hOptodes      = probe.handles.hOptodesCircles;
+elseif strcmp(optViewMode,'circles') & ~isempty(probe.handles.labels)
+    set(probe.handles.labels(:,hOidx), 'visible','off');
+    set(probe.handles.circles(:,hOidx), 'visible','on');
+    hOptodes      = probe.handles.circles;
     val2 = 1;
 else
     return

@@ -6,7 +6,7 @@ hMeasList       = probe.handles.hMeasList;
 noptorig        = probe.noptorig;
 sl              = probe.registration.sl;
 hOidx           = probe.hOptodesIdx;
-nopt            = size(probe.handles.hOptodes,1);
+nopt            = size(probe.handles.labels,1);
 optViewMode     = probe.optViewMode;
 
 % Parse arguments
@@ -25,14 +25,14 @@ if ~exist('iCh','var')
 end
 
 if strcmp(optViewMode,'numbers')
-    set(probe.handles.hOptodesCircles,'visible','off');
-    hOptodes      = probe.handles.hOptodes;
+    set(probe.handles.circles,'visible','off');
+    hOptodes      = probe.handles.labels;
 elseif strcmp(optViewMode,'circles')
-    set(probe.handles.hOptodes,'visible','off');
-    hOptodes      = probe.handles.hOptodesCircles;
+    set(probe.handles.labels,'visible','off');
+    hOptodes      = probe.handles.circles;
 end
 
-if isempty(probe.handles.hOptodes) || isempty(probe.optpos)
+if isempty(probe.handles.labels) || isempty(probe.optpos)
     return;
 end
 

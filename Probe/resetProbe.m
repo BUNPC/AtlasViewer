@@ -1,11 +1,11 @@
 function probe = resetProbe(probe)
 
 % dynamic handles
-if ishandles(probe.handles.hOptodes)
-   delete(probe.handles.hOptodes);
+if ishandles(probe.handles.labels)
+   delete(probe.handles.labels);
 end
-if ishandles(probe.handles.hOptodesCircles)
-   delete(probe.handles.hOptodesCircles);
+if ishandles(probe.handles.circles)
+   delete(probe.handles.circles);
 end
 if ishandles(probe.handles.hProjectionPts)
    delete(probe.handles.hProjectionPts);
@@ -41,8 +41,8 @@ probe.hideProbe         = get(probe.handles.checkboxHideProbe,'value');
 probe.hideSprings       = get(probe.handles.checkboxHideSprings,'value');
 probe.hideDummyOpts     = get(probe.handles.checkboxHideDummyOpts,'value');
 probe.hideMeasList      = get(probe.handles.checkboxHideMeasList,'value');
-probe.handles.hOptodes            = [];
-probe.handles.hOptodesCircles     = [];
+probe.handles.labels            = [];
+probe.handles.circles     = [];
 probe.handles.hMeasList           = [];
 probe.handles.hOptodesCortex      = [];
 probe.handles.hOptToLabelsProjTbl = [];

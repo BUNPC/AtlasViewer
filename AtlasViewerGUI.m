@@ -363,8 +363,8 @@ atlasViewer.probe.mlmp = channels;
 %%% update optode positions    
 for i=1:size(optodes,1)
     atlasViewer.probe.optpos_reg(i,:) = optodes(i,:);   
-    set(atlasViewer.probe.handles.hOptodes(i,1),'Position',optodes(i,axes_order));
-    set(atlasViewer.probe.handles.hOptodesCircles(i,1),'XData',optodes(i,axes_order(1)),'YData',optodes(i,axes_order(2)),'ZData',optodes(i,axes_order(3)));
+    set(atlasViewer.probe.handles.labels(i,1),'Position',optodes(i,axes_order));
+    set(atlasViewer.probe.handles.circles(i,1),'XData',optodes(i,axes_order(1)),'YData',optodes(i,axes_order(2)),'ZData',optodes(i,axes_order(3)));
 end
 
 %%%% update NIRS channel positions
@@ -1884,7 +1884,7 @@ else
 end
 
 cm = [0 0 1; 0 1 1; 0 0 0; 1 1 0; 1 0 0];
-sLenThresh = probe.springLenThresh;
+sLenThresh = probe.registration.springLenThresh;
 
 foo = str2num(get(hObject,'string'));
 if length(foo)~=2
@@ -1894,8 +1894,8 @@ elseif foo(1)>=foo(2)
     set(hObject,'string',num2str(sLenThresh));
     return;
 end
-probe.springLenThresh = foo;
-sLenThresh = probe.springLenThresh;
+probe.registration.springLenThresh = foo;
+sLenThresh = probe.registration.springLenThresh;
 
 for ii=1:size(sl,1) 
     springLenReg(ii) = dist3(optpos(sl(ii,1),:), optpos(sl(ii,2),:));
@@ -1946,7 +1946,7 @@ ch = menu( sprintf('For wavelengths %s nm:\nmua = %s 1/mm\nmusp = %s 1/mm\n', nu
 
 
 % --------------------------------------------------------------------
-function probe = menuItemProjectProbeToCortex_Callback(hObject, eventdata, handles)
+function probe = menuItemProjectProbeToCortex_Callback(hObject, eventdata, ~)
 global atlasViewer
 
 % eventdata tells us if we are displaying label projections ( eventdata==true ) 
@@ -1954,8 +1954,7 @@ global atlasViewer
 if isempty(eventdata)
     eventdata = true;
 end
-if strcmp(class(eventdata), 'matlab.ui.eventdata.ActionData') & ...
-   strcmp(eventdata.EventName,'Action')
+if isa(eventdata, 'matlab.ui.eventdata.ActionData') && strcmp(eventdata.EventName,'Action')
     eventdata = true;
 end
 
@@ -1969,18 +1968,15 @@ pialsurf           = atlasViewer.pialsurf;
 % Assign variables from the main objects
 optpos_reg         = probe.optpos_reg;
 optpos_reg_mean    = probe.optpos_reg_mean;
-hOptodes           = probe.handles.hOptodes;
-hProjectionPts     = probe.handles.hProjectionPts;
 hProjectionTbl     = probe.handles.hProjectionTbl;
 hProjectionRays    = probe.handles.hProjectionRays;
 nopt               = probe.noptorig;
 ml                 = probe.ml;
-ptsProj_cortex     = probe.ptsProj_cortex;
 ptsProj_cortex_mni = probe.ptsProj_cortex_mni;
 attractPt          = headvol.center;
 T_labelssurf2vol   = labelssurf.T_2vol;
 
-if (~labelssurf.isempty(labelssurf)) & (eventdata == true)
+if ~labelssurf.isempty(labelssurf) && (eventdata == true)
     labelssurf     = initLabelssurfProbeProjection(labelssurf);
     hLabelsSurf    = labelssurf.handles.surf;
     mesh           = labelssurf.mesh;
@@ -2052,10 +2048,8 @@ switch(option)
         
     case 5
         
-        return;
-        
+        return;        
 end
-
 
 if isempty(ptsProj)
     menu('Warning: Projection is Empty', 'OK');
@@ -2069,7 +2063,7 @@ end
 % ptsProj_cortex is in viewer space. To get back to MNI coordinates take the
 % inverse of the tranformation from mni to viewer space.
 ptsProj_cortex = ProjectionBI(ptsProj, vertices);
-[ptsClosest, iP] = nearest_point(vertices, ptsProj_cortex);
+[~, iP] = nearest_point(vertices, ptsProj_cortex);
 if ~labelssurf.isempty(labelssurf)
     ptsProj_cortex_mni = xform_apply(ptsProj_cortex,inv(T_headvol2mc*T_labelssurf2vol));
 end
@@ -2078,7 +2072,7 @@ end
 hProjectionPts = [];
 iFaces = [];
 if eventdata == true
-    pts = prepPtsStructForViewing(ptsProj_cortex, size(ptsProj_cortex,1), 'probenum','k',11);
+    pts = prepPtsStructForViewing(ptsProj_cortex, size(ptsProj_cortex,1), 'probenum','k',[11,22]);
     hProjectionPts = viewPts(pts, attractPt,  0);
     set(hProjectionPts,'visible','off');
     
@@ -2092,10 +2086,10 @@ if eventdata == true
         p2 = ptsProj_cortex(ii,:);
         hProjectionRays(ii) = drawRayProjection(p1, p2, headsurf);
         v=p1-p2;
-        [t,u,v,iFace] = raytrace(p1,v, mesh.vertices, mesh.faces);
+        [t,~,~,iFace] = raytrace(p1,v, mesh.vertices, mesh.faces);
         
         % Find closest face
-        [foo,iFaceMin] = min(abs(t(iFace)));
+        [~,iFaceMin] = min(abs(t(iFace)));
         faceVertexCData(iFace(iFaceMin),:) = repmat([1 0 0],length(iFace(iFaceMin)),1);
         set(hLabelsSurf,'FaceVertexCData',faceVertexCData);
         faceVertexAlphaData(iFace(iFaceMin)) = ones(length(iFace(iFaceMin)),1);
@@ -2113,7 +2107,7 @@ if eventdata == true
                                   'menubar','none','numbertitle','off', ...
                                   'units','normalized', 'position',tblPos);
     
-    if option==1 | option==3
+    if option==1 || option==3
         optlabelsTbl = repmat({'','',''},length(iP),1);
         columnname = {'opt #','opt coord (Monte Carlo)','opt coord (MNI)','label name'};
         columnwidth = {40,160,120,140};
@@ -2139,12 +2133,12 @@ if eventdata == true
             faceVertexCData(j,:) = repmat([1 0 0],length(j),1);
         end
     end
-    ht = uitable('parent',hProjectionTbl(iTbl),'columnname',columnname,...
-                 'units','normalized','position',[.10 .10 .80 .80],'columnwidth',columnwidth,...
-                 'data',optlabelsTbl);
+    uitable('parent',hProjectionTbl(iTbl),'columnname',columnname,...
+        'units','normalized','position',[.10 .10 .80 .80],'columnwidth',columnwidth,...
+        'data',optlabelsTbl);
              
-    hBttnExit = uicontrol('parent',hProjectionTbl(iTbl),'style','pushbutton','string','EXIT',...
-                          'units','normalized','position',[.40 .02 .08 .04],'callback',@closeProjectionTbl);
+    uicontrol('parent',hProjectionTbl(iTbl),'style','pushbutton','string','EXIT',...
+        'units','normalized','position',[.40 .02 .08 .04],'callback',@closeProjectionTbl);
 end
 
 % Save outputs
@@ -2161,13 +2155,12 @@ atlasViewer.labelssurf.iFaces = iFaces;
 
 
 % --------------------------------------------------------------------
-function menuItemProjectRefptsToCortex_Callback(hObject, eventdata, handles)
+function menuItemProjectRefptsToCortex_Callback(~, ~, ~)
 global atlasViewer
 
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
 T_vol2mc = atlasViewer.headvol.T_2mc;
-
 
 d = dir([dirnameSubj '/*']);
 
@@ -2241,10 +2234,7 @@ ptsProj_cortex = ProjectionBI(ptsProj, vertices);
 [~, iP] = nearest_point(vertices, ptsProj_cortex);
 
 % Display optodes on labeled cortex
-hCortexProjection = [];
-iFaces = [];
-
-pts = prepPtsStructForViewing(ptsProj_cortex, size(ptsProj_cortex,1), 'probenum','k',11);
+pts = prepPtsStructForViewing(ptsProj_cortex, size(ptsProj_cortex,1), 'probenum','k',[11,22]);
 hCortexProjection = viewPts(pts, attractPt,  0);
 set(hCortexProjection,'visible','off');
 
@@ -2258,10 +2248,10 @@ for ii=1:size(ptsProj,1)
     p2 = ptsProj_cortex(ii,:);
     hProjectionRays(ii) = drawRayProjection(p1, p2, headsurf);
     v=p1-p2;
-    [t,u,v,iFace] = raytrace(p1,v, pialsurf.mesh.vertices, pialsurf.mesh.faces);
+    [t,~,~,iFace] = raytrace(p1,v, pialsurf.mesh.vertices, pialsurf.mesh.faces);
     
     % Find closest face
-    [foo,iFaceMin] = min(abs(t(iFace)));
+    [~,iFaceMin] = min(abs(t(iFace)));
     faceVertexCData(iFace(iFaceMin),:) = repmat([1 0 0],length(iFace(iFaceMin)),1);
     set(pialsurf.handles.surf,'FaceVertexCData',faceVertexCData);
     iFaces = [iFaces, iFace(iFaceMin)];
@@ -2283,10 +2273,10 @@ refpts.cortexProjection.pos = pialsurf.mesh.vertices(iP,:);
 atlasViewer.refpts = refpts;
 
 
+
 % --------------------------------------------------------------------
-function menuItemGetSensitivityatMNICoordinates_Callback(hObject, eventdata, handles)
+function menuItemGetSensitivityatMNICoordinates_Callback(~, ~, handles)
 global atlasViewer
-fwmodel    = atlasViewer.fwmodel;
 
 % get user input
 prompt={'MNI Coordinates (x, y, z) one or more separated by semicolumns ','radius (mm)','absorption change (mm-1)'};
@@ -3589,14 +3579,14 @@ Edit_Probe_Callback
 % --------------------------------------------------------------------
 function menuItemRefptsFontSize_Callback(~, ~, ~)
 global atlasViewer
-waitForGui(FontSizeDlg(atlasViewer.refpts.handles.labels(:,1), [5,15], 'Reference Points Font Resize'));
-atlasViewer.refpts = setRefptsFontSize(atlasViewer.refpts);
-
+atlasViewer.refpts = resizeFonts(atlasViewer.refpts);
 
 
 % --------------------------------------------------------------------
 function menuItemProbeFontSize_Callback(~, ~, ~)
 global atlasViewer
-waitForGui(FontSizeDlg(atlasViewer.probe.handles.hOptodes, [5,15], 'Probe Font Resize'));
-atlasViewer.probe = setProbeFontSize(atlasViewer.probe);
+atlasViewer.probe = resizeFonts(atlasViewer.probe);
+
+
+
 
