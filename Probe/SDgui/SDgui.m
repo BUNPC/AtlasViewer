@@ -1,5 +1,8 @@
 function varargout = SDgui(varargin)
 gui_Singleton = 1;
+
+suppressGuiArgWarning(1);
+
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
     'gui_OpeningFcn', @SDgui_OpeningFcn, ...
@@ -16,6 +19,8 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
+suppressGuiArgWarning(0);
 
 
 
