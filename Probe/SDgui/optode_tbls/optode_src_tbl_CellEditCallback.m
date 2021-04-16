@@ -8,8 +8,9 @@ c = eventdata.Indices(2);
 tbl_data = get(hObject,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
+data3D = SDgui_3DViewSelected(handles);
 
-ncoord = sd_data_GetCoordNum();
+ncoord = sd_data_GetCoordNum(data3D);
 srcdata = zeros(1, ncoord);
 action = '';
 
@@ -67,7 +68,7 @@ end
 %%%% Update SD
 
 % SrcPos
-sd_data_SetSrcPos(tbl_data(1:tbl_size,:))
+sd_data_Set(['SrcPos', data3D], tbl_data(1:tbl_size,:))
 
 % GrommetType 
 sd_data_SetSrcGrommetType(tbl_data(1:tbl_size, ncoord+1))

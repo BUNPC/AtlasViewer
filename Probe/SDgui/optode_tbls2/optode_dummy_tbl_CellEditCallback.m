@@ -8,9 +8,10 @@ c = eventdata.Indices(2);
 tbl_data = get(hObject,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
+data3D = SDgui_3DViewSelected(handles);
 
 coordColIdx = 2;
-coordCols = coordColIdx : coordColIdx + sd_data_GetCoordNum()-1;
+coordCols = coordColIdx : coordColIdx + sd_data_GetCoordNum(data3D)-1;
 dummydata = [];noptreal = sd_data_Get('nsrcs') + sd_data_Get('ndets');
 
 % Error check
@@ -77,7 +78,7 @@ else
 end
 
 % Update SD
-sd_data_SetDummyPos(tbl_data(1:tbl_size, coordCols));
+sd_data_Set(['DummyPos', data3D], tbl_data(1:tbl_size, coordCols));
 
 % GrommetType 
 sd_data_SetDummyGrommetType(tbl_data(1:tbl_size, coordCols(end)+1))

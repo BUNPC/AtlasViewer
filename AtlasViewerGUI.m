@@ -742,9 +742,20 @@ labelssurf  = resetLabelssurf(labelssurf);
 
 
 % --------------------------------------------------------------------
-function pushbuttonRegisterProbeToSurface_Callback(~, ~, ~)
+function pushbuttonRegisterProbeToSurface_Callback(hObject, ~, ~)
 global atlasViewer
 
+if ~exist('hObject','var')
+    hObject = [];
+end
+if ~ishandles(hObject)
+    % If call to menuItemRegisterAtlasToDigpts_Callback is not a GUI event then exit
+    return;
+end
+if strcmp(get(hObject, 'enable'), 'off')
+    return
+end
+    
 refpts       = atlasViewer.refpts;
 probe        = atlasViewer.probe;
 headsurf     = atlasViewer.headsurf;
@@ -754,6 +765,12 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
 digpts       = atlasViewer.digpts;
+
+% isPreRegisteredProbe==2 (rather then simply 1) means probe is already
+% registered to head nothing to do
+if isPreRegisteredProbe(probe, headsurf)==2
+    return;
+end
 
 % for displayAxesv whichever head object (headsurf or headvol) 
 % is not empty will work. 
@@ -798,6 +815,7 @@ else
         
     % Get registered optode positions and then display springs
     probe = registerProbe2Head(probe, headvol, refpts);
+    probe.save(probe);
   
 end
 
@@ -816,6 +834,7 @@ fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, lab
 
 probe.hOptodesIdx = 1; 
 probe = setProbeDisplay(probe, headsurf);
+
 
 atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
@@ -982,7 +1001,7 @@ refpts     = atlasViewer.refpts;
 optpos_reg = probe.optpos_reg;
 nsrc       = probe.nsrc;
 ndet       = probe.noptorig-nsrc;
-ndummy     = probe.noptorig-(nsrc+ndet);
+ndummy     = probe.registration.ndummy;
 
 q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
 if q==2
@@ -1082,6 +1101,17 @@ function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 global DEBUG
 
+if ~exist('hObject','var')
+    hObject = [];
+end
+if ~ishandles(hObject)
+    % If call to menuItemRegisterAtlasToDigpts_Callback is not a GUI event then exit
+    return;
+end
+if strcmp(get(hObject, 'enable'), 'off')
+    return
+end
+
 refpts       = atlasViewer.refpts;
 digpts       = atlasViewer.digpts;
 headsurf     = atlasViewer.headsurf;
@@ -1103,16 +1133,6 @@ if refpts.isempty(refpts)
     return;
 end 
 if all(isregistered(refpts,digpts))
-    return;
-end
-
-if ~exist('hObject','var')
-    hObject = [];
-end
-
-% If call menuItemRegisterAtlasToDigpts_Callback is not a GUI event, 
-% then exit after setting  setting 
-if ~ishandles(hObject)
     return;
 end
 

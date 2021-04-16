@@ -196,11 +196,9 @@ end
 probe.optpos        = [probe.srcpos; probe.detpos; probe.registration.dummypos];
 probe.center        = probe2.center;
 probe.orientation   = probe2.orientation;
-probe.nsrc          = size(probe.srcpos,1);
-probe.ndet          = size(probe.detpos,1);
-probe.ndummy        = size(probe.registration.dummypos,1);
-probe.noptorig      = probe.nsrc + probe.ndet;
-probe.nopt          = probe.nsrc + probe.ndet + probe.ndummy;
+
+probe = setNumberOfOptodeTypes(probe, probe2);
+
 
 
 
@@ -213,9 +211,14 @@ end
 if probe.isempty(probe)
     return;
 end
-SD = convert2SD(probe);
+SD = convertProbe2SD(probe);
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+elseif ~isempty(SD)
+    filedata = load([probe.pathname, 'probe.SD'], '-mat');
+    if ~sd_data_Equal(SD, filedata.SD)
+        save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+    end
 end
 
 
@@ -227,9 +230,6 @@ if strcmp(guessUnit(probe), 'cm')
     probe.detpos    = 10 * probe.detpos;
     probe.registration.dummypos = 10 * probe.registration.dummypos;
 end
-if strcmp(guessUnit(probe.optpos_reg), 'cm')
-    probe.optpos_reg = 10 * probe.optpos_reg;
-end
 
 
 
@@ -239,7 +239,7 @@ u = '';
 if isempty(probe)
     return;
 end
-if isempty(probe.isempty(probe))
+if probe.isempty(probe)
     return;
 end
 if isempty(probe.ml)
@@ -268,6 +268,7 @@ probe.registration = struct(...
     'sl',[], ...
     'al',[], ...    
     'dummypos',[], ...
+    'ndummy',0, ...
     'springLenThresh',[3,10], ...
     'refpts',initRefpts(), ...
     'isempty',@isempty_reg_loc, ...

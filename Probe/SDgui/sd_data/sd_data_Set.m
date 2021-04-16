@@ -1,21 +1,25 @@
 function sd_data_Set(datatype, data)
-global SD
 
 switch lower(datatype)
     case {'lambda'}
-        SD.Lambda = data;
+        sd_data_SetLambda(data);
     case {'srcpos'}
-        SD.SrcPos = data;
+        sd_data_SetSrcPos(data);
+    case {'srcpos3d'}
+        sd_data_SetSrcPos3D(data);
     case {'detpos'}
-        SD.DetPos = data;
+        sd_data_SetDetPos(data);
+    case {'detpos3d'}
+        sd_data_SetDetPos3D(data);
+    case {'dummypos'}
+        sd_data_SetDummyPos(data);
+    case {'dummypos3d'}
+        sd_data_SetDummyPos3D(data);
     case {'measlist'}
-        SD.MeasList = data;
+        sd_data_SetMeasList(data);
     case {'srcmap'}
-        if(exist('data','var'))
-            SD.SrcMap = data;
-        else
-            sd_data_SetSrcMap();
-        end
+        sd_data_SetSrcMap(data);
+        
 end
 
 SDgui_AtlasViewerGUI('update');

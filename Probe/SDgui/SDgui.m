@@ -25,7 +25,7 @@ suppressGuiArgWarning(0);
 
 
 % -------------------------------------------------------------------
-function SDgui_OpeningFcn(hObject, eventdata, handles, varargin)
+function SDgui_OpeningFcn(hObject, ~, handles, varargin)
 global SD
 global filedata
 
@@ -73,11 +73,12 @@ setGuiFonts(hObject);
 
 popupmenuSpatialUnit_Callback([], [], handles)
 
+radiobuttonView3D_Callback([], [], handles);
 
 
 
 % -------------------------------------------------------------------
-function SDgui_DeleteFcn(hObject, eventdata, handles)
+function SDgui_DeleteFcn(hObject, ~, ~)
 global filedata
 
 filedata.SD = [];
@@ -88,7 +89,7 @@ delete(hSDgui);
 
 
 % -------------------------------------------------------------------
-function varargout = SDgui_OutputFcn(hObject, eventdata, handles)
+function varargout = SDgui_OutputFcn(~, ~, handles)
 
 % Get default command line output from handles structure
 if ~isempty(handles)
@@ -97,14 +98,14 @@ end
 
 
 % -------------------------------------------------------------------
-function SDgui_clear_all_bttn_Callback(hObject, eventdata, handles)
+function SDgui_clear_all_bttn_Callback(~, ~, handles)
 
 SDgui_clear_all(handles)
 
 
 
 % -------------------------------------------------------------------
-function SDgui_openmenuitem_Callback(hObject, eventdata, handles)
+function SDgui_openmenuitem_Callback(~, ~, handles)
 
 pathname = sd_file_panel_GetPathname(handles);
 
@@ -118,14 +119,13 @@ sd_file_open(filename, pathname, handles);
 
 
 % -------------------------------------------------------------------
-function SDgui_newmenuitem_Callback(hObject, eventdata, handles)
-
+function SDgui_newmenuitem_Callback(hObject, ~, handles)
 SDgui_clear_all_bttn_Callback(hObject, [], handles);
 
 
 
 % -------------------------------------------------------------------
-function SDgui_savemenuitem_Callback(hObject, eventdata, handles)
+function SDgui_savemenuitem_Callback(~, ~, handles)
 
 % Get current pathname
 filename = sd_filename_edit_Get(handles);
@@ -143,7 +143,7 @@ sd_file_save(filename, pathname, handles);
 
 
 % -------------------------------------------------------------------
-function SDgui_saveasmenuitem_Callback(hObject, eventdata, handles)
+function SDgui_saveasmenuitem_Callback(~, ~, handles)
 
 % Get current pathname
 filename = sd_filename_edit_Get(handles);
@@ -156,16 +156,15 @@ end
 sd_file_save(filename, pathname, handles);
 
 
-% -------------------------------------------------------------------
-function SDgui_radiobuttonSpringEnable_Callback(hObject, eventdata, handles)
 
+% -------------------------------------------------------------------
+function SDgui_radiobuttonSpringEnable_Callback(hObject, ~, handles)
 SDgui_chooseMode(hObject, handles);
 
 
 
 % -------------------------------------------------------------------
-function SDgui_chooseMode(hObject, handles)
-
+function SDgui_chooseMode(~, handles)
 if get(handles.radiobuttonSpringEnable,'value')==0
     probe_geometry_axes_Hide(handles,'on');
     optode_tbls_Hide(handles,'on');
@@ -179,7 +178,7 @@ else
     probe_geometry_axes2_Hide(handles,'on');
     optode_tbls2_Hide(handles,'on');
 end
-
+chooseAxes(handles)
 
 
 
@@ -231,7 +230,7 @@ fname = [fname, ext];
 
 
 % -------------------------------------------------------------------
-function sd_filename_edit_Callback(hObject, eventdata, handles)
+function sd_filename_edit_Callback(hObject, ~, ~)
 filename = get(hObject,'string');
 if isempty(filename)
     return;
@@ -263,7 +262,7 @@ SD.vrnum = V;
 
 
 % ------------------------------------------------------------------
-function checkboxViewFilePath_Callback(hObject, eventdata, handles)
+function checkboxViewFilePath_Callback(hObject, ~, handles)
 
 if get(hObject,'value')==1
     set(handles.textViewFilePath, 'visible','on');
@@ -277,14 +276,15 @@ end
 
 
 % ------------------------------------------------------------------
-function checkboxNinjaCap_Callback(hObject, eventdata, handles)
+function checkboxNinjaCap_Callback(~, ~, handles)
 
-    optode_src_tbl_Update(handles);
-    optode_det_tbl_Update(handles);
-    optode_dummy_tbl_Update(handles);
+optode_src_tbl_Update(handles);
+optode_det_tbl_Update(handles);
+optode_dummy_tbl_Update(handles);
 
+    
 % ------------------------------------------------------------------
-function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
+function popupmenuSpatialUnit_Callback(hObject, ~, handles)
 global SD
 
 if ~ishandles(hObject)
@@ -302,7 +302,7 @@ SD.SpatialUnit = strs{idx};
 
 
 % --------------------------------------------------------------------
-function menuItemReorderOptodes_Callback(hObject, eventdata, handles)
+function menuItemReorderOptodes_Callback(~, ~, handles)
 global SD
 
 x = inputdlg({'Source Order (leave empty to skip)','Detector Order (leave empty to skip)'});
@@ -373,7 +373,7 @@ MeasList2 = [];
 for iS = 1:SD.nSrcs
     lst = find(MeasList(:,1)==iS & MeasList(:,4)==1);
     mlTmp = MeasList(lst,:);
-    [foo,lst] = sort(mlTmp(:,2));
+    [~,lst] = sort(mlTmp(:,2));
     mlTmp = mlTmp(lst,:);
     for ii=1:length(lst)
         MeasList2(end+1,:) = mlTmp(ii,:);
@@ -395,4 +395,45 @@ SD.AnchorList = AnchorList;
 
 SDgui_display(handles, SD)
 
+
+
+
+% --------------------------------------------------------------------
+function radiobuttonView3D_Callback(~, ~, handles) %#ok<*DEFNU>
+global SD
+SDgui_display(handles, SD)
+
+hObject = handles.radiobuttonView3D;
+htoolbar = getToolbarHandle(handles);
+hAxes = chooseAxes(handles);
+if get(hObject, 'value')
+    set(htoolbar, 'visible','on');
+    set(get(hAxes,'zlabel'), 'visible','on')    
+else
+    set(htoolbar, 'visible','off');
+    set(get(hAxes,'zlabel'), 'visible','off')    
+end
+
+
+% ---------------------------------------------------------------
+function h = getToolbarHandle(handles)
+h = [];
+hc = get(handles.SDgui, 'children');
+for ii = 1:length(hc)
+    if strcmp(get(hc(ii), 'type'), 'uitoolbar')
+        h = hc(ii);
+        break
+    end
+end
+
+
+
+% ---------------------------------------------------------------
+function hAxes = chooseAxes(handles)
+if ~get(handles.radiobuttonSpringEnable, 'value')
+    hAxes = handles.probe_geometry_axes;
+else
+    hAxes = handles.probe_geometry_axes2;
+end
+axes(hAxes);
 

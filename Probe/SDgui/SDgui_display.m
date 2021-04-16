@@ -1,18 +1,27 @@
 function SDgui_display(handles, SDo)
+global SD 
+
+if ~exist('SDo','var')
+    SDo = sd_data_Init();
+end
 
 % Initialize SD object with data from SD file
 % then fix any errors in the SD file data
-sd_data_Init(SDo);
+SD = sd_data_Init(SDo);
+
+SDgui_AtlasViewerGUI('update');
 
 err = sd_data_ErrorFix();
 if err
     return;
 end
 
+data3D = SDgui_3DViewSelected(handles);
+
 % Now we're ready to use the SD data
-SrcPos       = sd_data_Get('SrcPos');
-DetPos       = sd_data_Get('DetPos');
-DummyPos     = sd_data_Get('DummyPos');
+SrcPos       = sd_data_Get(['SrcPos', data3D]);
+DetPos       = sd_data_Get(['DetPos', data3D]);
+DummyPos     = sd_data_Get(['DummyPos', data3D]);
 ml           = sd_data_GetMeasList();
 sl           = sd_data_GetSpringList();
 al           = sd_data_GetAnchorList();
@@ -46,7 +55,7 @@ optode_anchor_tbl_Init(handles,al);
 %    end
 
 %%%%%%%% Initialize Lambda Panel %%%%%%%
-if length(Lambda)>0
+if length(Lambda)>0 %#ok<ISMT>
     wavelength1_edit_Update(handles,Lambda(1));
 else
     wavelength1_edit_Update(handles,[]);

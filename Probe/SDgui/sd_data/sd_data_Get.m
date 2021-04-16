@@ -14,6 +14,10 @@ switch lower(datatype)
         data = SD.SrcPos;
     case {'detpos'}
         data = SD.DetPos;
+    case {'srcpos3d'}
+        data = SD.SrcPos3D;
+    case {'detpos3d'}
+        data = SD.DetPos3D;
 	case {'srcgrommettype'}
         if isempty(SD.SrcGrommetType)
             c = sd_data_GetGrommetChoices();
@@ -58,6 +62,8 @@ switch lower(datatype)
         data = SD.DummyGrommetRot;
     case {'dummypos'}
         data = SD.DummyPos;
+    case {'dummypos3d'}
+        data = SD.DummyPos3D;
     case {'nsrcs'}
         data = size(SD.SrcPos,1);
     case {'ndets'}

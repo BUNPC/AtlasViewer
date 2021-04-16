@@ -3,7 +3,7 @@ function probe = displaySprings(probe)
 if ~isempty(probe.optpos_reg)
     optpos = probe.optpos_reg;
 elseif ~isempty(probe.optpos)
-    optpos     = probe.optpos;
+    optpos = probe.optpos;
 else
     return;
 end
@@ -20,19 +20,19 @@ sLenThresh = probe.registration.springLenThresh;
 hold on
 hSprings = [];
 for ii = 1:size(sl,1) 
-    springLenReg(ii) = dist3(optpos(sl(ii,1),:), optpos(sl(ii,2),:));
-    springLenErr(ii) = springLenReg(ii)-sl(ii,3);
+    springLenReg = dist3(optpos(sl(ii,1),:), optpos(sl(ii,2),:));
+    springLenErr = springLenReg-sl(ii,3);
 %    springLenErrIdx(ii) = springLenErr(ii) - minLenThresh;
 %    k = round((ncol * springLenErrIdx(ii)) / lenRange);
 %    if k<1, k=1; end;
 %    if k>ncol, k=ncol; end;
-    if springLenErr(ii)<-sLenThresh(2)
+    if springLenErr<-sLenThresh(2)
         k = 1;
-    elseif springLenErr(ii)<-sLenThresh(1)
+    elseif springLenErr<-sLenThresh(1)
         k = 2;
-    elseif springLenErr(ii)>sLenThresh(2)
+    elseif springLenErr>sLenThresh(2)
         k = 5;
-    elseif springLenErr(ii)>sLenThresh(1)
+    elseif springLenErr>sLenThresh(1)
         k = 4;
     else
         k = 3;
