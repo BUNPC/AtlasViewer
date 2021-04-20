@@ -192,8 +192,6 @@ end
 
 % -----------------------------------------------------------------------------
 function image_recon_Callback(hObject, eventdata, handles)
-%########## NEED TO CD TO PROJECT FOLDER EVERYTIME THIS FUNCTION IS CALLED
-%(DO THIS AFTER YOU MAKE THE LINK BETWEEN ATLASVIEWERGUI AND IMAGERECONGUI
 global atlasViewer
 
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
@@ -278,10 +276,6 @@ end
 
 h = waitbar(0,'Please wait, running...');
 
-% if ndims(dc) == 4   % if more than one condition
-%     dc = squeeze(dc(:,:,:,cond));
-% end
-
 % use only active channels
 ml = SD.MeasList;
 if isfield(SD, 'MeasListAct') == 1
@@ -290,7 +284,6 @@ if isfield(SD, 'MeasListAct') == 1
 end
 
 
-% convert dc back to dod
 dc(find(isnan(dc))) = 0;
 
 % get dod conversion for each cond, if more than one condition
