@@ -22,6 +22,7 @@ data3D = SDgui_3DViewSelected(handles);
 SrcPos       = sd_data_Get(['SrcPos', data3D]);
 DetPos       = sd_data_Get(['DetPos', data3D]);
 DummyPos     = sd_data_Get(['DummyPos', data3D]);
+Landmarks    = sd_data_Get(['Landmarks', data3D]);
 ml           = sd_data_GetMeasList();
 sl           = sd_data_GetSpringList();
 al           = sd_data_GetAnchorList();
@@ -29,11 +30,11 @@ Lambda       = sd_data_Get('Lambda');
 SpatialUnit  = sd_data_Get('SpatialUnit');
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES %%%%%%%
-probe_geometry_axes_Init(handles,SrcPos,DetPos,DummyPos,ml);
+probe_geometry_axes_Init(handles, SrcPos, DetPos, DummyPos, Landmarks, ml);
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES2 %%%%%%%
-probe_geometry_axes2_Init(handles,[SrcPos; DetPos; DummyPos],...
-    size([SrcPos; DetPos],1),sl);
+probe_geometry_axes2_Init(handles, [SrcPos; DetPos; DummyPos], ...
+                          size([SrcPos; DetPos],1), Landmarks, sl);
 
 
 %%%%%%%% Initialize source, detector and dummy optode tables in SD %%%%%%%
@@ -42,10 +43,10 @@ optode_det_tbl_Update(handles);
 optode_dummy_tbl_Update(handles);
 
 %%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
-optode_spring_tbl_Init(handles,sl);
+optode_spring_tbl_Init(handles, sl);
 
 %%%%%%%% Initialize optode anchor points tables in SD %%%%%%%
-optode_anchor_tbl_Init(handles,al);
+optode_anchor_tbl_Init(handles, al);
 
 %%%%%%%% Initialize Spatial Unit
 %    if strcmpi(SpatialUnit,'cm')

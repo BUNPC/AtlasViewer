@@ -6,11 +6,11 @@ if isempty(probe)
 end
 
 SD.Lambda               = probe.lambda;
-SD.SpatialUnit          = '';
+SD.SpatialUnit          = 'mm';
 SD.SrcPos               = probe.srcpos;
 SD.DetPos               = probe.detpos;
 SD.DummyPos             = probe.registration.dummypos;
-SD                      = convertProbe3D2SD(probe, SD);
+SD                      = convertProbe3D_2_SD(probe, SD);
 SD.nSrcs                = probe.nsrc;
 SD.nDets                = probe.ndet;
 SD.MeasList             = [];

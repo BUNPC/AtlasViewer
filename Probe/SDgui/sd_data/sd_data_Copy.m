@@ -37,7 +37,7 @@ if isfield(SD1,'SrcPos3D') && isfield(SD1,'DetPos3D') && isfield(SD1,'DummyPos3D
     SD2.DetPos3D = SD1.DetPos3D;
     SD2.DummyPos3D = SD1.DummyPos3D;
 elseif isfield(SD1,'optpos_reg')
-    SD2 = convertProbe3D2SD(SD1, SD2);
+    SD2 = convertProbe3D_2_SD(SD1, SD2);
 else
     if isfield(SD1,'SrcPos3D')
         SD2.SrcPos3D = SD1.SrcPos3D;
@@ -50,7 +50,9 @@ else
     end
 end
 
-
+if isfield(SD1,'Landmarks')
+    SD2.Landmarks = SD1.Landmarks;
+end
 
 if isfield(SD1,'SrcGrommetType')
     if isempty(SD1.SrcGrommetType)

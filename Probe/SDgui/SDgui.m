@@ -55,7 +55,7 @@ if ~isempty(filename)
     sd_file_panel_SetPathname(handles, pathname);
     err = sd_file_open(filename, pathname, handles);
     if err
-        SDgui_SetVersion(hObject);
+        SDgui_version(hObject);
         positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
         setGuiFonts(hObject);        
         return;
@@ -63,34 +63,47 @@ if ~isempty(filename)
 elseif ~isempty(varargin)
     SDgui_display(handles, varargin{1})
 end
+
 sd_file_panel_SetPathname(handles, pathname);
-
-% Set the AtlasViewerGUI version number
 SDgui_version(hObject);
-
 positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 setGuiFonts(hObject);
-
 popupmenuSpatialUnit_Callback([], [], handles)
-
 radiobuttonView3D_Callback([], [], handles);
 
 
 
 % -------------------------------------------------------------------
-function SDgui_DeleteFcn(hObject, ~, ~)
+function SDgui_DeleteFcn(~, ~, handles)
 global filedata
 
-filedata.SD = [];
+if isempty(handles)
+    return;
+end
+if ~ishandle(handles.SDgui)
+    return;
+end
 
-hSDgui = get(get(hObject,'parent'),'parent');
-delete(hSDgui);
+% If SD has been edited but not saved, notify user there's unsaved changes
+% before loading new file
+if SDgui_EditsMade()
+    msg{1} = 'SD data has been edited. Do you want to save your changes before exiting? ';
+    msg{2} = '(Click CANCEL to go back to SDgui)';
+    q = MenuBox(msg, {'Save and Exit','Exit Only','CANCEL'});
+    if q==3
+        return;
+    end
+    if q==1
+        SDgui_saveasmenuitem_Callback([], [], handles)
+    end
+end
+filedata.SD = [];
+delete(handles.SDgui);
 
 
 
 % -------------------------------------------------------------------
 function varargout = SDgui_OutputFcn(~, ~, handles)
-
 % Get default command line output from handles structure
 if ~isempty(handles)
     varargout{1} = handles.output;
@@ -99,14 +112,12 @@ end
 
 % -------------------------------------------------------------------
 function SDgui_clear_all_bttn_Callback(~, ~, handles)
-
 SDgui_clear_all(handles)
 
 
 
 % -------------------------------------------------------------------
 function SDgui_openmenuitem_Callback(~, ~, handles)
-
 pathname = sd_file_panel_GetPathname(handles);
 
 % Change directory SDgui
@@ -126,30 +137,20 @@ SDgui_clear_all_bttn_Callback(hObject, [], handles);
 
 % -------------------------------------------------------------------
 function SDgui_savemenuitem_Callback(~, ~, handles)
-
 % Get current pathname
 filename = sd_filename_edit_Get(handles);
 pathname = sd_file_panel_GetPathname(handles);
-
-% Save file
-if(isempty(filename))
-    [filename, pathname] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file',filename);
-    if(filename == 0)
-        return;
-    end
-end
 sd_file_save(filename, pathname, handles);
 
 
 
 % -------------------------------------------------------------------
 function SDgui_saveasmenuitem_Callback(~, ~, handles)
-
 % Get current pathname
 filename = sd_filename_edit_Get(handles);
 
 % Save file
-[filename, pathname] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file as under another file name',filename);
+[filename, pathname] = uiputfile({'*.SD'; '*.sd'; '*.nirs'},'Save SD file',filename);
 if(filename == 0)
     return;
 end
@@ -160,6 +161,7 @@ sd_file_save(filename, pathname, handles);
 % -------------------------------------------------------------------
 function SDgui_radiobuttonSpringEnable_Callback(hObject, ~, handles)
 SDgui_chooseMode(hObject, handles);
+radiobuttonView3D_Callback([], [], handles);
 
 
 
@@ -178,14 +180,12 @@ else
     probe_geometry_axes2_Hide(handles,'on');
     optode_tbls2_Hide(handles,'on');
 end
-chooseAxes(handles)
 
 
 
 % -------------------------------------------------------------------
 function [fname, pname] = getCurrPathname(arg)
 fname = '';
-pname = '';
 if isempty(arg)
     [fname, pname] = uigetfile({'*.SD; *.sd; *.nirs; *.snirf'},'Open SD file',pwd);
     if(fname == 0)
@@ -228,7 +228,6 @@ pname = filesepStandard(pname);
 fname = [fname, ext];
 
 
-
 % -------------------------------------------------------------------
 function sd_filename_edit_Callback(hObject, ~, ~)
 filename = get(hObject,'string');
@@ -249,35 +248,20 @@ end
 
 
 % ------------------------------------------------------------------
-function SDgui_SetVersion(hObject)
-
-V = getVernum();
-if str2num(V{2})==0
-    set(hObject,'name', sprintf('SDgui  (v%s) - %s', [V{1}],cd) )
-else
-    set(hObject,'name', sprintf('SDgui  (v%s) - %s', [V{1} '.' V{2}],cd) )
-end
-SD.vrnum = V;
-
-
-
-% ------------------------------------------------------------------
 function checkboxViewFilePath_Callback(hObject, ~, handles)
 
 if get(hObject,'value')==1
-    set(handles.textViewFilePath, 'visible','on');
+    set(handles.editFolderName, 'visible','on');
     set(handles.textFolderName, 'visible','on');
 else
-    set(handles.textViewFilePath, 'visible','off');
+    set(handles.editFolderName, 'visible','off');
     set(handles.textFolderName, 'visible','off');
 end
 
 
 
-
 % ------------------------------------------------------------------
 function checkboxNinjaCap_Callback(~, ~, handles)
-
 optode_src_tbl_Update(handles);
 optode_det_tbl_Update(handles);
 optode_dummy_tbl_Update(handles);
@@ -408,10 +392,22 @@ htoolbar = getToolbarHandle(handles);
 hAxes = chooseAxes(handles);
 if get(hObject, 'value')
     set(htoolbar, 'visible','on');
-    set(get(hAxes,'zlabel'), 'visible','on')    
+    set(get(hAxes,'zlabel'), 'visible','on')
+    rotate3d(hAxes, 'on')
+    
+    % Only later versions of Matlab (after 2017b) have ContextMenu
+    if isfield(hAxes, 'ContextMenu') && isempty(hAxes.ContextMenu) % Only later versions of Matlab have ContextMenu
+        hcm = uicontextmenu();
+        % hcm.ContextMenuOpeningFcn = @(hObject,eventdata)SDgui('Delete3D',hObject,eventdata,guidata(hObject));
+        hm = uimenu(hcm, 'text','Delete 3D');
+        hm.MenuSelectedFcn = @(hObject,eventdata)SDgui('menuItemDelete3D_Callback',hObject,eventdata,guidata(hObject));
+        hAxes.ContextMenu = hcm;
+    end
+    
 else
     set(htoolbar, 'visible','off');
     set(get(hAxes,'zlabel'), 'visible','off')    
+    rotate3d(hAxes, 'off')
 end
 
 
@@ -436,4 +432,45 @@ else
     hAxes = handles.probe_geometry_axes2;
 end
 axes(hAxes);
+
+
+
+% ---------------------------------------------------------------
+function pushbuttonExit_Callback(~, ~, handles)
+SDgui_DeleteFcn([], [], handles);
+
+
+
+% ---------------------------------------------------------------
+function SDgui_CloseRequestFcn(~, ~, handles)
+SDgui_DeleteFcn([], [], handles);
+
+
+
+% --------------------------------------------------------------------
+function menuItemExit_Callback(~, ~, handles)
+SDgui_DeleteFcn([], [], handles);
+
+
+
+% --------------------------------------------------------------------
+function uitoggletool1_OffCallback(~, ~, handles)
+hAxes = chooseAxes(handles);
+SDgui_set_axes_view(hAxes);
+
+
+
+% --------------------------------------------------------------------
+function menuItemDelete3D_Callback(~, ~, handles)
+sd_data_Delete3D();
+radiobuttonView3D_Callback([], [], handles)
+
+
+
+% --------------------------------------------------------------------
+function menuItemDeleteRegistrationData_Callback(~, ~, handles)
+global SD
+sd_data_DeleteRegistrationData();
+SDgui_display(handles, SD);
+
 

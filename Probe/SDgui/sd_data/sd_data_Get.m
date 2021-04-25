@@ -18,6 +18,8 @@ switch lower(datatype)
         data = SD.SrcPos3D;
     case {'detpos3d'}
         data = SD.DetPos3D;
+    case {'landmarks3d'}
+        data = SD.Landmarks;        
 	case {'srcgrommettype'}
         if isempty(SD.SrcGrommetType)
             c = sd_data_GetGrommetChoices();

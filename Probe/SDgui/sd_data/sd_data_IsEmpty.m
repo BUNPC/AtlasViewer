@@ -12,5 +12,11 @@ end
 if ~isempty(SDo.DetPos)
     return;
 end
+if ~isempty(SDo.SrcPos3D)
+    return;
+end
+if ~isempty(SDo.DetPos3D)
+    return;
+end
 b = true;
 

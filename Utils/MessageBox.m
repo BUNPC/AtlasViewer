@@ -6,11 +6,12 @@ end
 if ~exist('options','var')
     options = '';
 end
- 
+if iscell(msg)
+    msg = [msg{:}];
+end 
 
 % Display message box
 hm = msgbox(msg, title);
-
 if optionExists(options, 'nowait')
     return
 end
