@@ -1,5 +1,4 @@
 function probe = initProbe(handles)
-
 probe = struct( ...
                'name','probe', ...
                'pathname',filesepStandard(pwd), ...
@@ -12,6 +11,7 @@ probe = struct( ...
                                 'hProjectionRays',[], ...
                                 'hSprings',[], ...
                                 'hSDgui',[], ...
+                                'hRefpts',[], ...
                                 'pushbuttonRegisterProbeToSurface',[], ...
                                 'checkboxHideProbe',[], ...
                                 'checkboxHideSprings',[], ...
@@ -63,6 +63,7 @@ probe = struct( ...
                'checkCompatability',[], ...
                'isempty',@isempty_loc, ...
                'copy',@copy_loc, ...
+               'copyLandmarks',@copyLandmarks, ...
                'save',@save_loc, ...
                'prepObjForSave',[], ...
                'pullToSurfAlgorithm','center', ...
@@ -83,12 +84,12 @@ if exist('handles','var')
     probe.handles.checkboxOptodeSDMode             = handles.checkboxOptodeSDMode;
     probe.handles.checkboxOptodeCircles            = handles.checkboxOptodeCircles;
     probe.handles.menuItemSaveRegisteredProbe      = handles.menuItemSaveRegisteredProbe;
-    probe.handles.menuItemProbeToCortex          = handles.menuItemProbeToCortex;
+    probe.handles.menuItemProbeToCortex            = handles.menuItemProbeToCortex;
     probe.handles.menuItemOverlayHbConc            = handles.menuItemOverlayHbConc;
     probe.handles.editSpringLenThresh              = handles.editSpringLenThresh;
     probe.handles.textSpringLenThresh              = handles.textSpringLenThresh;
     probe.handles.menuItemLoadPrecalculatedProfile = handles.menuItemLoadPrecalculatedProfile;
-    probe.handles.menuItemProbeCreate                = handles.menuItemProbeCreate;
+    probe.handles.menuItemProbeCreate              = handles.menuItemProbeCreate;
     probe.handles.menuItemProbeImport              = handles.menuItemProbeImport;
     probe.handles.axes                             = handles.axesSurfDisplay;
     
@@ -121,10 +122,8 @@ if exist('handles','var')
 end
 
 
-
 % --------------------------------------------------------------
 function b = isempty_loc(probe)
-
 b = true;
 if isempty(probe)
     return;
@@ -136,6 +135,7 @@ if isempty(probe.srcpos) && isempty(probe.detpos) && isempty(probe.optpos)
     return;
 end
 b = false;
+
 
 
 % --------------------------------------------------------------
@@ -167,30 +167,30 @@ end
 probe = scaleFactor(probe);
 
 if ~probe2.registration.isempty(probe2)
-    probe.registration  = probe2.registration;
+    probe = copyRegistration(probe, probe2);
 end
-if ~isempty(probe2.lambda)
+if ~isempty(probe2.lambda) && isempty(probe.lambda)
     probe.lambda        = probe2.lambda;
 end
-if ~isempty(probe2.srcpos)
+if ~isempty(probe2.srcpos) && isempty(probe.srcpos)
     probe.srcpos        = probe2.srcpos;
 end
-if ~isempty(probe2.detpos)
+if ~isempty(probe2.detpos) && isempty(probe.detpos)
     probe.detpos        = probe2.detpos;
 end
-if ~isempty(probe2.optpos_reg)
+if ~isempty(probe2.optpos_reg) && isempty(probe.optpos_reg)
     probe.optpos_reg    = probe2.optpos_reg;
 end
-if ~isempty(probe2.ml)
+if ~isempty(probe2.ml) && isempty(probe.ml)
     probe.ml            = probe2.ml;
 end
-if isfield(probe2,'SrcGrommetRot')
+if isfield(probe2,'SrcGrommetRot') && isempty(probe.SrcGrommetRot)
     probe.SrcGrommetRot = probe2.SrcGrommetRot;
 end
-if isfield(probe2,'DetGrommetRot')
+if isfield(probe2,'DetGrommetRot') && isempty(probe.DetGrommetRot)
     probe.DetGrommetRot = probe2.DetGrommetRot;
 end
-if isfield(probe2,'DummyGrommetRot')
+if isfield(probe2,'DummyGrommetRot') && isempty(probe.DummyGrommetRot )
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
 end
 probe.optpos        = [probe.srcpos; probe.detpos; probe.registration.dummypos];
@@ -198,8 +198,6 @@ probe.center        = probe2.center;
 probe.orientation   = probe2.orientation;
 
 probe = setNumberOfOptodeTypes(probe, probe2);
-
-
 
 
 
@@ -232,7 +230,6 @@ if strcmp(guessUnit(probe), 'cm')
 end
 
 
-
 % ------------------------------------------------
 function u = guessUnit(probe)
 u = '';
@@ -245,7 +242,6 @@ end
 if isempty(probe.ml)
     return;
 end
-
 th = 10;
 d = zeros(size(probe.ml,1), 1)+th;
 for ii = 1:size(probe.ml,1)
@@ -261,7 +257,6 @@ else
 end
 
 
-
 % -------------------------------------------------
 function probe = initRegistration(probe)
 probe.registration = struct(...
@@ -274,4 +269,30 @@ probe.registration = struct(...
     'isempty',@isempty_reg_loc, ...
     'init',@initRegistration ...
     );
+
+
+% -------------------------------------------------
+function p2 = copyRegistration(p2, p1)
+if ~isempty(p1.registration.sl) && isempty(p2.registration.sl)
+    p2.registration.sl              = p1.registration.sl;
+end
+if ~isempty(p1.registration.al) && isempty(p2.registration.al)
+    p2.registration.al              = p1.registration.al;
+end
+if ~isempty(p1.registration.dummypos) && isempty(p2.registration.dummypos)
+    p2.registration.dummypos        = p1.registration.dummypos;
+end
+if ~isempty(p1.registration.springLenThresh)
+    p2.registration.springLenThresh = p1.registration.springLenThresh;
+end
+if ~isempty(p1.registration.refpts) && ~p1.registration.refpts.isempty(p1.registration.refpts) && ...
+        p2.registration.refpts.isempty(p2.registration.refpts)
+    p2.registration.refpts          = p1.registration.refpts;
+end
+
+
+
+% -------------------------------------------------
+function probe = copyLandmarks(probe, refpts)
+probe.registration.refpts = refpts.copyLandmarks(probe.registration.refpts, refpts);
 

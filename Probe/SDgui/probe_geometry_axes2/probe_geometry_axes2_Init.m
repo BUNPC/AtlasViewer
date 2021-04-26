@@ -93,7 +93,7 @@ else
 end
 
 % Only later versions of Matlab (after 2017b) have ContextMenu
-if isfield(hObject, 'ContextMenu') && isempty(hObject.ContextMenu)
+if isproperty(hObject, 'ContextMenu') && isempty(hObject.ContextMenu)
     hcm = uicontextmenu();
     hm = uimenu(hcm, 'text','Delete Registration Data');
     hm.MenuSelectedFcn = @(h,eventdata)SDgui('menuItemDeleteRegistrationData_Callback',h,eventdata,guidata(hObject));

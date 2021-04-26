@@ -48,6 +48,9 @@ optode_spring_tbl_Init(handles, sl);
 %%%%%%%% Initialize optode anchor points tables in SD %%%%%%%
 optode_anchor_tbl_Init(handles, al);
 
+%%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
+optode_dummy_tbl_Init(handles, DummyPos, size(SrcPos,1)+size(DetPos,1));
+
 %%%%%%%% Initialize Spatial Unit
 %    if strcmpi(SpatialUnit,'cm')
 %        set( handles.popupmenuSpatialUnit, 'value',1);

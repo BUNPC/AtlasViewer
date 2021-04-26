@@ -396,7 +396,7 @@ if get(hObject, 'value')
     rotate3d(hAxes, 'on')
     
     % Only later versions of Matlab (after 2017b) have ContextMenu
-    if isfield(hAxes, 'ContextMenu') && isempty(hAxes.ContextMenu) % Only later versions of Matlab have ContextMenu
+    if isproperty(hAxes, 'ContextMenu') && isempty(hAxes.ContextMenu) % Only later versions of Matlab have ContextMenu
         hcm = uicontextmenu();
         % hcm.ContextMenuOpeningFcn = @(hObject,eventdata)SDgui('Delete3D',hObject,eventdata,guidata(hObject));
         hm = uimenu(hcm, 'text','Delete 3D');

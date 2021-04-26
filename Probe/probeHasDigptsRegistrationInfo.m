@@ -1,5 +1,8 @@
 function b = probeHasDigptsRegistrationInfo(probe)
 b = false;
+if isProbeFlat(probe)
+    return;
+end
 if isempty(probe.registration.refpts)
     return;
 end

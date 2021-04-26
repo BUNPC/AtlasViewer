@@ -81,6 +81,12 @@ if isfield(SD,'AnchorList')
 else
     probe.registration.al = [];
 end
+if isfield(SD,'Landmarks')
+    probe.registration.refpts.labels    = SD.Landmarks.labels;
+    probe.registration.refpts.pos       = SD.Landmarks.pos;
+else
+    probe.registration.refpts = initRefpts();
+end
 
 if isfield(SD,'SrcGrommetType')
     probe.SrcGrommetType = SD.SrcGrommetType;
@@ -117,7 +123,6 @@ else
 end
 
 probe.optpos = [probe.srcpos; probe.detpos; probe.registration.dummypos];
-
 probe = setNumberOfOptodeTypes(probe, SD);
 
 

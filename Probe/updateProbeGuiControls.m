@@ -45,7 +45,7 @@ if ~isempty(probe.optpos)
     % springs and anchor points, if they exist. The button
     % pushbuttonRegisterProbeToSurface is used for both cases but has to be
     % enabled
-    if isPreRegisteredProbe(probe, headsurf) || probeHasSpringRegistrationInfo(probe)
+    if isPreRegisteredProbe(probe, headsurf) || probeHasSpringRegistrationInfo(probe) || probeHasLandmarkRegistration(probe)
         set(probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
     elseif ~probeHasDigptsRegistrationInfo(probe)
         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');

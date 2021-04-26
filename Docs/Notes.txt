@@ -21,9 +21,19 @@ with mean positions design probe.
 -- GUI would also contain the optode pos table
 
 
-Oct 27, 2020
 ======================================================
+Oct 27, 2020
 
 -- Would be useful feature in AV twhen displaying ref points letters to control the font size. 
 -- In AV File menu, change menu option name Change Subject to Change Group to bring it in line 
 with Homer3 
+
+
+======================================================
+Apr 25, 2021
+
+v2.13.2
+
+-- Add hide landmarks checkbox to probe panel, to first show if landmarks exist at all at a glance by enabling it and then where they are by unchecking it. 
+-- Fix probe and refpts 'name' field that was used to propagate the same probe to all subjects in the group folder with a cell array of names. I backed out this change but not sure why. 
+-- 
