@@ -1,6 +1,8 @@
 function optode_src_tbl_Update(handles)
 
-OptPos       = sd_data_Get('SrcPos');
+data3D      = SDgui_3DViewSelected(handles);
+
+OptPos       = sd_data_Get(['SrcPos', data3D]);
 GrommetType  = sd_data_Get('SrcGrommetType');
 GrommetRot  = sd_data_Get('SrcGrommetRot');
 SrcMap       = sd_data_Get('SrcMap');

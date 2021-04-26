@@ -1,5 +1,10 @@
 function b = isPreRegisteredProbe(probe, headsurf)
-b = false;
+b = 0;
+
+MEAN_DIST_THRESH = 20;
+MAX_DIST_THRESH = 31;
+STD_DIST_THRESH = 10;
+ALL_DIST_THRESH = 5;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Eliminate simple cases of probe not being registered
@@ -23,7 +28,11 @@ else
     p = probe.optpos;
 end
 [~, ~, d] = nearest_point(headsurf.mesh.vertices, p);
-if mean(d)<20 & max(d)<31 & std(d,1,1)<10
-    b = true;
+
+if mean(d)<MEAN_DIST_THRESH & max(d)<MAX_DIST_THRESH & std(d,1,1)<STD_DIST_THRESH
+    b = 1;
+    if all(d<ALL_DIST_THRESH)
+        b = 2;
+    end
 end
 

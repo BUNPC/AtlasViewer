@@ -1,10 +1,10 @@
 function [l, tbl_data] = optode_tbl_GetCellLengths(tbl_data, r, coordCols, handles)
-if ~exist('coordCols','var') || isempty(coordCols)
-    ncoord = sd_data_GetCoordNum();
-    coordCols = 1:ncoord;
-end
 if ~exist('handles','var')
     handles = [];
+end
+if ~exist('coordCols','var') || isempty(coordCols)
+    ncoord = sd_data_GetCoordNum(SDgui_3DViewSelected(handles));
+    coordCols = 1:ncoord;
 end
 
 %if get(handles.checkboxNinjaCap,'value')==1

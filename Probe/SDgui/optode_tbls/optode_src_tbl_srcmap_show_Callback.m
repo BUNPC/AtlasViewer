@@ -1,12 +1,13 @@
-function optode_src_tbl_srcmap_show_Callback(hObject, eventdata, handles)
+function optode_src_tbl_srcmap_show_Callback(hObject, ~, handles)
 
 val = get(hObject,'value');
+data3D = SDgui_3DViewSelected(handles);
 
 tbl_data    = get(handles.optode_src_tbl, 'data');
 cnames      = get(handles.optode_src_tbl, 'ColumnName');
 cwidth      = get(handles.optode_src_tbl, 'ColumnWidth');
 ceditable   = get(handles.optode_src_tbl, 'ColumnEditable');
-ncoord      = size(sd_data_Get('SrcPos'), 2);
+ncoord      = size(sd_data_Get(['SrcPos', data3D]), 2);
 
 if(val==0)
     tbl_data    = tbl_data(:,1:ncoord+1);
@@ -17,7 +18,7 @@ else
     srcmap = sd_data_Get('SrcMap');
     nwl = sd_data_GetNwl();
     offset = ncoord+1;
-    nSrcs = size(sd_data_Get('SrcPos'), 1);
+    nSrcs = size(sd_data_Get(['SrcPos', data3D]), 1);
     tbl_data(:, offset+1:end) = {''};
     for j = 1:nwl
         for i = 1:nSrcs

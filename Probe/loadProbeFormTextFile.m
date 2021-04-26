@@ -84,13 +84,14 @@ while 1
         dummypos(iM,:) = str2num(str(k+1:end));
     end
 end
-probe.srcpos   = srcpos;
-probe.detpos   = detpos;
-probe.optpos   = [srcpos; detpos; dummypos];
-probe.nsrc     = size(srcpos,1);
-probe.nopt     = size(probe.optpos,1);
-probe.noptorig = size(probe.srcpos,1) + size(probe.detpos,1);
+probe.srcpos                = srcpos;
+probe.detpos                = detpos;
 probe.registration.dummypos = dummypos;
+probe.optpos                = [srcpos; detpos; dummypos];
+probe.nsrc                  = size(srcpos,1);
+probe.nopt                  = size(probe.optpos,1);
+probe.noptorig              = size(probe.srcpos,1) + size(probe.detpos,1);
+
 if isPreRegisteredProbe(probe, headsurf)
     probe.optpos_reg = probe.optpos;
 end

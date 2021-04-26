@@ -3,7 +3,7 @@ function digpts = xformDigpts(digpts, refpts)
 if ~exist('refpts','var') || isempty(refpts)
     refpts = [];
 end
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts.refpts);
 T = gen_xform_from_pts(rp_subj, rp_atlas);
 
 digpts.refpts.pos = xform_apply(digpts.refpts.pos, T);

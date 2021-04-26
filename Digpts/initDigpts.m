@@ -126,3 +126,7 @@ detpos = probe.optpos_reg(probe.nsrc+1:probe.nsrc+probe.ndet,:);
 digpts.srcpos = xform_apply(srcpos, inv(digpts.T_2vol));
 digpts.detpos = xform_apply(detpos, inv(digpts.T_2vol));
 
+if ~isempty(probe.registration.refpts) && ~probe.registration.refpts.isempty(probe.registration.refpts)
+    digpts.refpts = probe.registration.refpts;
+end
+

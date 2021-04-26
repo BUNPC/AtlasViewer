@@ -52,5 +52,5 @@ elseif strcmp(ext, '.snirf')
     filedata.SD.MeasList = snirf.GetMeasList();
     filename = [fname, '.SD'];
 end
-
+filedata.SD = sd_data_Init(filedata.SD);
 

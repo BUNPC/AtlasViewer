@@ -8,11 +8,12 @@ c = eventdata.Indices(2);
 tbl_data = get(hObject,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
+data3D = SDgui_3DViewSelected(handles);
 
 % if c == 5
 %     tbl_data(r,c) = string(tbl_data(r,c));
 % end
-ncoord = sd_data_GetCoordNum();
+ncoord = sd_data_GetCoordNum(data3D);
 detdata = zeros(1, ncoord);
 action = '';
 
@@ -70,7 +71,7 @@ end
 %%%% Update SD
 
 % DetPos
-sd_data_SetDetPos(tbl_data(1:tbl_size,:))
+sd_data_Set(['DetPos', data3D], (tbl_data(1:tbl_size,:)))
 
 % GrommetType 
 sd_data_SetDetGrommetType(tbl_data(1:tbl_size, ncoord+1))
