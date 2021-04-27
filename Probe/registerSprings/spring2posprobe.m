@@ -13,7 +13,11 @@ end
 refpts.labels = lower(refpts.labels);
 
 %%% Create connectivity list
-optpos = probe.optpos;
+if ~isempty(probe.optpos_reg)
+    optpos = probe.optpos_reg;
+else
+    optpos = probe.optpos;
+end
 sl     = probe.registration.sl;
 
 %%% find maximum # of springs stemming from one optode 

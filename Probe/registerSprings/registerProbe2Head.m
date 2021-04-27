@@ -1,7 +1,11 @@
 function probe = registerProbe2Head(probe, headvol, refpts)
 
 [optconn, anchor_pts] = spring2posprobe(probe, refpts, headvol);
-posprobe_data = gen_positionprobe_dat(probe.optpos, optconn, anchor_pts);
+if ~isempty(probe.optpos_reg)
+    posprobe_data = gen_positionprobe_dat(probe.optpos_reg, optconn, anchor_pts);
+else
+    posprobe_data = gen_positionprobe_dat(probe.optpos, optconn, anchor_pts);
+end
 if isempty(posprobe_data)
     return;
 end
