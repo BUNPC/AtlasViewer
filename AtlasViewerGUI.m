@@ -742,9 +742,21 @@ labelssurf  = resetLabelssurf(labelssurf);
 
 
 % --------------------------------------------------------------------
+
 function pushbuttonRegisterProbeToSurface_Callback(hObject, eventdata, handles)
 global atlasViewer
 
+if ~exist('hObject','var')
+    hObject = [];
+end
+if ~ishandles(hObject)
+    % If call to menuItemRegisterAtlasToDigpts_Callback is not a GUI event then exit
+    return;
+end
+if strcmp(get(hObject, 'enable'), 'off')
+    return
+end
+    
 refpts       = atlasViewer.refpts;
 probe        = atlasViewer.probe;
 headsurf     = atlasViewer.headsurf;
@@ -754,6 +766,12 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
 digpts       = atlasViewer.digpts;
+
+% isPreRegisteredProbe==2 (rather then simply 1) means probe is already
+% registered to head nothing to do
+if isPreRegisteredProbe(probe, headsurf)==2
+    return;
+end
 
 % for displayAxesv whichever head object (headsurf or headvol) 
 % is not empty will work. 
@@ -773,13 +791,22 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isempty(probe.registration.al)
+if digptsPreRegistered(digpts, probe)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
     probe = pullProbeToHeadsurf(probe, headobj);
     probe.hOptodesIdx = 1;
    
+elseif ~isempty(probe.optpos_reg)
+    
+    [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
+    T = gen_xform_from_pts(rp_subj, rp_atlas);
+    probe.optpos_reg = xform_apply(probe.optpos_reg, T);
+    probe = pullProbeToHeadsurf(probe, headobj);
+    probe = probe.copyLandmarks(probe, refpts);
+    probe.save(probe);
+    
 else
     
     % Register probe using springs based method
@@ -791,13 +818,14 @@ else
         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
         msg{3} = sprintf('registration data using SDgui application.\n\n');
-        fprintf([msg{:}]);
-        MessageBox([msg{:}])
+        MessageBox(msg);
         return
     end
         
     % Get registered optode positions and then display springs
     probe = registerProbe2Head(probe, headvol, refpts);
+    probe = probe.copyLandmarks(probe, refpts);
+    probe.save(probe);
   
 end
 
@@ -807,7 +835,7 @@ end
     clearRegistration(probe, fwmodel, labelssurf, dirnameSubj);
 
 % View registered optodes on the head surface
-probe = viewProbe(probe, 'registered');
+probe = displayProbe(probe);
 
 % Draw measurement list and save handle
 probe = findMeasMidPts(probe);
@@ -816,6 +844,7 @@ fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, lab
 
 probe.hOptodesIdx = 1; 
 probe = setProbeDisplay(probe, headsurf);
+
 
 atlasViewer.probe       = probe;
 atlasViewer.fwmodel     = fwmodel;
@@ -856,7 +885,6 @@ headsurf = atlasViewer.headsurf;
 
 hideProbe = get(hObject,'value');
 probe.hideProbe = hideProbe;
-sl = probe.registration.sl;
 
 probe = setProbeDisplay(probe, headsurf);
 atlasViewer.probe = probe;
@@ -992,7 +1020,7 @@ refpts     = atlasViewer.refpts;
 optpos_reg = probe.optpos_reg;
 nsrc       = probe.nsrc;
 ndet       = probe.noptorig-nsrc;
-ndummy     = probe.noptorig-(nsrc+ndet);
+ndummy     = probe.registration.ndummy;
 
 q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
 if q==2
@@ -1092,6 +1120,17 @@ function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 global DEBUG
 
+if ~exist('hObject','var')
+    hObject = [];
+end
+if ~ishandles(hObject)
+    % If call to menuItemRegisterAtlasToDigpts_Callback is not a GUI event then exit
+    return;
+end
+if strcmp(get(hObject, 'enable'), 'off')
+    return
+end
+
 refpts       = atlasViewer.refpts;
 digpts       = atlasViewer.digpts;
 headsurf     = atlasViewer.headsurf;
@@ -1116,22 +1155,12 @@ if all(isregistered(refpts,digpts))
     return;
 end
 
-if ~exist('hObject','var')
-    hObject = [];
-end
-
-% If call menuItemRegisterAtlasToDigpts_Callback is not a GUI event, 
-% then exit after setting  setting 
-if ~ishandles(hObject)
-    return;
-end
-
 %%%% Move all the volumes, surfaces and points back to a known space 
 %%%% volume space. 
 
 % First determine transformation to monte carlo space from volume 
 % Generate transformation from head volume to digitized points space
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts.refpts);
 headvol.T_2digpts = gen_xform_from_pts(rp_atlas, rp_subj);
 headvol.imgOrig = headvol.img;
 
@@ -1235,7 +1264,7 @@ pialsurf       = displayPialsurf(pialsurf);
 labelssurf     = displayLabelssurf(labelssurf);
 refpts         = displayRefpts(refpts);
 digpts         = displayDigpts(digpts);
-probe          = displayProbe(probe, headsurf);
+probe          = displayProbe(probe);
 axesv(1)       = displayAxesv(axesv(1), headsurf, headvol, initDigpts());
 
 set(axesv(1).handles.axesSurfDisplay,{'xlimmode','ylimmode','zlimmode'},{'manual','manual','manual'});
@@ -1401,8 +1430,6 @@ pialsurf    = atlasViewer.pialsurf;
 headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
 axesv       = atlasViewer.axesv;
-
-T_vol2mc    = atlasViewer.headvol.T_2mc;
 
 try 
     if isempty(eventdata) | strcmp(eventdata.EventName,'Action')
@@ -3453,7 +3480,6 @@ axesv       = atlasViewer.axesv;
 hbconc      = atlasViewer.hbconc;
 pialsurf    = atlasViewer.pialsurf;
 
-qAdotExists = 0;
 
 % Check if there's a sensitivity profile which already exists
 if exist([dirnameSubj 'fw/Adot.mat'],'file')
@@ -3574,14 +3600,14 @@ atlasViewer.imgrecon     = imgrecon;
 
 
 % --------------------------------------------------------------------
-function menuItemProbeEdit_Callback(hObject, eventdata, handles)
+function menuItemProbeEdit_Callback(~, ~, ~)
 global atlasViewer
 SD = convert2SD(atlasViewer.probe);
 SDgui(SD);
 
 
 % --------------------------------------------------------------------
-function menuItemProbeAdjust3DRegistration_Callback(hObject, eventdata, handles)
+function menuItemProbeAdjust3DRegistration_Callback(~, ~, ~)
 Edit_Probe_Callback
 
 
@@ -3598,6 +3624,91 @@ global atlasViewer
 atlasViewer.probe = resizeFonts(atlasViewer.probe);
 
 
+
+% --------------------------------------------------------------------
+function menuItemViewAxes_Callback(hObject, ~, handles) %#ok<INUSD>
+global atlasViewer
+
+axesv = atlasViewer.axesv; 
+refpts = atlasViewer.refpts;
+
+if leftRightFlipped(refpts)
+    axes_order = [2,1,3];   %#ok<NASGU>
+else
+    axes_order = [1,2,3]; %#ok<NASGU>
+end
+
+type = get(hObject,'type');
+label = get(hObject,'label');
+if strcmp(type, 'uimenu')
+    checked_propname = 'checked';
+    ia = 1;
+elseif strcmp(type, 'uicontrol')
+    checked_propname = 'value';
+    ia = 2;
+end
+
+hAxes = axesv(ia).handles.axesSurfDisplay;
+hOrigin = getappdata(hAxes, 'hOrigin');
+
+labels = {'XYZ','RAS'};
+if strcmp(label, 'XYZ')
+    idx = 1;
+elseif strcmp(label, 'RAS')
+    idx = 2;
+elseif strcmp(label, 'XYZ and RAS')
+    idx = [1,2];
+end
+
+onoff = '';
+for ii=1:length(idx)
+    if ~ishandles(hOrigin(idx(ii),:))
+        continue;
+    end
+    if strcmp(get(hOrigin(idx(ii),:), 'visible'), 'off')
+        if ia==1
+            onoff = 'on';
+        elseif ia==2
+            onoff = 1;
+        end
+    elseif strcmp(get(hOrigin(idx(ii),:), 'visible'), 'on')
+        if ia==1
+            onoff = 'off';
+        elseif ia==2
+            onoff = 0;
+        end
+    end
+    eval( sprintf('set(handles.menuItemViewAxes%s, checked_propname, onoff);', labels{idx(ii)}) );
+    eval( sprintf('viewAxes%s(hAxes, axes_order, [], ''donotredraw'');', labels{idx(ii)}) );
+end
+if isempty(onoff)
+    return;
+end
+set(hObject, checked_propname, onoff);
+
+
+
+% ---------------------------------------------------------
+function b = digptsPreRegistered(digpts, probe)
+b = false;
+if isempty(probe)
+    return;
+end
+if isempty(digpts)
+    return;
+end
+if isempty(probe.optpos_reg)
+    return;
+end
+if isempty(digpts.srcpos) && isempty(digpts.detpos)
+    return;
+end
+digpts_optpos = [digpts.srcpos; digpts.detpos];
+n = length(digpts_optpos(:));
+if ~all((probe.optpos_reg(1:n)' - digpts_optpos(:)) < 1e-10)
+    return;
+end
+b = true;
 
 
 

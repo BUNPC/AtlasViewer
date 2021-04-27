@@ -26,10 +26,10 @@ end
 
 if strcmp(optViewMode,'numbers')
     set(probe.handles.circles,'visible','off');
-    hOptodes      = probe.handles.labels;
+    hOptodes      = [probe.handles.labels; probe.handles.hRefpts];
 elseif strcmp(optViewMode,'circles')
     set(probe.handles.labels,'visible','off');
-    hOptodes      = probe.handles.circles;
+    hOptodes      = [probe.handles.circles; probe.handles.hRefpts;];
 end
 
 if isempty(probe.handles.labels) || isempty(probe.optpos)

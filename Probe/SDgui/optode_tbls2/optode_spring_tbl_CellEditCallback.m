@@ -9,6 +9,7 @@ function optode_spring_tbl_CellEditCallback(hObject, eventdata, handles)
     tbl_size = userdata.tbl_size;
     r=eventdata.Indices(1);
     c=eventdata.Indices(2);
+    data3D = SDgui_3DViewSelected(handles);
     
     for i=1:ncols
         l(i)=length(tbl_data{r,i});
@@ -17,7 +18,7 @@ function optode_spring_tbl_CellEditCallback(hObject, eventdata, handles)
     
     if all(l>0)
         
-        optpos = [sd_data_Get('SrcPos'); sd_data_Get('DetPos')];
+        optpos = [sd_data_Get(['SrcPos', data3D]); sd_data_Get(['DetPos', data3D])];
         if isempty(optpos)
             ch=menu('Can''t add springs to empty probe. First create probe with at least 2 optodes','OK');
             return;

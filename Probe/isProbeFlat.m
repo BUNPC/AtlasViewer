@@ -1,10 +1,10 @@
-function b = isProbeFlat(SD)
+function b = isProbeFlat(probe)
 b = true;
 
-if isfield(SD, 'SrcPos') && isfield(SD, 'DetPos') 
-    optpos = [SD.SrcPos; SD.DetPos];
+if ~isempty(probe.optpos_reg)
+    optpos = probe.optpos_reg;
 else
-    optpos = SD.optpos;
+    optpos = probe.optpos;
 end
 ncoord = size(optpos, 2);
 for ii = 1:ncoord

@@ -1,4 +1,4 @@
-function probe_geometry_axes2_Init(handles, optpos, noptorig, sl)
+function probe_geometry_axes2_Init(handles, optpos, noptorig, landmarks, sl)
 
 % Function populates the gui axis and tables with data
 % from SD structure
@@ -22,6 +22,7 @@ optselect = zeros(size(optpos,1),1);
 
 h_nodes = [];
 h_edges = [];
+h_lm = [];
 nspr    = size(sl,1);
 
 % Draw edges first before nodes
@@ -49,29 +50,30 @@ if ~isempty(sl)
     end
 end
 
-
 % Draw nodes over edges so that they're not obscured
 axes_view = 'xy';
-if(~isempty(optpos))
+if ~isempty(optpos)
     % Draw grid that fits the probe
-    resize_axes(hObject, optpos);
-    axes_view = set_view_probe_geometry_axes2(hObject,optpos);
+    resize_axes(hObject, optpos, landmarks);
+    axes_view = SDgui_set_axes_view(hObject, optpos);
     
-    for i=1:size(optpos,1)
+    for i = 1:size(optpos,1)
         o = optpos(i,:);
         if i<=noptorig
             col = fc;
         else
             col = fc_dummy;
         end
-        h_nodes(i)=text(o(1),o(2),o(3),num2str(i), 'color',col(1,:), ...
-            'fontweight','bold', 'fontsize',fs(1),...
-            'verticalalignment','middle', 'horizontalalignment','center'); %#ok<AGROW>
+        h_nodes(i) = text(o(1),o(2),o(3),num2str(i), 'color',col(1,:), ...
+                            'fontweight','bold', 'fontsize',fs(1),...
+                            'verticalalignment','middle', 'horizontalalignment','center'); %#ok<AGROW>
         set(h_nodes(i), 'hittest','off');
         set(h_nodes(i), 'ButtonDownFcn','probe_geometry_axes2_ButtonDownFcn');
     end
 end
 
+h_lm = SDgui_display_landmarks(hObject, landmarks);
+ 
 % Save user selections to axes user data
 probe_geometry_axes2_data.optselect = optselect;
 probe_geometry_axes2_data.h_nodes = h_nodes;
@@ -80,6 +82,7 @@ probe_geometry_axes2_data.view = axes_view;
 probe_geometry_axes2_data.view = axes_view;
 probe_geometry_axes2_data.noptorig = noptorig;
 probe_geometry_axes2_data.threshold = set_threshold(optpos);
+probe_geometry_axes2_data.h_lm = h_lm;
 set(hObject, 'userdata',probe_geometry_axes2_data);
 
 
@@ -87,5 +90,13 @@ if get(handles.radiobuttonSpringEnable,'value')==0
     probe_geometry_axes2_Hide(handles,'off');
 else
     probe_geometry_axes2_Hide(handles,'on');
+end
+
+% Only later versions of Matlab (after 2017b) have ContextMenu
+if isproperty(hObject, 'ContextMenu') && isempty(hObject.ContextMenu)
+    hcm = uicontextmenu();
+    hm = uimenu(hcm, 'text','Delete Registration Data');
+    hm.MenuSelectedFcn = @(h,eventdata)SDgui('menuItemDeleteRegistrationData_Callback',h,eventdata,guidata(hObject));
+    hObject.ContextMenu = hcm;
 end
 

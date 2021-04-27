@@ -103,20 +103,21 @@ end
 
 % Load probe into the array output parameter from the default SD files
 % We make sure this file is firast in the array
-jj = 0;
 files = dir([dirname, '*.SD']);
 probe = repmat(initProbe, length(files),1);
+jj = 0;
 if exist([dirname, 'probe.SD'],'file')
     filedata = load([dirname, 'probe.SD'], '-mat');
     jj = jj+1;
     probe(jj) = loadSD(probe(jj), filedata.SD);    
 end
+jj = jj+1;
 
 % Load all the other probes from the rest of the SD files (non-default
 % ones). Then decide whether ask the user to choose among multiple SD
 % files.
 askuserflag = false;
-for ii = 1:length(files)    
+for ii = jj:length(files)
     if strcmp(files(ii).name, 'probe.SD')
         continue;
     end

@@ -4,7 +4,7 @@ if ~exist('hObject','var')
     hObject = -1;
 end
 [verstr, vernum] = version2string();
-title = sprintf('SDgui  (%s) - %s', verstr, pwd);
+title = sprintf('SDgui  (v%s) - %s', verstr, filesepStandard(pwd));
 if ishandle(hObject)
     set(hObject,'name', title);
 end

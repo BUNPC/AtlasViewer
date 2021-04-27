@@ -206,7 +206,7 @@ function probe_geometry_axes2_OptUpdate(handles, opos1, i, event, mode)
     % Draw grid to fit the updated probe
     optpos = getOptPosFromAxes(h_nodes);
     resize_axes(hObject, optpos);
-    axes_view=set_view_probe_geometry_axes2(hObject,optpos);
+    axes_view = SDgui_set_axes_view(hObject, optpos);
 
     % Update object's user data
     probe_geometry_axes2_data.optselect     = optselect;

@@ -5,10 +5,10 @@ if isempty(pathname) || ~ischar(pathname)
 end
 
 if get(handles.checkboxViewFilePath,'value')==1
-    set(handles.textViewFilePath, 'visible','on');
+    set(handles.editFolderName, 'visible','on');
     set(handles.textFolderName, 'visible','on');
 else
-    set(handles.textViewFilePath, 'visible','off');
+    set(handles.editFolderName, 'visible','off');
     set(handles.textFolderName, 'visible','off');
 end
 
@@ -19,12 +19,12 @@ else
     fsize_orig = 9.0;
 end
 
-set(handles.textViewFilePath, 'units','characters');
-pos = get(handles.textViewFilePath, 'position');
+set(handles.editFolderName, 'units','characters');
+pos = get(handles.editFolderName, 'position');
 if length(pathname) > pos(3)
     fsize = fsize_orig-1;
 else
     fsize = fsize_orig;
 end
-set(handles.textViewFilePath, 'string', filesepStandard(pathname), 'fontsize', fsize, 'units','normalized');
+set(handles.editFolderName, 'string', filesepStandard(pathname), 'fontsize', fsize, 'units','normalized');
                           

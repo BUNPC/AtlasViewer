@@ -1,8 +1,10 @@
 function optode_det_tbl_Update(handles)
 
-OptPos       = sd_data_Get('DetPos');
+data3D = SDgui_3DViewSelected(handles);
+
+OptPos       = sd_data_Get(['DetPos', data3D]);
 GrommetType  = sd_data_Get('DetGrommetType');
-GrommetRot  = sd_data_Get('DetGrommetRot');
+GrommetRot   = sd_data_Get('DetGrommetRot');
 
 % Generate table data
 A = get(handles.optode_det_tbl, 'data');

@@ -21,6 +21,6 @@ saveDigpts(digpts, 'overwrite');
 digpts = getDigpts(digpts, pwd);
 
 % Generate transformation from digitized point space to head volume
-[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts);
+[rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts.refpts);
 digpts.T_2vol = inv(gen_xform_from_pts(rp_atlas, rp_subj));
 

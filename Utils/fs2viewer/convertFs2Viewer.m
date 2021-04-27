@@ -94,7 +94,7 @@ catch ME
     end
     msg{1} = sprintf('There was an error importing MRI files. Please make sure the files are valid volume files ');
     msg{2} = sprintf('and are coregistered.\n After checking file, restart AtlasViewer to re-try importing.');
-    MessageBox([msg{:}]);
+    MessageBox(msg);
     rethrow(ME);
     
 end

@@ -7,10 +7,11 @@ function optode_anchor_tbl_CellEditCallback(hObject, eventdata, handles)
     tbl_data_prev = userdata.tbl_data;
     r=eventdata.Indices(1);
     c=eventdata.Indices(2);
+    data3D = SDgui_3DViewSelected(handles);
     
-    optpos_src = sd_data_Get('SrcPos');
-    optpos_det = sd_data_Get('DetPos');
-    optpos_dummy = sd_data_Get('DummyPos');
+    optpos_src = sd_data_Get(['SrcPos', data3D]);
+    optpos_det = sd_data_Get(['DetPos', data3D]);
+    optpos_dummy = sd_data_Get(['DummyPos', data3D]);
     
     optpos = [optpos_src; optpos_det; optpos_dummy];
     nopt = size(optpos,1);

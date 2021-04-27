@@ -11,7 +11,7 @@ if isa(obj, 'char') || isa(obj, 'SnirfClass')
     SD = snirf.GetSDG();
     SD.MeasList = snirf.GetMeasList();
 elseif isa(obj, 'TreeNodeClass')
-    SD = obj.GetSDG();
+    SD = obj.GetSDG('2D');
     foo = obj.GetMeasList();
     SD.MeasList = foo.MeasList;    
 end

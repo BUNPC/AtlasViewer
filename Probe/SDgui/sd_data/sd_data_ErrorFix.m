@@ -3,6 +3,10 @@ global SD
 
 err = false;
 
+if sd_data_IsEmpty()
+    return
+end
+
 % SrcPos
 if(~isfield(SD,'SrcPos'))
     SD.SrcPos = [];
@@ -29,18 +33,11 @@ if ~isfield(SD,'Lambda') || isempty(SD.Lambda)
     SD.Lambda = [];
 end
 
-% MesList
+% MeasList
 if ~isfield(SD,'MeasList')
     SD.MeasList = [];
 elseif ~isempty(SD.MeasList)
-    if size(SD.MeasList,2)<3
-        SD.MeasList(:,3) = 1;
-    end
-    ml = sd_data_GetMeasList();
-    nwl = sd_data_GetNwl();
-    if (nwl ~= length(unique(SD.MeasList(:,end)))) && (SD.nSrcs>0)
-        sd_data_SetMeasList(ml);
-    end
+    measListErrorFix();
 end
 
 % MesListAct
@@ -122,3 +119,57 @@ elseif nwl>0 && SD.nSrcs>0 && isempty(SD.SrcMap)
 elseif nwl>0 && SD.nSrcs>0 && (size(SD.SrcMap,1) ~= nwl)
     SD.SrcMap = reshape(SD.SrcMap(:),nwl,SD.nSrcs);
 end
+
+
+
+
+
+
+
+% -----------------------------------------------------------
+function status = measListErrorFix()
+global SD
+
+status = 0;
+
+% Get error status
+if ~all(iswholenum(SD.MeasList(:)))
+    status = 1;
+else
+    if size(SD.MeasList,2)<4
+        status = 2;
+    end
+    
+    ml_actual = sd_data_GetMeasList();
+    ml_true = unique(SD.MeasList(:,[1,2]), 'rows','stable');
+    ml = ml_actual;
+    
+    if length(ml_actual(:)) ~= length(ml_true(:))
+        status = 3;
+    elseif ~all(ml_actual == ml_true)
+        status = 4;
+    end
+    
+    nwl = sd_data_GetNwl();
+    if (nwl ~= length(unique(SD.MeasList(:,end)))) && (SD.nSrcs>0)
+        status = 5;
+    end
+end
+
+% Try to fix based on determined error status
+if status == 1
+    MessageBox('Warning: Error in measurement list that cannot be fixed.');
+elseif status > 1
+    MessageBox('Warning: Error in measurement list. SDgui will attempt to fix it.');
+    if status == 2
+        SD.MeasList(:,[3,4]) = [1,1];
+    end
+    if status == 3 || status == 4
+        ml = ml_true;
+    end    
+end
+
+if status > 2
+    sd_data_SetMeasList(ml);
+end
+

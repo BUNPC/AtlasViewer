@@ -1,17 +1,17 @@
-function [rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts)
+function [rp_atlas, rp_subj] = findCorrespondingRefpts(r1, r2)
 
 rp_atlas = [];
 rp_subj = [];
 
-refpts = makeLandmarksBackwardCompatible(refpts);
-[digpts.refpts.pos, digpts.refpts.labels] = makeLandmarksBackwardCompatible(digpts.refpts.pos, digpts.refpts.labels);
+r1 = makeLandmarksBackwardCompatible(r1);
+r2 = makeLandmarksBackwardCompatible(r2);
 
 jj=1;
-for ii=1:length(refpts.labels)
-    kk = find(strcmpi(refpts.labels{ii}, digpts.refpts.labels));
+for ii=1:length(r1.labels)
+    kk = find(strcmpi(r1.labels{ii}, r2.labels));
     if ~isempty(kk)
-        rp_atlas(jj,:) = refpts.pos(ii,:);
-        rp_subj(jj,:)  = digpts.refpts.pos(kk,:);
+        rp_atlas(jj,:) = r1.pos(ii,:);
+        rp_subj(jj,:)  = r2.pos(kk,:);
         jj=jj+1;
     end
 end

@@ -1,7 +1,12 @@
 function refpts = getRefpts(refpts, dirname0)
 
+if ~exist('dirname0','var')
+    dirname0 = pwd;
+end
+dirname0 = filesepStandard(dirname0);
+
 if iscell(dirname0)
-    for ii=1:length(dirname0)
+    for ii = 1:length(dirname0)
         refpts = getRefpts(refpts, dirname0{ii});
         if ~refpts.isempty(refpts)
             return;
@@ -12,10 +17,6 @@ end
 
 if isempty(dirname0)
     return;
-end
-
-if dirname0(end)~='/' && dirname0(end)~='\'
-    dirname0(end+1)='/';
 end
 
 dirname = [dirname0, 'anatomical/'];
@@ -34,20 +35,20 @@ else
     end
     
     % Find ref point files 
-    [refpts_fn,refpts_labels_fn] = findRefptsFile(dirname);
+    [refpts_fn, refpts_labels_fn] = findRefptsFile(dirname);
     if isempty(refpts_fn) | isempty(refpts_labels_fn)        
         fprintf('Note: No ref points file found in %s\n', dirname);
         return;
     end
     
     % See if labels file matches ref points file 
-    if ~matchRefptsFilenames(refpts_fn,refpts_labels_fn)
+    if ~matchRefptsFilenames(refpts_fn, refpts_labels_fn)
         menu('Warning: Ref points file and ref points labels file don''t match. Ref points not loaded.','OK');
         return;        
     end
     
     % Found a ref pts file we can use
-    rp = load([dirname refpts_fn],'-ascii');
+    rp = load([dirname, refpts_fn],'-ascii');
     if exist([dirname, 'refpts2vol.txt'],'file')
         T_2vol = load([dirname, 'refpts2vol.txt'],'-ascii');
     else
@@ -57,13 +58,14 @@ else
     rp_labels = {};
     
     fid = fopen([dirname refpts_labels_fn],'rt');
-    if fid~=-1
+    if fid ~= -1
         for ii=1:size(rp,1)
             rp_labels{ii} = fgetl(fid);
         end
         fclose(fid);
     end
     rp_labels = removeSpaces(rp_labels);
+    rp_labels = makeLandmarksBackwardCompatible(rp_labels);
 
     % Get the eeg system standard being used by the refpts, based on the
     % LPA, RPA ear anatomy
@@ -94,7 +96,7 @@ else
         refpts.size = 8;
     end
     
-    [nz,iz,rpa,lpa,cz] = getLandmarks(refpts);
+    [nz, iz, rpa, lpa, cz] = getLandmarks(refpts);
     [refpts.orientation, refpts.center] = getOrientation(nz, iz, rpa, lpa, cz);
       
 end
@@ -107,19 +109,19 @@ end
 
 
 % ----------------------------------------------------------------------
-function [refpts_fn,refpts_labels_fn] = findRefptsFile(dirname)
+function [refpts_fn, refpts_labels_fn] = findRefptsFile(dirname)
 
 refpts_fn = '';
 refpts_labels_fn = '';
-if exist([dirname 'refpts.txt'],'file') && exist([dirname 'refpts_labels.txt'],'file')
+if exist([dirname, 'refpts.txt'], 'file') && exist([dirname, 'refpts_labels.txt'], 'file')
     refpts_fn = 'refpts.txt';
     refpts_labels_fn = 'refpts_labels.txt';
 else
     %%% Else...for backward compatibility 
 
     % Search for other possible ref pts files
-    files = dir([dirname 'refpts*.txt']);
-    for ii=1:length(files)
+    files = dir([dirname, 'refpts*.txt']);
+    for ii = 1:length(files)
         % check for file name with prefix refpts but no 'label' string in the
         % file name then its our refpts file name.
         if isempty(findstr(files(ii).name, '_label')) & ...
@@ -141,7 +143,7 @@ end
 
 
 % ----------------------------------------------------------------------
-function b = matchRefptsFilenames(refpts_fn,refpts_labels_fn)
+function b = matchRefptsFilenames(refpts_fn, refpts_labels_fn)
 
 b = 1;
 
@@ -149,7 +151,7 @@ b = 1;
 k1 = findstr(refpts_labels_fn, '_labels');
 k2 = [];
 if isempty(k1)
-    k2 = findstr(refpts_labels_fn, '_label');
+    k2 = findstr(refpts_labels_fn, '_label'); %#ok<*FSTR>
 end
 
 refpts_fn_match = refpts_labels_fn;
@@ -174,8 +176,8 @@ foos = {};
 for ii=1:length(boos)
     kk=0;
     for jj=1:length(boos{ii})
-        if boos{ii}(jj)~=' ';
-            kk=kk+1;
+        if boos{ii}(jj)~=' '
+            kk = kk+1;
             foos{ii}(kk) = boos{ii}(jj);
         end
     end

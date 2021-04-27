@@ -1,8 +1,9 @@
 
 function SDgui_clear_all(handles)
+global SD
 
 % Clear central data object first
-sd_data_Init();
+SD = sd_data_Init();
 
 if ~exist('handles','var') || isempty(handles)
     return;
