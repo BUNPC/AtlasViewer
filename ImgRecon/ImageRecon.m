@@ -366,7 +366,7 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>
     beta = str2num(get(handles.beta_brain_scalp,'String'));
     
-    % spatial regularization on brain only
+    % spatial regularization on brain only by Dehghani group [Zhan et al.,Neuroenergetics,2012]
     for j = 1:size(Adot,3)
         J = single(squeeze(Adot(:,:,j)));
         try
