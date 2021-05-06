@@ -1,5 +1,7 @@
 function SD = convertProbe2SD(probe)
 
+global atlasViewer
+
 SD = sd_data_Init(probe);
 if isempty(probe)
     return;
@@ -43,4 +45,10 @@ end
 if ~isempty(probe.DummyGrommetRot)
     SD.DummyGrommetRot      = probe.DummyGrommetRot;
 end
+
+% add refpts and head mesh to SD file
+refpts.pos = atlasViewer.refpts.pos;
+refpts.labels = atlasViewer.refpts.labels;
+SD.refpts = refpts;
+SD.mesh = atlasViewer.headsurf.mesh;
 
