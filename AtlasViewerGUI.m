@@ -798,14 +798,14 @@ if digptsPreRegistered(digpts, probe)
     probe = pullProbeToHeadsurf(probe, headobj);
     probe.hOptodesIdx = 1;
    
-% elseif ~isempty(probe.optpos_reg)
-%     
-%     [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
-%     T = gen_xform_from_pts(rp_subj, rp_atlas);
-%     probe.optpos_reg = xform_apply(probe.optpos_reg, T);
-%     probe = pullProbeToHeadsurf(probe, headobj);
-%     probe = probe.copyLandmarks(probe, refpts);
-%     probe.save(probe);
+elseif ~isempty(probe.optpos_reg) && ~probeHasSpringRegistrationInfo(probe)
+    
+    [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
+    T = gen_xform_from_pts(rp_subj, rp_atlas);
+    probe.optpos_reg = xform_apply(probe.optpos_reg, T);
+    probe = pullProbeToHeadsurf(probe, headobj);
+    probe = probe.copyLandmarks(probe, refpts);
+    probe.save(probe);
     
 else
     
@@ -3963,10 +3963,12 @@ if eventdata.Button == 1
 
                 % add spring list to new optode
                 sl = atlasViewer.probe.registration.sl;
-                idx = find(sl(:,1) >= nrsc);
-                sl(idx,1) = sl(idx,1)+1;
-                idx = find(sl(:,2) >= nrsc);
-                sl(idx,2) = sl(idx,2)+1;
+                if ~isempty(sl)
+                    idx = find(sl(:,1) >= nrsc);
+                    sl(idx,1) = sl(idx,1)+1;
+                    idx = find(sl(:,2) >= nrsc);
+                    sl(idx,2) = sl(idx,2)+1;
+                end
                 opt_dist = sqrt(sum((optpos_reg-selected_point).^2,2));
                 nearby_opt = find(opt_dist >= sprint_dist(1) & opt_dist <= sprint_dist(2));
                 nearby_opt = setdiff(nearby_opt,nrsc);
@@ -4190,7 +4192,7 @@ if eventdata.Button == 1
                     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
                     set(handles.uitable_editMLorSL,'Data',data)
                     set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
-                    set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
+%                     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
                     probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
                     atlasViewer.probe = probe;
     %                 if get(handles.checkbox_optodeEditMode,'Value')
@@ -4221,7 +4223,7 @@ if eventdata.Button == 1
                     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
                     set(handles.uitable_editMLorSL,'Data',data)
                     set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
-                    set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
+%                     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
                     probe = displySprings_editOptode(atlasViewer.probe,s_idx);
                     atlasViewer.probe = probe;
     %                  if get(handles.checkbox_optodeEditMode,'Value')
@@ -4236,7 +4238,6 @@ if eventdata.Button == 1
         end
     end
 elseif eventdata.Button == 3
-    disp('inside right click')
     if get(handles.checkbox_optodeEditMode,'Value')
         ml = atlasViewer.probe.ml;
     %     ml = unique(ml,'rows');
@@ -4370,7 +4371,7 @@ if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.edit
     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
     set(handles.uitable_editMLorSL,'Data',data)
     set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
-    set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55]) 
+%     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55]) 
     probe = displySprings_editOptode(atlasViewer.probe,s_idx);
     atlasViewer.probe = probe;
 end
@@ -4438,7 +4439,7 @@ if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.edit
     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
     set(handles.uitable_editMLorSL,'Data',data)
     set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
-    set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])  
+%     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])  
     probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
     atlasViewer.probe = probe;
 end

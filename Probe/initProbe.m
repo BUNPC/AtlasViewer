@@ -184,13 +184,22 @@ end
 if ~isempty(probe2.ml) && isempty(probe.ml)
     probe.ml            = probe2.ml;
 end
-if isfield(probe2,'SrcGrommetRot') && isempty(probe.SrcGrommetRot)
+if isfield(probe2,'SrcGrommetType') %&& isempty(probe.SrcGrommetType)
+    probe.SrcGrommetType = probe2.SrcGrommetType;
+end
+if isfield(probe2,'DetGrommetType') %&& isempty(probe.DetGrommetType)
+    probe.DetGrommetType = probe2.DetGrommetType;
+end
+if isfield(probe2,'DummyGrommetType') %&& isempty(probe.DummyGrommetType )
+    probe.DummyGrommetType = probe2.DummyGrommetType;
+end
+if isfield(probe2,'SrcGrommetRot') %&& isempty(probe.SrcGrommetRot)
     probe.SrcGrommetRot = probe2.SrcGrommetRot;
 end
-if isfield(probe2,'DetGrommetRot') && isempty(probe.DetGrommetRot)
+if isfield(probe2,'DetGrommetRot') %&& isempty(probe.DetGrommetRot)
     probe.DetGrommetRot = probe2.DetGrommetRot;
 end
-if isfield(probe2,'DummyGrommetRot') && isempty(probe.DummyGrommetRot )
+if isfield(probe2,'DummyGrommetRot') %&& isempty(probe.DummyGrommetRot )
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
 end
 probe.optpos        = [probe.srcpos; probe.detpos; probe.registration.dummypos];
