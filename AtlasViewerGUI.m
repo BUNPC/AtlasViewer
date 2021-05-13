@@ -3929,6 +3929,11 @@ global atlasViewer
 if eventdata.Button == 1
     if strcmpi(get(handles.menuItemProbeDesignEditAV,'Checked'),'on')
         selected_point = eventdata.IntersectionPoint;
+        if leftRightFlipped(atlasViewer.probe)
+                temp_pt = selected_point(2);
+                selected_point(2) = selected_point(1);
+                selected_point(1) = temp_pt;
+        end
         if get(handles.radiobuttonAddOptodeAV,'Value')
             contents = cellstr(get(handles.popupmenuSelectOptodeType,'String'));
             selected_optode_type = contents{get(handles.popupmenuSelectOptodeType,'Value')};
@@ -4048,6 +4053,11 @@ if eventdata.Button == 1
             end
         elseif get(handles.radiobuttonRemoveOptodeAV,'Value')
             selected_point = eventdata.IntersectionPoint;
+            if leftRightFlipped(atlasViewer.probe)
+                temp_pt = selected_point(2);
+                selected_point(2) = selected_point(1);
+                selected_point(1) = temp_pt;
+            end
             optpos_reg = atlasViewer.probe.optpos_reg;
             ml = atlasViewer.probe.ml;
             sl = atlasViewer.probe.registration.sl;
@@ -4118,6 +4128,11 @@ if eventdata.Button == 1
             end
         elseif get(handles.radiobuttonEditOptodeAV,'Value')
             selected_point = eventdata.IntersectionPoint;
+            if leftRightFlipped(atlasViewer.probe)
+                temp_pt = selected_point(2);
+                selected_point(2) = selected_point(1);
+                selected_point(1) = temp_pt;
+            end
             optpos_reg = atlasViewer.probe.optpos_reg;
             ml = atlasViewer.probe.ml;
             al = atlasViewer.probe.registration.al;
@@ -4258,6 +4273,11 @@ elseif eventdata.Button == 3
         end
         
         selected_point = eventdata.IntersectionPoint;
+        if leftRightFlipped(atlasViewer.probe)
+                temp_pt = selected_point(2);
+                selected_point(2) = selected_point(1);
+                selected_point(1) = temp_pt;
+        end
         optpos_reg = atlasViewer.probe.optpos_reg;
 %         ml = atlasViewer.probe.ml;
 %         sl = atlasViewer.probe.registration.sl;

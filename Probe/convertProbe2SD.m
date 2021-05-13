@@ -47,8 +47,6 @@ if ~isempty(probe.DummyGrommetRot)
 end
 
 % add refpts and head mesh to SD file
-refpts.pos = atlasViewer.refpts.pos;
-refpts.labels = atlasViewer.refpts.labels;
-SD.refpts = refpts;
+SD.refpts = atlasViewer.refpts;
 SD.mesh = atlasViewer.headsurf.mesh;
 
