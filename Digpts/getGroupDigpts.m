@@ -21,7 +21,7 @@ for ii=1:length(dirs)
     end
     
     % Skip all subject folders without dig pts
-    if exist([dirs(ii).name, '/digpts.txt'], 'file') ~= 2
+    if ispathvalid([dirs(ii).name, '/digpts.txt'], 'file')
         continue;
     end
     

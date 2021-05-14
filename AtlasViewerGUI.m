@@ -436,24 +436,6 @@ end
 
 
 
-
-% -----------------------------------------------------------------------
-function AtlasViewerGUI_ReloadFcn()
-global atlasViewer
-
-fprintf('Reloading %s\n', banner());
-fprintf('   dirnameApp = %s\n', getAppDir_av());
-fprintf('   dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
-fprintf('   dirnameSubj = %s\n', atlasViewer.dirnameSubj);
-
-cd(atlasViewer.dirnameSubj);
-LoadSubj(hObject, eventdata, handles);
-if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
-    ImageRecon();
-end
-
-
-
 % -------------------------------------------------------------------
 function positionDataTreeGUI(handles, options)
 global atlasViewer

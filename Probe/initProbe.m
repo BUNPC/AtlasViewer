@@ -213,9 +213,21 @@ SD = convertProbe2SD(probe);
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
 elseif ~isempty(SD)
-    filedata = load([probe.pathname, 'probe.SD'], '-mat');
-    if ~sd_data_Equal(SD, filedata.SD)
-        save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+    saveSD(SD, probe.pathname);
+   
+    % Save same probe to all sub-folders under root subject folder. 
+    dirs = dir(pwd);
+    for ii = 1:length(dirs)
+        if strcmp(dirs(ii).name, '.')
+            continue;
+        end
+        if strcmp(dirs(ii).name, '..')
+            continue;
+        end
+        if ~isSubjDir(dirs(ii).name)
+            continue;
+        end
+        saveSD(SD, dirs(ii).name);
     end
 end
 
