@@ -349,6 +349,17 @@ classdef ProcStreamClass < handle
             end
         end
         
+        
+        % ----------------------------------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if obj.output.IsEmpty()
+                return;
+            end
+            b = false;
+        end
+
+
         % ----------------------------------------------------------------------------------
         function b = AcquiredDataModified(obj)
             b = obj.input.AcquiredDataModified();

@@ -1,5 +1,6 @@
 function hbconc = calcHbConc(hbconc, probe)
 
+
 if isempty(hbconc)
     return;
 end
@@ -7,6 +8,9 @@ if isempty(hbconc.HbConcRaw)
     return;
 end
 
+% Error margin because input dialog where user fills in time range crops numbers 
+% converting to string
+EM = 1e-4;
 
 % Find the channels for which to display Hb Conc
 hbconc.Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
@@ -43,28 +47,29 @@ end
 tHRF = hbconc.tHRF;
 tRangeMin = hbconc.config.tRangeMin;
 tRangeMax = hbconc.config.tRangeMax;
+
 if isempty(tHRF)
     startIdx = 1; 
     endIdx = length(tHRF);
-elseif tRangeMin<tHRF(1) && tRangeMax>tHRF(end)
+elseif (tHRF(1)-tRangeMin)>EM && (tRangeMax-tHRF(end))>EM
     startIdx = 1; 
     endIdx = length(tHRF);
-    MessageBox(sprintf('Invalid time range entered; Using whole tHRF range [%0.1f - %0.1f] ...', tHRF(1), tHRF(end)));
-elseif tRangeMin<tHRF(1) && tRangeMax<tHRF(end)
+    MessageBox(sprintf('Invalid time range entered (%0.4f, %0.4f); Using whole tHRF range [%0.4f - %0.4f] ...', tRangeMin, tRangeMax, tHRF(1), tHRF(end)));
+elseif (tHRF(1)-tRangeMin)>EM && (tRangeMax-tHRF(end))<EM
     startIdx = 1;
     [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
-    MessageBox(sprintf('Invalid min limit entered;  will use min tHRF of %0.1f ...', tHRF(1)));
-elseif tRangeMin>tHRF(1) && tRangeMax>tHRF(end)
+    MessageBox(sprintf('Invalid min limit entered (%0.4f);  will use min tHRF of %0.4f ...', tRangeMin, tHRF(1)));
+elseif (tHRF(1)-tRangeMin)<EM && (tRangeMax-tHRF(end))>EM
     [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
     endIdx = length(tHRF);
-    MessageBox(sprintf('Invalid max limit entered;  will use max tHRF of %0.1f ...', tHRF(end)));
+    MessageBox(sprintf('Invalid max limit entered (%0.4f);  will use max tHRF of %0.4f ...', tRangeMax, tHRF(end)));
 else
     [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
     [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
 end
 hbconc.config.tRangeMin = tHRF(startIdx);
 hbconc.config.tRangeMax = tHRF(endIdx);
-fprintf('Using tHRF range of [%0.1f - %0.1f]...\n', hbconc.config.tRangeMin, hbconc.config.tRangeMax);
+fprintf('Using tHRF range of [%0.4f - %0.4f]...\n', hbconc.config.tRangeMin, hbconc.config.tRangeMax);
 
 hbconc.HbO = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 1, :, iCond),  probe.ptsProj_cortex,  iCh);
 hbconc.HbR = interpHbConc(hbconc.mesh.vertices,  hbconc.HbConcRaw(startIdx:endIdx, 2, :, iCond),  probe.ptsProj_cortex,  iCh);

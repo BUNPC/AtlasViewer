@@ -29,7 +29,11 @@ guidata(hObject, handles);
 
 datatreegui.dataTree = DataTreeClass({},'snirf','','noloadconfig:oneformat');
 if datatreegui.dataTree.IsEmpty()
-    close(hObject);
+    datatreegui.dataTree.ResetAllGroups;
+    return;
+end
+if datatreegui.dataTree.IsEmptyOutput()
+    datatreegui.dataTree.ResetAllGroups;
     return;
 end
 DisplayGroupTree(handles);
@@ -37,19 +41,27 @@ DisplayGroupTree(handles);
 
 
 % -----------------------------------------------------------------------
-function varargout = DataTreeGUI_OutputFcn(~, ~, handles) 
+function varargout = DataTreeGUI_OutputFcn(hObject, ~, ~) 
 global datatreegui
 global atlasViewer
 
 varargout{1} = [];
+if datatreegui.dataTree.IsEmpty() || datatreegui.dataTree.IsEmptyOutput()
+    datatreegui.dataTree.ResetAllGroups;
+    if ishandle(hObject)
+        close(hObject)
+    end
+    datatreegui.dataTree = [];
+    datatreegui.listboxGroupTreeParams = InitListboxGroupTreeParams();
+end
 if ~isempty(atlasViewer)
     atlasViewer.dataTree = datatreegui.dataTree;
 end
-if isempty(handles)
+if ~ishandle(hObject)
     return
 end
-varargout{1} = handles.output;
-set(handles.figure1, 'visible','on');
+varargout{1} = hObject;
+set(hObject, 'visible','on');
 
 
 
@@ -147,6 +159,16 @@ function listboxFilesErr_Callback(~, ~, ~) %#ok<*DEFNU>
 
 
 
+% -----------------------------------------------------------------------
+function s = InitListboxGroupTreeParams()
+s = struct('listMaps',struct('names',{{}}, 'idxs', []), ...
+           'views',struct(...
+                'GROUP',1, ...
+                'SUBJS',2, ...
+                'RUNS',3), ...
+           'viewSetting',0);
+
+
 % --------------------------------------------------------------------------------------------
 function DisplayGroupTree(handles)
 global datatreegui;
@@ -154,12 +176,7 @@ global datatreegui;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize listboxGroupTree params struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datatreegui.listboxGroupTreeParams = struct('listMaps',struct('names',{{}}, 'idxs', []), ...
-                                            'views',struct(...
-                                                           'GROUP',1, ...
-                                                           'SUBJS',2, ...
-                                                           'RUNS',3), ...
-                                            'viewSetting',0);
+datatreegui.listboxGroupTreeParams = InitListboxGroupTreeParams();
                       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Generate linear lists from group tree nodes for the 3 group views

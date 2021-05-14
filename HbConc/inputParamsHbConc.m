@@ -11,7 +11,7 @@ params = fieldnames(hbconc.config);
 defaultVals = cell(length(params), 1);
 dlgParamLabels = cell(length(params), 1);
 for ii=1:length(params)
-    eval(sprintf('defaultVals{ii} = num2str(hbconc.config.%s);', params{ii}));
+    eval(sprintf('defaultVals{ii} = sprintf(''%%0.4f'', hbconc.config.%s);', params{ii}));
     dlgParamLabels{ii} = getParamLabel(params{ii}, hbconc.tHRF);
 end
 

@@ -353,6 +353,21 @@ classdef SubjClass < TreeNodeClass
 
 
         % ----------------------------------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if isempty(obj)
+                return;
+            end
+            for ii = 1:length(obj.runs)
+                if ~obj.runs(ii).IsEmptyOutput()
+                    b = false;
+                    break;
+                end
+            end
+        end
+
+
+        % ----------------------------------------------------------------------------------
         function SaveAcquiredData(obj)            
             for ii = 1:length(obj.runs)
                 obj.runs(ii).SaveAcquiredData();

@@ -225,6 +225,22 @@ classdef RunClass < TreeNodeClass
             b = false;
         end
                
+        
+        
+        % ----------------------------------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if isempty(obj)
+                return;
+            end
+            obj.LoadDerivedData();
+            if obj.procStream.IsEmptyOutput()
+                return;
+            end
+            b = false;
+        end
+
+
     end
     
     

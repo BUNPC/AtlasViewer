@@ -525,6 +525,22 @@ classdef GroupClass < TreeNodeClass
         end
 
 
+        
+        % ----------------------------------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if isempty(obj)
+                return;
+            end
+            for ii = 1:length(obj.subjs)
+                if ~obj.subjs(ii).IsEmptyOutput()
+                    b = false;
+                    break;
+                end
+            end
+        end
+
+
     end   % Public methods
         
         

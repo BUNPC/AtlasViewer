@@ -580,7 +580,7 @@ classdef DataTreeClass <  handle
         
         
         % ----------------------------------------------------------
-        function ResetAll(obj)
+        function ResetAllGroups(obj)
             for ii = 1:length(obj.groups)
                 obj.groups(ii).Reset()
             end
@@ -600,6 +600,22 @@ classdef DataTreeClass <  handle
                 return;
             end
             b = false;
+        end
+        
+        
+        
+        % ----------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if obj.IsEmpty()
+                return;
+            end
+            for ii = 1:length(obj.groups)
+                if ~obj.groups(ii).IsEmptyOutput
+                    b = false;
+                    break;
+                end
+            end
         end
         
         

@@ -18,9 +18,13 @@ end
 
 
 % ---------------------------------------------------------------------------------
-function UpdateGuiControls(handles)
+function err = UpdateGuiControls(handles)
 global atlasViewer
 
+err = -1;
+if isempty(dataTree.currElem)
+    return;
+end
 currElem  = atlasViewer.dataTree.currElem;
 
 % Display list of subject name
@@ -41,6 +45,7 @@ set(handles.alpha_brain_scalp, 'String',1e-2);
 % default beta (regularization) for brain and scalp reconstruction
 set(handles.beta_brain_scalp, 'String',1e-2);
 
+err = 0;
 
 
 % ---------------------------------------------------------------------------------
@@ -202,13 +207,17 @@ s = get(handles.ListofSubjects, 'Value');
 tRangeimg = str2num(get(handles.time_range,'String'));
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
+err = UpdateGuiControls(handles);
+if err<0
+    MessageBox('Error: data is missing ... existing image reconstruction GUI');
+    return
+end
+
 dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 probe = atlasViewer.probe;
 currElem = atlasViewer.dataTree.currElem;
-
-UpdateGuiControls(handles);
 
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
