@@ -17,6 +17,12 @@ SD.MeasList             = [];
 for ii = 1:length(SD.Lambda)
     SD.MeasList         = [SD.MeasList; [probe.ml(:,[1,2]), ones(size(probe.ml,1),1), ii*ones(size(probe.ml,1),1)]];
 end
+if size(probe.ml,2) > 2
+    for ii = 1:length(SD.Lambda)
+        SD.MeasListAct = [SD.MeasListAct; probe.ml(:,3)];
+    end
+end
+
 SD.SpringList           = probe.registration.sl;
 SD.AnchorList           = probe.registration.al;
 

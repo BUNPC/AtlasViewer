@@ -24,7 +24,7 @@ end
         
 
 % ------------------------------------------------------------------
-function InitSubj(hObject,handles,argExtern)
+function InitSubj(hObject, handles, argExtern)
 global atlasViewer
 global DEBUG
 
@@ -45,21 +45,10 @@ if length(argExtern)>=4
     end
 end
 
-dirnameSubj = getSubjDir(argExtern);
-dirnameAtlas = getAtlasDir(argExtern);
-
-fprintf('%s\n', banner);
-fprintf('   dirnameApp = %s\n', getAppDir_av());
-fprintf('   dirnameAtlas = %s\n', dirnameAtlas);
-fprintf('   dirnameSubj = %s\n', dirnameSubj);
-
 checkForAtlasViewerUpdates();
-
-cd(dirnameSubj);
 
 atlasViewer.handles.figure = hObject;
 atlasViewer.handles.hHbConc = [];
-atlasViewer.handles.hGroupList = [];
 
 % Initialize atlas viewer objects with their respective gui
 % handles
@@ -74,7 +63,7 @@ objs.probe       = initProbe(handles);
 objs.fwmodel     = initFwmodel(handles, argExtern);
 objs.imgrecon    = initImgRecon(handles);
 objs.hbconc      = initHbConc(handles);
-objs.fs2viewer   = initFs2Viewer(handles,dirnameSubj);
+objs.fs2viewer   = initFs2Viewer(handles, atlasViewer.dirnameSubj);
 
 fprintf('   MC application path = %s\n', objs.fwmodel.mc_exepath);
 fprintf('   MC application binary = %s\n', objs.fwmodel.mc_exename);
@@ -85,9 +74,9 @@ fields = fieldnames(objs);
 % Check for a saved viewer state file and restore 
 % state if it exists. 
 vrnum = [];
-if exist([dirnameSubj 'atlasViewer.mat'], 'file')
+if exist([atlasViewer.dirnameSubj 'atlasViewer.mat'], 'file')
 
-    load([dirnameSubj 'atlasViewer.mat'],'-mat');
+    load([atlasViewer.dirnameSubj 'atlasViewer.mat'],'-mat');
     for ii=1:length(fields)
         if exist(fields{ii},'var')
             % Initialized object exists in saved state. Check its compatibility with current version
@@ -117,10 +106,7 @@ else
     
 end
 
-atlasViewer.dirnameAtlas = dirnameAtlas;
-atlasViewer.dirnameSubj  = dirnameSubj;
 atlasViewer.dirnameProbe = '';
-atlasViewer.groupSubjList = {};
 atlasViewer.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
 
 % Set the AtlasViewerGUI version number
@@ -139,7 +125,7 @@ if isempty(argExtern)
     argExtern = {''};
 end
 
-InitSubj(hObject,handles,argExtern);
+InitSubj(hObject, handles, argExtern);
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
 dirnameSubj = atlasViewer.dirnameSubj;
@@ -157,7 +143,7 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc       = atlasViewer.hbconc;
 fs2viewer    = atlasViewer.fs2viewer;
-currElem     = atlasViewer.currElem;
+dataTree     = atlasViewer.dataTree;
     
 
 if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
@@ -175,15 +161,17 @@ if ~exist([dirnameSubj 'atlasViewer.mat'], 'file')
     refpts     = getRefpts(refpts, headsurf.pathname);
     digpts     = getDigpts(digpts, dirnameSubj, refpts);
     labelssurf = getLabelssurf(labelssurf, headsurf.pathname);
-    probe      = getProbe(probe, dirnameSubj, digpts, headsurf, refpts, currElem);
+    probe      = getProbe(probe, dirnameSubj, digpts, headsurf, refpts, dataTree);
     fwmodel    = getFwmodel(fwmodel, dirnameSubj, pialsurf, headsurf, headvol, probe);
-    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, currElem);
-    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
+    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, dataTree);
+    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, dataTree);
     fs2viewer  = getFs2Viewer(fs2viewer, dirnameSubj);
-   
+    
 else
-    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, currElem);    
-    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, currElem);
+    
+    imgrecon   = getImgRecon(imgrecon, dirnameSubj, fwmodel, pialsurf, probe, dataTree);    
+    hbconc     = getHbConc(hbconc, dirnameSubj, pialsurf, probe, dataTree);
+    
 end
 
 
@@ -244,15 +232,11 @@ positionGUI(hObject);
 
 
 
-
-
 % --------------------------------------------------------------------
 function [headvol, headsurf, pialsurf] = checkAnatomy(headvol, headsurf, pialsurf, handles)
 global atlasViewer
 
-dirnameAtlas = atlasViewer.dirnameAtlas;
 dirnameSubj = atlasViewer.dirnameSubj;
-searchPaths = {dirnameSubj; dirnameAtlas};
 
 % If the head surface and head volume don't agree on anatomy, then
 % keep the object that come from the subject folder and discard that
@@ -302,7 +286,7 @@ end
     
     
 % --------------------------------------------------------------------
-function Edit_Probe_Callback(~, ~, ~) %#ok<DEFNU>
+function Edit_Probe_Callback(~, ~, ~)
 global atlasViewer;
 
 %%%% close GUI
@@ -379,126 +363,13 @@ end
 
 
 
-
-% ---------------------------------------------------------------------
-function [groupSubjList, dirname, group] = InitGroup(argExtern)
-if isempty(argExtern)
-    argExtern = {''};
-end
-
-dirname = getSubjDir(argExtern);
-
-groupSubjList = {};
-
-% To find out the subj
-[subjDirs, groupDir, group] = findSubjDirs();
-if isempty(groupDir)
-    return;
-end
-groupSubjList{1} = groupDir;
-for ii=2:length(subjDirs)+1
-    groupSubjList{ii} = [groupDir, '/', subjDirs(ii-1).name]; %#ok<AGROW>
-end
-
-
-
-
-% -----------------------------------------------------------------------
-function listboxGroupTree_Callback(hObject, ~, ~)
-global atlasViewer
-
-if isempty(atlasViewer)
-    return;
-end
-
-dirnameAtlas = atlasViewer.dirnameAtlas;
-fwmodel = atlasViewer.fwmodel;
-imgrecon = atlasViewer.imgrecon;
-
-groupSubjList = getappdata(hObject, 'groupSubjList');
-idx = get(hObject,'value');
-
-if isempty(groupSubjList)
-    return;
-end
-if idx>length(groupSubjList)
-    return;
-end
-dirnameSubj = groupSubjList{idx};
-fprintf('Loading subject %s ...\n', dirnameSubj);
-if dirnameSubj==0
-    return;
-end
-
-hImageRecon = imgrecon.handles.ImageRecon;
-set(hObject,'enable','off');
-AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, [hObject, hImageRecon], 'userargs');
-
-
-
-
-% -----------------------------------------------------------------------
-function hGroupList = displayGroupSubjList(groupSubjList0, hGroupList, hGui)
-global atlasViewer
-
-atlasViewer.handles.listboxGroupTree = [];
-
-if isempty(groupSubjList0)
-    if ishandles(hGroupList)
-        delete(hGroupList);
-    end
-    return;
-end
-
-groupSubjList = {};
-for ii=1:length(groupSubjList0)
-    [~, subjListboxStr] = fileparts(groupSubjList0{ii});    
-    if ii>1
-        subjListboxStr = ['  ', subjListboxStr];
-    end
-    groupSubjList{ii} = subjListboxStr; %#ok<AGROW>
-end
-
-if ishandles(hGroupList)
-    hFig = get(hGroupList,'parent');
-    set(hGroupList, 'string',groupSubjList);
-    figure(hFig);
-    return;
-end
-if ~exist('hGui','var')
-    hGui = [];
-end
-if ishandles(hGui)
-    set(hGui,'units','normalized','position',[.33,.08,.66,.85]);
-end
-
-hFig = figure('numbertitle','off','menubar','none','name','Group Subject List','units','normalized',...
-              'position',[.05,.45,.15,.40],'resize','on', 'visible','off');
-
-hGroupList = uicontrol('parent',hFig,'style','listbox','string',groupSubjList, 'tag','listboxGroupTree', ...
-                       'fontsize',10,'units','normalized','position',[.10 .25 .80 .70],'value',1,...
-                       'callback',{@listboxGroupTree_Callback,'hObject'});
-
-setappdata(hGroupList, 'groupSubjList', groupSubjList0);
-
-% Initilize listbox selection to current subject folder
-[~, subjname] = fileparts(pwd);
-k =  find(strcmp(strtrim(groupSubjList), subjname));
-if ~isempty(k)
-    set(hGroupList, 'value', k);
-end
-
-atlasViewer.handles.listboxGroupTree = hFig;
-
-
-
-
-
-
 % -----------------------------------------------------------------------
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global atlasViewer
-atlasViewer = [];
+
+if isempty(varargin)
+    atlasViewer = [];
+end
 
 % Choose default command line output for AtlasViewerGUI
 handles.output = hObject;
@@ -512,43 +383,41 @@ end
 
 initAxesv(handles);
 
-atlasViewer.currElem = [];
+atlasViewer.dirnameSubj = getSubjDir(varargin);
+atlasViewer.dirnameAtlas = getAtlasDir(varargin);
 
+fprintf('%s\n', banner());
+fprintf('   dirnameApp = %s\n', getAppDir_av());
+fprintf('   dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
+fprintf('   dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+
+cd(atlasViewer.dirnameSubj);
+
+checkForAtlasViewerUpdates();
 PrintSystemInfo([], 'AtlasViewer');
 
-[groupSubjList, dirnameSubj, group] = InitGroup(varargin);
-hGroupList=[];
+hDataTreeGUI = [];
 if length(varargin)>3
-    if ~isempty(varargin{4})
-        hGroupList = varargin{4}(1);
+    if ishandles(varargin{4})
+        hDataTreeGUI = varargin{4};
     end
 end
-handles.hGroupList = displayGroupSubjList(groupSubjList, hGroupList, hObject);
-iSubj = getCurrElemIdx(handles.hGroupList);
-atlasViewer.currElem = LoadCurrElem(group, iSubj);
 
-if ~isempty(dirnameSubj) & dirnameSubj ~= 0
+if isempty(hDataTreeGUI)
+    atlasViewer.handles.dataTree = DataTreeGUI();
+else
+    atlasViewer.dataTree.LoadCurrElem();
+end
+
+if ~isempty(atlasViewer.dirnameSubj) & atlasViewer.dirnameSubj ~= 0
     if length(varargin)<2
-        varargin{1} = dirnameSubj;
+        varargin{1} = atlasViewer.dirnameSubj;
         varargin{2} = 'userargs';
     else
-        varargin{1} = dirnameSubj;
+        varargin{1} = atlasViewer.dirnameSubj;
     end
 end
 LoadSubj(hObject, eventdata, handles, varargin);
-
-if ishandles(handles.hGroupList) 
-    if ~atlasViewer.currElem.IsEmpty()
-        fprintf('Subject index = %d\n', iSubj);
-        set(handles.hGroupList, 'enable','on');
-        hParent = get(handles.hGroupList,'parent');
-        set(hParent, 'visible','on');
-        figure(hParent);
-    end
-end
-
-atlasViewer.handles.hGroupList = handles.hGroupList;
-atlasViewer.groupSubjList = groupSubjList;
 
 if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
     ImageRecon();
@@ -556,7 +425,7 @@ end
 set(handles.editSelectChannel,'string','0 0');
 set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
 
-positionListboxGroupGUI(handles, 'init');
+positionDataTreeGUI(handles, 'init');
 
 % check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
 if exist('mcxlab.m','file')
@@ -566,32 +435,57 @@ else
 end
 
 
-% -------------------------------------------------------------------
-function positionListboxGroupGUI(handles, options)
+
+
+% -----------------------------------------------------------------------
+function AtlasViewerGUI_ReloadFcn()
 global atlasViewer
 
-if isempty(atlasViewer.handles.listboxGroupTree)
+fprintf('Reloading %s\n', banner());
+fprintf('   dirnameApp = %s\n', getAppDir_av());
+fprintf('   dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
+fprintf('   dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+
+cd(atlasViewer.dirnameSubj);
+LoadSubj(hObject, eventdata, handles);
+if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
+    ImageRecon();
+end
+
+
+
+% -------------------------------------------------------------------
+function positionDataTreeGUI(handles, options)
+global atlasViewer
+
+if isempty(atlasViewer.handles.dataTree)
     return;
 end
 
 if ~exist('options','var')
     options = {};
 end
-if optionExists(options, 'init')
-    k = 1.2;
-else
-    k = 1.05;
-end
+k = 1.05;
 
 % Place helper gui relative to main gui position
 set(handles.AtlasViewerGUI,'units','pixels');
-set(atlasViewer.handles.listboxGroupTree,'units','pixels');
+set(atlasViewer.handles.dataTree,'units','pixels');
 p1 = get(handles.AtlasViewerGUI,'Position');
-p2 = get(atlasViewer.handles.listboxGroupTree,'Position');
-set(atlasViewer.handles.listboxGroupTree,'Position',[(p1(1)-(p2(3)*k)), p2(2), p2(3), p2(4)]);
+p2 = get(atlasViewer.handles.dataTree,'Position');
+
+% Reposition DataTreeGUI
+set(atlasViewer.handles.dataTree, 'Position',[(p1(1)-(p2(3)*k)), p2(2), p2(3), p2(4)]);
 
 % Make sure dialog is within screen bounds
-rePositionGuiWithinScreen(atlasViewer.handles.listboxGroupTree);
+rePositionGuiWithinScreen(atlasViewer.handles.dataTree);
+p2 = get(atlasViewer.handles.dataTree,'Position');
+
+% Reposition AtlasViewerGUI if needed
+d = p1(1) - (p2(1)+p2(3));
+if d<0
+    set(handles.AtlasViewerGUI, 'Position',[(p2(1)+(p2(3)))*k, p1(2), p1(3), p1(4)]);
+end
+
 
 
 
@@ -631,9 +525,8 @@ if length(axesv)>1
         delete(hp);
     end
 end
-if ishandles(atlasViewer.handles.hGroupList)
-    hFig = get(atlasViewer.handles.hGroupList,'parent');
-    delete(hFig);
+if ishandles(atlasViewer.handles.dataTree)
+    delete(atlasViewer.handles.dataTree);
 end
 atlasViewer=[];
 clear atlasViewer;
@@ -930,19 +823,12 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function menuItemChangeSubjDir_Callback(~, ~, ~)
+function menuItemChangeSubjDir_Callback(~, ~, ~) %#ok<*DEFNU>
 global atlasViewer
 
 dirnameAtlas = atlasViewer.dirnameAtlas;
-groupSubjList = atlasViewer.groupSubjList;
 axesv = atlasViewer.axesv;
-fwmodel = atlasViewer.fwmodel;
-hGroupList = atlasViewer.handles.hGroupList;
 
-if ishandles(hGroupList)
-    displayGroupSubjList(groupSubjList, hGroupList);
-    return;
-end  
 
 dirnameSubj = uigetdir('*.*','Change current subject directory');
 if dirnameSubj==0
@@ -954,13 +840,13 @@ if length(axesv)>1
         delete(hp);
     end
 end
-AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, hGroupList, 'userargs');
+AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
 
 
 
 
 % --------------------------------------------------------------------
-function menuItemChangeAtlasDir_Callback(hObject, eventdata, handles)
+function menuItemChangeAtlasDir_Callback(~, ~, ~)
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
@@ -995,7 +881,6 @@ fclose(fid);
 
 % Restart AtlasViewerGUI with the new atlas directory.
 AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, 'userargs');
-
 
 
 
@@ -1475,17 +1360,14 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % --------------------------------------------------------------------
-function menuItemGenFluenceProfile_Callback(hObject, eventdata, handles)
+function menuItemGenFluenceProfile_Callback(~, ~, ~)
 global atlasViewer
 
 fwmodel     = atlasViewer.fwmodel;
-imgrecon    = atlasViewer.imgrecon;
 probe       = atlasViewer.probe;
 headvol     = atlasViewer.headvol;
 pialsurf    = atlasViewer.pialsurf;
-headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
-axesv       = atlasViewer.axesv;
 
 dirnameOut = [dirnameSubj 'fw/'];
 
@@ -1580,10 +1462,8 @@ atlasViewer.fwmodel = fwmodel;
 
 
 
-
-
 % --------------------------------------------------------------------
-function radiobuttonShowDigpts_Callback(hObject, eventdata, handles)
+function radiobuttonShowDigpts_Callback(hObject, ~, ~)
 global atlasViewer
 
 digpts = atlasViewer.digpts;
@@ -1609,7 +1489,7 @@ end
 
 
 % --------------------------------------------------------------------
-function checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+function checkboxOptodeSDMode_Callback(~, ~, ~)
 global atlasViewer
 probe    = atlasViewer.probe;
 headsurf = atlasViewer.headsurf;
@@ -1618,7 +1498,6 @@ probe = setOptodeNumbering(probe);
 probe = setProbeDisplay(probe, headsurf);
 
 atlasViewer.probe = probe;
-
 
 
 
@@ -1652,7 +1531,6 @@ end
 function menuItemShowRefpts_Callback(hObject, eventdata, handles)
 global atlasViewer
 
-eeg_system_labels = {};
 switch(get(hObject, 'tag'))
     case 'menuItemShow10_20'
         atlasViewer.refpts.eeg_system.selected = '10-20';
@@ -1696,7 +1574,7 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemEnableSensitivityMatrixVolume_Callback(hObject, eventdata, handles)
+function menuItemEnableSensitivityMatrixVolume_Callback(hObject, ~, ~)
 global atlasViewer
 fwmodel = atlasViewer.fwmodel;
 
@@ -1717,11 +1595,9 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function pushbuttonCopyFigure_Callback(hObject, eventdata, handles)
+function pushbuttonCopyFigure_Callback(~, ~, ~)
 global atlasViewer
 axesv       = atlasViewer.axesv;
-headsurf    = atlasViewer.headsurf;
-fwmodel 	= atlasViewer.fwmodel;
 
 cm = colormap;
 clim = caxis;
@@ -1747,7 +1623,7 @@ camzoom(axesv(1).handles.axesSurfDisplay, 1.3*axesv(1).zoomincr);
 
 
 % --------------------------------------------------------------------
-function menuItemSaveViewerState_Callback(hObject, eventdata, handles)
+function menuItemSaveViewerState_Callback(~, ~, ~)
 global atlasViewer
 
 axesv       = atlasViewer.axesv(1);
@@ -2930,6 +2806,9 @@ hbconc    = atlasViewer.hbconc;
 imgrecon  = atlasViewer.imgrecon;
 fwmodel   = atlasViewer.fwmodel;
 pialsurf  = atlasViewer.pialsurf;
+dataTree  = atlasViewer.dataTree;
+
+hbconc = loadDataHbConc(hbconc, dataTree);
 
 if isempty(hbconc.HbConcRaw)
     MessageBox('No HRF data to display for the current folder. Use Homer3 to generate HRF output for the current folder.');
@@ -3054,20 +2933,6 @@ function menuItemResetViewerState_Callback(~, ~, ~)
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
-groupSubjList = atlasViewer.groupSubjList;
-
-if isempty(groupSubjList)
-    groupSubjList{1} = dirnameSubj;
-end
-for ii=1:length(groupSubjList)
-    fprintf('Resetting state for subj: %s\n', groupSubjList{ii});
-    if exist([groupSubjList{ii}, '/atlasViewer.mat'], 'file')==2
-        delete([groupSubjList{ii}, '/atlasViewer.mat']);
-    end
-    delete([groupSubjList{ii}, '/fw/*']);
-    delete([groupSubjList{ii}, '/imagerecon/*']);
-    pause(1);
-end
 
 % Reload subject with it's own, newly-generated anatomical files
 AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
@@ -3452,7 +3317,7 @@ set(handles.AtlasViewerGUI, 'position', p1);
 rePositionGuiWithinScreen(handles.AtlasViewerGUI);
 
 set(handles.AtlasViewerGUI, 'units',u0);
-positionListboxGroupGUI(handles);
+positionDataTreeGUI(handles);
 
 
 

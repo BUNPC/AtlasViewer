@@ -18,7 +18,33 @@ end
 
 
 % ---------------------------------------------------------------------------------
-function ImageRecon_OpeningFcn(hObject, eventdata, handles, varargin)
+function UpdateGuiControls(handles)
+global atlasViewer
+
+currElem  = atlasViewer.dataTree.currElem;
+
+% Display list of subject name
+set(handles.ListofSubjects, 'String',currElem.GetName);
+
+% default exp condition
+set(handles.Condition, 'String',1);
+
+% default time range
+set(handles.time_range, 'String',num2str([5 10]));
+
+% default alpha (regularization) for brain only reconstruction
+set(handles.alpha_brainonly, 'String',1e-2);
+
+% default alpha (regularization) for brain and scalp reconstruction
+set(handles.alpha_brain_scalp, 'String',1e-2);
+
+% default beta (regularization) for brain and scalp reconstruction
+set(handles.beta_brain_scalp, 'String',1e-2);
+
+
+
+% ---------------------------------------------------------------------------------
+function ImageRecon_OpeningFcn(hObject, ~, handles, varargin)
 % This function executes just before ImageRecon is made visible.
 
 global atlasViewer
@@ -30,40 +56,15 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 imgrecon   = atlasViewer.imgrecon;
-dirnameSubj = atlasViewer.dirnameSubj;
 
-imgrecon.handles.ImageRecon = hObject;
-[~, subjName] = fileparts(dirnameSubj(1:end-1));
+atlasViewer.imgrecon.handles.ImageRecon = hObject;
 
-if isempty(imgrecon.subjData)
-    menu('groupResults not loaded, Cannot do image reconstruction','Okay');
-    close(hObject);
-    return;
-end
+UpdateGuiControls(handles);
 
-% Display list of subject name
-set(handles.ListofSubjects,'String', subjName);
-
-% default exp condition
-set(handles.Condition,'String',1);
-
-% default time range
-set(handles.time_range,'String',num2str([5 10]));
-
-% default alpha (regularization) for brain only reconstruction
-set(handles.alpha_brainonly,'String',1e-2);
-
-% default alpha (regularization) for brain and scalp reconstruction
-set(handles.alpha_brain_scalp,'String',1e-2);
-
-% default beta (regularization) for brain and scalp reconstruction
-set(handles.beta_brain_scalp,'String',1e-2);
-
-atlasViewer.imgrecon = imgrecon;
 
 
 % -----------------------------------------------------------------------------
-function varargout = ImageRecon_OutputFcn(hObject, eventdata, handles)
+function varargout = ImageRecon_OutputFcn(~, ~, handles)
 if isempty(handles)
     varargout{1} = [];
 else
@@ -191,7 +192,7 @@ end
 
 
 % -----------------------------------------------------------------------------
-function image_recon_Callback(hObject, eventdata, handles)
+function image_recon_Callback(~, ~, handles)
 global atlasViewer
 
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
@@ -204,13 +205,13 @@ rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
+probe = atlasViewer.probe;
+currElem = atlasViewer.dataTree.currElem;
 
-subjData    = imgrecon.subjData;
+UpdateGuiControls(handles);
+
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
-
-HbO = []; %#ok<NASGU>
-HbR = []; %#ok<NASGU>
 
 % Error checking
 if  value1 == 0 & value2 == 0 %#ok<*AND2>
@@ -240,17 +241,12 @@ if value2 == 1 & ndims(Adot_scalp) < 3
     return;
 end
 
-% Error checking to make sure subject data exists before accessing it
-if  isempty(subjData) || isempty(subjData.procResult) || isempty(subjData.procResult.dcAvg)
-    msg = sprintf('Subject data is missing. Cannot generate reconstructed image without it.');
-    menu(msg,'OK');
-    return;
-end
+%%%% Get probe data 
+SD   = convertProbe2SD(probe);
 
-%%%% Get the parameters from subject data for calculating Hb %%%%
-SD   = subjData.SD;
-dc   = subjData.procResult.dcAvg.GetDataTimeSeries('reshape');
-tHRF = subjData.procResult.dcAvg.GetTime();
+% Get fnirs time course data
+dc   = currElem.GetDcAvg();
+tHRF = currElem.GetTHRF();
 
 % Error checking of subject data itself
 if isempty(tHRF)
@@ -282,7 +278,6 @@ if isfield(SD, 'MeasListAct') == 1
     activeChLst = find(ml(:,4)==1 & SD.MeasListAct==1);
     dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
-
 
 dc(find(isnan(dc))) = 0;
 
@@ -352,8 +347,6 @@ if value1 == 1 % brain only reconstruction after short separation regression
         imgrecon.Aimg_conc.HbR = fooHbR;
     end
     
-    
-    
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
     
     Adot = Adot(activeChLst,:,:);
@@ -403,8 +396,6 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     
     % all regularization (alpha and beta) is done above so here we put 0 to alpha!
     [HbO, HbR] = hmrImageReconConc(yavgimg, [], 0, Amatrix);
-    
-    
     
     if size(cond,2) == 1
         imgrecon.Aimg_conc.HbO = HbO(1:size(Adot,2), cond);

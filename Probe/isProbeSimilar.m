@@ -1,7 +1,7 @@
-function b = isProbeSimilar(SD, currElem, digpts)
+function b = isProbeSimilar(SD, dataTree, digpts)
 b = [];
 b1 = ~similarProbes(digpts, SD);
-b2 = ~similarProbes(currElem, SD);
+b2 = ~similarProbes(dataTree, SD);
 if isempty(b1) && isempty(b2)
     return
 end

@@ -1,4 +1,4 @@
-function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe, currElem)
+function imgrecon = getImgRecon(imgrecon, dirname, fwmodel, pialsurf, probe, dataTree)
 
 if isempty(imgrecon)
     return;
@@ -6,7 +6,7 @@ end
 
 if iscell(dirname)
     for ii=1:length(dirname)
-        imgrecon = getImgRecon(imgrecon, dirname{ii}, fwmodel, pialsurf, probe);
+        imgrecon = getImgRecon(imgrecon, dirname{ii}, fwmodel, pialsurf, probe, dataTree);
         if ~imgrecon.isempty(imgrecon)
             return;
         end
@@ -33,9 +33,6 @@ end
 if ~exist('probe','var') || isempty(probe)
     probe = initProbe();
 end
-if ~exist('currElem','var')
-    currElem = [];
-end
     
 
 % Since sensitivity profile exists, enable all image panel controls 
@@ -49,30 +46,6 @@ if exist([dirnameOut, 'metrics.mat'], 'file')
     imgrecon.localizationError = localizationError;
     imgrecon.resolution = resolution;
 end
-
-% Check if there's currElem acquisition data to load
-if ~isempty(currElem) && ~currElem.IsEmpty()
-    SD = currElem.GetSDG();
-    ch = currElem.GetMeasList();
-    SD.MeasList = ch.MeasList;
-    SD.MeasListAct = ch.MeasListAct;
-    k1 = find(SD.MeasList(:,4)==1);
-    nChGrpData = length(k1);
-    nChProbe = size(probe.ml,1);
-    if nChGrpData==nChProbe
-        imgrecon.subjData.SD = SD;
-        imgrecon.subjData.name = currElem.GetName();
-        imgrecon.subjData.procResult = currElem.procStream.output;
-        set(imgrecon.handles.menuItemImageReconGUI, 'enable', 'on');
-    else
-        [~, fname, ext] = fileparts(probe.pathname); 
-        msg{1} = sprintf('Warning: Image reconstruction module failed to load groupResults.mat. Number of\n');
-        msg{2} = sprintf('channels in the loaded probe "%s" (%d) does NOT match the number in groupResults.mat (%d).', ...
-                         [fname, ext], nChProbe, nChGrpData);
-        menu([msg{:}], 'OK');
-    end
-end
-
 
 if exist([dirnameOut, 'Aimg_conc.mat'],'file')
     imgrecon.Aimg_conc = load([dirnameOut, 'Aimg_conc.mat'], '-mat');

@@ -579,7 +579,7 @@ classdef GroupClass < TreeNodeClass
             
             % If this group has been loaded, then no need to go through the whole Load function. Instead 
             % default to the generic TreeNodeClass.Load method.
-            if isempty(findstr('reload', options)) && ~obj.procStream.IsEmpty()
+            if ~optionExists(options, {'init','reload'})
                 err = obj.Load@TreeNodeClass();
                 return;
             end
@@ -609,7 +609,6 @@ classdef GroupClass < TreeNodeClass
                 obj.Copy(group, 'conditional');
                 close(hwait);
             else
-                group = obj; %#ok<NASGU>
                 if exist([obj.path, 'groupResults.mat'],'file')
                     obj.logger.Write(sprintf('Warning: This folder contains old version of groupResults.mat. Will move it to groupResults_old.mat\n'));
                     movefile([obj.path, 'groupResults.mat'], './groupResults_old.mat')

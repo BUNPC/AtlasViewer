@@ -1,4 +1,4 @@
-function probe = getProbe(probe, dirname, digpts, headsurf, refpts, currElem)
+function probe = getProbe(probe, dirname, digpts, headsurf, refpts, dataTree)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Parse arguments
@@ -31,8 +31,8 @@ if ~exist('refpts','var')
 end
 
 % Arg 6
-if ~exist('currElem','var')
-    currElem = [];
+if ~exist('dataTree','var')
+    dataTree = [];
 end
 
 % Modify arguments 
@@ -43,7 +43,7 @@ probe.pathname = dirname;
 % 1. Load probe data from the various possible sources
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe_reg       = loadProbeFormTextFile(dirname, headsurf);   % Probe that could already be registered
-probe_data      = loadFromData(dirname, currElem);
+probe_data      = loadFromData(dirname, dataTree);
 probe_digpts    = loadProbeFromDigpts(digpts);
 probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data, probe_reg);
 
@@ -81,6 +81,9 @@ probe = preRegister(probe, headsurf, refpts);
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe = checkRegistrationData(dirname, probe, headsurf);
+
+% Generate measurement list mid points in 3D if #D optodes exist
+probe = findMeasMidPts(probe);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5. Save new probe
@@ -159,13 +162,13 @@ end
 
 
 % -------------------------------------------
-function probe = loadFromData(dirname, currElem)
+function probe = loadFromData(dirname, dataTree)
 probe = initProbe();
 SD = [];
 
 % Check if probe in data tree
-if ~isempty(currElem) && ~currElem.IsEmpty()
-    SD = extractSDFromDataTree(currElem);
+if ~isempty(dataTree) && ~dataTree.IsEmpty()
+    SD = extractSDFromDataTree(dataTree);
     
 % Check if probe exists in old-style Homer processing files
 elseif exist([dirname, 'groupResults.mat'], 'file')    

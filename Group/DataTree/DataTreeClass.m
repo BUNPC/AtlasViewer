@@ -311,7 +311,7 @@ classdef DataTreeClass <  handle
             % Load derived or post-acquisition data from a file if it
             % exists
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.groups(iG).Load();
+            obj.groups(iG).Load('init');
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Initialize procStream for all tree nodes
@@ -602,6 +602,7 @@ classdef DataTreeClass <  handle
             b = false;
         end
         
+        
         % ----------------------------------------------------------
         function b = IsFlatFileDir(obj)
             if obj.files(1).isdir
@@ -611,6 +612,7 @@ classdef DataTreeClass <  handle
             end
         end
 
+        
     end
     
 end
