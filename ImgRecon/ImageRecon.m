@@ -22,7 +22,7 @@ function err = UpdateGuiControls(handles)
 global atlasViewer
 
 err = -1;
-if isempty(dataTree.currElem)
+if isempty(atlasViewer.dataTree)
     return;
 end
 currElem  = atlasViewer.dataTree.currElem;
@@ -59,8 +59,6 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-
-imgrecon   = atlasViewer.imgrecon;
 
 atlasViewer.imgrecon.handles.ImageRecon = hObject;
 
@@ -217,7 +215,9 @@ dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 probe = atlasViewer.probe;
-currElem = atlasViewer.dataTree.currElem;
+dataTree = atlasViewer.dataTree;
+
+dataTree.currElem.Load();
 
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
@@ -254,8 +254,8 @@ end
 SD   = convertProbe2SD(probe);
 
 % Get fnirs time course data
-dc   = currElem.GetDcAvg();
-tHRF = currElem.GetTHRF();
+dc   = dataTree.currElem.GetDcAvg();
+tHRF = dataTree.currElem.GetTHRF();
 
 % Error checking of subject data itself
 if isempty(tHRF)
@@ -436,14 +436,13 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % ---------------------------------------------------------------------------------
-function plotHb_Callback(hObject, eventdata, handles)
+function plotHb_Callback(~, ~, handles)
 % This function executes on button press in plotHb.
 global atlasViewer
 
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
 value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
 
-dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 hbconc  = atlasViewer.hbconc;
@@ -455,8 +454,6 @@ hold on;
 
 ylimits = str2num(get(handles.plotylimit,'String'));
 
-HbO = [];
-HbR = [];
 if value1 == 1
     Aimg_conc = imgrecon.Aimg_conc;
     HbO = Aimg_conc.HbO;
@@ -492,9 +489,6 @@ if leftRightFlipped(imgrecon)
 else
     axes_order = [1,2,3];
 end
-
-hHbO = [];
-hHbR = [];
 
 % plot HbO
 hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);
