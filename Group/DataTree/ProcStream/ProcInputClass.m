@@ -159,6 +159,23 @@ classdef ProcInputClass < handle
             b = obj.acquired.DataModified();
         end
         
+        % ----------------------------------------------------------------------------------
+        function inputs = GetProcInputs(obj)
+            % Get name of each property available from GetVars
+            inputs = {};
+            p = propnames(obj);
+            % Get name of each property
+            for i = 1:size(p)
+               inputs{end+1} = p{i}; %#ok<AGROW>
+               pi = propnames(obj.(p{i}));
+               % Get name of each sub-property (properties of misc, acquired)
+               for j = 1:size(pi)
+                  inputs{end+1} = pi{j};  %#ok<AGROW>
+               end
+            end
+            
+        end
+        
     end
         
     
@@ -270,14 +287,14 @@ classdef ProcInputClass < handle
         
         
         % ----------------------------------------------------------------------------------
-        function AddStims(obj, tPts, condition)
+        function AddStims(obj, tPts, condition, duration, amp, more)
             if isempty(tPts)
                 return;
             end
             if isempty(condition)
                 return;
             end
-            obj.acquired.AddStims(tPts, condition);
+            obj.acquired.AddStims(tPts, condition, duration, amp, more);
         end
 
         
@@ -318,6 +335,31 @@ classdef ProcInputClass < handle
         
         
         % ----------------------------------------------------------------------------------
+        function AddStimColumn(obj, name, initValue)
+            if ~exist('name', 'var')
+                return;
+            end
+            obj.acquired.AddStimColumn(name, initValue);
+        end
+
+        
+        % ----------------------------------------------------------------------------------
+        function DeleteStimColumn(obj, idx)
+            if ~exist('idx', 'var') || idx <= 3
+                return;
+            end
+            obj.acquired.DeleteStimColumn(idx);
+        end
+        
+        % ----------------------------------------------------------------------------------
+        function RenameStimColumn(obj, oldname, newname)
+            if ~exist('oldname', 'var') || ~exist('newname', 'var')
+                return;
+            end
+            obj.acquired.RenameStimColumn(oldname, newname);
+        end
+        
+        % ----------------------------------------------------------------------------------
         function data = GetStimData(obj, icond)
             data = obj.acquired.GetStimData(icond);
         end
@@ -345,8 +387,8 @@ classdef ProcInputClass < handle
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimDuration(obj, icond, duration)
-            obj.acquired.SetStimDuration(icond, duration);
+        function SetStimDuration(obj, icond, duration, tpts)
+            obj.acquired.SetStimDuration(icond, duration, tpts);
         end
         
     
@@ -360,8 +402,8 @@ classdef ProcInputClass < handle
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimAmplitudes(obj, icond, vals)
-            obj.acquired.SetStimAmplitudes(icond, vals);
+        function SetStimAmplitudes(obj, icond, vals, tpts)
+            obj.acquired.SetStimAmplitudes(icond, vals, tpts);
         end
         
     

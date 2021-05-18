@@ -4,6 +4,8 @@ if isempty(dataTree)
     return
 end
 
+dataTree.currElem.Load();
+
 % Check if there's group acquisition data to load
 if ~isempty(dataTree.currElem) && ~dataTree.currElem.IsEmpty()
     hbconc.HbConcRaw = dataTree.currElem.GetDcAvg();

@@ -77,7 +77,7 @@ if ~isempty(probe.optpos_reg)
 else
     set(probe.handles.menuItemSaveRegisteredProbe,'enable','off');
     set(probe.handles.menuItemProbeToCortex, 'enable','off');
-    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
+    %set(probe.handles.menuItemOverlayHbConc, 'enable','off');
 end
 
 

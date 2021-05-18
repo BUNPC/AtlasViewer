@@ -89,7 +89,7 @@ classdef RunClass < TreeNodeClass
             if isempty(obj)
                 return;
             end
-            err = obj.procStream.Load(obj.GetFilename);            
+            err = obj.procStream.Load([obj.path, obj.GetFilename]);
         end        
         
 
@@ -224,7 +224,7 @@ classdef RunClass < TreeNodeClass
             end
             b = false;
         end
-               
+
         
         
         % ----------------------------------------------------------------------------------
@@ -609,14 +609,14 @@ classdef RunClass < TreeNodeClass
         
         
         % ----------------------------------------------------------------------------------
-        function AddStims(obj, tPts, condition)
+        function AddStims(obj, tPts, condition, duration, amp, more)
             if isempty(tPts)
                 return;
             end
             if isempty(condition)
                 return;
             end
-            obj.procStream.AddStims(tPts, condition);
+            obj.procStream.AddStims(tPts, condition, duration, amp, more);
         end
 
         
@@ -655,6 +655,29 @@ classdef RunClass < TreeNodeClass
             obj.procStream.MoveStims(tPts, condition);
         end
         
+        % ----------------------------------------------------------------------------------
+        function AddStimColumn(obj, name, initValue)
+            if ~exist('name', 'var')
+                return;
+            end
+            obj.procStream.AddStimColumn(name, initValue);
+        end
+
+        % ----------------------------------------------------------------------------------
+        function DeleteStimColumn(obj, idx)
+            if ~exist('idx', 'var') || idx <= 3
+                return;
+            end
+            obj.procStream.DeleteStimColumn(idx);
+        end
+        
+        % ----------------------------------------------------------------------------------
+        function RenameStimColumn(obj, oldname, newname)
+            if ~exist('oldname', 'var') || ~exist('newname', 'var')
+                return;
+            end
+            obj.procStream.RenameStimColumn(oldname, newname);
+        end
         
         % ----------------------------------------------------------------------------------
         function data = GetStimData(obj, icond)
@@ -684,8 +707,8 @@ classdef RunClass < TreeNodeClass
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimDuration(obj, icond, duration)
-            obj.procStream.SetStimDuration(icond, duration);
+        function SetStimDuration(obj, icond, duration, tpts)
+            obj.procStream.SetStimDuration(icond, duration, tpts);
         end
         
     
@@ -699,8 +722,8 @@ classdef RunClass < TreeNodeClass
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimAmplitudes(obj, icond, vals)
-            obj.procStream.SetStimAmplitudes(icond, vals);
+        function SetStimAmplitudes(obj, icond, amps, tpts)
+            obj.procStream.SetStimAmplitudes(icond, amps, tpts);
         end
         
     
@@ -774,6 +797,56 @@ classdef RunClass < TreeNodeClass
         end
     
     
+        % -----------------------------------------------------------------
+        function [fn_error, missing_args, prereqs] = CheckProcStreamOrder(obj)
+            % Returns index of processing stream function which is missing
+            % an argument, and a cell array of the missing arguments. 
+            % fn_error is 0 if there are no errors.
+            
+            missing_args = {};
+            fn_error = 0;
+            prereqs = '';
+            
+            % Processing stream begins with inputs available
+            available = obj.procStream.input.GetProcInputs();
+            % Inputs which are usually optional or defined elsewhere
+            extras = {'iRun' 'iSubj' 'iGroup' 'mlActAuto', 'tIncAuto', 'Aaux', 'rcMap'};
+            available = [available, extras];
+            
+            % For all fcalls
+            for i = 1:length(obj.procStream.fcalls)
+                
+                inputs = obj.procStream.fcalls(i).GetInputs();
+                
+                % Check that each input is available
+                for j = 1:length(inputs)
+                    if ~any(strcmp(available, inputs{j}))
+                       fn_error = obj.procStream.fcalls(i);
+                       missing_args{end+1} = inputs{j};
+                    end
+                end
+                
+                if isa(fn_error, 'FuncCallClass')
+                    entry = obj.procStream.reg.GetEntryByName(fn_error.name);
+                    if isfield(entry.help.sections, 'prerequisites')
+                       prereqs_list = splitlines(entry.help.sections.prerequisites.str);
+                       for k = 1:length(prereqs_list)
+                           if ~isempty(prereqs_list{k})
+                               prereqs = [prereqs, sprintf('\n'), strtrim(prereqs_list{k})];
+                           end
+                       end
+                    end
+                   return; 
+                end
+                
+                % Add outputs of the function to available list
+                outputs = obj.procStream.fcalls(i).GetOutputs();
+                for j = 1:length(outputs)
+                   available{end + 1} = outputs{j}; 
+                end
+            end
+        end
+        
         % ----------------------------------------------------------------------------------
         function ExportHRF(obj, ~, iBlk)
             if ~exist('iBlk','var') || isempty(iBlk)

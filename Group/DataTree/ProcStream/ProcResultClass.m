@@ -18,6 +18,7 @@ classdef ProcResultClass < handle
         
     properties (Access=private)
         filename
+        logger
     end
     
     
@@ -25,6 +26,10 @@ classdef ProcResultClass < handle
         
         % ---------------------------------------------------------------------------
         function obj = ProcResultClass()
+            global logger
+            
+            obj.logger = InitLogger(logger);
+            
             obj.Initialize();
             obj.filename = '';
         end
@@ -160,36 +165,40 @@ classdef ProcResultClass < handle
             if isempty(filename)
                 return;
             end
-            [pname, fname] = fileparts(filename);
-
+            [pname, fname, ext] = fileparts(filename);
+            
             % Set the containing folder name 
-            if isempty(pname)
-                % See if folder corresponding to saved output exists. If it
-                % does then set it to be same as the .mat filename (without
-                % the extension)
+            if isempty(ext)
+                % Filename argument names folder
+                                
                 rootdir = '';
-                if exist(['./', fname], 'dir')==7
-                    rootdir = fname;
-                    
-                    % Next 3 lines are for backwards compatibility: if the saved output 
-                    % for subject is stored in the group instead of subject folder as was 
-                    % done in previous versions of this code, then move saved file to 
-                    % subject folder
-                    if exist(['./', fname, '.mat'], 'file')==2
-                        movefile(['./', fname, '.mat'], ['./', rootdir, '/', fname, '.mat']);
-                    end
+                if ispathvalid(pname)
+                    rootdir = [filesepStandard(pname), filesepStandard(fname, 'nameonly')];
+                elseif ispathvalid(filename)
+                    rootdir = filesepStandard(filename);
                 end
                 
                 % Set the containing folder name 
-                if exist(['./', rootdir, '/', fname, '.mat'], 'file')==2
-                    pname = ['./', rootdir];
-                elseif exist(['../', rootdir, '/', fname, '.mat'], 'file')==2
-                    pname = ['../', rootdir];
-                else
-                    pname = ['./', rootdir]; 
+                if ispathvalid(['./', rootdir])
+                    rootdir = ['./', rootdir];
+                elseif ispathvalid(['../', rootdir])
+                    rootdir = ['../', rootdir];                    
+                end                
+                if ispathvalid([rootdir, fname, '.mat'], 'file')
+                    pname = rootdir;
                 end
+                pname = filesepStandard(pname);
+                
+            elseif ispathvalid(pname)
+                if ispathvalid(['./', filesepStandard(pname)])
+                    pname = ['./', filesepStandard(pname)];
+                else
+                    pname = [filesepStandard(pname)];
+                end
+
             end
-            obj.filename = [pname, '/', fname, '.mat'];
+            
+            obj.filename = [pname, fname, '.mat'];
         end
         
         
@@ -205,7 +214,7 @@ classdef ProcResultClass < handle
             
             obj.SetFilename(filename)
             
-            output = obj; %#ok<NASGU>
+            output = obj;
             props = propnames(vars);
             for ii=1:length(props)
                 if eval( sprintf('isproperty(output, ''%s'');', props{ii}) )
@@ -221,7 +230,26 @@ classdef ProcResultClass < handle
                 return;
             end
             
-            save(obj.filename, '-mat', 'output');
+            % If saving this data for the first time folder might have to be created under 
+            % the processd data output folder, depending on the group folder folder structure
+            pname = fileparts(obj.filename);
+            if ~isempty(pname)
+                if ~ispathvalid(pname)
+                    mkdir(pname)
+                end
+            end
+            
+            try
+                obj.logger.Write(sprintf('Saving derived data output: %s', obj.filename));
+            	save(obj.filename, '-mat', 'output');
+            catch
+                if ~ispathvalid(obj.filename)
+                    msg = sprintf('ERROR: Was not able to save processed data - %s not found.', obj.filename);
+                    MessageBox(msg);
+                    obj.logger.Write(msg);
+                    return;
+                end
+            end
             
             % Free memory for this object
             if ~isempty(findstr('freememory', options)) %#ok<FSTR>
@@ -246,7 +274,7 @@ classdef ProcResultClass < handle
             end
             
             % Error check file
-            if ~exist(obj.filename,'file')
+            if ~ispathvalid(obj.filename,'file')
                 return
             end
             
@@ -264,7 +292,7 @@ classdef ProcResultClass < handle
         end
         
         
-        
+                
         % ----------------------------------------------------------------------------------
         function FreeMemory(obj, filename)            
             if ~exist('filename','var')
@@ -294,15 +322,15 @@ classdef ProcResultClass < handle
             end
             
             % Check that data file associated with this processing element exists
-            if exist(obj.filename,'file')
-            % Delete file containing the actual datas
-            delete(obj.filename);
-        end
-        
-        
+            if ispathvalid(obj.filename, 'file')
+                % Delete file containing the actual datas
+                delete(obj.filename);
+            end
+            
+
             % Check that exported data file associated with this processing element exists
             [pname, fname] = fileparts(obj.filename);
-            if exist([pname, '/', fname, '_HRF.txt'], 'file')
+            if ispathvalid([pname, '/', fname, '_HRF.txt'], 'file')
                 delete([pname, '/', fname, '_HRF.txt']);
             end
         end
@@ -839,7 +867,7 @@ classdef ProcResultClass < handle
             if isa(obj.dcAvg, 'DataClass')
                 dataTimeSeries  = obj.dcAvg(iBlk).GetDataTimeSeries();
                 time            = obj.dcAvg(iBlk).GetTime();
-                measList = obj.dcAvg(iBlk).measurementList;
+                measList        = obj.dcAvg(iBlk).measurementList;
                 
                 % Header: row containing stim condition name
                 tblcells(2,1) = TableCell('', 12);      % Make space for time column
@@ -893,6 +921,6 @@ classdef ProcResultClass < handle
         end
         
     end
-        
+    
 end
 

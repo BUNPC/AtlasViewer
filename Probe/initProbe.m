@@ -101,7 +101,7 @@ if exist('handles','var')
     set(probe.handles.checkboxOptodeSDMode, 'enable','off');
     set(probe.handles.checkboxOptodeCircles, 'enable','off');
     set(probe.handles.menuItemProbeToCortex, 'enable','off');
-    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
+%    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
 
     set(probe.handles.menuItemSaveRegisteredProbe,'enable','off');
     set(probe.handles.editSpringLenThresh,'string',num2str(probe.registration.springLenThresh) );

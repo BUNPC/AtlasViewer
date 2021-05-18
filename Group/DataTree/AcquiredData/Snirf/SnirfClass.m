@@ -519,12 +519,12 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
                 %%%% Load formatVersion
-                if obj.LoadFormatVersion() < 0 && err == 0
+                if obj.LoadFormatVersion() < 0 && err >= 0
                     err = -2;
                 end
 
                 %%%% Load metaDataTags
-                if obj.LoadMetaDataTags(obj.fid) < 0 && err == 0
+                if obj.LoadMetaDataTags(obj.fid) < 0 && err >= 0
                     % Here a positive return value means that invalid data meta tags 
                     % should NOT be a show stopper if we can help it, if the reste of the data 
                     % is valid. So just let user know they're invalid with a warning.
@@ -532,12 +532,12 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 end
 
                 %%%% Load data
-                if obj.LoadData(obj.fid) < 0 && err == 0
+                if obj.LoadData(obj.fid) < 0 && err >= 0
                     err = -4;
                 end
 
                 %%%% Load stim
-                if obj.LoadStim(obj.fid) < 0 && err == 0
+                if obj.LoadStim(obj.fid) < 0 && err >= 0
                     % Optional field: even if invalid we still want to be
                     % able to work with the rest of the data. Only log
                     % warning
@@ -545,12 +545,12 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 end
 
                 %%%% Load probe
-                if obj.LoadProbe(obj.fid) < 0 && err == 0
+                if obj.LoadProbe(obj.fid) < 0 && err >= 0
                     err = -6;
                 end
 
                 %%%% Load aux. This is an optional field
-                if obj.LoadAux(obj.fid) < 0 && err == 0
+                if obj.LoadAux(obj.fid) < 0 && err >= 0
                     % Optional field: even if invalid we still want to be
                     % able to work with the rest of the data. Only log
                     % warning
@@ -1061,11 +1061,13 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             s = zeros(length(t), length(obj.stim));
             for ii=1:length(obj.stim)
                 data = obj.stim.GetData();
-                [~, k] = nearest_point(t, data(:, 1));
-                if isempty(k)
-                    continue;
+                if ~isempty(data)
+                    [~, k] = nearest_point(t, data(:, 1));
+                    if isempty(k)
+                        continue;
+                    end
+                    s(k,ii) = data(:, 3);
                 end
-                s(k,ii) = data(:, 3);
             end
         end
         
@@ -1276,17 +1278,18 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
     methods
         
         % ----------------------------------------------------------------------------------
-        function AddStims(obj, tPts, condition)
+        function AddStims(obj, tPts, condition, duration, amp, more)
             % Try to find existing condition to which to add stims.
             for ii=1:length(obj.stim)
                 if strcmp(condition, obj.stim(ii).GetName())
-                    obj.stim(ii).AddStims(tPts);
+                    obj.stim(ii).AddStims(tPts, duration, amp, more);
                     return;
                 end
             end
             
             % Otherwise we have a new condition to which to add the stims.
-            obj.stim(end+1) = StimClass(tPts, condition);
+            obj.stim(end+1) = StimClass(condition);
+            obj.stim(end).AddStims(tPts, duration, amp, more);
             obj.SortStims();
         end
         
@@ -1308,6 +1311,31 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             end
         end
         
+        
+        % ----------------------------------------------------------------------------------
+        function AddStimColumn(obj, name, initValue)
+            for i=1:length(obj.stim)
+                obj.stim(i).AddStimColumn(name, initValue);
+            end
+        end
+
+        
+        % ----------------------------------------------------------------------------------
+        function DeleteStimColumn(obj, idx)
+            for i=1:length(obj.stim)
+                obj.stim(i).DeleteStimColumn(idx);
+            end
+        end
+        
+        % ----------------------------------------------------------------------------------
+        function RenameStimColumn(obj, oldname, newname)
+            if ~exist('oldname', 'var') || ~exist('newname', 'var')
+                return;
+            end
+            for i=1:length(obj.stim)
+                obj.stim(i).RenameStimColumn(oldname, newname);
+            end
+        end
         
         % ----------------------------------------------------------------------------------
         function MoveStims(obj, tPts, condition)
@@ -1392,8 +1420,8 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimDuration(obj, icond, duration)
-            obj.stim(icond).SetDuration(duration);
+        function SetStimDuration(obj, icond, duration, tpts)
+            obj.stim(icond).SetDuration(duration, tpts);
         end
         
         
@@ -1408,8 +1436,8 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function SetStimAmplitudes(obj, icond, amps)
-            obj.stim(icond).SetAmplitudes(amps);
+        function SetStimAmplitudes(obj, icond, amps, tpts)
+            obj.stim(icond).SetAmplitudes(amps, tpts);
         end
         
         

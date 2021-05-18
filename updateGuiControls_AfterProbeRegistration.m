@@ -5,7 +5,7 @@ if ~isempty(probe.optpos_reg) && ishandles(labelssurf.handles.surf)
     set(probe.handles.menuItemOverlayHbConc, 'enable','on');    
 else
     set(probe.handles.menuItemProbeToCortex, 'enable','off');
-    set(probe.handles.menuItemOverlayHbConc, 'enable','off');    
+    %set(probe.handles.menuItemOverlayHbConc, 'enable','off');    
 end
 
 if ~isempty(probe.optpos_reg)
