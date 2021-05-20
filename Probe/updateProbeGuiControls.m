@@ -12,7 +12,7 @@ end
 
 
 % Set probe control handles 
-if ~isempty(probe.optpos)
+if ~isempty(probe.optpos_reg)
     
     set(probe.handles.checkboxHideProbe,'enable','on');
     set(probe.handles.checkboxOptodeSDMode,'enable','on');
@@ -24,7 +24,7 @@ if ~isempty(probe.optpos)
     end
     
     % Registration GUI controls
-    if probeHasSpringRegistrationInfo(probe)
+%     if probeHasSpringRegistrationInfo(probe)
         if ~isempty(probe.registration.sl)
             set(probe.handles.checkboxHideSprings,'enable','on');
         else
@@ -35,10 +35,10 @@ if ~isempty(probe.optpos)
         else
             set(probe.handles.checkboxHideDummyOpts,'enable','off');
         end
-    else
-        set(probe.handles.checkboxHideSprings,'enable','off');
-        set(probe.handles.checkboxHideDummyOpts,'enable','off');
-    end
+%     else
+%         set(probe.handles.checkboxHideSprings,'enable','off');
+%         set(probe.handles.checkboxHideDummyOpts,'enable','off');
+%     end
     
     % Figure out if the probe is pre-registered. That is, it is either in
     % position to be pulled toward the head or if we can register it using

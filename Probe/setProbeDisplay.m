@@ -32,7 +32,7 @@ elseif strcmp(optViewMode,'circles')
     hOptodes      = [probe.handles.circles; probe.handles.hRefpts;];
 end
 
-if isempty(probe.handles.labels) || isempty(probe.optpos)
+if isempty(probe.handles.labels) || isempty(probe.optpos_reg)
     return;
 end
 
@@ -71,6 +71,11 @@ if strcmp(method,'digpts')
           set(hMeasList,'visible','off');
       elseif ishandles(hMeasList)
           set(hMeasList,'visible','on');
+      end
+      if ishandles(hSprings) & probe.hideSprings
+          set(hSprings,'visible','off');
+      elseif ishandles(hSprings)
+          set(hSprings,'visible','on');
       end
    end
 elseif strcmp(method,'springs')

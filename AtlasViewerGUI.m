@@ -781,7 +781,7 @@ else
     headobj = headvol;
 end
 
-if isempty(probe.optpos)
+if isempty(probe.optpos_reg)
     menu('No probe has been loaded or created. Use the SDgui to make or load a probe','ok');
     atlasViewer.probe = resetProbe(probe);
     return;
@@ -798,14 +798,14 @@ if digptsPreRegistered(digpts, probe)
     probe = pullProbeToHeadsurf(probe, headobj);
     probe.hOptodesIdx = 1;
    
-elseif ~isempty(probe.optpos_reg) && ~probeHasSpringRegistrationInfo(probe)
-    
-    [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
-    T = gen_xform_from_pts(rp_subj, rp_atlas);
-    probe.optpos_reg = xform_apply(probe.optpos_reg, T);
-    probe = pullProbeToHeadsurf(probe, headobj);
-    probe = probe.copyLandmarks(probe, refpts);
-    probe.save(probe);
+% elseif ~isempty(probe.optpos_reg) && ~probeHasSpringRegistrationInfo(probe)
+%     
+%     [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
+%     T = gen_xform_from_pts(rp_subj, rp_atlas);
+%     probe.optpos_reg = xform_apply(probe.optpos_reg, T);
+%     probe = pullProbeToHeadsurf(probe, headobj);
+%     probe = probe.copyLandmarks(probe, refpts);
+%     probe.save(probe);
     
 else
     
@@ -899,6 +899,7 @@ headsurf = atlasViewer.headsurf;
 
 hideMeasList = get(hObject,'value');
 probe.hideMeasList = hideMeasList;
+probe = drawMeasChannels(probe);
 probe = setProbeDisplay(probe, headsurf);
 
 atlasViewer.probe = probe;
@@ -921,6 +922,7 @@ else
     set(handles.textSpringLenThresh,'visible','off');
 end
 
+probe = displaySprings(probe);
 probe = setProbeDisplay(probe,headsurf);
 
 atlasViewer.probe = probe;
@@ -3961,7 +3963,12 @@ if eventdata.Button == 1
                 det_dist = sqrt(sum((optpos_reg(nrsc+1:nrsc+ndet,:)-selected_point).^2,2));
                 nearby_det = find(det_dist >= measurement_dist(1) & det_dist <= measurement_dist(2));
                 MeasList = [];
-                for u = 1:length(lambda)
+                if isempty(lambda)
+                    n_lambda = 1;
+                else
+                    n_lambda = length(lambda);
+                end
+                for u = 1:length(n_lambda)
                     MeasList = [MeasList; ones(size(nearby_det))*(nrsc) nearby_det ones(size(nearby_det)) ones(size(nearby_det))*u];
                 end
                 atlasViewer.probe.ml = [atlasViewer.probe.ml; MeasList];
@@ -4006,17 +4013,24 @@ if eventdata.Button == 1
                 src_dist = sqrt(sum((optpos_reg(1:nrsc,:)-selected_point).^2,2));
                 nearby_src = find(src_dist >= measurement_dist(1) & src_dist <= measurement_dist(2));
                 MeasList = [];
-                for u = 1:length(lambda)
+                if isempty(lambda)
+                    n_lambda = 1;
+                else
+                    n_lambda = length(lambda);
+                end
+                for u = 1:length(n_lambda)
                     MeasList = [MeasList; nearby_src ones(size(nearby_src))*ndet ones(size(nearby_src)) ones(size(nearby_src))*u];
                 end
                 atlasViewer.probe.ml = [atlasViewer.probe.ml; MeasList];
 
                 % add spring list to new optode
                 sl = atlasViewer.probe.registration.sl;
-                idx = find(sl(:,1) >= nrsc+ndet);
-                sl(idx,1) = sl(idx,1)+1;
-                idx = find(sl(:,2) >= nrsc+ndet);
-                sl(idx,2) = sl(idx,2)+1;
+                if ~isempty(sl)
+                    idx = find(sl(:,1) >= nrsc+ndet);
+                    sl(idx,1) = sl(idx,1)+1;
+                    idx = find(sl(:,2) >= nrsc+ndet);
+                    sl(idx,2) = sl(idx,2)+1;
+                end
                 opt_dist = sqrt(sum((optpos_reg-selected_point).^2,2));
                 nearby_opt = find(opt_dist >= sprint_dist(1) & opt_dist <= sprint_dist(2));
                 nearby_opt = setdiff(nearby_opt,nrsc+ndet);
@@ -4144,7 +4158,11 @@ if eventdata.Button == 1
             [min_dist, idx] = min(opt_dist);
             atlasViewer.probe.editOptodeInfo.currentOptode = idx;
             contents = cellstr(get(handles.popupmenu_selectGrommetType,'String'));
-            al_idx = find(cellfun(@(x) x==idx,al(:,1)));
+            if ~isempty(al)
+                al_idx = find(cellfun(@(x) x==idx,al(:,1)));
+            else
+                al_idx = [];
+            end
             if min_dist < 10
 %                 nrsc = atlasViewer.probe.nsrc;
 %                 ndet = atlasViewer.probe.ndet;
@@ -4669,7 +4687,11 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
         Anchor_pt = get(hObject,'String');
         optode_idx = atlasViewer.probe.editOptodeInfo.currentOptode;
         al = atlasViewer.probe.registration.al;
-        al_idx = find(cellfun(@(x) x==optode_idx,al(:,1)));
+        if ~isempty(al)
+            al_idx = find(cellfun(@(x) x==optode_idx,al(:,1)));
+        else
+            al_idx = [];
+        end
         if strcmpi(Anchor_pt,'none')
             if ~isempty(al_idx)
                 al(al_idx,:) = [];

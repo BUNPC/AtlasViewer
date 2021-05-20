@@ -47,6 +47,11 @@ if ~isempty(probe.DummyGrommetRot)
 end
 
 % add refpts and head mesh to SD file
-SD.refpts = atlasViewer.refpts;
+refpts.pos = atlasViewer.refpts.pos;
+refpts.labels = atlasViewer.refpts.labels;
+if isfield(atlasViewer,'eeg_system')
+    refpts.eeg_system = atlasViewer.eeg_system;
+end
+SD.refpts = refpts;
 SD.mesh = atlasViewer.headsurf.mesh;
 

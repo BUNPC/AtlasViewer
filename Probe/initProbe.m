@@ -128,6 +128,10 @@ b = true;
 if isempty(probe)
     return;
 end
+if ~isempty(probe.optpos_reg)
+    b = false;
+    return;
+end
 if isempty(probe.optpos)
     return;
 end

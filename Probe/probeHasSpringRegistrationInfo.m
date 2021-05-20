@@ -3,7 +3,7 @@ b = false;
 if isempty(probe)
     return;
 end
-if isempty(probe.optpos)
+if isempty(probe.optpos_reg)
     return;
 end
 if isfield(probe, 'registration')
