@@ -9,7 +9,7 @@ if ~exist('dirnameInstall','var') | isempty(dirnameInstall)
     end
 end
 if ~exist('dirnameApp','var') | isempty(dirnameApp)
-    dirnameApp = getAppDir_av();
+    dirnameApp = getAppDir();
 end
 if ~exist('options','var')
     options = 'end';

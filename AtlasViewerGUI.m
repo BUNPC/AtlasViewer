@@ -387,7 +387,7 @@ atlasViewer.dirnameSubj = getSubjDir(varargin);
 atlasViewer.dirnameAtlas = getAtlasDir(varargin);
 
 fprintf('%s\n', banner());
-fprintf('   dirnameApp = %s\n', getAppDir_av());
+fprintf('   dirnameApp = %s\n', getAppDir());
 fprintf('   dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
 fprintf('   dirnameSubj = %s\n', atlasViewer.dirnameSubj);
 

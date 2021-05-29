@@ -16,7 +16,7 @@ classdef ConfigFileClass < FileClass
             % Error checks
             if ~exist('filename0','var') || isempty(filename0)
                 if isdeployed()
-                    filename0 = [getAppDir_av(), 'AppSettings.cfg'];
+                    filename0 = [getAppDir(), 'AppSettings.cfg'];
                 else
                     filename0 = which('AppSettings.cfg');
                 end

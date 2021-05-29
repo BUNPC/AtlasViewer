@@ -1,8 +1,8 @@
 function dt = GetLastCheckForUpdates()
-if ~ispathvalid([getAppDir_av, 'LastCheckForUpdates.dat'])
+if ~ispathvalid([getAppDir, 'LastCheckForUpdates.dat'])
     dt = datetime - duration(200,0,0);
 else
-    fd = fopen([getAppDir_av, 'LastCheckForUpdates.dat'],'rt');
+    fd = fopen([getAppDir, 'LastCheckForUpdates.dat'],'rt');
     dt = fgetl(fd);
     fclose(fd);
 end

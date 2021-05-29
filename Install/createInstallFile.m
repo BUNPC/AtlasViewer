@@ -5,7 +5,7 @@ if ~exist('options','var') | isempty(options)
 end
 
 % Find installation path and add it to matlab search paths
-dirnameApp = getAppDir_av;
+dirnameApp = getAppDir;
 if isempty(dirnameApp)
     MessageBox('Cannot create installation package. Could not find root application folder.');
     return;

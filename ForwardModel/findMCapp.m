@@ -4,7 +4,7 @@ if ~exist('argExtern','var')
     argExtern={};
 end
 mc_appnamelist = mcAppList();
-dirnameApp = getAppDir_av();
+dirnameApp = getAppDir();
 
 %%%% SEARCH 1: Check external args for user supplied MC app root folder 
 if length(argExtern)>2 & ~isempty(argExtern{3})

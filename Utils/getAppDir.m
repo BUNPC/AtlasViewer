@@ -1,4 +1,4 @@
-function dirname = getAppDir_av(isdeployed_override)
+function dirname = getAppDir(isdeployed_override)
 
 if ~exist('isdeployed_override','var')
     isdeployed_override = 'notdeployed';

@@ -21,7 +21,7 @@ classdef Logger < handle
                 
             self.appname = appname;
             
-            approotdir = getAppDir_av();
+            approotdir = getAppDir();
             
             % Construct log file name
             self.filename = [approotdir, appname, '.log'];

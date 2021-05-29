@@ -1,6 +1,6 @@
 function userfuncdir = FindUserFuncDir(obj)
 userfuncdir = {};
-dirnameApp = getAppDir_av();
+dirnameApp = getAppDir();
 
 userfuncdir{1} = [dirnameApp, 'Group/FuncRegistry/UserFunctions/'];
 dirs = dir([userfuncdir{1}, '*']);

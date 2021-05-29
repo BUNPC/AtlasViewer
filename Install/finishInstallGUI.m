@@ -87,7 +87,7 @@ stats.err = 0;
 stats.handles.this = hObject;
 stats.handles.msgFinished = handles.textFinished;
 stats.handles.msgMoreInfo = handles.textMoreInfo;
-stats.dirnameApp = getAppDir_av('isdeployed');
+stats.dirnameApp = getAppDir('isdeployed');
 stats.pushbuttonOKPress = false;
 
 fprintf('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);

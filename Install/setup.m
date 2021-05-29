@@ -31,7 +31,7 @@ if ismac()
 else
 	dirnameSrc = [pwd, '/'];
 end
-dirnameDst = getAppDir_av('isdeployed');
+dirnameDst = getAppDir('isdeployed');
 
 % Uninstall
 try
