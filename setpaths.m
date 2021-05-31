@@ -59,6 +59,11 @@ function setpaths(options_str)
 %      setpaths('rmpathconfl|verbose|add|conflcheck');
 %
 
+% Start world by trying to add standard 'Utils' path if it exists 
+% If it exists, assume that's where intialation functions are. 
+if exist([pwd, '/Utils'], 'dir')==7
+    addpath([pwd, '/Utils'], '-end');
+end
 
 % Parse arguments
 if ~exist('options_str','var')
@@ -186,7 +191,7 @@ if isempty(wspaths)
 end
 
 % Add the primary workspace to the search path
-addpath(paths_excl_str{1});
+addpath(paths_excl_str{1}, '-end');
 
 if options.rmpathconfl
     msg = 'Removed the following similar workspaces from the search path to avoid conflicts:';
@@ -198,16 +203,16 @@ end
 if length(wspaths)>1
     fprintf('\n');
     fprintf('%s\n', msg);
-    for ii=2:length(wspaths)
+    for ii = 2:length(wspaths)
         fprintf('  %s\n', wspaths{ii});
         if options.rmpathconfl
             continue;
         end
-        addpath(paths_excl_str{ii});
+        addpath(paths_excl_str{ii}, '-end');
     end
 end
 
-if exist('./setpaths_proprietary.m','file')
+if exist([wspaths{1}, '/Utils/setpaths_proprietary.m'],'file')
     setpaths_proprietary(options);
 end
 
@@ -226,8 +231,5 @@ if isunix()
         end
     end
 end
-
-
-
 
 
