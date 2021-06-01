@@ -291,10 +291,9 @@ end
 dc(find(isnan(dc))) = 0;
 
 % get dod conversion for each cond, if more than one condition
-if ndims(dc) == 4
-    for icond = 1:size(dc,4)
-        dod(:,:,icond) = hmrConc2OD( squeeze(dc(:,:,:,icond)), SD, [6 6] );
-    end
+dod = [];
+for icond = 1:size(dc,4)
+    dod(:,:,icond) = hmrConc2OD( squeeze(dc(:,:,:,icond)), SD, [6 6] );
 end
 
 % average HRF over a time range

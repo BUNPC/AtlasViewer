@@ -57,15 +57,15 @@ elseif (tHRF(1)-tRangeMin)>EM && (tRangeMax-tHRF(end))>EM
     MessageBox(sprintf('Invalid time range entered (%0.4f, %0.4f); Using whole tHRF range [%0.4f - %0.4f] ...', tRangeMin, tRangeMax, tHRF(1), tHRF(end)));
 elseif (tHRF(1)-tRangeMin)>EM && (tRangeMax-tHRF(end))<EM
     startIdx = 1;
-    [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
+    [~, endIdx] = nearest_point(tHRF(:), tRangeMax, 1);
     MessageBox(sprintf('Invalid min limit entered (%0.4f);  will use min tHRF of %0.4f ...', tRangeMin, tHRF(1)));
 elseif (tHRF(1)-tRangeMin)<EM && (tRangeMax-tHRF(end))>EM
-    [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
+    [~, startIdx] = nearest_point(tHRF(:), tRangeMin, 1);
     endIdx = length(tHRF);
     MessageBox(sprintf('Invalid max limit entered (%0.4f);  will use max tHRF of %0.4f ...', tRangeMax, tHRF(end)));
 else
-    [~, startIdx] = nearest_point(tHRF, tRangeMin, 1, 1);
-    [~, endIdx] = nearest_point(tHRF, tRangeMax, 1, 1);
+    [~, startIdx] = nearest_point(tHRF(:), tRangeMin, 1);
+    [~, endIdx] = nearest_point(tHRF(:), tRangeMax, 1);
 end
 hbconc.config.tRangeMin = tHRF(startIdx);
 hbconc.config.tRangeMax = tHRF(endIdx);

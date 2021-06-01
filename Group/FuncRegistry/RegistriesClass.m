@@ -39,25 +39,30 @@ classdef RegistriesClass < handle
             obj.filename = '';
 
             % Get the parameter items from config file relevant to this class
-            obj.config = struct('InclArchivedFunctions','');
-            cfg = ConfigFileClass();
-            obj.config.InclArchivedFunctions = cfg.GetValue('Include Archived User Functions');
             obj.userfuncdir = FindUserFuncDir(obj);
-            
+            if isempty(obj.userfuncdir)
+                return
+            end
             if strcmp(mode, 'empty')
+                return;
+            end
+            if strcmp(mode, 'reset')
+                obj.DeleteSaved();
                 return;
             end
             
             % Check if saved registry exists. If so load that and exit
             if ~strcmp(mode, 'reload')
-            if exist([obj.userfuncdir{1}, 'Registry.mat'], 'file')
-                obj.filename = [obj.userfuncdir{1}, 'Registry.mat'];
-                r = load(obj.filename, 'reg');
-                if isa(r.reg, 'RegistriesClass') && ~isempty(r.reg)
-                    obj.Copy(r.reg);
-                    return;
+                if exist([obj.userfuncdir{1}, 'Registry.mat'], 'file')
+                    obj.filename = [obj.userfuncdir{1}, 'Registry.mat'];
+                    r = load(obj.filename, 'reg');
+                    if isa(r.reg, 'RegistriesClass') && ~isempty(r.reg)
+                        obj.Copy(r.reg);
+                        if obj.IsValid()
+                            return;
+                        end
+                    end
                 end
-            end
             end
 
             obj.Load();
@@ -311,6 +316,25 @@ classdef RegistriesClass < handle
         
         
         % ----------------------------------------------------------------------------------
+        function n = GetNumUsages(obj, funcname)
+            n = [];
+            if isempty(obj)
+                return;
+            end
+            if nargin<2
+                return;
+            end
+            for ii = 1:length(obj.funcReg)
+                n = obj.funcReg(ii).GetNumUsages(funcname);
+                if n>0
+                    break;
+                end
+            end
+        end
+       
+        
+        
+        % ----------------------------------------------------------------------------------
         function Import(obj, funcpath)
             [~, fname, ext] = fileparts(funcpath);            
             if exist([obj.userfuncdir{1}, fname, ext], 'file') == 2
@@ -331,7 +355,34 @@ classdef RegistriesClass < handle
             end
             obj.Reload(type);
         end
+    
+        
+        % ----------------------------------------------------------------------------------
+        function b = IsValid(obj)
+            b = false;
+            regfile = dir([obj.userfuncdir{1}, 'Registry.mat']);
+            for ii = 1:length(obj.funcReg)
+                if obj.funcReg(ii).DateLastModified() > datetime(regfile.date,'locale','system')
+                    return;
+                end
+            end
+            b = true;
+        end
+        
+
+        % ----------------------------------------------------------------------------------
+        function entry = GetEntryByName(obj, entry_name)
+            entry = [];
+            for i=1:size(obj.funcReg, 2)
+                for j=1:size(obj.funcReg(i).entries, 2)
+                    if strcmp(obj.funcReg(i).entries(j).name, entry_name) || strcmp(obj.funcReg(i).entries(j).uiname, entry_name)
+                        entry = obj.funcReg(i).entries(j);
+                    end
+                end
+            end
+        end
         
     end
+        
 end
 
