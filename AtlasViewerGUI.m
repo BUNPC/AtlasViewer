@@ -785,7 +785,7 @@ else
     headobj = headvol;
 end
 
-if isempty(probe.optpos_reg)
+if isempty(probe.optpos_reg) && isempty(probe.optpos)
     menu('No probe has been loaded or created. Use the SDgui to make or load a probe','ok');
     atlasViewer.probe = resetProbe(probe);
     return;

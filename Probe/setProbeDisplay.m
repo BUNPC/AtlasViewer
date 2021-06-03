@@ -32,7 +32,7 @@ elseif strcmp(optViewMode,'circles')
     hOptodes      = [probe.handles.circles; probe.handles.hRefpts;];
 end
 
-if isempty(probe.handles.labels) || isempty(probe.optpos_reg)
+if isempty(probe.handles.labels) || (isempty(probe.optpos_reg) && isempty(probe.optpos))
     return;
 end
 

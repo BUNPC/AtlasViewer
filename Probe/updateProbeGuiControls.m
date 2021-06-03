@@ -12,7 +12,7 @@ end
 
 
 % Set probe control handles 
-if ~isempty(probe.optpos_reg)
+if ~isempty(probe.optpos_reg) || ~isempty(probe.optpos)
     
     set(probe.handles.checkboxHideProbe,'enable','on');
     set(probe.handles.checkboxOptodeSDMode,'enable','on');
