@@ -67,16 +67,39 @@ if ~isempty(digpts.digpts)
         digpts1.pcpos      = (digpts.digpts(jj).pcpos + ((jj-1) * digpts1.pcpos)) / jj;        
     end
     
+    meanDigptsConfigSetting = digpts.config.GetValue('Load Group Mean Digitized Points');
     msg{1} = sprintf('AtlasViewer has detected dig points in the current subject''s sub-folders. ');
     msg{2} = sprintf('Do you want to load the mean of the group dig points?');
-    q = MenuBox(msg, {'YES', 'NO'});
-    if q==1
+    if strcmp(meanDigptsConfigSetting, 'ask me')
+        q = MenuBox(msg, {'YES', 'NO'},[],[],sprintf('dontAskAgain'));
+        if q(1)==1
+            digpts = digpts1;
+            digpts = setDigptsOrientation(digpts, dirname);
+            if ~digpts.isempty(digpts)
+                digpts.pathname = dirname;
+            end
+            printDigpts(digpts, 'Mean group dig points for');
+        else
+            digpts.digpts = [];
+        end
+        
+        % See if user asked to change config parameter value
+        if q(2)
+            if q(1)
+                onoff = 'on';
+            else
+                onoff = 'off';
+            end
+            digpts.config.SetValue('Load Group Mean Digitized Points',onoff)
+            digpts.config.Save();
+        end
+    elseif strcmp(meanDigptsConfigSetting, 'on')
         digpts = digpts1;
         digpts = setDigptsOrientation(digpts, dirname);
         if ~digpts.isempty(digpts)
             digpts.pathname = dirname;
         end
-        printDigpts(digpts, 'Mean group dig points for');        
+        printDigpts(digpts, 'Mean group dig points for');
     else
         digpts.digpts = [];
     end

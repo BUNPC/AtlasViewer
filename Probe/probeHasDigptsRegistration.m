@@ -1,4 +1,4 @@
-function b = probeHasDigptsRegistrationInfo(probe)
+function b = probeHasDigptsRegistration(probe)
 b = false;
 if isProbeFlat(probe)
     return;

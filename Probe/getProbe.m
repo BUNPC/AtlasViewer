@@ -7,7 +7,6 @@ function probe = getProbe(probe, dirname, digpts, headsurf, refpts, dataTree)
 % Arg 1
 if ~exist('probe','var') || isempty(probe)
     probe = initProbe();
-    return
 end
 
 % Arg 2
@@ -35,40 +34,59 @@ if ~exist('dataTree','var')
     dataTree = [];
 end
 
-% Modify arguments 
+% Modify arguments
 dirname = filesepStandard(dirname,'full');
 probe.pathname = dirname;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Load probe data from the various possible sources
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe_reg       = loadProbeFormTextFile(dirname, headsurf);   % Probe that could already be registered
 probe_data      = loadFromData(dirname, dataTree);
 probe_digpts    = loadProbeFromDigpts(digpts);
-probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data, probe_reg);
+probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 2. Copy all probe data loaded from different source which is not 
-% in conflict (NOTE: conflicts are checked by the probe struct copy() 
-% function) into the output parameter. The process of copying probe data to 
-% the probe output structure follows a hierarchy that looks 
+% 2. Copy all probe data loaded from different source which is not
+% in conflict (NOTE: conflicts are checked by the probe struct copy()
+% function) into the output parameter. The process of copying probe data to
+% the probe output structure follows a hierarchy that looks
 % like this:
 %
-%    a) If registered probe already exists in a file, load the data from it 
-%    b) If digitized points exists load probe data from it ONLY if it is
-%       not in conflict with a) registered probe file. 
-%    c) If data exists, load probe data from it ONLY if it is
-%       not in conflict with a) registered and b) digitized probes. 
-%    d) If SD files exist load probe data from it ONLY if it is
-%       not in conflict with probe data loaded from a) registered probe file, 
-%       b) digitized points and c) data. 
+%    a) If digitized points exists load probe data from it ONLY if it is
+%       not in conflict with a) registered probe file.
+%    b) If data exists, load probe data from it ONLY if it is
+%       not in conflict with a) registered and b) digitized probes.
+%    c) If SD files exist load probe data from it ONLY if it is
+%       not in conflict with probe data loaded from a) registered probe file,
+%       b) digitized points and c) data.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe = probe.copy(probe, probe_reg);
-probe = probe.copy(probe, probe_digpts);
-probe = probe.copy(probe, probe_data);
-for ii = 1:length(probe_SD)
-    probe = probe.copy(probe, probe_SD(ii));
+
+% Get measurement list from data if data exists
+if ~probe_digpts.isempty(probe_digpts)
+    
+    % Get digitized points if they exist
+    probe = probe.copy(probe, probe_digpts);
+    
+    % We got our initial probe from dig points
+    probe = probe.copyMeasList(probe, probe_data);
+
+    % Get registration data from SD files
+    for ii = 1:length(probe_SD)
+        if ~probe_SD(ii).isempty(probe_SD(ii))
+            probe = probe.copyMeasList(probe, probe_SD(ii));
+            probe = probe.copyOptodes(probe, probe_SD(ii));
+        end
+    end
+else
+    probe = probe.copy(probe, probe_data);
+    for ii = 1:length(probe_SD)
+        if ~probe_SD(ii).isempty(probe_SD(ii))
+            probe = probe.copy(probe, probe_SD(ii));
+            probe = probe.copy(probe, probe_SD(ii));
+        end
+    end
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. Preregister
@@ -76,8 +94,8 @@ end
 probe = preRegister(probe, headsurf, refpts);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 4. Check if registration data exists only if data from SD data was loaded. 
-% If it was but probe is neither registered to head nor has registration 
+% 4. Check if registration data exists only if data from SD data was loaded.
+% If it was but probe is neither registered to head nor has registration
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe = checkRegistrationData(dirname, probe, headsurf);
@@ -97,57 +115,64 @@ function probe = loadFromSDFiles(dirname, varargin)
 
 % Arg 2: Extract all the probes from varargin agianst which the SD probes have to
 % be compared for compatability
-probes_src          = repmat(initProbe, length(varargin),1);
-probes_src_status   = zeros(length(probes_src), 1);
+probe_other_srcs          = repmat(initProbe, length(varargin),1);
+probe_other_srcs_status   = zeros(1, length(probe_other_srcs));
 for n = 1:length(varargin)
-    probes_src(n)           = varargin{n};
-    probes_src_status(n)    = probes_src(n).isempty(probes_src(n));
+    probe_other_srcs(n)        = varargin{n};
+    probe_other_srcs_status(n) = probe_other_srcs(n).isempty(probe_other_srcs(n));
 end
 
 % Load probe into the array output parameter from the default SD files
 % We make sure this file is firast in the array
-files = dir([dirname, '*.SD']);
+files = [dir(['./*.SD']); dir(['./*.sd'])];
 probe = repmat(initProbe, length(files),1);
 jj = 0;
-if exist([dirname, 'probe.SD'],'file')
+if ispathvalid([dirname, 'probe.SD'],'file')
     filedata = load([dirname, 'probe.SD'], '-mat');
     jj = jj+1;
-    probe(jj) = loadSD(probe(jj), filedata.SD);    
+    probeDefault = initProbe();
+    probe = [loadSD(probeDefault, filedata.SD); probe];    
 end
-jj = jj+1;
 
 % Load all the other probes from the rest of the SD files (non-default
 % ones). Then decide whether ask the user to choose among multiple SD
 % files.
 askuserflag = false;
-for ii = jj:length(files)
+idxLst = [];
+for ii = 1:length(files)
+    
     if strcmp(files(ii).name, 'probe.SD')
+        idxLst = [idxLst, ii+jj]; %#ok<*AGROW>
         continue;
     end
+    
     filedata = load([dirname, files(ii).name], '-mat');
-    probe(ii) = loadSD(probe(ii), filedata.SD);
+    probe(ii+jj) = loadSD(probe(ii+jj), filedata.SD);
     
     % Check if there's a reason to ask user to choose an SD file.
-    % In order for the code to decide to ask the user to choose 
+    % In order for the code to decide to ask the user to choose
     % among mutiple SD files 3 conditions must be met:
     %
     %   a) All of the probes listed in varargin must be empty
     %   c) Default SD file 'probe.SD' must not exist
-    %   d) Multiple SD files must exist at least one of which is 
-    %      dissimilar to/incompatible with any one of the others. 
+    %   d) Multiple SD files must exist at least one of which is
+    %      dissimilar to/incompatible with any one of the others.
     %
     for kk = 1:length(probe)
-        if ~similarProbes(probe(ii), probe(kk))
+        if ~compatibleProbes(probe(ii+jj), probe(kk))
             if jj==0
-                if all(probes_src_status)
+                if all(probe_other_srcs_status)
                     askuserflag = true;
                 end
             end
         end
     end
+    
 end
+probe(idxLst(2:end)) = [];
 
-% If askuserflag is set prompt user to select from mutiple incompatible 
+
+% If askuserflag is set prompt user to select from mutiple incompatible
 % SD files
 if askuserflag
     probe = initProbe();
@@ -161,6 +186,7 @@ end
 
 
 
+
 % -------------------------------------------
 function probe = loadFromData(dirname, dataTree)
 probe = initProbe();
@@ -170,12 +196,12 @@ SD = [];
 if ~isempty(dataTree) && ~dataTree.IsEmpty()
     SD = extractSDFromDataTree(dataTree);
     
-% Check if probe exists in old-style Homer processing files
-elseif exist([dirname, 'groupResults.mat'], 'file')    
+    % Check if probe exists in old-style Homer processing files
+elseif exist([dirname, 'groupResults.mat'], 'file')
     filedata = load([dirname, 'groupResults.mat'], '-mat');
     SD = getSD(filedata.group);
-
-% Check if probe exists in old-style acquisition files
+    
+    % Check if probe exists in old-style acquisition files
 elseif existDotNirsFiles(dirname)
     files = getDotNirsFiles(dirname);
     filedata = load([files(1).folder, files(1).name], '-mat');
@@ -225,18 +251,18 @@ for ii = 1:length(dirs)
     end
     if existDotNirsFiles(filesepStandard([dirname, dirs(ii).name]), depth)
         return
-    end    
+    end
 end
 b = false;
 
 
 
 % ----------------------------------------------------------------------
-function files = getDotNirsFiles(dirname)   
+function files = getDotNirsFiles(dirname)
 if ~exist('dirname','var') || isempty(dirname)
     dirname = '.';
 end
-   
+
 files = dir([dirname, '/*.nirs']);
 if ~isempty(files)
     for jj = 1:length(files)
@@ -262,7 +288,7 @@ for ii = 1:length(dirs)
         continue
     end
     fileNew = getDotNirsFiles(filesepStandard([dirname, dirs(ii).name]));
-    files = [files; fileNew]; %#ok<AGROW>
+    files = [files; fileNew];
 end
 
 

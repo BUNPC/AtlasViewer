@@ -24,7 +24,7 @@ if ~isempty(probe.optpos)
     end
     
     % Registration GUI controls
-    if probeHasSpringRegistrationInfo(probe)
+    if probeHasSpringRegistration(probe)
         if ~isempty(probe.registration.sl)
             set(probe.handles.checkboxHideSprings,'enable','on');
         else
@@ -45,9 +45,9 @@ if ~isempty(probe.optpos)
     % springs and anchor points, if they exist. The button
     % pushbuttonRegisterProbeToSurface is used for both cases but has to be
     % enabled
-    if isPreRegisteredProbe(probe, headsurf) || probeHasSpringRegistrationInfo(probe) || probeHasLandmarkRegistration(probe)
+    if isPreRegisteredProbe(probe, headsurf) || probeHasSpringRegistration(probe) || probeHasLandmarkRegistration(probe)
         set(probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
-    elseif ~probeHasDigptsRegistrationInfo(probe)
+    elseif ~probeHasDigptsRegistration(probe)
         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
         msg{3} = sprintf('registration data using SDgui application.\n\n');

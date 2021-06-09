@@ -1,4 +1,4 @@
-function b = probeHasSpringRegistrationInfo(probe)
+function b = probeHasSpringRegistration(probe)
 b = false;
 if isempty(probe)
     return;
@@ -19,3 +19,5 @@ elseif isfield(SD, 'AnchorList')
     end
     b = true; 
 end
+
+

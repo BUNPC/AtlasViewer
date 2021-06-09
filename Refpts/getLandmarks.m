@@ -1,7 +1,6 @@
-function [nz,iz,rpa,lpa,cz, refpts_out] = getLandmarks(refpts)
+function [nz, iz, rpa, lpa, cz, refpts_out] = getLandmarks(refpts)
 
-refpts_out.pos  = [];
-refpts_out.labels  = {};
+refpts_out = initRefpts;
 nz  = [];
 iz  = [];
 rpa = [];

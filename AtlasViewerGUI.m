@@ -641,11 +641,6 @@ imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
 digpts       = atlasViewer.digpts;
 
-% isPreRegisteredProbe==2 (rather then simply 1) means probe is already
-% registered to head nothing to do
-if isPreRegisteredProbe(probe, headsurf)==2
-    return;
-end
 
 % for displayAxesv whichever head object (headsurf or headvol) 
 % is not empty will work. 
@@ -665,7 +660,7 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if digptsPreRegistered(digpts, probe)
+if isPreRegisteredProbe(probe, headobj)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
@@ -688,7 +683,7 @@ else
         MessageBox('Error registering probe using spring relaxation. Headvol object is empty');
         return;
     end
-    if ~probeHasSpringRegistrationInfo(probe)
+    if ~probeHasSpringRegistration(probe)
         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
         msg{3} = sprintf('registration data using SDgui application.\n\n');
@@ -3522,28 +3517,5 @@ if isempty(onoff)
 end
 set(hObject, checked_propname, onoff);
 
-
-
-% ---------------------------------------------------------
-function b = digptsPreRegistered(digpts, probe)
-b = false;
-if isempty(probe)
-    return;
-end
-if isempty(digpts)
-    return;
-end
-if isempty(probe.optpos_reg)
-    return;
-end
-if isempty(digpts.srcpos) && isempty(digpts.detpos)
-    return;
-end
-digpts_optpos = [digpts.srcpos; digpts.detpos];
-n = length(digpts_optpos(:));
-if ~all((probe.optpos_reg(1:n)' - digpts_optpos(:)) < 1e-10)
-    return;
-end
-b = true;
 
 
