@@ -153,6 +153,9 @@ for i = 1:cfgGui.ncols
         
         % Draw param values control within panel. Note all controls have same relative position within panel 
         pval = cfgGui.filedata.GetParamValue(ip);
+        if isempty(pval)
+            pval = '';
+        end
         if isempty(cfgGui.filedata.GetParamValueOptions(ip))
             hv = uicontrol(hp(ip), 'Style','edit', 'string',pval, 'FontSize',cfgGui.fontsizeVals, 'fontweight','bold', 'Tag',cfgGui.filedata.GetParamName(ip), ...
                 'units','normalized', 'position',cfgGui.posParam);
@@ -162,10 +165,10 @@ for i = 1:cfgGui.ncols
                 'units','normalized', 'position',cfgGui.posParam);
             k = find(strcmp(cfgGui.filedata.GetParamValueOptions(ip), pval));
             if isempty(k)
-                set(hv, 'string',[{''}, cfgGui.filedata.GetParamValueOptions(ip)]);
+                set(hv, 'string',[{''}; cfgGui.filedata.GetParamValueOptions(ip)]);
             else
                 hv.Value = k;
-            end
+            end            
         end
         hv.Callback = @setVal;
     end
@@ -194,13 +197,23 @@ hBttnExit.Callback = @cfgExit;
 
 
 % -------------------------------------------------------------
-function setVal(src,~)
+function setVal(hObject,~)
 global cfgGui
-if iscell(src.String)
-    cfgGui.filedata.SetValue(src.Tag, src.String{src.Value});
+if strcmp(hObject.Style, 'popupmenu')
+    if hObject.Value>0
+        s = hObject.String{hObject.Value};
+    else
+        s = {};
+    end
 else
-    cfgGui.filedata.SetValue(src.Tag, src.String);
+    s = hObject.String;
 end
+if iscell(s) && ~isempty(s)
+    s = s{1};
+elseif isempty(s)    
+    s = '';
+end
+cfgGui.filedata.SetValue(hObject.Tag, s);
 
 
 % -------------------------------------------------------------

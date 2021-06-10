@@ -15,7 +15,7 @@ else
         pause(.1);
         dirname = uigetdir(pwd, 'Please select subject folder');
         if dirname==0
-            dirname = [];
+            dirname = pwd;
             return;
         end
     end

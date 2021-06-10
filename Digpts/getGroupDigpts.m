@@ -71,7 +71,7 @@ if ~isempty(digpts.digpts)
     msg{1} = sprintf('AtlasViewer has detected dig points in the current subject''s sub-folders. ');
     msg{2} = sprintf('Do you want to load the mean of the group dig points?');
     if strcmp(meanDigptsConfigSetting, 'ask me')
-        q = MenuBox(msg, {'YES', 'NO'},[],[],sprintf('dontAskAgain'));
+        q = MenuBox(msg, {'YES', 'NO'});
         if q(1)==1
             digpts = digpts1;
             digpts = setDigptsOrientation(digpts, dirname);
@@ -84,7 +84,7 @@ if ~isempty(digpts.digpts)
         end
         
         % See if user asked to change config parameter value
-        if q(2)
+        if length(q)>1 && q(2)
             if q(1)
                 onoff = 'on';
             else
