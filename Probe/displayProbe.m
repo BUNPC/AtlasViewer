@@ -1,4 +1,4 @@
-function probe = displayProbe(probe, headsurf, hAxes)
+function probe = displayProbe(probe, headobj, hAxes)
 
 if isempty(probe)
     return;
@@ -9,9 +9,10 @@ end
 if ~exist('hAxes','var')
     hAxes = probe.handles.axes;
 end
-if ~exist('headsurf','var')
-    headsurf = [];
+if ~exist('headobj','var')
+    headobj = [];
 end
+
     
 if ishandles(probe.handles.labels)
     probe.handles.textSize = get(probe.handles.labels(1),'fontsize');
@@ -22,13 +23,7 @@ if ishandles(probe.handles.circles)
     delete(probe.handles.circles);
 end
 
-if isempty(headsurf)
-    obj = probe;
-else
-    obj = headsurf;
-end
-
-if leftRightFlipped(obj)
+if leftRightFlipped(headobj)
     axes_order = [2,1,3];
 else
     axes_order = [1,2,3];
@@ -39,7 +34,7 @@ viewAxesXYZ(hAxes, axes_order);
 probe = viewProbe(probe, 'registered');
 % probe = viewProbeLandmarks(probe);
 
-probe = setProbeDisplay(probe, headsurf);
+probe = setProbeDisplay(probe, headobj);
 hold off;
 
 

@@ -20,10 +20,10 @@ pialsurf.center        = headvol.center;
 labelssurf.orientation = headvol.orientation;
 labelssurf.center      = headvol.center;
 
-if isempty(probe.orientation) || isPreRegisteredProbe(probe, headsurf)
-    probe.orientation      = headvol.orientation;
-    probe.center           = headvol.center;
+if isPreRegisteredProbe(probe, refpts)
+    probe.orientation      = refpts.orientation;
 end
+probe.center           = headvol.center;
 
 fwmodel.orientation    = headvol.orientation;
 fwmodel.center         = headvol.center;

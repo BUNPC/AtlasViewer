@@ -186,8 +186,8 @@ end
 
 % Display all objects
 digpts     = displayDigpts(digpts);
-probe      = displayProbe(probe, headsurf);
 refpts     = displayRefpts(refpts);
+probe      = displayProbe(probe, refpts);
 headsurf   = displayHeadsurf(headsurf);
 pialsurf   = displayPialsurf(pialsurf);
 labelssurf = displayLabelssurf(labelssurf);
@@ -660,7 +660,7 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isPreRegisteredProbe(probe, headobj)
+if isPreRegisteredProbe(probe, refpts)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
@@ -674,7 +674,6 @@ elseif ~isempty(probe.optpos_reg)
     probe.optpos_reg = xform_apply(probe.optpos_reg, T);
     probe = pullProbeToHeadsurf(probe, headobj);
     probe = probe.copyLandmarks(probe, refpts);
-    probe.save(probe);
     
 else
     
@@ -695,8 +694,10 @@ else
     probe = registerProbe2Head(probe, headvol, refpts);
     probe = probe.copyLandmarks(probe, refpts);
     probe.save(probe);
-  
+    
 end
+probe.orientation = refpts.orientation;
+probe.center      = refpts.center;
 
 % Clear old registration from gui after registering probe to avoid 
 % lag time between diplay of initial probe and registered probe
@@ -1059,6 +1060,7 @@ if ~isempty(probe.optpos_reg)
 else
     probe.optpos_reg = xform_apply(probe.optpos, digpts.T_2mc * probe.T_2digpts);
 end
+probe.registration.refpts.pos = xform_apply(probe.registration.refpts.pos, digpts.T_2mc * probe.T_2digpts);
 
 % move head surface to monte carlo space 
 headsurf.mesh.vertices   = xform_apply(headsurf.mesh.vertices, headvol.T_2mc);
