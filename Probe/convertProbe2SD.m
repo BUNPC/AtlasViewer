@@ -22,35 +22,43 @@ end
 SD.SpringList           = probe.registration.sl;
 SD.AnchorList           = probe.registration.al;
 
-if ~isempty(probe.SrcGrommetType)
+if isfield(probe,'SrcGrommetType')
     SD.SrcGrommetType       = probe.SrcGrommetType;
 end
 
-if ~isempty(probe.DetGrommetType)
+if ~isfield(probe,'DetGrommetType')
     SD.DetGrommetType       = probe.DetGrommetType;
 end
 
-if ~isempty(probe.DummyGrommetType)
+if isfield(probe,'DummyGrommetType')
     SD.DummyGrommetType     = probe.DummyGrommetType;
 end
 
-if ~isempty(probe.SrcGrommetType)
+if isfield(probe,'SrcGrommetType')
     SD.SrcGrommetRot        = probe.SrcGrommetRot;
 end
 
-if ~isempty(probe.DetGrommetRot)
+if isfield(probe,'DetGrommetRot')
     SD.DetGrommetRot        = probe.DetGrommetRot;
 end
 
-if ~isempty(probe.DummyGrommetRot)
+if isfield(probe,'DummyGrommetRot')
     SD.DummyGrommetRot      = probe.DummyGrommetRot;
+end
+
+% get orientation info
+if isfield(probe,'orientation')
+    SD.orientation      = probe.orientation;
 end
 
 % add refpts and head mesh to SD file
 refpts.pos = atlasViewer.refpts.pos;
 refpts.labels = atlasViewer.refpts.labels;
-if isfield(atlasViewer,'eeg_system')
-    refpts.eeg_system = atlasViewer.eeg_system;
+if isfield(atlasViewer.refpts,'eeg_system')
+    refpts.eeg_system = atlasViewer.refpts.eeg_system;
+end
+if isfield(atlasViewer.refpts,'scaling')
+    refpts.scaling = atlasViewer.refpts.scaling;
 end
 SD.refpts = refpts;
 SD.mesh = atlasViewer.headsurf.mesh;
