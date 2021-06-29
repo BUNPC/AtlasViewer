@@ -1489,11 +1489,10 @@ fs2viewer = atlasViewer.fs2viewer;
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
 
-[fs2viewer, status] = convertFs2Viewer(fs2viewer, dirnameSubj);
+status = ImportMriAnatomy(fs2viewer, handles, dirnameSubj, 'AtlasViewerGUI');
 if sum(status)>0
     return;
 end
-atlasViewer.fs2viewer = fs2viewer;
 
 % Reload subject with it's own, newly-generated anatomical files
 AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
@@ -1682,16 +1681,11 @@ end
 
 % --------------------------------------------------------------------
 function menuItemFindRefpts_Callback(hObject, eventdata, handles)
-
 FindRefptsGUI();
-
-
-
 
 
 % --------------------------------------------------------------------
 function menuProbePlacementVariation_Callback(hObject, eventdata, handles)
-
 plotProbePlacementVariation();
 
 

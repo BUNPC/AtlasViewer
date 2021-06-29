@@ -9,6 +9,15 @@ fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 labelssurf   = atlasViewer.labelssurf;
 
+
+if refpts.isempty(refpts)
+    q = MenuBox('Warning: No reference points were found for this subject''s head. Do you want to select reference points?', {'YES','NO'});
+    if q==1
+        FindRefptsGUI();
+    end
+end
+
+
 if isempty(digpts.refpts.pos) | isempty(refpts.pos) | isempty(headsurf.mesh.vertices)
     set(atlasViewer.handles.menuItemRegisterAtlasToDigpts,'enable','off')
 else

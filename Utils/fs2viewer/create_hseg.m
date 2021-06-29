@@ -13,10 +13,6 @@ function [fs2viewer, status] = create_hseg(fs2viewer)
 % DATE:   12/18/2012
 
 status = 0;
-hseg = initLayer();
-tiss_type = {};
-
-dirnameVol = fs2viewer.mripaths.volumes;
 
 % If hseg already exists our job is done.
 if ~isempty(fs2viewer.hseg.filename)   
