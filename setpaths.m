@@ -62,7 +62,7 @@ function setpaths(options_str)
 % Start world by trying to add standard 'Utils' path if it exists 
 % If it exists, assume that's where intialation functions are. 
 if exist([pwd, '/Utils'], 'dir')==7
-    addpath([pwd, '/Utils'], '-end');
+    addpath([pwd, '/Utils']);
 end
 
 % Parse arguments
@@ -191,7 +191,7 @@ if isempty(wspaths)
 end
 
 % Add the primary workspace to the search path
-addpath(paths_excl_str{1}, '-end');
+addpath(paths_excl_str{1});
 
 if options.rmpathconfl
     msg = 'Removed the following similar workspaces from the search path to avoid conflicts:';

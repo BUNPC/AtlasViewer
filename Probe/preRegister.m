@@ -3,10 +3,10 @@ function probe = preRegister(probe, headsurf, refpts)
 if ~isProbeFlat(probe)
     return
 end
-if isempty(headsurf)
+if isempty(headsurf) || headsurf.isempty(headsurf)
     return
 end
-if isempty(refpts)
+if isempty(refpts) || refpts.isempty(refpts)
     return
 end
 

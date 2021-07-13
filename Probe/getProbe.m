@@ -205,7 +205,7 @@ elseif exist([dirname, 'groupResults.mat'], 'file')
 elseif existDotNirsFiles(dirname)
     files = getDotNirsFiles(dirname);
     filedata = load([files(1).folder, files(1).name], '-mat');
-    SD = filedata.SD;
+    SD = sd_data_Copy(SD, filedata.SD);
     
 end
 if isempty(SD)

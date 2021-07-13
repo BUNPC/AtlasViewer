@@ -386,16 +386,39 @@ q = MenuBox(msg, {'YES','NO'});
 if q==2
     return;
 end
+
 if ispathvalid([importmri.dirnameSubj, 'anatomical'])
+    fprintf('rmdir(''%s'',''s'');\n', [importmri.dirnameSubj, 'anatomical']);
     rmdir([importmri.dirnameSubj, 'anatomical'],'s');
 end
-delete([importmri.dirnameSubj, 'hseg*'])
-delete([importmri.dirnameSubj, 'mri/hseg*'])
-if ispathvalid([importmri.dirnameSubj, 'head.nii.gz'])
-    delete([importmri.dirnameSubj, 'head.nii.gz'])
-end
-if ispathvalid([importmri.dirnameSubj, 'mri/head.nii.gz'])
-    delete([importmri.dirnameSubj, 'mri/head.nii.gz'])
+
+dirs = dir();
+for ii = 1:length(dirs)
+    if ~dirs(ii).isdir()
+        continue
+    end
+    if strcmp(dirs(ii).name, '.')
+       if isSubjDir(dirs(ii).name)
+           continue
+       end
+    end
+    if strcmp(dirs(ii).name, '..')
+        continue
+    end
+    if ~pathscompare(dirs(ii).name, importmri.dirnameSubj)
+       if isSubjDir(dirs(ii).name)
+           continue
+       end
+    end
+    
+    rootdir = filesepStandard(dirs(ii).name, 'full');
+    
+    fprintf('delete([''%shseg*'']);\n', rootdir);
+    delete([rootdir, 'hseg*'])
+    if ispathvalid([rootdir, 'head.nii.gz'])
+        fprintf('delete(''%s'');\n', [rootdir, 'head.nii.gz']);
+        delete([rootdir, 'head.nii.gz'])
+    end    
 end
 importmri.fs2viewer = [];
 SetPaths(handles)

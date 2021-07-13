@@ -193,6 +193,15 @@ end
 if ~isempty(probe2.DummyGrommetRot) && isempty(probe.DummyGrommetRot )
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
 end
+if ~isempty(probe2.SrcGrommetType) && isempty(probe.SrcGrommetType)
+    probe.SrcGrommetType = probe2.SrcGrommetType;
+end
+if ~isempty(probe2.DetGrommetType) && isempty(probe.DetGrommetType)
+    probe.DetGrommetType = probe2.DetGrommetType;
+end
+if ~isempty(probe2.DummyGrommetType) && isempty(probe.DummyGrommetType )
+    probe.DummyGrommetType = probe2.DummyGrommetType;
+end
 probe.optpos        = [probe.srcpos; probe.detpos; probe.registration.dummypos];
 probe.center        = probe2.center;
 probe.orientation   = probe2.orientation;

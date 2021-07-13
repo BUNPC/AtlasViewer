@@ -225,7 +225,7 @@ atlasViewer.fs2viewer   = fs2viewer;
 menuItemRegisterAtlasToDigpts_Callback();
 
 % Enable menu items 
-AtlasViewerGUI_enableDisable();
+AtlasViewerGUI_enableDisable(handles);
 
 % Set GUI size relative to screen size
 positionGUI(hObject);
@@ -3515,3 +3515,24 @@ set(hObject, checked_propname, onoff);
 
 
 
+
+
+% --------------------------------------------------------------------
+function menuItemResetForwardModel_Callback(hObject, eventdata, handles)
+global atlasViewer
+msg{1} = sprintf('WARNING: This action will reset the Forward Model to a known ''empty'' state. ');
+msg{2} = sprintf('This means all the Monte Carlo output and Sensitivity Profile for this subject will be deleted. ');
+msg{3} = sprintf('Do this to re-run the forward model from scratch. ');
+msg{4} = sprintf('Are you sure that is what you want to do?');
+q = MenuBox(msg, {'YES','NO'});
+if q==2
+    return;
+end
+
+if ispathvalid([atlasViewer.dirnameSubj, 'fw'])
+    fprintf('rmdir(''%s'',''s'');\n', [atlasViewer.dirnameSubj, 'fw']);
+    rmdir([atlasViewer.dirnameSubj, 'fw'],'s');
+end
+atlasViewer.fwmodel = initFwmodel(handles);
+atlasViewer.fwmodel = getFwmodel(atlasViewer.fwmodel, atlasViewer.dirnameSubj, atlasViewer.pialsurf, ...
+                                 atlasViewer.headsurf, atlasViewer.headvol, atlasViewer.probe);

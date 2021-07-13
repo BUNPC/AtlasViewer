@@ -86,3 +86,5 @@ fs2viewer.layers = layers;
 fs2viewer.hseg = hseg;
 fs2viewer.hseg.orientation = getOrientationFromMriHdr(fs2viewer.hseg.volume);
 
+
+
