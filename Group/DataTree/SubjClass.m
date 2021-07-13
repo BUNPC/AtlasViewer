@@ -186,7 +186,7 @@ classdef SubjClass < TreeNodeClass
                 run.SetIndexID(obj.iGroup, obj.iSubj, jj);
                 obj.runs(jj) = run;
                 obj.logger.Write(sprintf('     Added run %s to subject %s.\n', obj.runs(jj).GetFileName, obj.GetName));
-            end           
+            end
         end
         
         
@@ -209,7 +209,7 @@ classdef SubjClass < TreeNodeClass
                 option = 'down';
             end
             if strcmp(option, 'down')
-                for jj=1:length(obj.runs)
+                for jj = 1:length(obj.runs)
                     obj.runs(jj).Reset();
                 end
             end
@@ -363,7 +363,7 @@ classdef SubjClass < TreeNodeClass
             end
             obj.logger.Write(sprintf('%s%s,  output file: %s\n', blanks(indent), obj.name, obj.procStream.output.SetFilename(obj.GetOutputFilename())));
             % obj.procStream.Print(indent);
-            for ii = 1:length(obj.runs)
+            for ii=1:length(obj.runs)
                 obj.runs(ii).Print(indent);
             end
         end
@@ -639,12 +639,12 @@ classdef SubjClass < TreeNodeClass
                 iBlk = 1;
             end
 
-            obj.procStream.ExportHRF(obj.GetOutputFilename, obj.CondNames, iBlk);
             if strcmp(procElemSelect, 'all')
-                for ii=1:length(obj.runs)
+                for ii = 1:length(obj.runs)
                     obj.runs(ii).ExportHRF(iBlk);
                 end
-            end
+            end            
+            obj.ExportHRF@TreeNodeClass(procElemSelect, iBlk);
         end
     
         
