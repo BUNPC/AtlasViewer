@@ -115,7 +115,6 @@ atlasViewer.vrnum = V;
 
 
 
-
 % -----------------------------------------------------------------------
 function LoadSubj(hObject, ~, handles, argExtern)
 global atlasViewer
@@ -367,6 +366,8 @@ end
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global atlasViewer
 
+setNamespace('AtlasViewerGUI');
+
 if isempty(varargin)
     atlasViewer = [];
 end
@@ -484,6 +485,7 @@ varargout{1} = handles.output;
 function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
+deleteNamespace('AtlasViewerGUI');
 fclose all;
 if isempty(atlasViewer)
     return;

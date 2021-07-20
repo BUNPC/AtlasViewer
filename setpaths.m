@@ -63,7 +63,9 @@ function setpaths(options_str)
 % If it exists, assume that's where intialation functions are. 
 if exist([pwd, '/Utils'], 'dir')==7
     addpath([pwd, '/Utils']);
+    addpath([pwd, '/Utils/namespace']);
 end
+setNamespace('AtlasViewerGUI');
 
 % Parse arguments
 if ~exist('options_str','var')
@@ -73,6 +75,7 @@ options = parseOptions(options_str);
 
 if ~options.add
     options.conflcheck = false;
+    deleteNamespace('AtlasViewerGUI');
 end
 
 [paths, wspaths, paths_excl_str] = getpaths(options);
