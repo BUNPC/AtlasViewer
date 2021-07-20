@@ -34,8 +34,8 @@ mkdir([dirnameInstall, 'atlasviewer_install']);
 
 % Generate executables
 if ~strcmp(options, 'nobuild')
+	Buildme();
 	Buildme_Setup();
-	Buildme_AtlasViewerGUI();
     if islinux()
         perl('./makesetup.pl','./run_setup.sh','./setup.sh');
     elseif ismac()

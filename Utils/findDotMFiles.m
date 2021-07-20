@@ -54,15 +54,15 @@ end
 
 % -------------------------------------------------------------------------
 function b = isdotmfile(file)
-
-b=0;
+b = false;
 if file.isdir
     return;
 end
-if file.name(end) ~= 'm' || file.name(end-1) ~= '.'
+[~, ~, ext] = fileparts(file.name);
+if ~strcmp(ext, '.m')
     return;
 end
-b=1;
+b = true;
 
 
 
@@ -127,21 +127,5 @@ if (length(file.name)>3)
     return;
 end
 b=1;
-
-
-
-% -------------------------------------------------------------------------
-% Helper function: remove name arg from list
-function list = removeEntryFromList(name, list)
-
-temp = strfind(list, name);
-k=[];
-for ii=1:length(temp)
-    if ~isempty(temp{ii})
-        k=ii;
-    end
-end
-list(k) = [];
-
 
 
