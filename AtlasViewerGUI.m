@@ -485,9 +485,9 @@ varargout{1} = handles.output;
 function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
-deleteNamespace('AtlasViewerGUI');
 fclose all;
 if isempty(atlasViewer)
+    deleteNamespace('AtlasViewerGUI');
     return;
 end
 axesv = atlasViewer.axesv;
@@ -514,6 +514,7 @@ if ishandles(atlasViewer.handles.dataTree)
 end
 atlasViewer=[];
 clear atlasViewer;
+deleteNamespace('AtlasViewerGUI');
 
 
 
@@ -2434,14 +2435,7 @@ hbconc = atlasViewer.hbconc;
 pialsurf = atlasViewer.pialsurf;
 axesv    = atlasViewer.axesv;
 
-strs = get(hObject,'string');
 val = get(hObject,'value');
-
-% First turn everything off
-fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
-imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off', 'off');
-hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
-colorbar off;
 
 Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
 fwmodel.Ch = Ch;
@@ -2465,18 +2459,39 @@ end
 switch(val)
     case fwmodel.menuoffset+1
         fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'on');
+
+        imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off', 'off');
+        hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
     case imgrecon.menuoffset+1
         imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'on', 'off', 'off', 'off');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
     case imgrecon.menuoffset+2
         imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'on', 'off', 'off');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
     case imgrecon.menuoffset+3
         imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'on', 'off');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
     case imgrecon.menuoffset+4
         imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off', 'on');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
     case hbconc.menuoffset+1
         hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'on', 'off');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off', 'off');
     case hbconc.menuoffset+2
         hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'on');
+
+        fwmodel = showFwmodelDisplay(fwmodel, axesv(1).handles.axesSurfDisplay, 'off');
+        imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'off', 'off');
 end
 
 set(pialsurf.handles.radiobuttonShowPial, 'value',0);
@@ -2801,7 +2816,10 @@ if isempty(probe.ptsProj_cortex)
     return;
 end
 
-set(hbconc.handles.popupmenuImageDisplay,'value', hbconc.menuoffset+1);
+if get(hbconc.handles.popupmenuImageDisplay, 'value') < hbconc.menuoffset || ...
+     get(hbconc.handles.popupmenuImageDisplay, 'value') > hbconc.menuoffset+2
+    set(hbconc.handles.popupmenuImageDisplay,'value', hbconc.menuoffset+1);    
+end
 
 % Calculate Hb concentration interpolation function and display
 hbconc = calcHbConc(hbconc, probe);
@@ -2821,7 +2839,7 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function editCondition_Callback(hObject, eventdata, handles)
+function editCondition_Callback(hObject, ~, handles)
 global atlasViewer
 
 hbconc = atlasViewer.hbconc;
