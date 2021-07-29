@@ -223,14 +223,27 @@ if probe.isempty(probe)
     return;
 end
 SD = convertProbe2SD(probe);
+SD = updateProbe2DcircularPts(SD);
+% create snirf object 
+snirf = SnirfClass();
+probe_snirf_object = ProbeClass(SD);
+snirf.probe = probe_snirf_object;
+measurementList = MeasListClass(SD.MeasList);
+snirf.data(1).measurementList = measurementList;
+metaDataTags = MetaDataTagsClass();
+snirf.metaDataTags = metaDataTags;
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+    snirf.Save([probe.pathname, 'probe.snirf'])
 elseif ~isempty(SD)
     filedata = load([probe.pathname, 'probe.SD'], '-mat');
     if ~sd_data_Equal(SD, filedata.SD)
         save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+        snirf.Save([probe.pathname, 'probe.snirf'])
     end
 end
+
+
 
 
 % ------------------------------------------------

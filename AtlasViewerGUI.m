@@ -3927,6 +3927,80 @@ function editMeasurementListDist_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of editMeasurementListDist as text
 %        str2double(get(hObject,'String')) returns contents of editMeasurementListDist as a double
 
+global atlasViewer
+
+answer = questdlg('Do you want apply this edit to all previous measurements list or just for next adding optodes?', ...
+    '',...
+	'All previous measurement list', ...
+	'For next optodes','For next optodes');
+switch answer
+    case 'All previous measurement list'
+        measurement_dist = str2num(get(hObject,'String'));
+        nsrc = atlasViewer.probe.nsrc;
+        ndet = atlasViewer.probe.ndet;
+        lambda = atlasViewer.probe.lambda;
+        if isempty(lambda)
+            n_lambda = 1;
+        else
+            n_lambda = length(lambda);
+        end
+        SrcPos3D = atlasViewer.probe.optpos_reg(1:nsrc,:);
+        DetPos3D = atlasViewer.probe.optpos_reg(nsrc+1:nsrc+ndet,:);
+        MeasList_new = [];
+        for u = 1:nsrc
+            dist = sqrt(sum((DetPos3D-SrcPos3D(u,:)).^2,2));
+            nearby_det = find(dist >=measurement_dist(1) & dist <=measurement_dist(2));
+            if ~isempty(nearby_det)
+                for v = 1:n_lambda
+                    MeasList_new = [MeasList_new; [u*ones(length(nearby_det),1) nearby_det ones(length(nearby_det),1) v*ones(length(nearby_det),1)]];
+                end
+            end
+        end
+        MeasList = atlasViewer.probe.ml;
+        MeasList_idx_to_add = ~ismember(MeasList_new, MeasList,'rows');
+        MeasList_idx_to_remove = ~ismember(MeasList, MeasList_new,'rows');
+        MeasList_length_to_add = length(find(MeasList_idx_to_add==1));
+        MeasList_length_to_remove = length(find(MeasList_idx_to_remove==1));
+        
+        measuremnts_add_answer = questdlg(['This will add ' num2str(MeasList_length_to_add) ' new measurement list. Do you want to continue?'], ...
+            'Add measurement list',...
+            'Yes, add new measurements', ...
+            'No, do not add new measurements','No, do not add new measurements');
+        
+        switch measuremnts_add_answer
+            case 'Yes, add new measurements'
+                MeasList_to_add = MeasList_new(MeasList_idx_to_add,:);
+                SpringList_new = unique(MeasList_to_add(:,1:2),'rows');
+                SpringList_new(:,2) = SpringList_new(:,2)+nsrc;
+                SpringList = atlasViewer.probe.registration.sl;
+                SpringList_idx_to_add =  ~(ismember(SpringList_new,[SpringList(:,1) SpringList(:,2)],'rows') | ...
+                    ismember(SpringList_new,[SpringList(:,2) SpringList(:,1)],'rows'));
+                SpringList_to_add = SpringList_new(SpringList_idx_to_add,:);
+                SpringList_to_add_dist = sqrt(sum((atlasViewer.probe.optpos_reg(SpringList_to_add(:,1),:)-atlasViewer.probe.optpos_reg(SpringList_to_add(:,2),:)).^2,2));
+                SpringList_to_add = [SpringList_to_add SpringList_to_add_dist];
+                MeasList = [MeasList; MeasList_to_add];
+                SpringList = [SpringList; SpringList_to_add];
+                atlasViewer.probe.ml = MeasList;
+                atlasViewer.probe.registration.sl = SpringList;
+            case 'No, do not add new measurements'
+        end
+        
+        measuremnts_delete_answer = questdlg(['This will remove ' num2str(MeasList_length_to_remove) ' from previous measurement List. Do you want to continue?'], ...
+            'Delete measurement list',...
+            'Yes, delete measurements', ...
+            'No, do not delete measurements','No, do not delete measurements');
+        switch measuremnts_delete_answer
+            case 'Yes, delete measurements'
+                atlasViewer.probe.ml(MeasList_idx_to_remove,:) = [];
+        end
+        
+        probe = displayProbe(atlasViewer.probe, atlasViewer.headsurf);
+        atlasViewer.probe = probe;
+        
+    case 'For next optodes'
+end
+
+
 
 % --- Executes during object creation, after setting all properties.
 function editMeasurementListDist_CreateFcn(hObject, eventdata, handles)
@@ -3968,6 +4042,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.SrcGrommetType{end+1} = selected_grommet_type;
                 atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
+                atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
                 nrsc = nrsc+1;
                 atlasViewer.probe.nsrc = nrsc;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
@@ -3983,7 +4058,7 @@ if eventdata.Button == 1
                 else
                     n_lambda = length(lambda);
                 end
-                for u = 1:length(n_lambda)
+                for u = 1:n_lambda
                     MeasList = [MeasList; ones(size(nearby_det))*(nrsc) nearby_det ones(size(nearby_det)) ones(size(nearby_det))*u];
                 end
                 atlasViewer.probe.ml = [atlasViewer.probe.ml; MeasList];
@@ -4020,6 +4095,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.DetGrommetType{end+1} = selected_grommet_type;
                 atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
+                atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
                 ndet = ndet+1;
                 atlasViewer.probe.ndet = ndet;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
@@ -4033,7 +4109,7 @@ if eventdata.Button == 1
                 else
                     n_lambda = length(lambda);
                 end
-                for u = 1:length(n_lambda)
+                for u = 1:n_lambda
                     MeasList = [MeasList; nearby_src ones(size(nearby_src))*ndet ones(size(nearby_src)) ones(size(nearby_src))*u];
                 end
                 atlasViewer.probe.ml = [atlasViewer.probe.ml; MeasList];
@@ -4066,6 +4142,7 @@ if eventdata.Button == 1
 
             elseif strcmpi(selected_optode_type,'Dummy')
                 atlasViewer.probe.optpos_reg = [atlasViewer.probe.optpos_reg; selected_point];
+                atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
                 atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
                 atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
                 opt_pos = size(atlasViewer.probe.optpos_reg,1);
@@ -4106,7 +4183,7 @@ if eventdata.Button == 1
                     opt_no = idx-nrsc;
                 else
                     opt_type = 'Dummy';
-                    opt_no = idx-nrsc;
+                    opt_no = idx-nrsc-ndet;
                 end
                 msg = ['Are you sure you want to delete ' opt_type ' optode ' num2str(opt_no) '?']; 
                 answer = questdlg(msg, 'Delete Optode');
@@ -4120,6 +4197,7 @@ if eventdata.Button == 1
                         ml(m_idx,1) = ml(m_idx,1)-1;
                         atlasViewer.probe.SrcGrommetType(opt_no) = [];
                         atlasViewer.probe.SrcGrommetRot(opt_no) = [];
+                        atlasViewer.probe.srcpos(opt_no,:) = []; 
                     elseif strcmp(opt_type,'Detector')
                         optode_ml_idx = find(ml(:,2) == opt_no);
                         atlasViewer.probe.ndet = atlasViewer.probe.ndet-1;
@@ -4127,10 +4205,12 @@ if eventdata.Button == 1
                         ml(m_idx,2) = ml(m_idx,2)-1;
                         atlasViewer.probe.DetGrommetType(opt_no) = [];
                         atlasViewer.probe.DetGrommetRot(opt_no) = [];
+                        atlasViewer.probe.detpos(opt_no,:) = []; 
                     elseif strcmp(opt_type,'Dummy')
                         optode_ml_idx = [];
                         atlasViewer.probe.DummyGrommetType(idx-nrsc-ndet) = [];
-                        atlasViewer.probe.DummyGrommetRot(opt_no) = [];
+                        atlasViewer.probe.DummyGrommetRot(idx-nrsc-ndet) = [];
+                        atlasViewer.probe.registration.dummypos(idx-nrsc-ndet,:) = [];
                     end  
                     if ~isempty(optode_ml_idx)
                         ml(optode_ml_idx,:) = [];

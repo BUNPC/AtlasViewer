@@ -33,10 +33,30 @@ classdef ProbeClass < FileLoadSaveClass
                     SD = varargin{1};
                     obj.wavelengths = SD.Lambda;
                     obj.wavelengthsEmission  = [];
-                    obj.sourcePos2D  = SD.SrcPos;
-                    obj.detectorPos2D  = SD.DetPos;
-                    obj.sourcePos3D  = SD.SrcPos;
-                    obj.detectorPos3D  = SD.DetPos;
+                    if isfield(SD,'SrcPos2D')
+                        obj.sourcePos2D  = SD.SrcPos2D;
+                    else
+                        obj.sourcePos2D  = SD.SrcPos;
+                    end
+                    if isfield(SD,'SrcPos2D')
+                        obj.detectorPos2D  = SD.DetPos2D;
+                    else
+                        obj.detectorPos2D  = SD.DetPos;
+                    end
+                    if isfield(SD,'SrcPos3D')
+                        obj.sourcePos3D  = SD.SrcPos3D;
+                    else
+                        obj.sourcePos3D  = SD.SrcPos;
+                    end
+                    if isfield(SD,'DetPos3D')
+                        obj.detectorPos3D  = SD.DetPos3D;
+                    else
+                        obj.detectorPos3D  = SD.DetPos;
+                    end
+                    if isfield(SD,'refpts2D')
+                        obj.landmarkPos2D = SD.refpts2D.pos;
+                        obj.landmarkLabels = SD.refpts2D.label;
+                    end
                     obj.frequencies  = 1;
                     obj.timeDelays  = 0;
                     obj.timeDelayWidths  = 0;
@@ -204,6 +224,7 @@ classdef ProbeClass < FileLoadSaveClass
             hdf5write_safe(fileobj, [location, '/wavelengthsEmission'], obj.wavelengthsEmission);
             hdf5write_safe(fileobj, [location, '/sourcePos2D'], obj.sourcePos2D(:,1:2), 'rw:2D');
             hdf5write_safe(fileobj, [location, '/detectorPos2D'], obj.detectorPos2D(:,1:2), 'rw:2D');
+            hdf5write_safe(fileobj, [location, '/landmarkPos2D'], obj.landmarkPos2D, 'rw:2D');
             hdf5write_safe(fileobj, [location, '/sourcePos3D'], obj.sourcePos3D, 'rw:3D');
             hdf5write_safe(fileobj, [location, '/detectorPos3D'], obj.detectorPos3D, 'rw:3D');
             hdf5write_safe(fileobj, [location, '/frequencies'], obj.frequencies);
@@ -214,6 +235,7 @@ classdef ProbeClass < FileLoadSaveClass
             hdf5write_safe(fileobj, [location, '/correlationTimeDelayWidths'], obj.correlationTimeDelayWidths);
             hdf5write_safe(fileobj, [location, '/sourceLabels'], obj.sourceLabels);
             hdf5write_safe(fileobj, [location, '/detectorLabels'], obj.detectorLabels);
+            hdf5write_safe(fileobj, [location, '/landmarkLabels'], obj.landmarkLabels);
         end
         
         
