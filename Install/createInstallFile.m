@@ -1,5 +1,7 @@
 function createInstallFile(options)
 
+setNamespace('AtlasViewerGUI')
+
 if ~exist('options','var') | isempty(options)
     options = 'all';
 end

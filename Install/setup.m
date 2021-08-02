@@ -2,6 +2,8 @@ function setup()
 global h
 global nSteps
 
+setNamespace('AtlasViewerGUI')
+
 h = waitbar(0,'Installation Progress ...');
 
 main();
