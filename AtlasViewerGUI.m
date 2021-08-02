@@ -3611,10 +3611,10 @@ atlasViewer.imgrecon     = imgrecon;
 
 
 % --------------------------------------------------------------------
-function menuItemProbeEdit_Callback(~, ~, ~)
-global atlasViewer
-SD = convertProbe2SD(atlasViewer.probe);
-SDgui(SD);
+% function menuItemProbeEdit_Callback(~, ~, ~)
+% global atlasViewer
+% SD = convertProbe2SD(atlasViewer.probe);
+% SDgui(SD);
 
 
 % this is removed and replaced with create/edit probe in AtlasViewer itself
