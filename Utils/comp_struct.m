@@ -73,7 +73,7 @@ if isstruct(s1) && isstruct(s2) && (length(s1) == length(s2))
     end
 
     pnt1i = find(pnt1); pnt2i = find(pnt2);
-    for ii=1:numel(pnt1i)
+    for ii = 1:numel(pnt1i)
         % added loop for indexed structured variables
         for jj = 1:size(s1,2)
             % clean display - add index if needed
@@ -81,11 +81,11 @@ if isstruct(s1) && isstruct(s2) && (length(s1) == length(s2))
                 n1p = [n1 '.' char(fn1(pnt1i(ii)))];
                 n2p = [n2 '.' char(fn2(pnt2i(ii)))];
             else
-                n1p = [n1 '(' num2str(jj) ').' char(fn1(ii))]; ...
-                       n2p = [n2 '(' num2str(jj) ').' char(fn2(pnt2(ii)))];
+                n1p = [n1 '(' num2str(jj) ').' char(fn1(ii))];
+                n2p = [n2 '(' num2str(jj) ').' char(fn2(pnt2(ii)))];
             end
-            [fss1, fss2, err] = comp_struct(getfield(s1(jj),char(fn1(pnt1i(ii)))), ...
-                                            getfield(s2(jj),char(fn2(pnt2i(ii)))),n1p,n2p,p);
+            [fss1, fss2, err] = comp_struct(getfield(s1(jj), char(fn1(pnt1i(ii)))), ...
+                                            getfield(s2(jj), char(fn2(pnt2i(ii)))), n1p, n2p, p);
             if ~iscell(err)
                 err = cellstr(err); 
             end
@@ -116,7 +116,7 @@ elseif isa(s1,'sym') && isa(s2,'sym')
     if ~t
         % could still be equal, but not able to reduce the symbolic expresions
         % get factors
-        f1 = findsym(ss1); f2 = findsym(ss2);
+        f1 = symvar(ss1); f2 = symvar(ss2);
         w = warning; 
         if isEqual(f1,f2)
             % same symbolic variables.  same eqn?
@@ -149,8 +149,8 @@ elseif isa(s1,'sym') && isa(s2,'sym')
         display_cond(sprintf('%s        %s              match',n1,n2),mode)
     else
         display_cond(sprintf('%s        %s              do NOT match',n1,n2),mode)
-        fs1 = n1; 
-        fs2 = n2; 
+        fs1 = n1;
+        fs2 = n2;
         er{1} = 'Symbolic disagreement';
     end
 else

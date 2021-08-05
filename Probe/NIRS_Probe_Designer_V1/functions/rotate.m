@@ -91,34 +91,4 @@ H = [
                0,               0,               0,               1
 ];
 
-if 0
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% The following code can be used to construct the combined rotation matrix
-% for either xyz or zyx ordering (using the Matlab symbolic math toolbox)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  syms sX sY sZ cX cY cZ
-  % this is for only rotating around x
-  Rx = [
-    1   0    0   0
-    0   cX  -sX  0
-    0   sX   cX  0
-    0   0    0   1
-    ];
-  % this is for only rotating around y
-  Ry = [
-    cY  0   sY  0
-    0   1   0   0
-    -sY  0   cY  0
-    0   0   0   1
-    ];
-  % this is for only rotating around z
-  Rz = [
-    cZ -sZ  0   0
-    sZ  cZ  0   0
-    0   0   1   0
-    0   0   0   1
-    ];
-  % combine them
-  Rzyx = Rz * Ry * Rx  % rotate around x, y, then z
-  Rxyz = Rx * Ry * Rz  % rotate around z, y, then x
-end
+

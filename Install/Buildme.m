@@ -1,32 +1,32 @@
-function  Buildme(targetname)
-if nargin==0
-    targetname = 'AtlasViewerGUI';
-end
-
+function  Buildme()
 platform = setplatformparams();
-currdir = pwd;
-dirnameApp = ffpath('AtlasViewerGUI.m');
-if exist(dirnameApp,'dir')
-    cd(dirnameApp);
-end
 
-exclLst = { ...
-    '.git'; ...
-    'Docs'; ...
-    'UnitTests'; ...
-    'Install'; ...
-    'setpaths.m'; ...
-    'getpaths.m'; ...
+[~, appname] = fileparts(platform.exename{1});
+currdir = filesepStandard(pwd);
+dirnameInstall = filesepStandard(ffpath('Buildme.m'));
+cd(dirnameInstall);
+
+exclLst = {
+    '.git';
+    'Docs';
+    'Install';
+    'UserFunctions';
+    'Data';
+    'setpaths.m';
+    'getpaths.m';
     };
 
-Buildexe(targetname, exclLst)
-for ii=1:length(platform.exename)
-    if exist(['./',  platform.exename{ii}],'file')
-        movefile(['./',  platform.exename{ii}], currdir);
+Buildexe(appname, exclLst)
+rootdir = filesepStandard(fileparts(which(platform.exename{1})));
+for ii = 1:length(platform.exename)
+    if exist([rootdir,  platform.exename{ii}],'file')
+        movefile([rootdir,  platform.exename{ii}], dirnameInstall);
     end
 end
 if ispathvalid('./Buildme.log','file')
-    movefile('./Buildme.log',currdir);
+    if ~pathscompare('./', dirnameInstall)
+        movefile('./Buildme.log', dirnameInstall);
+    end
 end
 cd(currdir);
 
