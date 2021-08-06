@@ -170,7 +170,6 @@ end
 copyFileToInstallation([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
 
 
-% Create desktop shortcut to AtlasViewerGUI
 createDesktopShortcuts(dirnameSrc, dirnameDst);
 
 waitbar(iStep/nSteps, h); iStep = iStep+1;

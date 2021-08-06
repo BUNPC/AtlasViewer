@@ -31,7 +31,7 @@ global stats
 
 handles = stats.handles;
 
-msgFail{1}   = sprintf('%s failed to install properly. Error code %d', stats.err);
+msgFail{1}   = sprintf('%s failed to install properly. Error code %d', stats.name, stats.err);
 msgFail{2}   = 'Contact jdubb@bu.edu for help with installation.';
 
 hGui         = handles.this;

@@ -131,7 +131,7 @@ end
 zip([dirnameInstall, installfilename, '.zip'], [dirnameInstall, installfilename]);
 
 % Clean up 
-deleteNamespace('Homer3')
+deleteNamespace(exename)
 fclose all;
 cleanup(dirnameInstall, dirnameApp);
 

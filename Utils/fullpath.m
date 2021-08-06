@@ -16,12 +16,23 @@ end
 p = ''; 
 f = '';
 e = '';
-if length(pname)>1 && pname(1)=='.' && pname(2)~='/' && pname(2)~='\'
-    p = ''; f = pname; e = '';
+if strcmp(pname, '.')
+    p = pwd; f = ''; e = '';
+elseif strcmp(pname, '..')
+    currdir = pwd;
+    cd('..');
+    p = pwd; f = ''; e = '';
+    cd(currdir);
 else
     [p,f,e] = fileparts(pname);
+    if length(f)==1 && f=='.' && length(e)==1 && e=='.' 
+        f = ''; 
+        e = '';
+    elseif isempty(f) && length(e)==1 && e=='.' 
+        e = '';
+    end
 end
-pname = p;
+pname = removeExtraDots(p);
 
 % If path to file wasn't specified at all, that is, if only the filename was
 % provided without an absolute or relative path, the add './' prefix to file name.
