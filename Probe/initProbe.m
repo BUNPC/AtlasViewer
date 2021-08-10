@@ -228,8 +228,12 @@ SD = updateProbe2DcircularPts(SD);
 snirf = SnirfClass();
 probe_snirf_object = ProbeClass(SD);
 snirf.probe = probe_snirf_object;
-measurementList = MeasListClass(SD.MeasList);
-snirf.data(1).measurementList = measurementList;
+snirf.data = DataClass();
+% measurementList = MeasListClass(SD.MeasList);
+for ii=1:size(SD.MeasList,1)
+    snirf.data.measurementList(end+1) = MeasListClass(SD.MeasList(ii,:));
+end
+% snirf.data(1).measurementList = measurementList;
 metaDataTags = MetaDataTagsClass();
 snirf.metaDataTags = metaDataTags;
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')

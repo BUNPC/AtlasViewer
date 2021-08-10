@@ -38,12 +38,7 @@ if isempty(headsurf.mesh)
 else
     viewAxesXYZ(hAxes, axes_order);
     cfg = ConfigFileClass();
-    for u = 1:length(cfg.sections)
-        fieldname = cfg.sections(u).name;
-        if strcmp(fieldname,'Head Opacity')
-            head_opacity = str2num(cfg.sections(u).val{1});
-        end
-    end
+    head_opacity = cfg.GetValue('Head Opacity');
     if ~exist('head_opacity','var')
         head_opacity = 0.7;
     end

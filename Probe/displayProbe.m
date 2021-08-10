@@ -1,9 +1,29 @@
 function probe = displayProbe(probe, headsurf, hAxes)
 
 if isempty(probe)
+    if ishandles(probe.handles.labels)
+        probe.handles.textSize = get(probe.handles.labels(1),'fontsize');
+        delete(probe.handles.labels);
+        probe.handles.labels = [];
+    end
+    if ishandles(probe.handles.circles)
+        probe.handles.circleSize = get(probe.handles.circles(1),'markersize');
+        delete(probe.handles.circles);
+        probe.handles.circles = [];
+    end
     return;
 end
 if probe.isempty(probe)
+    if ishandles(probe.handles.labels)
+        probe.handles.textSize = get(probe.handles.labels(1),'fontsize');
+        delete(probe.handles.labels);
+        probe.handles.labels = [];
+    end
+    if ishandles(probe.handles.circles)
+        probe.handles.circleSize = get(probe.handles.circles(1),'markersize');
+        delete(probe.handles.circles);
+        probe.handles.circles = [];
+    end
     return;
 end
 if ~exist('hAxes','var')

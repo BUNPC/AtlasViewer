@@ -804,6 +804,7 @@ if digptsPreRegistered(digpts, probe)
    
 % elseif ~isempty(probe.optpos_reg) && ~probeHasSpringRegistrationInfo(probe)
 %     
+%     % Check to make sure 
 %     [rp_subj, rp_atlas] = findCorrespondingRefpts(probe.registration.refpts, refpts);
 %     T = gen_xform_from_pts(rp_subj, rp_atlas);
 %     probe.optpos_reg = xform_apply(probe.optpos_reg, T);
@@ -3929,13 +3930,14 @@ function editMeasurementListDist_Callback(hObject, eventdata, handles)
 
 global atlasViewer
 
-answer = questdlg('Do you want apply this edit to all previous measurements list or just for next adding optodes?', ...
+answer = questdlg('This change will impact all new optodes. Do you want to apply it to the existing measurement list?', ...
     '',...
-	'All previous measurement list', ...
-	'For next optodes','For next optodes');
+	'Yes', ...
+	'No','No');
 switch answer
-    case 'All previous measurement list'
+    case 'Yes'
         measurement_dist = str2num(get(hObject,'String'));
+        spring_dist = str2num(get(handles.editSpringListDist,'String'));
         nsrc = atlasViewer.probe.nsrc;
         ndet = atlasViewer.probe.ndet;
         lambda = atlasViewer.probe.lambda;
@@ -3955,6 +3957,9 @@ switch answer
                     MeasList_new = [MeasList_new; [u*ones(length(nearby_det),1) nearby_det ones(length(nearby_det),1) v*ones(length(nearby_det),1)]];
                 end
             end
+        end
+        if isempty(MeasList_new)
+            return
         end
         MeasList = atlasViewer.probe.ml;
         MeasList_idx_to_add = ~ismember(MeasList_new, MeasList,'rows');
@@ -3979,6 +3984,12 @@ switch answer
                 SpringList_to_add_dist = sqrt(sum((atlasViewer.probe.optpos_reg(SpringList_to_add(:,1),:)-atlasViewer.probe.optpos_reg(SpringList_to_add(:,2),:)).^2,2));
                 SpringList_to_add = [SpringList_to_add SpringList_to_add_dist];
                 MeasList = [MeasList; MeasList_to_add];
+                % remove spring list items from SpringList_to_add that are
+                % outside the specified range of Spring List Dist from GUI
+                idx_to_remove = find(SpringList_to_add(:,3) < spring_dist(1) | SpringList_to_add(:,3) > spring_dist(2));
+                if ~isempty(idx_to_remove)
+                    SpringList_to_add(idx_to_remove,:) = [];
+                end
                 SpringList = [SpringList; SpringList_to_add];
                 atlasViewer.probe.ml = MeasList;
                 atlasViewer.probe.registration.sl = SpringList;
@@ -3997,7 +4008,7 @@ switch answer
         probe = displayProbe(atlasViewer.probe, atlasViewer.headsurf);
         atlasViewer.probe = probe;
         
-    case 'For next optodes'
+    case 'No'
 end
 
 
@@ -4161,13 +4172,16 @@ if eventdata.Button == 1
                 set(handles.text_isProbeChanged,'String','Click Register Probe to Surface to save the probe');
             end
         elseif get(handles.radiobuttonRemoveOptodeAV,'Value')
+            optpos_reg = atlasViewer.probe.optpos_reg;
+            if isempty(optpos_reg)
+                return
+            end
             selected_point = eventdata.IntersectionPoint;
             if leftRightFlipped(atlasViewer.probe)
                 temp_pt = selected_point(2);
                 selected_point(2) = selected_point(1);
                 selected_point(1) = temp_pt;
-            end
-            optpos_reg = atlasViewer.probe.optpos_reg;
+            end 
             ml = atlasViewer.probe.ml;
             sl = atlasViewer.probe.registration.sl;
             opt_dist = sqrt(sum((optpos_reg-selected_point).^2,2));
@@ -4191,21 +4205,29 @@ if eventdata.Button == 1
                     optpos_reg(idx,:) = [];
                     atlasViewer.probe.noptorig = atlasViewer.probe.noptorig-1;
                     if strcmp(opt_type,'Source')
-                        optode_ml_idx = find(ml(:,1) == opt_no);
                         atlasViewer.probe.nsrc = atlasViewer.probe.nsrc-1;
-                        m_idx = find(ml(:,1) >= opt_no);
-                        ml(m_idx,1) = ml(m_idx,1)-1;
                         atlasViewer.probe.SrcGrommetType(opt_no) = [];
                         atlasViewer.probe.SrcGrommetRot(opt_no) = [];
                         atlasViewer.probe.srcpos(opt_no,:) = []; 
+                        if ~isempty(ml)
+                            optode_ml_idx = find(ml(:,1) == opt_no);
+                            m_idx = find(ml(:,1) >= opt_no);
+                            ml(m_idx,1) = ml(m_idx,1)-1;
+                        else
+                            optode_ml_idx = [];
+                        end
                     elseif strcmp(opt_type,'Detector')
-                        optode_ml_idx = find(ml(:,2) == opt_no);
                         atlasViewer.probe.ndet = atlasViewer.probe.ndet-1;
-                        m_idx = find(ml(:,2) >= opt_no);
-                        ml(m_idx,2) = ml(m_idx,2)-1;
                         atlasViewer.probe.DetGrommetType(opt_no) = [];
                         atlasViewer.probe.DetGrommetRot(opt_no) = [];
                         atlasViewer.probe.detpos(opt_no,:) = []; 
+                        if ~isempty(ml)
+                            optode_ml_idx = find(ml(:,2) == opt_no);
+                            m_idx = find(ml(:,2) >= opt_no);
+                            ml(m_idx,2) = ml(m_idx,2)-1;
+                        else
+                            optode_ml_idx = [];
+                        end
                     elseif strcmp(opt_type,'Dummy')
                         optode_ml_idx = [];
                         atlasViewer.probe.DummyGrommetType(idx-nrsc-ndet) = [];
@@ -4215,15 +4237,17 @@ if eventdata.Button == 1
                     if ~isempty(optode_ml_idx)
                         ml(optode_ml_idx,:) = [];
                     end
-                    optode_sl_idx = find(sl(:,1) == idx | sl(:,2) == idx);
-                    if ~isempty(optode_sl_idx)
-                        sl(optode_sl_idx,:) = [];
-                    end
+                    if ~isempty(sl)
+                        optode_sl_idx = find(sl(:,1) == idx | sl(:,2) == idx);
+                        if ~isempty(optode_sl_idx)
+                            sl(optode_sl_idx,:) = [];
+                        end
 
-                    s_idx = find(sl(:,1) >= idx);
-                    sl(s_idx,1) = sl(s_idx,1)-1;
-                    s_idx = find(sl(:,2) >= idx);
-                    sl(s_idx,2) = sl(s_idx,2)-1;
+                        s_idx = find(sl(:,1) >= idx);
+                        sl(s_idx,1) = sl(s_idx,1)-1;
+                        s_idx = find(sl(:,2) >= idx);
+                        sl(s_idx,2) = sl(s_idx,2)-1;
+                    end
                     al = atlasViewer.probe.registration.al;
                     for u = 1:size(al,1)
                         if al{u,1} >= idx
@@ -4243,17 +4267,20 @@ if eventdata.Button == 1
                 end
             end
         elseif get(handles.radiobuttonEditOptodeAV,'Value')
+            optpos_reg = atlasViewer.probe.optpos_reg;
+            if isempty(optpos_reg)
+                return
+            end
             selected_point = eventdata.IntersectionPoint;
             if leftRightFlipped(atlasViewer.probe)
                 temp_pt = selected_point(2);
                 selected_point(2) = selected_point(1);
                 selected_point(1) = temp_pt;
             end
-            optpos_reg = atlasViewer.probe.optpos_reg;
-            ml = atlasViewer.probe.ml;
+%             ml = atlasViewer.probe.ml;
             al = atlasViewer.probe.registration.al;
-            [ml,ia,ic] = unique(ml(:,1:2),'rows');
-            sl = atlasViewer.probe.registration.sl;
+%             [ml,ia,ic] = unique(ml(:,1:2),'rows');
+%             sl = atlasViewer.probe.registration.sl;
             nrsc = atlasViewer.probe.nsrc;
             ndet = atlasViewer.probe.ndet;
             opt_dist = sqrt(sum((optpos_reg-selected_point).^2,2));
@@ -4293,81 +4320,80 @@ if eventdata.Button == 1
                     set(handles.edit_assignAnchorPt,'String','none');
                 end
                 if get(handles.radiobutton_MeasListVisible,'Value')
-                    if ~ get(handles.checkboxOptodeSDMode,'Value')
-                        set(handles.checkboxOptodeSDMode,'Value',1.0)
-                        checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
-                        set(handles.checkboxOptodeSDMode,'Enable','off')
-                    end
-                    if strcmp(opt_type,'Source')
-                        m_idx = find(ml(:,1) ==  opt_no);
-                    elseif strcmp(opt_type,'Detector')
-                        m_idx = find(ml(:,2) ==  opt_no);
-                    elseif strcmp(opt_type,'Dummy')
-                        m_idx = [];
-                    end
-                    if ~isempty(m_idx)
-                        data = cell(length(m_idx),3);
-                        for u = 1:length(m_idx)
-                            data{u,1} = ml(m_idx(u),1);
-                            data{u,2} = ml(m_idx(u),2);
-                            o1 = ml(m_idx(u),1);
-                            o2 = ml(m_idx(u),2)+nrsc;
-                            s_idx = find((sl(:,1) == o1 & sl(:,2) == o2) | (sl(:,1) == o2 & sl(:,2) == o1));
-                            if ~isempty(s_idx)
-                                data{u,3} = sl(s_idx,3);
-                            else
-                                data{u,3} = 0;
-                            end
+                    ml = atlasViewer.probe.ml;
+                    if ~isempty(ml)
+                        [ml,ia,ic] = unique(ml(:,1:2),'rows');
+                        sl = atlasViewer.probe.registration.sl;
+                        if ~ get(handles.checkboxOptodeSDMode,'Value')
+                            set(handles.checkboxOptodeSDMode,'Value',1.0)
+                            checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+                            set(handles.checkboxOptodeSDMode,'Enable','off')
                         end
+                        if strcmp(opt_type,'Source')
+                            m_idx = find(ml(:,1) ==  opt_no);
+                        elseif strcmp(opt_type,'Detector')
+                            m_idx = find(ml(:,2) ==  opt_no);
+                        elseif strcmp(opt_type,'Dummy')
+                            m_idx = [];
+                        end
+                        if ~isempty(m_idx)
+                            data = cell(length(m_idx),3);
+                            for u = 1:length(m_idx)
+                                data{u,1} = ml(m_idx(u),1);
+                                data{u,2} = ml(m_idx(u),2);
+                                o1 = ml(m_idx(u),1);
+                                o2 = ml(m_idx(u),2)+nrsc;
+                                s_idx = find((sl(:,1) == o1 & sl(:,2) == o2) | (sl(:,1) == o2 & sl(:,2) == o1));
+                                if ~isempty(s_idx)
+                                    data{u,3} = sl(s_idx,3);
+                                else
+                                    data{u,3} = 0;
+                                end
+                            end
+                        else
+                            data = cell(3,3);
+                            msgbox('This optode do not have any measurement list');
+                        end
+                        probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
+                        atlasViewer.probe = probe;
                     else
                         data = cell(3,3);
+                        msgbox('Measurement list is empty');
                     end
-    %                 data = cell(size(m_idx),3);
                     set(handles.uipanel_EditOptode,'Visible','On')
                     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
                     set(handles.uitable_editMLorSL,'Data',data)
                     set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
-%                     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
-                    probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
-                    atlasViewer.probe = probe;
-    %                 if get(handles.checkbox_optodeEditMode,'Value')
-    %                     if isfield(probe.handles,'hMeasList_editOptode')
-    %                         if ishandles(probe.handles.hMeasList_editOptode)
-    %                             set(probe.handles.hMeasList_editOptode, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
-    %                         end
-    %                     end
-    %                 end
                 elseif get(handles.radiobutton_SpringListVisible,'Value')
-                    if get(handles.checkboxOptodeSDMode,'Value')
-                        set(handles.checkboxOptodeSDMode,'Value',0.0)
-                        checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
-                        set(handles.checkboxOptodeSDMode,'Enable','off')
-                    end
-                    s_idx = find(sl(:,1)==idx |sl(:,2)==idx);
-                    if ~isempty(s_idx)
-                        data = cell(length(s_idx),3);
-                        for u = 1:length(s_idx)
-                            data{u,1} = sl(s_idx(u),1);
-                            data{u,2} = sl(s_idx(u),2);
-                            data{u,3} = sl(s_idx(u),3);
+                    sl = atlasViewer.probe.registration.sl;
+                    if ~isempty(sl)
+                        if get(handles.checkboxOptodeSDMode,'Value')
+                            set(handles.checkboxOptodeSDMode,'Value',0.0)
+                            checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+                            set(handles.checkboxOptodeSDMode,'Enable','off')
                         end
+                        s_idx = find(sl(:,1)==idx |sl(:,2)==idx);
+                        if ~isempty(s_idx)
+                            data = cell(length(s_idx),3);
+                            for u = 1:length(s_idx)
+                                data{u,1} = sl(s_idx(u),1);
+                                data{u,2} = sl(s_idx(u),2);
+                                data{u,3} = sl(s_idx(u),3);
+                            end
+                        else
+                            data = cell(3,3);
+                            msgbox('This optode do not have any spring list');
+                        end
+                        probe = displySprings_editOptode(atlasViewer.probe,s_idx);
+                        atlasViewer.probe = probe;
                     else
-                        data = cell(3,3);
+                            data = cell(3,3);
+                            msgbox('Spring list is empty');
                     end
                     set(handles.uipanel_EditOptode,'Visible','On')
-                    set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
-                    set(handles.uitable_editMLorSL,'Data',data)
-                    set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
-%                     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
-                    probe = displySprings_editOptode(atlasViewer.probe,s_idx);
-                    atlasViewer.probe = probe;
-    %                  if get(handles.checkbox_optodeEditMode,'Value')
-    %                     if isfield(probe.handles,'hSprings_editOptode')
-    %                         if ishandles(probe.handles.hSprings_editOptode)
-    %                            set(probe.handles.hSprings_editOptode, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
-    %                         end
-    %                     end
-    %                 end
+                        set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
+                        set(handles.uitable_editMLorSL,'Data',data)
+                        set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
                 end
                 if isProbeChanged(atlasViewer.probe_copy,atlasViewer.probe)
                     set(handles.text_isProbeChanged,'String','Click Register Probe to Surface to save the probe');
@@ -4490,38 +4516,46 @@ function radiobutton_SpringListVisible_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton_SpringListVisible
-
 global atlasViewer
 set(handles.radiobutton_SpringListVisible,'Value',1.0)
 set(handles.radiobutton_MeasListVisible,'Value',0.0)
 set(handles.checkboxOptodeSDMode,'Value',0.0)
 checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
-
-if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
-    ml = atlasViewer.probe.ml;
-    sl = atlasViewer.probe.registration.sl;
-    idx = atlasViewer.probe.editOptodeInfo.currentOptode;
-    
-    s_idx = find(sl(:,1)==idx |sl(:,2)==idx);
-    if ~isempty(s_idx)
-        data = cell(length(s_idx),3);
-        for u = 1:length(s_idx)
-            data{u,1} = sl(s_idx(u),1);
-            data{u,2} = sl(s_idx(u),2);
-            data{u,3} = sl(s_idx(u),3);
+if get(handles.checkbox_displayAllOptodes,'Value')
+    checkbox_displayAllOptodes_Callback(hObject, eventdata, handles)
+else
+    if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
+        sl = atlasViewer.probe.registration.sl;
+        idx = atlasViewer.probe.editOptodeInfo.currentOptode;
+        if ~isempty(sl)
+            s_idx = find(sl(:,1)==idx |sl(:,2)==idx);
+            if ~isempty(s_idx)
+                data = cell(length(s_idx),3);
+                for u = 1:length(s_idx)
+                    data{u,1} = sl(s_idx(u),1);
+                    data{u,2} = sl(s_idx(u),2);
+                    data{u,3} = sl(s_idx(u),3);
+                end
+            else
+                data = cell(3,3);
+                msgbox('This optode do not have any spring list');
+            end
+            set(handles.checkboxHideSprings,'Value',1.0)
+            probe = displySprings_editOptode(atlasViewer.probe,s_idx);
+            probe.hideSprings = 0;
+            probe = setProbeDisplay(probe, atlasViewer.headsurf);
+            atlasViewer.probe = probe;
+        else
+            data = cell(3,3);
+            msgbox('Spring list is empty');
         end
-    else
-        data = cell(3,3);
+        set(handles.uipanel_EditOptode,'Visible','On')
+        set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
+        set(handles.uitable_editMLorSL,'Data',data)
+        set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
     end
-    set(handles.uipanel_EditOptode,'Visible','On')
-    set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
-    set(handles.uitable_editMLorSL,'Data',data)
-    set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
-%     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55]) 
-    probe = displySprings_editOptode(atlasViewer.probe,s_idx);
-    atlasViewer.probe = probe;
+    set(handles.checkboxOptodeSDMode,'Enable','off')
 end
-set(handles.checkboxOptodeSDMode,'Enable','off')
 
 % --- Executes on button press in radiobutton_MeasListVisible.
 function radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
@@ -4535,61 +4569,70 @@ set(handles.radiobutton_SpringListVisible,'Value',0.0)
 set(handles.radiobutton_MeasListVisible,'Value',1.0)
 set(handles.checkboxOptodeSDMode,'Value',1.0)
 checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+if get(handles.checkbox_displayAllOptodes,'Value')
+    checkbox_displayAllOptodes_Callback(hObject, eventdata, handles)
+else
+    if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
+        ml = atlasViewer.probe.ml;
+        if ~isempty(ml)
+        [ml,ia,ic] = unique(ml(:,1:2),'rows');
+        sl = atlasViewer.probe.registration.sl;
+        idx = atlasViewer.probe.editOptodeInfo.currentOptode;
 
-
-if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
-    ml = atlasViewer.probe.ml;
-    [ml,ia,ic] = unique(ml(:,1:2),'rows');
-    sl = atlasViewer.probe.registration.sl;
-    idx = atlasViewer.probe.editOptodeInfo.currentOptode;
-    
-    nrsc = atlasViewer.probe.nsrc;
-    ndet = atlasViewer.probe.ndet;
-    if idx <= nrsc
-        opt_type = 'Source';
-        opt_no = idx;
-    elseif idx <= nrsc+ndet
-        opt_type = 'Detector';
-        opt_no = idx-nrsc;
-    else
-        opt_type = 'Dummy';
-        opt_no = idx-nrsc;
-    end
-    
-    if strcmp(opt_type,'Source')
-        m_idx = find(ml(:,1) ==  opt_no);
-    elseif strcmp(opt_type,'Detector')
-        m_idx = find(ml(:,2) ==  opt_no);
-    elseif strcmp(opt_type,'Dummy')
-        m_idx = [];
-    end
-    if ~isempty(m_idx)
-        data = cell(length(m_idx),3);
-        for u = 1:length(m_idx)
-            data{u,1} = ml(m_idx(u),1);
-            data{u,2} = ml(m_idx(u),2);
-            o1 = ml(m_idx(u),1);
-            o2 = ml(m_idx(u),2)+nrsc;
-            s_idx = find((sl(:,1) == o1 & sl(:,2) == o2) | (sl(:,1) == o2 & sl(:,2) == o1));
-            if ~isempty(s_idx)
-                data{u,3} = sl(s_idx,3);
-            else
-                data{u,3} = 0;
-            end
+        nrsc = atlasViewer.probe.nsrc;
+        ndet = atlasViewer.probe.ndet;
+        if idx <= nrsc
+            opt_type = 'Source';
+            opt_no = idx;
+        elseif idx <= nrsc+ndet
+            opt_type = 'Detector';
+            opt_no = idx-nrsc;
+        else
+            opt_type = 'Dummy';
+            opt_no = idx-nrsc;
         end
-    else
-        data = cell(3,3);
+
+        if strcmp(opt_type,'Source')
+            m_idx = find(ml(:,1) ==  opt_no);
+        elseif strcmp(opt_type,'Detector')
+            m_idx = find(ml(:,2) ==  opt_no);
+        elseif strcmp(opt_type,'Dummy')
+            m_idx = [];
+        end
+        if ~isempty(m_idx)
+            data = cell(length(m_idx),3);
+            for u = 1:length(m_idx)
+                data{u,1} = ml(m_idx(u),1);
+                data{u,2} = ml(m_idx(u),2);
+                o1 = ml(m_idx(u),1);
+                o2 = ml(m_idx(u),2)+nrsc;
+                s_idx = find((sl(:,1) == o1 & sl(:,2) == o2) | (sl(:,1) == o2 & sl(:,2) == o1));
+                if ~isempty(s_idx)
+                    data{u,3} = sl(s_idx,3);
+                else
+                    data{u,3} = 0;
+                    msgbox('This optode do not have any measurement list');
+                end
+            end
+        else
+            data = cell(3,3);
+        end
+        set(handles.checkboxHideMeasList,'Value',1.0)
+        probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
+        probe.hideMeasList = 0;
+        probe = setProbeDisplay(probe, atlasViewer.headsurf);
+        atlasViewer.probe = probe;
+        else
+            data = cell(3,3);
+            msgbox('Measurement list is empty');
+        end
+        set(handles.uipanel_EditOptode,'Visible','On')
+        set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
+        set(handles.uitable_editMLorSL,'Data',data)
+        set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
     end
-%                 data = cell(size(m_idx),3);
-    set(handles.uipanel_EditOptode,'Visible','On')
-    set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
-    set(handles.uitable_editMLorSL,'Data',data)
-    set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
-%     set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])  
-    probe = displyMeasChannels_editOptode(atlasViewer.probe,ia(m_idx));
-    atlasViewer.probe = probe;
+    set(handles.checkboxOptodeSDMode,'Enable','off')
 end
-set(handles.checkboxOptodeSDMode,'Enable','off')
 
 % --- Executes when entered data in editable cell(s) in uitable_editMLorSL.
 function uitable_editMLorSL_CellEditCallback(hObject, eventdata, handles)
@@ -4985,4 +5028,79 @@ function edit_Lambda3_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes on button press in checkbox_displayAllOptodes.
+function checkbox_displayAllOptodes_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_displayAllOptodes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_displayAllOptodes
+global atlasViewer
+if get(handles.checkbox_displayAllOptodes,'Value')
+    if get(handles.radiobutton_SpringListVisible,'Value')
+        data = atlasViewer.probe.registration.sl; 
+        set(handles.radiobutton_SpringListVisible,'Value',1.0)
+        set(handles.radiobutton_MeasListVisible,'Value',0.0)
+        set(handles.checkboxOptodeSDMode,'Value',0.0)
+        checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+        col1_name = 'Optode1';
+        col2_name = 'Optode2';
+        set(handles.checkboxHideSprings,'Value',0.0)
+        probe = atlasViewer.probe;
+        probe.hideSprings = 1;
+        probe = displaySprings(probe);
+        probe = setProbeDisplay(probe,atlasViewer.headsurf);
+        atlasViewer.probe = probe;
+    elseif get(handles.radiobutton_MeasListVisible,'Value')
+        nrsc = atlasViewer.probe.nsrc;
+        ml = atlasViewer.probe.ml;
+        sl = atlasViewer.probe.registration.sl;
+        [data,ia,ic] = unique(ml(:,1:3),'rows');
+        data(:,3) = data(:,3)*0;
+        data(:,2) = data(:,2)+nrsc;
+        [Lia1, Locb1] = ismember(data(:,1:2),sl(:,1:2),'rows');
+        [Lia2, Locb2] = ismember([data(:,2) data(:,1)],sl(:,1:2),'rows');
+        Lia = Lia1 | Lia2;
+        Locb = Locb1+Locb2;
+        idx = find(Lia == 1);
+        data(idx,3) = sl(Locb(idx),3);
+        data(:,2) = data(:,2)-nrsc;
+        set(handles.radiobutton_SpringListVisible,'Value',0.0)
+        set(handles.radiobutton_MeasListVisible,'Value',1.0)
+        set(handles.checkboxOptodeSDMode,'Value',1.0)
+        checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+        col1_name = 'Source';
+        col2_name = 'Detector';
+        probe = atlasViewer.probe;
+        probe.hideMeasList = 1;
+        set(handles.checkboxHideMeasList,'Value',0.0)
+        probe = drawMeasChannels(probe);
+        probe = setProbeDisplay(probe, atlasViewer.headsurf);
+        atlasViewer.probe = probe;
+    end
+    set(handles.uipanel_EditOptode,'Visible','On')
+    set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
+    set(handles.uitable_editMLorSL,'Data',num2cell(data))
+    set(handles.uitable_editMLorSL,'ColumnName',{col1_name,col2_name,'Distance'})
+    if isfield(atlasViewer.probe.handles,'hSprings_editOptode')
+        if ishandles(atlasViewer.probe.handles.hSprings_editOptode)
+            delete(atlasViewer.probe.handles.hSprings_editOptode);
+        end
+    end
+
+    if isfield(atlasViewer.probe.handles,'hMeasList_editOptode')
+        if ishandles(atlasViewer.probe.handles.hMeasList_editOptode)
+            delete(atlasViewer.probe.handles.hMeasList_editOptode);
+        end
+    end
+else
+    if get(handles.radiobutton_SpringListVisible,'Value')
+        radiobutton_SpringListVisible_Callback(hObject, eventdata, handles)
+    elseif get(handles.radiobutton_MeasListVisible,'Value')
+        radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
+    end
 end
