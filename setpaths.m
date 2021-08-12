@@ -166,9 +166,9 @@ if options.add
     addwspaths(wspaths, paths_excl_str, options);
     setpermissions(paths);
 else
+    deleteNamespace('AtlasViewerGUI');
     fprintf('REMOVED search paths for workspace %s\n', pwd);
     rmpath(paths_excl_str{1});
-    deleteNamespace('AtlasViewerGUI');
 end
 
 
