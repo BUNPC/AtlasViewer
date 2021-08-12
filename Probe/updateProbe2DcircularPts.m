@@ -50,13 +50,13 @@ xy = xy/2 + 0.5;                    % adjust to range 0-1
 refpts_2D.pos = xy;
 SD.refpts2D = refpts_2D;
 %%
-if isfield(SD,'SrcPos3D')
+if isfield(SD,'SrcPos3D') & ~isempty(SD.SrcPos3D)
     SD.SrcPos2D = convert_optodepos_to_circlular_2D_pos(SD.SrcPos3D, T, norm_factor);
 end
-if isfield(SD,'DetPos3D')
+if isfield(SD,'DetPos3D') & ~isempty(SD.DetPos3D)
     SD.DetPos2D = convert_optodepos_to_circlular_2D_pos(SD.DetPos3D, T, norm_factor);
 end
-if isfield(SD,'DummyPos3D')
+if isfield(SD,'DummyPos3D') & ~isempty(SD.DummyPos3D)
     SD.DummyPos2D = convert_optodepos_to_circlular_2D_pos(SD.DummyPos3D, T, norm_factor);
 end
 end

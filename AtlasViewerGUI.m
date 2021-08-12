@@ -3978,8 +3978,12 @@ switch answer
                 SpringList_new = unique(MeasList_to_add(:,1:2),'rows');
                 SpringList_new(:,2) = SpringList_new(:,2)+nsrc;
                 SpringList = atlasViewer.probe.registration.sl;
-                SpringList_idx_to_add =  ~(ismember(SpringList_new,[SpringList(:,1) SpringList(:,2)],'rows') | ...
-                    ismember(SpringList_new,[SpringList(:,2) SpringList(:,1)],'rows'));
+                if ~isempty(SpringList)
+                    SpringList_idx_to_add =  ~(ismember(SpringList_new,[SpringList(:,1) SpringList(:,2)],'rows') | ...
+                        ismember(SpringList_new,[SpringList(:,2) SpringList(:,1)],'rows'));
+                else
+                    SpringList_idx_to_add = SpringList_new;
+                end
                 SpringList_to_add = SpringList_new(SpringList_idx_to_add,:);
                 SpringList_to_add_dist = sqrt(sum((atlasViewer.probe.optpos_reg(SpringList_to_add(:,1),:)-atlasViewer.probe.optpos_reg(SpringList_to_add(:,2),:)).^2,2));
                 SpringList_to_add = [SpringList_to_add SpringList_to_add_dist];
@@ -5058,29 +5062,33 @@ if get(handles.checkbox_displayAllOptodes,'Value')
     elseif get(handles.radiobutton_MeasListVisible,'Value')
         nrsc = atlasViewer.probe.nsrc;
         ml = atlasViewer.probe.ml;
-        sl = atlasViewer.probe.registration.sl;
-        [data,ia,ic] = unique(ml(:,1:3),'rows');
-        data(:,3) = data(:,3)*0;
-        data(:,2) = data(:,2)+nrsc;
-        [Lia1, Locb1] = ismember(data(:,1:2),sl(:,1:2),'rows');
-        [Lia2, Locb2] = ismember([data(:,2) data(:,1)],sl(:,1:2),'rows');
-        Lia = Lia1 | Lia2;
-        Locb = Locb1+Locb2;
-        idx = find(Lia == 1);
-        data(idx,3) = sl(Locb(idx),3);
-        data(:,2) = data(:,2)-nrsc;
-        set(handles.radiobutton_SpringListVisible,'Value',0.0)
-        set(handles.radiobutton_MeasListVisible,'Value',1.0)
-        set(handles.checkboxOptodeSDMode,'Value',1.0)
-        checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
         col1_name = 'Source';
         col2_name = 'Detector';
-        probe = atlasViewer.probe;
-        probe.hideMeasList = 1;
-        set(handles.checkboxHideMeasList,'Value',0.0)
-        probe = drawMeasChannels(probe);
-        probe = setProbeDisplay(probe, atlasViewer.headsurf);
-        atlasViewer.probe = probe;
+        if ~isempty(ml)
+            sl = atlasViewer.probe.registration.sl;
+            [data,ia,ic] = unique(ml(:,1:3),'rows');
+            data(:,3) = data(:,3)*0;
+            data(:,2) = data(:,2)+nrsc;
+            [Lia1, Locb1] = ismember(data(:,1:2),sl(:,1:2),'rows');
+            [Lia2, Locb2] = ismember([data(:,2) data(:,1)],sl(:,1:2),'rows');
+            Lia = Lia1 | Lia2;
+            Locb = Locb1+Locb2;
+            idx = find(Lia == 1);
+            data(idx,3) = sl(Locb(idx),3);
+            data(:,2) = data(:,2)-nrsc;
+            set(handles.radiobutton_SpringListVisible,'Value',0.0)
+            set(handles.radiobutton_MeasListVisible,'Value',1.0)
+            set(handles.checkboxOptodeSDMode,'Value',1.0)
+            checkboxOptodeSDMode_Callback(hObject, eventdata, handles)
+            probe = atlasViewer.probe;
+            probe.hideMeasList = 1;
+            set(handles.checkboxHideMeasList,'Value',0.0)
+            probe = drawMeasChannels(probe);
+            probe = setProbeDisplay(probe, atlasViewer.headsurf);
+            atlasViewer.probe = probe;
+        else
+            data = [];
+        end
     end
     set(handles.uipanel_EditOptode,'Visible','On')
     set(handles.uipanel_EditOptode,'Units','normalized','Position',[0.77 0.45 0.2 0.465])
