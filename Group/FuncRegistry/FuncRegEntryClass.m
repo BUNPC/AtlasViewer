@@ -164,7 +164,7 @@ classdef FuncRegEntryClass < matlab.mixin.Copyable
                 % encoded function string in obj.usageoptions{ii,3}. This will allow
                 % easy lookup and comparison matching in the registry of proc stream
                 % FuncCallClass objects.
-                obj.usageoptions{ii,4} = FuncCallClass(encoding);
+                obj.usageoptions{ii,4} = FuncCallClass(encoding, obj.usageoptions{ii,1});
             end
         end
         
@@ -433,12 +433,18 @@ classdef FuncRegEntryClass < matlab.mixin.Copyable
         % ----------------------------------------------------------------------------------
         function fcall = FindClosestMatch(obj, fcall0)
             fcall = FuncCallClass().empty();
-            for ii=1:size(obj.usageoptions,1)
-                if fcall0.Compare(obj.usageoptions{ii,4}) > 50
-                    fcall = FuncCallClass(obj.usageoptions{ii,4});
-                    break;
+            maxscore = 0;
+            imaxscore = [];
+            for ii = 1:size(obj.usageoptions,1)
+                currscore = fcall0.Compare(obj.usageoptions{ii,4});
+                if  currscore > maxscore && currscore > 50
+                    maxscore = currscore;
+                    imaxscore = ii;
                 end
             end
+            if ~isempty(imaxscore)
+                fcall = FuncCallClass(obj.usageoptions{imaxscore,4});
+            end            
         end
         
         
@@ -473,6 +479,12 @@ classdef FuncRegEntryClass < matlab.mixin.Copyable
             for jj=1:size(obj.usageoptions,1)
                 usagenames{jj} = obj.usageoptions{jj,1};
             end
+        end
+        
+        
+        % ----------------------------------------------------------------------------------
+        function n = GetNumUsages(obj)
+            n = length(obj.GetUsageNames(obj));
         end
         
         

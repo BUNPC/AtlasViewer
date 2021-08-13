@@ -1,12 +1,12 @@
 function fs2viewer = getFs2Viewer(fs2viewer, dirname)
 
-if isempty(dirname)
-    return;
+if nargin==0
+    fs2viewer = initFs2Viewer;
+    dirname = pwd;
+elseif nargin==1
+    dirname = pwd;
 end
-
-if dirname(end)~='/' && dirname(end)~='\'
-    dirname(end+1)='/';
-end
+dirname = filesepStandard(dirname);
 
 if ~isempty(fs2viewer.hseg.filename)
     fs2viewer.hseg.volume = MRIread(fs2viewer.hseg.filename);

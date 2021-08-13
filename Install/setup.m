@@ -2,12 +2,16 @@ function setup()
 global h
 global nSteps
 
+[~, exename] = getAppname();
+
+setNamespace(exename)
+
 h = waitbar(0,'Installation Progress ...');
 
 main();
 
 % Check that everything was installed properly
-r = finishInstallGUI();
+r = finishInstallGUI(exename);
 
 waitbar(nSteps/nSteps, h);
 close(h);
@@ -21,17 +25,19 @@ function main()
 global h
 global nSteps
 global iStep
-
+global platform
 
 nSteps = 100;
 iStep = 1;
 
+[appname, exename] = getAppname();
+
 if ismac()
-    dirnameSrc = '~/Downloads/atlasviewer_install/';
+    dirnameSrc = sprintf('~/Downloads/%s_install/', lower(appname));
 else
 	dirnameSrc = [pwd, '/'];
 end
-dirnameDst = getAppDir_av('isdeployed');
+dirnameDst = getAppDir('isdeployed');
 
 % Uninstall
 try
@@ -49,12 +55,11 @@ catch ME
     rethrow(ME)
 end
 
-platform = setplatformparams();
 
 v = getVernum();
-fprintf('==============================================\n');
-fprintf('Setup script for AtlasViewer v%s.%s.%s:\n', v{1}, v{2}, v{3});
-fprintf('==============================================\n\n');
+fprintf('=================================\n');
+fprintf('Setup script for %s v%s.%s:\n', exename, v{1}, v{2});
+fprintf('=================================\n\n');
 
 fprintf('Platform params:\n');
 fprintf('  arch: %s\n', platform.arch);
@@ -67,7 +72,7 @@ fprintf('  mcrpath: %s\n', platform.mcrpath);
 fprintf('  iso2meshmex: %s\n', platform.iso2meshmex{1});
 fprintf('  iso2meshbin: %s\n\n', platform.iso2meshbin);
 
-deleteShortcuts(platform);
+deleteShortcuts();
 
 pause(2);
 
@@ -104,8 +109,7 @@ end
 dirnameSrc = fullpath(dirnameSrc);
 dirnameDst = fullpath(dirnameDst);
 
-
-% Copy all the AtlasViewerGUI app folder files
+% Copy files from source folder to destination installation folder
 
 % Important: For next 2 copyfile calls make sure to keep the destination
 % the way it is, with the destination file name specified. This is important
@@ -166,7 +170,6 @@ end
 copyFileToInstallation([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
 
 
-% Create desktop shortcut to AtlasViewerGUI
 createDesktopShortcuts(dirnameSrc, dirnameDst);
 
 waitbar(iStep/nSteps, h); iStep = iStep+1;
@@ -174,11 +177,12 @@ pause(2);
 
 
 
+
 % -----------------------------------------------------------------
 function cleanup()
 if ismac()
-    rmdir_safe('~/Desktop/atlasviewer_install/');
-    rmdir_safe('~/Downloads/atlasviewer_install/');
+    rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
+    rmdir_safe('~/Downloads/%s_install/', lower(getAppname()));
 end
 
 
@@ -235,7 +239,9 @@ end
 
 
 % --------------------------------------------------------------
-function deleteShortcuts(platform)
+function deleteShortcuts()
+global platform
+
 if exist(platform.exenameDesktopPath, 'file')
     try
         delete(platform.exenameDesktopPath);
@@ -253,13 +259,14 @@ end
 
 % ---------------------------------------------------------
 function createDesktopShortcuts(dirnameSrc, dirnameDst)
+[~, exename] = getAppname();
 try
     if ispc()
         
         k = dirnameDst=='/';
         dirnameDst(k)='\';
         
-        cmd = sprintf('call "%s\\createShortcut.bat" "%s" AtlasViewerGUI.exe', dirnameSrc(1:end-1), dirnameDst);
+        cmd = sprintf('call "%s\\createShortcut.bat" "%s" %s.exe', dirnameSrc(1:end-1), dirnameDst, exename);
         system(cmd);
               
     elseif islinux()
@@ -274,9 +281,8 @@ try
         
     end
 catch
-    msg{1} = sprintf('Error: Could not create AtlasViewerGUI shortcuts on Desktop. Exiting installation.');
+    msg{1} = sprintf('Error: Could not create %s shortcuts on Desktop. Exiting installation.', exename);
     menu([msg{:}], 'OK');
     return;    
 end
-
 

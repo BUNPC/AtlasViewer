@@ -70,7 +70,7 @@ positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
 setGuiFonts(hObject);
 popupmenuSpatialUnit_Callback([], [], handles)
 radiobuttonView3D_Callback([], [], handles);
-
+EnableGUI(hObject);
 
 
 % -------------------------------------------------------------------

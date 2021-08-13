@@ -21,7 +21,7 @@ classdef Logger < handle
                 
             self.appname = appname;
             
-            approotdir = getAppDir_av();
+            approotdir = getAppDir();
             
             % Construct log file name
             self.filename = [approotdir, appname, '.log'];
@@ -154,7 +154,11 @@ classdef Logger < handle
             if options == self.options.NULL
                 return
             end
-            ct = char(datetime(datetime, 'Format','MMMM d, yyyy, HH:mm:ss'));
+            try
+                ct = char(datetime(datetime, 'Format','MMMM d, yyyy, HH:mm:ss'));
+            catch
+                ct = "";
+            end
             if isempty(msg)
                 s = sprintf('\n%s\n', ct);
             else
@@ -195,7 +199,11 @@ classdef Logger < handle
             if options == self.options.NULL
                 return
             end
-            ct = char(datetime(datetime, 'Format','MMMM d, yyyy, HH:mm:ss'));
+            try
+                ct = char(datetime(datetime, 'Format','MMMM d, yyyy, HH:mm:ss'));
+            catch
+                ct = "";
+            end
             s =  sprintf('\n%s:  %s', ct, msg);
             
             if bitand(options, self.options.FILE_ONLY) > 0
@@ -232,7 +240,7 @@ classdef Logger < handle
         function Close(self, appname)
             if ~exist('appname','var') || isempty(appname)
                 appname = self.appname;
-            end            
+            end
             
             % If appname is passed and does not equal the associated log
             % filename then it's not meant to closed in this call so exit 

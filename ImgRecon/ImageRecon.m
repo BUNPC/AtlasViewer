@@ -18,7 +18,38 @@ end
 
 
 % ---------------------------------------------------------------------------------
-function ImageRecon_OpeningFcn(hObject, eventdata, handles, varargin)
+function err = UpdateGuiControls(handles)
+global atlasViewer
+
+err = -1;
+if isempty(atlasViewer.dataTree)
+    return;
+end
+currElem  = atlasViewer.dataTree.currElem;
+
+% Display list of subject name
+set(handles.ListofSubjects, 'String',currElem.GetName);
+
+% default exp condition
+set(handles.Condition, 'String',1);
+
+% default time range
+set(handles.time_range, 'String',num2str([5 10]));
+
+% default alpha (regularization) for brain only reconstruction
+set(handles.alpha_brainonly, 'String',1e-2);
+
+% default alpha (regularization) for brain and scalp reconstruction
+set(handles.alpha_brain_scalp, 'String',1e-2);
+
+% default beta (regularization) for brain and scalp reconstruction
+set(handles.beta_brain_scalp, 'String',1e-2);
+
+err = 0;
+
+
+% ---------------------------------------------------------------------------------
+function ImageRecon_OpeningFcn(hObject, ~, handles, varargin)
 % This function executes just before ImageRecon is made visible.
 
 global atlasViewer
@@ -29,41 +60,14 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-imgrecon   = atlasViewer.imgrecon;
-dirnameSubj = atlasViewer.dirnameSubj;
+atlasViewer.imgrecon.handles.ImageRecon = hObject;
 
-imgrecon.handles.ImageRecon = hObject;
-[~, subjName] = fileparts(dirnameSubj(1:end-1));
+UpdateGuiControls(handles);
 
-if isempty(imgrecon.subjData)
-    menu('groupResults not loaded, Cannot do image reconstruction','Okay');
-    close(hObject);
-    return;
-end
-
-% Display list of subject name
-set(handles.ListofSubjects,'String', subjName);
-
-% default exp condition
-set(handles.Condition,'String',1);
-
-% default time range
-set(handles.time_range,'String',num2str([5 10]));
-
-% default alpha (regularization) for brain only reconstruction
-set(handles.alpha_brainonly,'String',1e-2);
-
-% default alpha (regularization) for brain and scalp reconstruction
-set(handles.alpha_brain_scalp,'String',1e-2);
-
-% default beta (regularization) for brain and scalp reconstruction
-set(handles.beta_brain_scalp,'String',1e-2);
-
-atlasViewer.imgrecon = imgrecon;
 
 
 % -----------------------------------------------------------------------------
-function varargout = ImageRecon_OutputFcn(hObject, eventdata, handles)
+function varargout = ImageRecon_OutputFcn(~, ~, handles)
 if isempty(handles)
     varargout{1} = [];
 else
@@ -191,7 +195,7 @@ end
 
 
 % -----------------------------------------------------------------------------
-function image_recon_Callback(hObject, eventdata, handles)
+function image_recon_Callback(~, ~, handles)
 global atlasViewer
 
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
@@ -201,16 +205,22 @@ s = get(handles.ListofSubjects, 'Value');
 tRangeimg = str2num(get(handles.time_range,'String'));
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
+err = UpdateGuiControls(handles);
+if err<0
+    MessageBox('Error: data is missing ... existing image reconstruction GUI');
+    return
+end
+
 dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
+probe = atlasViewer.probe;
+dataTree = atlasViewer.dataTree;
 
-subjData    = imgrecon.subjData;
+dataTree.currElem.Load();
+
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
-
-HbO = []; %#ok<NASGU>
-HbR = []; %#ok<NASGU>
 
 % Error checking
 if  value1 == 0 & value2 == 0 %#ok<*AND2>
@@ -240,17 +250,12 @@ if value2 == 1 & ndims(Adot_scalp) < 3
     return;
 end
 
-% Error checking to make sure subject data exists before accessing it
-if  isempty(subjData) || isempty(subjData.procResult) || isempty(subjData.procResult.dcAvg)
-    msg = sprintf('Subject data is missing. Cannot generate reconstructed image without it.');
-    menu(msg,'OK');
-    return;
-end
+%%%% Get probe data 
+SD   = convertProbe2SD(probe);
 
-%%%% Get the parameters from subject data for calculating Hb %%%%
-SD   = subjData.SD;
-dc   = subjData.procResult.dcAvg.GetDataTimeSeries('reshape');
-tHRF = subjData.procResult.dcAvg.GetTime();
+% Get fnirs time course data
+dc   = dataTree.currElem.GetDcAvg();
+tHRF = dataTree.currElem.GetTHRF();
 
 % Error checking of subject data itself
 if isempty(tHRF)
@@ -283,14 +288,12 @@ if isfield(SD, 'MeasListAct') == 1
     dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
 
-
 dc(find(isnan(dc))) = 0;
 
 % get dod conversion for each cond, if more than one condition
-if ndims(dc) == 4
-    for icond = 1:size(dc,4)
-        dod(:,:,icond) = hmrConc2OD( squeeze(dc(:,:,:,icond)), SD, [6 6] );
-    end
+dod = [];
+for icond = 1:size(dc,4)
+    dod(:,:,icond) = hmrConc2OD( squeeze(dc(:,:,:,icond)), SD, [6 6] );
 end
 
 % average HRF over a time range
@@ -352,8 +355,6 @@ if value1 == 1 % brain only reconstruction after short separation regression
         imgrecon.Aimg_conc.HbR = fooHbR;
     end
     
-    
-    
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
     
     Adot = Adot(activeChLst,:,:);
@@ -366,7 +367,7 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>
     beta = str2num(get(handles.beta_brain_scalp,'String'));
     
-    % spatial regularization on brain only
+    % spatial regularization on brain only by Dehghani group [Zhan et al.,Neuroenergetics,2012]
     for j = 1:size(Adot,3)
         J = single(squeeze(Adot(:,:,j)));
         try
@@ -404,8 +405,6 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
     % all regularization (alpha and beta) is done above so here we put 0 to alpha!
     [HbO, HbR] = hmrImageReconConc(yavgimg, [], 0, Amatrix);
     
-    
-    
     if size(cond,2) == 1
         imgrecon.Aimg_conc.HbO = HbO(1:size(Adot,2), cond);
         imgrecon.Aimg_conc.HbR = HbR(1:size(Adot,2), cond);
@@ -436,14 +435,13 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % ---------------------------------------------------------------------------------
-function plotHb_Callback(hObject, eventdata, handles)
+function plotHb_Callback(~, ~, handles)
 % This function executes on button press in plotHb.
 global atlasViewer
 
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
 value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
 
-dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 hbconc  = atlasViewer.hbconc;
@@ -455,8 +453,6 @@ hold on;
 
 ylimits = str2num(get(handles.plotylimit,'String'));
 
-HbO = [];
-HbR = [];
 if value1 == 1
     Aimg_conc = imgrecon.Aimg_conc;
     HbO = Aimg_conc.HbO;
@@ -492,9 +488,6 @@ if leftRightFlipped(imgrecon)
 else
     axes_order = [1,2,3];
 end
-
-hHbO = [];
-hHbR = [];
 
 % plot HbO
 hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);

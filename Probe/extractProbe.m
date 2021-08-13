@@ -1,8 +1,8 @@
 function probe = extractProbe(probe0)
 probe = initProbe();
 
-if isa(probe0, 'TreeNodeClass')
-    probe0 = extractSDFromDataTree(probe0);
+if isa(probe0, 'DataTreeClass')
+    probe0 = extractSDFromDataTree(probe0.currElem);
 end
     
 if isfield(probe0, 'SrcPos') && isfield(probe0, 'DetPos') && isfield(probe0, 'MeasList')

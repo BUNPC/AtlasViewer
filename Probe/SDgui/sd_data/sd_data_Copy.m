@@ -1,8 +1,8 @@
 function SD2 = sd_data_Copy(SD2, SD1)
-if nargin==0
+if nargin==0 || isempty(SD2)
     SD2 = sd_data_Init();    
 end
-if nargin==1
+if nargin==1 || isempty(SD1)
     SD1 = sd_data_Init();
 end
 
@@ -205,3 +205,38 @@ end
 if isfield(SD1,'auxChannels')
     SD2.auxChannels = SD1.auxChannels;
 end
+
+% Sanity checks/fixes
+SD2.SrcGrommetRot = fixGrommetRot(SD2.SrcGrommetRot, SD2.SrcPos);
+SD2.DetGrommetRot = fixGrommetRot(SD2.DetGrommetRot, SD2.DetPos);
+SD2.DummyGrommetRot = fixGrommetRot(SD2.DummyGrommetRot, SD2.DummyPos);
+
+SD2.SrcGrommetType = fixGrommetType(SD2.SrcGrommetType, SD2.SrcPos);
+SD2.DetGrommetType = fixGrommetType(SD2.DetGrommetType, SD2.DetPos);
+SD2.DummyGrommetType = fixGrommetType(SD2.DummyGrommetType, SD2.DummyPos);
+
+
+% -----------------------------------------------------------------
+function grommet = fixGrommetRot(grommet, optode)
+d = size(optode,1) - length(grommet);
+if d<0
+    grommet(size(optode,1)+1:end) = [];
+elseif d>0
+    for ii = 1:size(optode,1)
+        grommet{ii} = 0;
+    end
+end
+
+
+
+% -----------------------------------------------------------------
+function grommet = fixGrommetType(grommet, optode)
+d = size(optode,1) - length(grommet);
+if d<0
+    grommet(size(optode,1)+1:end) = [];
+elseif d>0
+    for ii = 1:size(optode,1)
+        grommet{ii} = 'none';
+    end
+end
+

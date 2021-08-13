@@ -157,6 +157,22 @@ classdef SubjClass < TreeNodeClass
         
         % ----------------------------------------------------------------------------------
         function Add(obj, run)
+            [~,f,e] = fileparts(run.GetName());
+            if strcmp(f, obj.name)
+                msg{1} = sprintf('WARNING: The run being added (%s) has the same name as the subject (%s) containing it. ', [f,e], obj.name);
+                msg{2} = sprintf('The run names should not have the same name as the subject, otherwise '); 
+                msg{3} = sprintf('it may cause incorrect results in processing. Do you want to change this run''s name?');
+                obj.logger.Write(sprintf('%s\n', [msg{:}]));
+
+                % Deconflict name of subject with name of run if there is no
+                % subject folder for this subject
+                if ~ispathvalid(['./',obj.name], 'dir')
+                    obj.name = [obj.name, '_s'];
+                    obj.logger.Write(sprintf('Renaming subject to %s\n', obj.name));
+                end
+            end
+            
+            
             % Add run to this subject
             jj=0;
             for ii=1:length(obj.runs)
@@ -168,16 +184,9 @@ classdef SubjClass < TreeNodeClass
             if jj==0
                 jj = length(obj.runs)+1;
                 run.SetIndexID(obj.iGroup, obj.iSubj, jj);
+                run.SetPath(obj.path);                      % Inherit root path from subject
                 obj.runs(jj) = run;
                 obj.logger.Write(sprintf('     Added run %s to subject %s.\n', obj.runs(jj).GetFileName, obj.GetName));
-            end
-            
-            % If subject has only one run AND the run file name is not formatted according to the standard Homer 
-            % naming convention (so as to distinguish between subject and run) then run name (minus extension) will 
-            % have the same name as the subject which will create a conflict when saving .mat files in a distributed 
-            % storage scheme. We therefore rename the subject name in case of this type of conflict
-            if obj.CheckForNameConflict(run)
-                obj.name = ['Subj_', obj.name];
             end
         end
         
@@ -201,7 +210,7 @@ classdef SubjClass < TreeNodeClass
                 option = 'down';
             end
             if strcmp(option, 'down')
-                for jj=1:length(obj.runs)
+                for jj = 1:length(obj.runs)
                     obj.runs(jj).Reset();
                 end
             end
@@ -216,7 +225,7 @@ classdef SubjClass < TreeNodeClass
             if isempty(obj)
                 return;
             end
-            err1 = obj.procStream.Load(obj.GetFilename);
+            err1 = obj.procStream.Load([obj.path, obj.GetOutputFilename()]);
             err2 = obj.runs(1).Load();
             if err1==0 && err2==0
                 err = 0;
@@ -234,6 +243,19 @@ classdef SubjClass < TreeNodeClass
             
         
         % ----------------------------------------------------------------------------------
+        function CreateOutputDir(obj)
+            if ispathvalid([obj.pathOutputAlt, obj.outputDirname, obj.name])
+                return;
+            end
+            if ~ispathvalid([obj.pathOutputAlt, obj.name])
+                return;
+            end
+            mkdir([obj.pathOutputAlt, obj.outputDirname, obj.name]);
+        end
+            
+
+        
+        % ----------------------------------------------------------------------------------
         function LoadVars(obj, r, tHRF_common)
             % Set common tHRF: make sure size of tHRF, dcAvg and dcAvg is same for
             % all runs. Use smallest tHRF as the common one.
@@ -248,7 +270,21 @@ classdef SubjClass < TreeNodeClass
             obj.outputVars.tHRFRuns{r.iRun}      = r.procStream.output.GetTHRF();
             obj.outputVars.mlActRuns{r.iRun}     = r.procStream.output.GetVar('mlActAuto');
             obj.outputVars.nTrialsRuns{r.iRun}   = r.procStream.output.GetVar('nTrials');
-            obj.outputVars.stimRuns{r.iRun}      = r.GetVar('stim');
+            if ~isempty(r.procStream.output.GetVar('misc'))
+                if isfield(r.procStream.output.misc, 'stim') == 1
+                    obj.outputVars.stimRuns{r.iRun}      = r.procStream.output.misc.stim;
+                else
+                    obj.outputVars.stimRuns{r.iRun}      = r.GetVar('stim');
+                end
+            else
+                obj.outputVars.stimRuns{r.iRun}      = r.GetVar('stim');
+            end
+            obj.outputVars.dcRuns{r.iRun}       = r.procStream.output.GetVar('dc');
+            obj.outputVars.AauxRuns{r.iRun}      = r.procStream.output.GetVar('Aaux');
+            obj.outputVars.tIncAutoRuns{r.iRun}  = r.procStream.output.GetVar('tIncAuto');
+            obj.outputVars.rcMapRuns{r.iRun}     = r.procStream.output.GetVar('rcMap');
+
+            
             
             % a) Find all variables needed by proc stream
             args = obj.procStream.GetInputArgs();
@@ -297,13 +333,8 @@ classdef SubjClass < TreeNodeClass
             for iRun = 1:length(r)
                 obj.LoadVars(r(iRun), tHRF_common);
             end
-            
-            
-            % Make variables in this subject available to processing stream input
-            obj.procStream.input.LoadVars(obj.outputVars);
-
-            % Calculate processing stream
-            obj.procStream.Calc(obj.GetFilename);
+                        
+            Calc@TreeNodeClass(obj);
 
             if obj.DEBUG
                 fprintf('Completed processing stream for group %d, subject %d\n', obj.iGroup, obj.iSubj);
@@ -314,7 +345,6 @@ classdef SubjClass < TreeNodeClass
             if ~isempty(obj.updateParentGui)
                 obj.updateParentGui('DataTreeClass', [obj.iGroup, obj.iSubj, obj.iRun]);
             end
-            pause(.5);
             
         end
                 
@@ -322,17 +352,13 @@ classdef SubjClass < TreeNodeClass
         % ----------------------------------------------------------------------------------
         function Print(obj, indent)
             if ~exist('indent', 'var')
-                indent = 2;
+                indent = 4;
+            else
+                indent = indent+4;
             end
-            if ~exist('indent', 'var')
-                indent = 2;
-            end
-            fprintf('%sSubject %d:\n', blanks(indent), obj.iSubj);
-            fprintf('%sCondNames: %s\n', blanks(indent+4), cell2str(obj.CondNames));
-            obj.procStream.input.Print(indent+4);
-            obj.procStream.output.Print(indent+4);
+            Print@TreeNodeClass(obj, indent);
             for ii=1:length(obj.runs)
-                obj.runs(ii).Print(indent+4);
+                obj.runs(ii).Print(indent);
             end
         end
         
@@ -343,8 +369,23 @@ classdef SubjClass < TreeNodeClass
             if isempty(obj)
                 return;
             end
-            for ii=1:length(obj.runs)
+            for ii = 1:length(obj.runs)
                 if ~obj.runs(ii).IsEmpty()
+                    b = false;
+                    break;
+                end
+            end
+        end
+
+
+        % ----------------------------------------------------------------------------------
+        function b = IsEmptyOutput(obj)
+            b = true;
+            if isempty(obj)
+                return;
+            end
+            for ii = 1:length(obj.runs)
+                if ~obj.runs(ii).IsEmptyOutput()
                     b = false;
                     break;
                 end
@@ -562,6 +603,18 @@ classdef SubjClass < TreeNodeClass
             end
         end
         
+        % ----------------------------------------------------------------------------------
+        function [fn_error, missing_args, prereqs] = CheckProcStreamOrder(obj)
+            missing_args = {};
+            fn_error = 0;
+            prereqs = '';
+            for i = 1:length(obj.runs)
+                [fn_error, missing_args, prereqs] = obj.runs(i).CheckProcStreamOrder;
+                if ~isempty(missing_args)
+                    return
+                end
+            end
+        end
         
         % ----------------------------------------------------------------------------------
         function ExportHRF(obj, procElemSelect, iBlk)
@@ -580,11 +633,24 @@ classdef SubjClass < TreeNodeClass
                 iBlk = 1;
             end
 
-            obj.procStream.ExportHRF(obj.name, obj.CondNames, iBlk);
             if strcmp(procElemSelect, 'all')
-                for ii=1:length(obj.runs)
+                for ii = 1:length(obj.runs)
                     obj.runs(ii).ExportHRF(iBlk);
                 end
+            end            
+            obj.ExportHRF@TreeNodeClass(procElemSelect, iBlk);
+        end
+    
+        
+        % ----------------------------------------------------------------------------------
+        function r = ListOutputFilenames(obj, options)
+            if ~exist('options','var')
+                options = '';
+            end
+            r = obj.GetOutputFilename(options);
+            fprintf('  %s %s\n', obj.path, r);
+            for ii = 1:length(obj.runs)
+                obj.runs(ii).ListOutputFilenames(options);
             end
         end
         
@@ -595,7 +661,27 @@ classdef SubjClass < TreeNodeClass
     % Private methods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods (Access = public)
-                        
+                
+        % ----------------------------------------------------------------------------------
+        function b = HaveOutput(obj)
+            b = false;
+            for ii = 1:length(obj.runs)
+                b = obj.runs(ii).HaveOutput();
+                if b
+                    break;
+                end
+            end
+        end
+                
+        
+        % ----------------------------------------------------------------------------------
+        function BackwardCompatability(obj)
+            obj.BackwardCompatability@TreeNodeClass();
+            for ii = 1:length(obj.runs)
+                obj.runs(ii).BackwardCompatability();
+            end
+        end
+                          
     end  % Private methods
     
 end

@@ -12,7 +12,7 @@ classdef ProbeClass < FileLoadSaveClass
         frequencies
         timeDelays
         timeDelayWidths
-        momentOrder
+        momentOrders
         correlationTimeDelays
         correlationTimeDelayWidths
         sourceLabels
@@ -64,7 +64,7 @@ classdef ProbeClass < FileLoadSaveClass
                     obj.frequencies  = 1;
                     obj.timeDelays  = 0;
                     obj.timeDelayWidths  = 0;
-                    obj.momentOrder = [];
+                    obj.momentOrders = [];
                     obj.correlationTimeDelays = 0;
                     obj.correlationTimeDelayWidths = 0;
                     for ii=1:size(SD.SrcPos)
@@ -87,7 +87,7 @@ classdef ProbeClass < FileLoadSaveClass
                 obj.frequencies  = 1;
                 obj.timeDelays  = 0;
                 obj.timeDelayWidths  = 0;
-                obj.momentOrder = [];
+                obj.momentOrders = [];
                 obj.correlationTimeDelays = 0;
                 obj.correlationTimeDelayWidths = 0;
                 obj.sourceLabels = {};
@@ -167,7 +167,7 @@ classdef ProbeClass < FileLoadSaveClass
                 obj.frequencies               = HDF5_DatasetLoad(gid, 'frequencies');
                 obj.timeDelays                 = HDF5_DatasetLoad(gid, 'timeDelays');
                 obj.timeDelayWidths            = HDF5_DatasetLoad(gid, 'timeDelayWidths');
-                obj.momentOrder               = HDF5_DatasetLoad(gid, 'momentOrder');
+                obj.momentOrders               = HDF5_DatasetLoad(gid, 'momentOrders');
                 obj.correlationTimeDelays      = HDF5_DatasetLoad(gid, 'correlationTimeDelays');
                 obj.correlationTimeDelayWidths = HDF5_DatasetLoad(gid, 'correlationTimeDelayWidths');
                 obj.sourceLabels              = HDF5_DatasetLoad(gid, 'sourceLabels', obj.sourceLabels);
@@ -236,7 +236,7 @@ classdef ProbeClass < FileLoadSaveClass
             hdf5write_safe(fileobj, [location, '/frequencies'], obj.frequencies);
             hdf5write_safe(fileobj, [location, '/timeDelays'], obj.timeDelays);
             hdf5write_safe(fileobj, [location, '/timeDelayWidths'], obj.timeDelayWidths);
-            hdf5write_safe(fileobj, [location, '/momentOrder'], obj.momentOrder);
+            hdf5write_safe(fileobj, [location, '/momentOrders'], obj.momentOrders);
             hdf5write_safe(fileobj, [location, '/correlationTimeDelays'], obj.correlationTimeDelays);
             hdf5write_safe(fileobj, [location, '/correlationTimeDelayWidths'], obj.correlationTimeDelayWidths);
             hdf5write_safe(fileobj, [location, '/sourceLabels'], obj.sourceLabels);
@@ -322,7 +322,7 @@ classdef ProbeClass < FileLoadSaveClass
             if ~all(obj.timeDelayWidths(:)==obj2.timeDelayWidths(:))
                 return;
             end
-            if ~all(obj.momentOrder(:)==obj2.momentOrder(:))
+            if ~all(obj.momentOrders(:)==obj2.momentOrders(:))
                 return;
             end
             if ~all(obj.correlationTimeDelays(:)==obj2.correlationTimeDelays(:))

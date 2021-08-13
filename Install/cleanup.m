@@ -1,5 +1,7 @@
 function cleanup(dirnameInstall, dirnameApp, options)
-platform = setplatformparams();
+global platform
+
+installfilename = sprintf('%s_install', lower(getAppname()));
 
 if ~exist('dirnameInstall','var') | isempty(dirnameInstall)
     if exist('./Install','dir')
@@ -9,15 +11,15 @@ if ~exist('dirnameInstall','var') | isempty(dirnameInstall)
     end
 end
 if ~exist('dirnameApp','var') | isempty(dirnameApp)
-    dirnameApp = getAppDir_av();
+    dirnameApp = getAppDir();
 end
 if ~exist('options','var')
     options = 'end';
 end
 
 
-if exist([dirnameInstall, 'atlasviewer_install'],'dir')
-    rmdir_safe([dirnameInstall, 'atlasviewer_install']);
+if exist([dirnameInstall, installfilename],'dir')
+    rmdir_safe([dirnameInstall, installfilename]);
 end
 for ii=1:length(platform.exename(1))
     if exist([dirnameInstall, platform.exename{ii}],'file')==2

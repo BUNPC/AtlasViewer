@@ -4,8 +4,8 @@ if probe.isempty(probe)
     return;
 end
 if ~isPreRegisteredProbe(probe, headsurf)
-    if ~probeHasSpringRegistrationInfo(probe)
-        if ~probeHasDigptsRegistrationInfo(probe)
+    if ~probeHasSpringRegistration(probe)
+        if ~probeHasDigptsRegistration(probe)
             q = MenuBox('Warning: loaded probe has no registration data. Do you want to add registration data to the probe using SDgui?', {'YES','NO'});
             if q==1
                 probe.save(probe);

@@ -27,7 +27,10 @@ classdef StimClass < FileLoadSaveClass
                 if isa(varargin{1}, 'StimClass')
                     obj.Copy(varargin{1});
                 elseif ischar(varargin{1})
-                    if exist(varargin{1}, 'file')==2
+                    % NOTE: exist can fail to work properly for the purposes of local group folder,
+                    % if file name in question is somewhere (anywhere!) in the search path. Theerfore 
+                    % we replace exist with our own function. 
+                    if ispathvalid(varargin{1}, 'file')
                         obj.SetFilename(varargin{1});
                         obj.Load(varargin{1});
                     else
@@ -73,7 +76,7 @@ classdef StimClass < FileLoadSaveClass
         function err = LoadHdf5(obj, fileobj, location)
             
             % Arg 1
-            if ~exist('fileobj','var') || (ischar(fileobj) && ~exist(fileobj,'file'))
+            if ~exist('fileobj','var') || (ischar(fileobj) && ~ispathvalid(fileobj,'file'))
                 fileobj = '';
             end
                         
@@ -154,7 +157,7 @@ classdef StimClass < FileLoadSaveClass
                 location = ['/',location];
             end
 
-            if ~exist(fileobj, 'file')
+            if ~ispathvalid(fileobj, 'file')
                 fid = H5F.create(fileobj, 'H5F_ACC_TRUNC', 'H5P_DEFAULT', 'H5P_DEFAULT');
                 H5F.close(fid);
             end
@@ -175,7 +178,7 @@ classdef StimClass < FileLoadSaveClass
                 
         % -------------------------------------------------------
         function Update(obj, fileobj, location)
-            if ~exist(fileobj, 'file')
+            if ~ispathvalid(fileobj, 'file')
                 fid = H5F.create(fileobj, 'H5F_ACC_TRUNC', 'H5P_DEFAULT', 'H5P_DEFAULT');
                 H5F.close(fid);
             end
@@ -189,7 +192,16 @@ classdef StimClass < FileLoadSaveClass
         function Copy(obj, obj2)
             obj.name = obj2.name;
             obj.data = obj2.data;
-            obj.dataLabels = obj2.dataLabels;
+            if isempty(obj2.dataLabels)
+                obj.dataLabels = {'Onset', 'Duration', 'Amplitude'};
+                if length(obj.dataLabels) < size(obj.data, 2)
+                    for i = 1:length(obj.dataLabels) - 3
+                       obj.dataLabels{end + 1} = ''; 
+                    end
+                end
+            else
+                obj.dataLabels = obj2.dataLabels;
+            end
             obj.states = obj2.states;
         end
         
@@ -557,6 +569,48 @@ classdef StimClass < FileLoadSaveClass
                 k = [k, find( abs(obj.states(:,1)-tPts(ii)) < obj.errmargin )];
             end
             obj.states(k,2) = -1*obj.states(k,2);
+        end
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function AddStimColumn(obj, name, initValue)
+            if ~exist('name', 'var')
+               name = ''; 
+            end
+            if ~exist('initValue', 'var')
+               initValue = 0; 
+            end
+            obj.dataLabels{end + 1} = name;
+            obj.data(:, end + 1) = initValue * ones(size(obj.data, 1), 1);
+        end
+
+        
+        
+        % ----------------------------------------------------------------------------------
+        function DeleteStimColumn(obj, idx)
+            if ~exist('idx', 'var') || idx <= size(obj.data, 2) - 3
+                return;
+            else
+                obj.data(:, idx) = [];
+                if length(obj.dataLabels) >= idx
+                   obj.dataLabels(idx) = []; 
+                end
+            end
+        end
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function RenameStimColumn(obj, oldname, newname)
+            if ~exist('oldname', 'var') || ~exist('newname', 'var')
+                return;
+            end
+            for i = 1:length(obj.dataLabels)
+                if strcmp(oldname, obj.dataLabels{i})
+                   obj.dataLabels{i} = newname;
+                end
+            end
         end
         
         

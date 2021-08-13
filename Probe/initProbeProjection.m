@@ -23,7 +23,7 @@ end
 % static handles
 if isempty(probe.optpos_reg)
     set(probe.handles.menuItemProbeToCortex, 'enable','off');
-    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
+    %set(probe.handles.menuItemOverlayHbConc, 'enable','off');
 else
     set(probe.handles.menuItemProbeToCortex, 'enable','on');
     set(probe.handles.menuItemOverlayHbConc, 'enable','on');    

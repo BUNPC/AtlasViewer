@@ -1,4 +1,4 @@
-function probe = setProbeDisplay(probe, headsurf, method, iCh)
+function probe = setProbeDisplay(probe, headobj, method, iCh)
 
 hProjectionRays = probe.handles.hProjectionRays;
 hSprings        = probe.handles.hSprings;
@@ -17,8 +17,8 @@ if ~exist('method','var') || isempty(method)
         method = 'springs';
     end
 end
-if ~exist('headsurf','var') || isempty(headsurf)
-    headsurf=[];
+if ~exist('headobj','var') || isempty(headobj)
+    headobj=[];
 end
 if ~exist('iCh','var')
     iCh=[];
@@ -47,7 +47,7 @@ if ishandles(hMeasList)
 end
 
 % Enable/disable gui objects
-probe = updateProbeGuiControls(probe, headsurf);
+probe = updateProbeGuiControls(probe, headobj);
 
 probe = setOptodeNumbering(probe);
 

@@ -64,6 +64,8 @@ probe = struct( ...
                'isempty',@isempty_loc, ...
                'copy',@copy_loc, ...
                'copyLandmarks',@copyLandmarks, ...
+               'copyMeasList',@copyMeasList, ...
+               'copyOptodes', @copyOptodes, ...
                'save',@save_loc, ...
                'prepObjForSave',[], ...
                'pullToSurfAlgorithm','center', ...
@@ -101,7 +103,7 @@ if exist('handles','var')
     set(probe.handles.checkboxOptodeSDMode, 'enable','off');
     set(probe.handles.checkboxOptodeCircles, 'enable','off');
     set(probe.handles.menuItemProbeToCortex, 'enable','off');
-    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
+%    set(probe.handles.menuItemOverlayHbConc, 'enable','off');
 
     set(probe.handles.menuItemSaveRegisteredProbe,'enable','off');
     set(probe.handles.editSpringLenThresh,'string',num2str(probe.registration.springLenThresh) );
@@ -144,16 +146,14 @@ b = false;
 
 % --------------------------------------------------------------
 function b = isempty_reg_loc(probe)
-b = true;
-if isempty(probe.registration)
+b = false;
+if probeHasSpringRegistration(probe)
+    return
+end
+if probeHasDigptsRegistration(probe)
     return;
 end
-if ~probeHasSpringRegistrationInfo(probe)
-    if ~probeHasDigptsRegistrationInfo(probe)
-        return;
-    end
-end
-b = false;
+b = true;
 
 
 
@@ -165,14 +165,14 @@ end
 if probe2.isempty(probe2)
     return;
 end
-if ~similarProbes(probe, probe2)
+if ~compatibleProbes(probe, probe2)
     return;
 end
 probe = scaleFactor(probe);
 
-if ~probe2.registration.isempty(probe2)
-    probe = copyRegistration(probe, probe2);
-end
+probe = copySpringRegistration(probe, probe2);
+probe = copyLandmarks(probe, probe2);
+
 if ~isempty(probe2.lambda) && isempty(probe.lambda)
     probe.lambda        = probe2.lambda;
 end
@@ -188,6 +188,7 @@ end
 if ~isempty(probe2.ml) && isempty(probe.ml)
     probe.ml            = probe2.ml;
 end
+
 if isfield(probe2,'SrcGrommetType') %&& isempty(probe.SrcGrommetType)
     probe.SrcGrommetType = probe2.SrcGrommetType;
 end
@@ -205,6 +206,15 @@ if isfield(probe2,'DetGrommetRot') %&& isempty(probe.DetGrommetRot)
 end
 if isfield(probe2,'DummyGrommetRot') %&& isempty(probe.DummyGrommetRot )
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
+end
+if ~isempty(probe2.SrcGrommetType) && isempty(probe.SrcGrommetType)
+    probe.SrcGrommetType = probe2.SrcGrommetType;
+end
+if ~isempty(probe2.DetGrommetType) && isempty(probe.DetGrommetType)
+    probe.DetGrommetType = probe2.DetGrommetType;
+end
+if ~isempty(probe2.DummyGrommetType) && isempty(probe.DummyGrommetType )
+    probe.DummyGrommetType = probe2.DummyGrommetType;
 end
 probe.optpos        = [probe.srcpos; probe.detpos; probe.registration.dummypos];
 probe.center        = probe2.center;
@@ -302,27 +312,104 @@ probe.registration = struct(...
 
 
 % -------------------------------------------------
-function p2 = copyRegistration(p2, p1)
-if ~isempty(p1.registration.sl) && isempty(p2.registration.sl)
-    p2.registration.sl              = p1.registration.sl;
+function probe1 = copySpringRegistration(probe1, probe2)
+if probeHasSpringRegistration(probe1)
+    return
 end
-if ~isempty(p1.registration.al) && isempty(p2.registration.al)
-    p2.registration.al              = p1.registration.al;
-end
-if ~isempty(p1.registration.dummypos) && isempty(p2.registration.dummypos)
-    p2.registration.dummypos        = p1.registration.dummypos;
-end
-if ~isempty(p1.registration.springLenThresh)
-    p2.registration.springLenThresh = p1.registration.springLenThresh;
-end
-if ~isempty(p1.registration.refpts) && ~p1.registration.refpts.isempty(p1.registration.refpts) && ...
-        p2.registration.refpts.isempty(p2.registration.refpts)
-    p2.registration.refpts          = p1.registration.refpts;
-end
+probe1.registration.sl              = probe2.registration.sl;
+probe1.registration.al              = probe2.registration.al;
+probe1.registration.dummypos        = probe2.registration.dummypos;
+probe1.registration.springLenThresh = probe2.registration.springLenThresh;
 
 
 
 % -------------------------------------------------
 function probe = copyLandmarks(probe, refpts)
+if strcmp(refpts.name, 'probe')
+    probe2 = refpts;
+    refpts = probe2.registration.refpts;
+end
+if probeHasLandmarkRegistration(probe)
+    return
+end
+[~,~,~,~,~, refpts] = getLandmarks(refpts);
 probe.registration.refpts = refpts.copyLandmarks(probe.registration.refpts, refpts);
+
+
+
+% -------------------------------------------------
+function probe1 = copyOptodes(probe1, probe2)
+
+if ~isempty(probe2.srcpos) && isempty(probe1.srcpos)
+    probe1.srcpos        = probe2.srcpos;
+end
+if ~isempty(probe2.detpos) && isempty(probe1.detpos)
+    probe1.detpos        = probe2.detpos;
+end
+if ~isempty(probe2.optpos_reg) && isempty(probe1.optpos_reg)
+    probe1.optpos_reg    = probe2.optpos_reg;
+end
+if ~isempty(probe2.SrcGrommetRot) && isempty(probe1.SrcGrommetRot)
+    probe1.SrcGrommetRot = probe2.SrcGrommetRot;
+end
+if ~isempty(probe2.DetGrommetRot) && isempty(probe1.DetGrommetRot)
+    probe1.DetGrommetRot = probe2.DetGrommetRot;
+end
+if ~isempty(probe2.DummyGrommetRot) && isempty(probe1.DummyGrommetRot )
+    probe1.DummyGrommetRot = probe2.DummyGrommetRot;
+end
+if ~isempty(probe2.SrcGrommetType) && isempty(probe1.SrcGrommetType)
+    probe1.SrcGrommetType = probe2.SrcGrommetType;
+end
+if ~isempty(probe2.DetGrommetType) && isempty(probe1.DetGrommetType)
+    probe1.DetGrommetType = probe2.DetGrommetType;
+end
+if ~isempty(probe2.DummyGrommetType) && isempty(probe1.DummyGrommetType )
+    probe1.DummyGrommetType = probe2.DummyGrommetType;
+end
+probe1.optpos        = [probe1.srcpos; probe1.detpos; probe1.registration.dummypos];
+
+if ~isempty(probe2.optpos_reg) && isempty(probe1.optpos_reg)
+    probe1.optpos_reg = probe2.optpos_reg;
+end
+
+
+
+% -------------------------------------------------
+function probe1 = copyMeasList(probe1, probe2)
+
+% Error checking: Must pass a bunch of error checks before 
+% being granted permission to copy measurement list from probe2 
+% to probe1
+if isempty(probe2.ml)
+    return;
+end
+if size(probe2.ml,1)<2
+    return;
+end
+if ~isempty(probe1.ml)
+    return;
+end
+
+% Check to make sure measurement list is compatible with
+% source/detector pairs
+if max(probe2.ml(:,1))>size(probe1.srcpos,1)
+    return;
+end
+if max(probe2.ml(:,2))>size(probe1.detpos,1)
+    return;
+end
+ks = find(probe2.ml(:,1)<1); %#ok<*EFIND>
+kd = find(probe2.ml(:,2)<1);
+if ~isempty(ks)
+    return;
+end
+if ~isempty(kd)
+    return;
+end
+
+% probe1.ml is empty and probe2.ml seems valid, lets copy it...
+probe1.ml = probe2.ml;
+
+
 

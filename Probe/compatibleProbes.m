@@ -1,4 +1,4 @@
-function b = similarProbes(probe1_0, probe2_0)
+function b = compatibleProbes(probe1_0, probe2_0)
 b = true;
 if isempty(probe1_0)
     return;

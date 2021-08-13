@@ -1,4 +1,31 @@
-function probe = resetProbe(probe)
+function probe = resetProbe(probe, dirname)
+
+if nargin==0 || isempty(probe)
+    probe = initProbe;
+end
+if ~exist('dirname', 'var')
+    dirname = pwd;
+end
+dirname = filesepStandard(dirname);
+
+if ispathvalid([dirname, 'probe.SD'])
+    fprintf('Deleting %s\n', [dirname, 'probe.SD']);
+    delete([dirname, 'probe.SD']);
+end
+dirs = dir([dirname, '*']);
+for ii = 1:length(dirs)
+    if ~dirs(ii).isdir
+        continue;
+    end
+    if strcmp(dirs(ii).name, '.')
+        continue;
+    end
+    if strcmp(dirs(ii).name, '..')
+        continue;
+    end
+    resetProbe(probe, [dirname, dirs(ii).name]);
+end
+
 
 % dynamic handles
 if ishandles(probe.handles.labels)
@@ -28,42 +55,7 @@ for ii=1:length(probe.handles.hProjectionTbl)
     end
 end
 
+probe = initProbe();
 
-% static handles
-set(probe.handles.checkboxHideProbe,'enable','off');
-set(probe.handles.checkboxHideSprings,'enable','off');
-set(probe.handles.checkboxHideDummyOpts,'enable','off');
-set(probe.handles.checkboxHideMeasList,'enable','off');
-set(probe.handles.pushbuttonRegisterProbeToSurface,'enable','off');
-
-
-probe.hideProbe         = get(probe.handles.checkboxHideProbe,'value');
-probe.hideSprings       = get(probe.handles.checkboxHideSprings,'value');
-probe.hideDummyOpts     = get(probe.handles.checkboxHideDummyOpts,'value');
-probe.hideMeasList      = get(probe.handles.checkboxHideMeasList,'value');
-probe.handles.labels            = [];
-probe.handles.circles     = [];
-probe.handles.hMeasList           = [];
-probe.handles.hOptodesCortex      = [];
-probe.handles.hOptToLabelsProjTbl = [];
-probe.handles.hSprings            = [];
-probe.handles.hSDgui              = [];
-probe.handles.hProjectionRays     = [];
-probe.srcpos                      = [];
-probe.detpos                      = [];
-probe.optpos                      = [];
-probe.optpos_reg                  = [];
-probe.nsrc                        = 0;
-probe.ndet                        = 0;
-probe.nopt                        = 0;
-probe.noptorig                    = 0;
-probe.mlmp                        = [];
-probe.ptsProj_cortex              = [];
-probe.ptsProj_cortex_mni          = [];
-probe.ml                = [];
-
-probe = probe.registration.init(probe);
-
-probe.hOptodesIdx       = 1;
 
 

@@ -112,7 +112,7 @@ end
 
 
 % ---------------------------------------------------------------
-function r2 = copyLandmarks(r2, r1) %#ok<DEFNU>
+function r2 = copyLandmarks(r2, r1)
 if nargin<2
     return;
 end
