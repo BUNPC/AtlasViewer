@@ -5112,3 +5112,10 @@ else
         radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
     end
 end
+
+
+% --------------------------------------------------------------------
+function menuItemResetForwardModel_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemResetForwardModel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
