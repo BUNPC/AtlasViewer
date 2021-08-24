@@ -251,10 +251,10 @@ if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     snirf.Save([probe.pathname, 'probe.snirf'])
 elseif ~isempty(SD)
     filedata = load([probe.pathname, 'probe.SD'], '-mat');
-    if ~sd_data_Equal(SD, filedata.SD)
+%     if ~sd_data_Equal(SD, filedata.SD)
         save([probe.pathname, 'probe.SD'],'-mat', 'SD');
         snirf.Save([probe.pathname, 'probe.snirf'])
-    end
+%     end
 end
 
 

@@ -4159,7 +4159,7 @@ if eventdata.Button == 1
                 else
                     opt_type = 'Dummy';
                     opt_no = idx-nrsc;
-                    grommet_type = atlasViewer.probe.DetGrommetType{idx-nrsc-ndet};
+                    grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
                     grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
                 end
                 index = find(strcmp(contents,grommet_type));
