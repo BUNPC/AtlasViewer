@@ -82,7 +82,6 @@ else
     for ii = 1:length(probe_SD)
         if ~probe_SD(ii).isempty(probe_SD(ii))
             probe = probe.copy(probe, probe_SD(ii));
-            probe = probe.copy(probe, probe_SD(ii));
         end
     end
 end

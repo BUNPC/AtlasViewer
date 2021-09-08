@@ -23,6 +23,10 @@ if size(probe1.detpos,1) ~= size(probe2.detpos,1)
     return;
 end
 
+% In comparing meas list compatibility, order does not matter
+probe1.ml = sort(probe1.ml);
+probe2.ml = sort(probe2.ml);
+
 if ~isempty(probe1.ml) && ~isempty(probe2.ml)
     if size(probe1.ml,1) ~= size(probe2.ml,1)
         return;
