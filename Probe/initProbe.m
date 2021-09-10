@@ -74,7 +74,7 @@ probe = struct( ...
                'T_2mc',eye(4) ...
               );
           
-probe = initFontSizeConfigParams(probe);
+probe = initFontSizeConfigParams(probe, 'Probe Optodes');
 probe = initRegistration(probe);
 
 if exist('handles','var')

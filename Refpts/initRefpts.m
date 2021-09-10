@@ -56,7 +56,7 @@ refpts = struct( ...
     'scaling',1.0 ...
 );
 
-refpts = initFontSizeConfigParams(refpts);
+refpts = initFontSizeConfigParams(refpts, 'Reference Points');
 
 if exist('handles','var')
     refpts.handles.radiobuttonShowRefptsLabels = handles.radiobuttonShowRefptsLabels;

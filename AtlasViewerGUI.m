@@ -3476,13 +3476,13 @@ atlasViewer.imgrecon     = imgrecon;
 % --------------------------------------------------------------------
 function menuItemRefptsFontSize_Callback(~, ~, ~)
 global atlasViewer
-atlasViewer.refpts = resizeFonts(atlasViewer.refpts);
+atlasViewer.refpts = resizeFonts(atlasViewer.refpts, 'Reference Points');
 
 
 % --------------------------------------------------------------------
 function menuItemProbeFontSize_Callback(~, ~, ~)
 global atlasViewer
-atlasViewer.probe = resizeFonts(atlasViewer.probe);
+atlasViewer.probe = resizeFonts(atlasViewer.probe, 'Probe Optodes');
 
 
 

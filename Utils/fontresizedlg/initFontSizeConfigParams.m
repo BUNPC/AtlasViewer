@@ -1,10 +1,4 @@
-function obj = initFontSizeConfigParams(obj)
-
-if iscell(obj.name)
-    name = obj.name{end};
-else
-    name = obj.name;
-end
+function obj = initFontSizeConfigParams(obj, name)
 
 cfg = ConfigFileClass();
 textSize = str2num(cfg.GetValue([name, ' Font Size']));
