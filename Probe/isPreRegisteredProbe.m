@@ -21,10 +21,11 @@ else
     refpts = obj;
 end
 
+% We cannot say that probe is preregistered if it has anchor points/springs
 if ~isempty(headsurf)
-    b = isPreRegisteredToHeadsurf(probe, headsurf);
+    b = isPreRegisteredToHeadsurf(probe, headsurf) && ~probeHasSpringRegistration(probe);
 else
-    b = isPreRegisteredToRefpts(probe, refpts);    
+    b = isPreRegisteredToRefpts(probe, refpts) && ~probeHasSpringRegistration(probe);    
 end
 
 

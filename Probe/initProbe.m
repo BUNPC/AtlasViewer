@@ -130,6 +130,10 @@ b = true;
 if isempty(probe)
     return;
 end
+if ~isempty(probe.optpos_reg)
+    b = false;
+    return;
+end
 if isempty(probe.optpos)
     return;
 end
@@ -184,13 +188,23 @@ end
 if ~isempty(probe2.ml) && isempty(probe.ml)
     probe.ml            = probe2.ml;
 end
-if ~isempty(probe2.SrcGrommetRot) && isempty(probe.SrcGrommetRot)
+
+if isfield(probe2,'SrcGrommetType') %&& isempty(probe.SrcGrommetType)
+    probe.SrcGrommetType = probe2.SrcGrommetType;
+end
+if isfield(probe2,'DetGrommetType') %&& isempty(probe.DetGrommetType)
+    probe.DetGrommetType = probe2.DetGrommetType;
+end
+if isfield(probe2,'DummyGrommetType') %&& isempty(probe.DummyGrommetType )
+    probe.DummyGrommetType = probe2.DummyGrommetType;
+end
+if isfield(probe2,'SrcGrommetRot') %&& isempty(probe.SrcGrommetRot)
     probe.SrcGrommetRot = probe2.SrcGrommetRot;
 end
-if ~isempty(probe2.DetGrommetRot) && isempty(probe.DetGrommetRot)
+if isfield(probe2,'DetGrommetRot') %&& isempty(probe.DetGrommetRot)
     probe.DetGrommetRot = probe2.DetGrommetRot;
 end
-if ~isempty(probe2.DummyGrommetRot) && isempty(probe.DummyGrommetRot )
+if isfield(probe2,'DummyGrommetRot') %&& isempty(probe.DummyGrommetRot )
     probe.DummyGrommetRot = probe2.DummyGrommetRot;
 end
 if ~isempty(probe2.SrcGrommetType) && isempty(probe.SrcGrommetType)
@@ -219,29 +233,28 @@ if probe.isempty(probe)
     return;
 end
 SD = convertProbe2SD(probe);
+SD = updateProbe2DcircularPts(SD);
+% create snirf object 
+snirf = SnirfClass();
+probe_snirf_object = ProbeClass(SD);
+snirf.probe = probe_snirf_object;
+snirf.data = DataClass();
+% measurementList = MeasListClass(SD.MeasList);
+for ii=1:size(SD.MeasList,1)
+    snirf.data.measurementList(end+1) = MeasListClass(SD.MeasList(ii,:));
+end
+% snirf.data(1).measurementList = measurementList;
+metaDataTags = MetaDataTagsClass();
+snirf.metaDataTags = metaDataTags;
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+    snirf.Save([probe.pathname, 'probe.snirf'])
 elseif ~isempty(SD)
-    saveSD(SD, probe.pathname);
-   
-    % Save same probe to all sub-folders under root subject folder. 
-    dirs = dir(pwd);
-    for ii = 1:length(dirs)
-        if strcmp(dirs(ii).name, '.')
-            continue;
-        end
-        if strcmp(dirs(ii).name, '..')
-            continue;
-        end
-        if ~isSubjDir([probe.pathname, dirs(ii).name])
-            continue;
-        end
-        if ispathvalid([probe.pathname, dirs(ii).name, '/digpts.txt'])
-            continue;
-        end
-        saveSD(SD, [probe.pathname, dirs(ii).name]);
-    end
+    save([probe.pathname, 'probe.SD'],'-mat', 'SD');
+    snirf.Save([probe.pathname, 'probe.snirf'])
 end
+
+
 
 
 % ------------------------------------------------

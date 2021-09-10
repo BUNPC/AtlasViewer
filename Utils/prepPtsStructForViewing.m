@@ -38,13 +38,16 @@ if ~exist('str','var') || isempty(str)
 end
 
 % Generate arrays from args for every pos
-if size(pos,1)<200
-    sizetxt = siz(1);
-    sizecir = siz(2);
-else
-    sizetxt = siz(1)/2;
-    sizecir = siz(2)/2;
-end
+% if size(pos,1)<200
+%     sizetxt = siz(1);
+%     sizecir = siz(2);
+% else
+%     sizetxt = siz(1)/2;
+%     sizecir = siz(2)/2;
+% end
+sizetxt = siz(1);
+sizecir = siz(2);
+
 if ndet>0
     colarr = [repmat(col(1,:),nsrc,1); repmat(col(2,:),ndet,1)];
     typearr = [repmat(type{1},nsrc,1); repmat(type{2},ndet,1)];

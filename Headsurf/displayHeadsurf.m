@@ -37,10 +37,15 @@ if isempty(headsurf.mesh)
     return;
 else
     viewAxesXYZ(hAxes, axes_order);
+    cfg = ConfigFileClass();
+    head_opacity = cfg.GetValue('Head Opacity');
+    if ~exist('head_opacity','var')
+        head_opacity = 0.7;
+    end
     if strcmpi(options,'surf')
-        h = viewsurf3(headsurf.mesh, .7, [.6, .95, .5], 'off', axes_order);
+        h = viewsurf3(headsurf.mesh, head_opacity, [.6, .95, .5], 'off', axes_order);
     else
-    	h = viewsurf(headsurf.mesh, .7, headsurf.color, 'off', axes_order);
+    	h = viewsurf(headsurf.mesh, head_opacity, headsurf.color, 'off', axes_order);
     end
     hold off
 end
