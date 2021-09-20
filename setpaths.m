@@ -240,7 +240,7 @@ paths = getpathsStartup();
 for ii = 1:length(paths)
     fprintf('Adding startup path %s\n', paths{ii});
     addpath([pwd, '/', paths{ii}], '-end');
-    if strfind(paths{ii}, 'downloadSharedLibs')
+    if strfind(paths{ii}, 'submodules')
         [err, msg] = downloadSharedLibs(); %#ok<ASGLU>
     end
 end
@@ -253,7 +253,7 @@ global startup
 startup = {};
 paths = {
     '/Utils';
-    '/Utils/downloadSharedLibs';
+    '/Utils/submodules';
     '/Utils/Shared';
     '/Utils/Shared/namespace';
 };
