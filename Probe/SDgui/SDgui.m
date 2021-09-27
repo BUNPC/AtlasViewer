@@ -31,6 +31,8 @@ global filedata
 
 set(hObject, 'visible','off');
 
+setNamespace('AtlasViewerGUI')
+
 SD = [];
 filedata.SD = [];
 
