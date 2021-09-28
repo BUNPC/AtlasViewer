@@ -59,18 +59,20 @@ function setpaths(options_str)
 %      setpaths('rmpathconfl|verbose|add|conflcheck');
 %
 
+% Parse arguments
+if ~exist('options_str','var')
+    options_str = 'rmpathconfl:init';
+end
+
 % Start world by trying to add standard 'Utils' path if it exists 
 % If it exists, assume that's where intialation functions are. 
-paths0 = startupPaths();
+paths0 = startupPaths(options_str);
 if isempty(paths0)
     return
 end
 
 setNamespace('AtlasViewerGUI');
 
-% Parse arguments
-if ~exist('options_str','var')
-    options_str = 'rmpathconfl';
 end
 options = parseOptions(options_str);
 if ~options.add
@@ -239,13 +241,16 @@ end
 
 
 % ----------------------------------------------------
-function paths = startupPaths()
+function paths = startupPaths(options_str)
 paths = getpathsStartup();
 for ii = 1:length(paths)
-    fprintf('Adding startup path %s\n', paths{ii});
-    addpath([pwd, '/', paths{ii}], '-end');
+    % fprintf('Adding startup path %s\n', paths{ii});
+    pathStartupNew = [pwd, '/', paths{ii}];
+    if exist(pathStartupNew, 'dir')
+        addpath(pathStartupNew, '-end');
+    end
     if strfind(paths{ii}, 'submodules')
-        [cmds, errs, msgs] = downloadSharedLibs(); %#ok<ASGLU>
+        [cmds, errs, msgs] = downloadSharedLibs(options_str); %#ok<ASGLU>
     end
 end
 if ~all(errs==0)
