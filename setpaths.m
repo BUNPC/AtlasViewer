@@ -73,7 +73,6 @@ end
 
 setNamespace('AtlasViewerGUI');
 
-end
 options = parseOptions(options_str);
 if ~options.add
     options.conflcheck = false;
