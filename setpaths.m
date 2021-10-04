@@ -66,12 +66,10 @@ end
 
 % Start world by trying to add standard 'Utils' path if it exists 
 % If it exists, assume that's where intialation functions are. 
-paths0 = startupPaths(options_str);
-if isempty(paths0)
-    return
-end
-
-setNamespace('AtlasViewerGUI');
+    paths0 = startupPaths(options_str);
+    if isempty(paths0)
+        return
+    end    
 
 options = parseOptions(options_str);
 if ~options.add
@@ -241,20 +239,32 @@ end
 
 % ----------------------------------------------------
 function paths = startupPaths(options_str)
-paths = getpathsStartup();
-for ii = 1:length(paths)
-    % fprintf('Adding startup path %s\n', paths{ii});
-    pathStartupNew = [pwd, '/', paths{ii}];
-    if exist(pathStartupNew, 'dir')
-        addpath(pathStartupNew, '-end');
+nTries = 2;
+h = waitbar(0,'Please wait...downloading shared libraries.');
+for iTry = 1:nTries    
+    paths = getpathsStartup();
+    for ii = 1:length(paths)
+        % fprintf('Adding startup path %s\n', paths{ii});
+        pathStartupNew = [pwd, '/', paths{ii}];
+        if exist(pathStartupNew, 'dir')
+            addpath(pathStartupNew, '-end');
+        end
+        if strfind(paths{ii}, 'submodules')
+            [cmds, errs, msgs] = downloadSharedLibs(options_str); %#ok<ASGLU>
+        end
     end
-    if strfind(paths{ii}, 'submodules')
-        [cmds, errs, msgs] = downloadSharedLibs(options_str); %#ok<ASGLU>
-    end
+    try
+        setNamespace('AtlasViewerGUI');
+        break;
+    catch
+        cleanupSharedLibs();
+    end   
 end
+close(h)
 if ~all(errs==0)
     paths = [];
 end
+
 
 
 % ----------------------------------------------------
