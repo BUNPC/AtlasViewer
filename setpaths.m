@@ -93,7 +93,7 @@ addSearchPaths(appThisPaths);
 % Download submodules
 status = downloadLibraries(options);
 if status<0
-    fprintf('ERROR: Could no download shared libbraries required by this application...\n')
+    fprintf('ERROR: Could not download shared libraries required by this application...\n')
     return;
 end
 setNamespace('AtlasViewerGUI');
@@ -121,7 +121,7 @@ nTries = 2;
 h = waitbar(0,'Downloading shared libraries.');
 for iTry = 1:nTries
     [cmds, errs, msgs] = downloadSharedLibs(options); %#ok<ASGLU>
-    if all(errs==0)
+    if all(errs==0 | errs == -2)
         break
     end
 end
@@ -158,11 +158,27 @@ fprintf('ADDED search paths for app %s\n', appPaths{1});
 % ----------------------------------------------------
 function removeSearchPaths(app)
 p = path;
-p = str2cell_startup(p,';');
+if ispc()
+    delimiter = ';';
+elseif ismac() || isunix()
+    delimiter = ':';
+end
+[~,appname] = fileparts(fileparts(app));
+r = version('-release');
+msg = sprintf('Removing search paths for %s ...', appname);
+h = waitbar(0, msg);
+p = str2cell_startup(p, delimiter);
 for kk = 1:length(p)
+    if mod(kk,100)==0
+        waitbar(kk/length(p), h);
+    end
+    if ~isempty(strfind(lower(p{kk}), 'matlab')) && ~isempty(strfind(p{kk}, r))
+        continue;
+    end
     if ~isempty(strfind(filesepStandard_startup(p{kk}), app))
         rmpath(p{kk});
     end
 end
+close(h);
 fprintf('REMOVED search paths for app %s\n', app);
 
