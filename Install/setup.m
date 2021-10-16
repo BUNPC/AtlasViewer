@@ -119,7 +119,7 @@ dirnameDst = fullpath(dirnameDst);
 for ii=1:length(platform.exename)
     copyFileToInstallation([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
 end
-
+copyFileToInstallation([dirnameSrc, 'AppSettings.cfg'],   dirnameDst);
 
 % Copy all the Colin atlas folder files
 copyFileToInstallation([dirnameSrc, 'headsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
@@ -135,6 +135,7 @@ copyFileToInstallation([dirnameSrc, 'pialsurf2vol.txt'],      [dirnameDst, 'Coli
 copyFileToInstallation([dirnameSrc, 'refpts.txt'],            [dirnameDst, 'Colin/anatomical']);
 copyFileToInstallation([dirnameSrc, 'refpts2vol.txt'],        [dirnameDst, 'Colin/anatomical']);
 copyFileToInstallation([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']);
+copyFileToInstallation([dirnameSrc, 'Refpts'], [dirnameDst, 'Refpts']);
 copyFileToInstallation([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
 copyFileToInstallation([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
 

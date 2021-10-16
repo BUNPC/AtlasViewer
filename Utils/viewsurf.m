@@ -1,4 +1,4 @@
-function [h l] = viewsurf(fv, opaqueness, col, light_onoff, axes_order)
+function [h, l] = viewsurf(fv, opaqueness, col, light_onoff, axes_order)
 
 
 % Usage:
@@ -29,7 +29,7 @@ l=[];
 if isempty(fv)
     return;
 end
-if isempty(fv.vertices) | isempty(fv.faces)
+if isempty(fv.vertices) || isempty(fv.faces)
     return;
 end
 
@@ -41,14 +41,14 @@ end
 % first flip first and second axes because patch flips them
 fv.vertices=[fv.vertices(:,axes_order(1)) fv.vertices(:,axes_order(2)) fv.vertices(:,axes_order(3))];
 h = patch(fv);    
-if(exist('col'))
+if(exist('col','var'))
     set(h, 'FaceColor', col, 'EdgeColor', 'none');
 else
     set(h, 'FaceColor', 'red', 'EdgeColor', 'none');
 end
 
 %%%% Transperency level %%%%
-if(exist('opaqueness'))
+if(exist('opaqueness','var'))
     set(h, 'facealpha', opaqueness);
 else
     set(h, 'facealpha', .7);
@@ -60,7 +60,7 @@ daspect([1 1 1]);
 % view(3);
 
 %%%% Lighting %%%%
-if(~exist('light_onoff') | (exist('light_onoff') & strcmp(light_onoff, 'on')))
+if(~exist('light_onoff','var') || (exist('light_onoff','var') && strcmp(light_onoff, 'on')))
     l = camlight;
     set(l,'Position',[50 2000 100]);
     camlight(0,0);

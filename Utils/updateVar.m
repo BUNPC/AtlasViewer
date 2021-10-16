@@ -21,6 +21,8 @@ for ii = 1:length(fields1)
                 if eval( sprintf('isa(v1(jj).%s, ''matlab.mixin.Copyable'')', fields1{ii}) )
                     eval( sprintf('v2(jj).%s = v1(jj).%s.copy;', fields1{ii}, fields1{ii}) );
                 elseif eval( sprintf('isa(v1(jj).%s, ''handle'')', fields1{ii}) )
+                    constructor = eval( sprintf('class(v1.%s);', fields1{ii}) );
+                    eval( sprintf('v2(jj).%s = %s();', fields1{ii}, constructor) );                    
                     eval( sprintf('v2(jj).%s = copyClassObj(v2(jj).%s, v1(jj).%s);', fields1{ii}, fields1{ii},  fields1{ii}) );
                 else
                     eval( sprintf('v2(jj).%s = v1(jj).%s;', fields1{ii}, fields1{ii}) );

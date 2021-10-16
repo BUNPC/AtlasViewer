@@ -1,5 +1,20 @@
 function [digpts, pts] = getDigpts(digpts, dirname, refpts)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Parse arguments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Arg 1
+if ~exist('digpts','var') || isempty(digpts)
+    digpts = initDigpts();
+end
+
+% Arg 2
+if ~exist('dirname','var') || isempty(dirname)
+    dirname = filesepStandard(pwd);
+end
+
+% Arg 3
 if ~exist('refpts','var')
     refpts = [];
 end
@@ -244,10 +259,15 @@ while 1
 end
 fclose(fid);
 
-digpts = setDigptsOrientation(digpts, dirname);
 if ~digpts.isempty(digpts)
     digpts.pathname = dirname;
 end
+
+if isempty(refpts) || isempty(refpts.isempty(refpts))
+    return
+end
+
+digpts = setDigptsOrientation(digpts, dirname);
 
 
 

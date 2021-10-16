@@ -25,3 +25,13 @@ end
 
 refpts = calcRefptsCircumf(refpts);
 
+sphere = refpts.eeg_system.sphere;
+filename = [getAppDir(), 'Refpts/10-5-System_Mastoids_EGI129.csd'];
+if ispathvalid(filename)
+    fprintf('Refpts: Found eeg system sphere file  %s\n', filename);
+    [sphere.label, sphere.theta, sphere.phi, sphere.r, sphere.xc, sphere.yc, sphere.zc] = textread(filename,'%s %f %f %f %f %f %f','commentstyle','c++'); %#ok<DTXTRD>
+else
+    fprintf('Refpts: Did not find eeg system sphere file in  %s\n', getAppDir());
+end
+refpts.eeg_system.sphere = sphere;
+

@@ -85,6 +85,10 @@ if exist([dirnameApp, 'Group/FuncRegistry'],'dir')
         copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, installfilename, '/Group/FuncRegistry']);
     end
 end
+if exist([dirnameApp, 'Refpts/10-5-System_Mastoids_EGI129.csd'],'file')
+    mkdir([dirnameInstall, installfilename, '/Refpts'])
+    copyfile([dirnameApp, 'Refpts/10-5-System_Mastoids_EGI129.csd'], [dirnameInstall, installfilename, '/Refpts']);
+end
 if exist([dirnameApp, 'Test'],'dir')
     copyfile([dirnameApp, 'Test'], [dirnameInstall, installfilename, '/Test']);
 end
@@ -94,6 +98,10 @@ for ii=1:length(platform.createshort_script)
         copyfile([dirnameInstall, platform.createshort_script{ii}], [dirnameInstall, installfilename]);
     end
 end
+if exist([dirnameApp, 'AppSettings.cfg'],'file')
+    copyfile([dirnameApp, 'AppSettings.cfg'], [dirnameInstall, installfilename]);
+end
+
 if exist(getAtlasDir(),'dir')
     copyfile([getAtlasDir(), 'anatomical/*.*'], [dirnameInstall, installfilename]);
     copyfile([getAtlasDir(), 'fw/*.*'], [dirnameInstall, installfilename]);

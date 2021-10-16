@@ -1,5 +1,4 @@
 function SD = convertProbe2SD(probe)
-
 global atlasViewer
 
 SD = sd_data_Init(probe);
@@ -58,14 +57,11 @@ if isfield(probe,'orientation')
 end
 
 % add refpts and head mesh to SD file
-refpts.pos = atlasViewer.refpts.pos;
-refpts.labels = atlasViewer.refpts.labels;
-if isfield(atlasViewer.refpts,'eeg_system')
-    refpts.eeg_system = atlasViewer.refpts.eeg_system;
+if ~isempty(atlasViewer)
+    SD.Landmarks.pos = atlasViewer.refpts.pos;
+    SD.Landmarks.labels = atlasViewer.refpts.labels;
+    SD.mesh = atlasViewer.headsurf.mesh;
 end
-if isfield(atlasViewer.refpts,'scaling')
-    refpts.scaling = atlasViewer.refpts.scaling;
-end
-SD.refpts = refpts;
-SD.mesh = atlasViewer.headsurf.mesh;
+
+SD = updateProbe2DcircularPts(probe, SD);
 

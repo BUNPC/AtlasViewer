@@ -1337,7 +1337,10 @@ imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off'
 hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
 
 fwmodel = displaySensitivity(fwmodel, pialsurf, [], probe);
-
+if isempty(fwmodel.Adot)
+    return
+end
+    
 set(pialsurf.handles.radiobuttonShowPial, 'value',0);
 uipanelBrainDisplay_Callback(pialsurf.handles.radiobuttonShowPial, [], handles);
 

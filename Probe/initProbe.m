@@ -233,7 +233,7 @@ if probe.isempty(probe)
     return;
 end
 SD = convertProbe2SD(probe);
-SD = updateProbe2DcircularPts(SD);
+
 % create snirf object 
 snirf = SnirfClass();
 probe_snirf_object = ProbeClass(SD);

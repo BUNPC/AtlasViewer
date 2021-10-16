@@ -1,5 +1,7 @@
 function probe = preRegister(probe, headsurf, refpts)
 
+probe.registration.refpts.eeg_system.sphere = refpts.eeg_system.sphere;
+
 if ~isProbeFlat(probe)
     return
 end
@@ -33,5 +35,7 @@ if ~isPreRegisteredProbe(probe, headsurf)
 end
 probe.center        = headsurf.center;
 probe.orientation   = headsurf.orientation;
+
+
 
 
