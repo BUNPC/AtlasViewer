@@ -6,5 +6,18 @@ end
 if exist(dirnameInstall,'dir')
     cd(dirnameInstall);
 end
-Buildexe('setup');
+
+p = filesepStandard(fileparts(which(getNamespace())));
+inclList = {
+    [p, 'Utils/Shared/Logger.m'];
+    [p, 'Utils/Shared/str2cell.m'];
+    [p, 'Utils/Shared/printStack.m'];
+    [p, 'Utils/Shared/pathscompare.m'];
+    [p, 'Utils/Shared/parseOptions.m'];
+    [p, 'Utils/Shared/optionExists.m'];
+    [p, 'Utils/Shared/fullpath.m'];
+    [p, 'Utils/Shared/filesepStandard.m'];
+    };
+
+Buildexe('setup', {}, inclList);
 cd(currdir);

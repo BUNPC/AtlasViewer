@@ -6,17 +6,18 @@ global nSteps
 
 setNamespace(exename)
 
+cleanup();
+
 h = waitbar(0,'Installation Progress ...');
 
 main();
 
 % Check that everything was installed properly
-r = finishInstallGUI(exename);
+finishInstallGUI(exename);
 
 waitbar(nSteps/nSteps, h);
 close(h);
 
-cleanup();
 
 
 
@@ -26,6 +27,7 @@ global h
 global nSteps
 global iStep
 global platform
+global logger
 
 nSteps = 100;
 iStep = 1;
@@ -38,6 +40,9 @@ else
 	dirnameSrc = [pwd, '/'];
 end
 dirnameDst = getAppDir('isdeployed');
+
+logger = Logger([dirnameSrc, 'Setup']);
+
 
 % Uninstall
 try
@@ -57,20 +62,20 @@ end
 
 
 v = getVernum();
-fprintf('=================================\n');
-fprintf('Setup script for %s v%s.%s:\n', exename, v{1}, v{2});
-fprintf('=================================\n\n');
+logger.WriteFmt('=================================\n');
+logger.WriteFmt('Setup script for %s v%s.%s:\n', exename, v{1}, v{2});
+logger.WriteFmt('=================================\n\n');
 
-fprintf('Platform params:\n');
-fprintf('  arch: %s\n', platform.arch);
-fprintf('  mc_exe: %s%s\n', platform.mc_exe_name, platform.mc_exe_ext);
-fprintf('  exename: %s\n', platform.exename{1});
-fprintf('  setup_exe: %s\n', platform.setup_exe{1});
-fprintf('  setup_script: %s\n', platform.setup_script);
-fprintf('  dirnameApp: %s\n', platform.dirnameApp);
-fprintf('  mcrpath: %s\n', platform.mcrpath);
-fprintf('  iso2meshmex: %s\n', platform.iso2meshmex{1});
-fprintf('  iso2meshbin: %s\n\n', platform.iso2meshbin);
+logger.WriteFmt('Platform params:\n');
+logger.WriteFmt('  arch: %s\n', platform.arch);
+logger.WriteFmt('  mc_exe: %s%s\n', platform.mc_exe_name, platform.mc_exe_ext);
+logger.WriteFmt('  exename: %s\n', platform.exename{1});
+logger.WriteFmt('  setup_exe: %s\n', platform.setup_exe{1});
+logger.WriteFmt('  setup_script: %s\n', platform.setup_script);
+logger.WriteFmt('  dirnameApp: %s\n', platform.dirnameApp);
+logger.WriteFmt('  mcrpath: %s\n', platform.mcrpath);
+logger.WriteFmt('  iso2meshmex: %s\n', platform.iso2meshmex{1});
+logger.WriteFmt('  iso2meshbin: %s\n\n', platform.iso2meshbin);
 
 deleteShortcuts();
 
@@ -141,8 +146,8 @@ copyFileToInstallation([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
 
 
 % Check if there a fluence profile to load in this particular search path
-if ~isempty(dir([dirnameSrc, 'fluenceProfs.tar']))
-    untar('fluenceProfs.tar');
+if ispathvalid([dirnameSrc, 'fluenceProfs.tar'])
+    untar([dirnameSrc, 'fluenceProfs.tar']);
 end
 fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
 for ii=1:length(fluenceProfFnames)
@@ -153,19 +158,19 @@ copyFileToInstallation([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Co
 copyFileToInstallation([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
 
 
-for ii=1:length(platform.iso2meshmex)
+for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a
     % non existent file will be reported as exisiting as a mex file (exist() will return 3)
     % because there are other files with the same name and a .mex extention that do exist.
     % dir doesn't have this problem.
     if ~isempty(dir([dirnameSrc, platform.iso2meshmex{ii}]))
-        fprintf('Copying %s to %s\n', [dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
+        logger.WriteFmt('Copying %s to %s\n', [dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
         copyFileToInstallation([dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
         if isunix()
             system(sprintf('chmod 755 %s', [dirnameDst, '', platform.iso2meshmex{ii}]'));
         end
     else
-        fprintf('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
+        logger.WriteFmt('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
     end
 end
 copyFileToInstallation([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
@@ -182,8 +187,10 @@ pause(2);
 % -----------------------------------------------------------------
 function cleanup()
 if ismac()
-    rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
-    rmdir_safe('~/Downloads/%s_install/', lower(getAppname()));
+    fprintf('SETUP:    current folder is %s\n', pwd);
+    
+%     rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
+%     rmdir_safe(sprintf('~/Downloads/%s_install/', lower(getAppname())));
 end
 
 
@@ -193,6 +200,7 @@ function copyFileToInstallation(src, dst, type)
 global h
 global nSteps
 global iStep
+global logger
 
 if ~exist('type', 'var')
     type = 'file';
@@ -220,7 +228,7 @@ try
     end
     
     % Copy file from source to destination folder
-    fprintf('Copying %s to %s\n', src, dst);
+    logger.WriteFmt('Copying %s to %s\n', src, dst);
     copyfile(src, dst);
 
     waitbar(iStep/nSteps, h); iStep = iStep+1;

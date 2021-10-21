@@ -1,6 +1,9 @@
 function createInstallFile(options)
 global installfilename
 
+% Start with a clean slate
+cleanup('','','start');
+
 installfilename = sprintf('%s_install', lower(getAppname()));
 [~, exename] = getAppname();
 
@@ -11,7 +14,7 @@ if ~exist('options','var') || isempty(options)
 end
 
 % Find installation path and add it to matlab search paths
-dirnameApp = getAppDir;
+dirnameApp = getAppDir();
 if isempty(dirnameApp)
     MessageBox('Cannot create installation package. Could not find root application folder.');
     deleteNamespace(exename)
@@ -25,9 +28,6 @@ if isempty(dirnameInstall)
 end
 addpath(dirnameInstall, '-end')
 cd(dirnameInstall);
-
-% Start with a clean slate
-cleanup(dirnameInstall, dirnameApp, 'start');
 
 % Set the executable names based on the platform type
 platform = setplatformparams();
@@ -44,12 +44,17 @@ mkdir([dirnameInstall, installfilename]);
 if ~strcmp(options, 'nobuild')
 	Buildme_Setup();
 	Buildme();
-    if islinux()
-        perl('./makesetup.pl','./run_setup.sh','./setup.sh');
-    elseif ismac()
-        perl('./makesetup.pl','./run_setup.sh','./setup.command');
+    if ~ispc()
+        c = str2cell(version(),'.');
+        mcrver = sprintf('v%s%s', c{1}, c{2});
+        if islinux()
+            perl('./makesetup.pl','./run_setup.sh','./setup.sh', mcrver);
+        elseif ismac()
+            perl('./makesetup.pl','./run_setup.sh','./setup.command', mcrver);
+        end
     end
 end
+
 
 % Zip up MC application 
 mc_exe_dir = [dirnameApp,  'ForwardModel/', platform.mc_exe_name];

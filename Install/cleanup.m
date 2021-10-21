@@ -3,15 +3,15 @@ global platform
 
 installfilename = sprintf('%s_install', lower(getAppname()));
 
-if ~exist('dirnameInstall','var') | isempty(dirnameInstall)
+if ~exist('dirnameInstall','var') || isempty(dirnameInstall)
     if exist('./Install','dir')
         dirnameInstall = filesepStandard([pwd, '/Install']);
     else
         dirnameInstall = filesepStandard(pwd);
     end
 end
-if ~exist('dirnameApp','var') | isempty(dirnameApp)
-    dirnameApp = getAppDir();
+if ~exist('dirnameApp','var') || isempty(dirnameApp)
+    dirnameApp = ['../', dirnameInstall];
 end
 if ~exist('options','var')
     options = 'end';
@@ -21,7 +21,7 @@ end
 if exist([dirnameInstall, installfilename],'dir')
     rmdir_safe([dirnameInstall, installfilename]);
 end
-for ii=1:length(platform.exename(1))
+for ii = 1:length(platform.exename)
     if exist([dirnameInstall, platform.exename{ii}],'file')==2
         delete([dirnameInstall, platform.exename{ii}]);
     elseif exist([dirnameInstall, platform.exename{ii}],'dir')==7
