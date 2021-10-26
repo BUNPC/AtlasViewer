@@ -20,4 +20,7 @@ inclList = {
     };
 
 Buildexe('setup', {}, inclList);
+if ispathvalid([dirnameInstall, 'Buildme.log'])
+    movefile([dirnameInstall, 'Buildme.log'], [dirnameInstall, 'Buildme_Setup.log'])
+end
 cd(currdir);

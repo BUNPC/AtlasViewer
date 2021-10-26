@@ -96,7 +96,7 @@ stats.pushbuttonOKPress = false;
 stats.name = varargin{1};
 
 
-logger.WriteFmt('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);
+logger.Write('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);
 
 platform = setplatformparams();
 
@@ -154,7 +154,7 @@ function pushbuttonOK_Callback(~, ~, handles)
 global stats
 global logger
 
-logger.WriteFmt('Completing Installation ...\n');
+logger.Write('Completing Installation ...\n');
 stats.pushbuttonOKPress = true;
 
 delete(handles.figure1);

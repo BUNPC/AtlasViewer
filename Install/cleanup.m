@@ -11,7 +11,7 @@ if ~exist('dirnameInstall','var') || isempty(dirnameInstall)
     end
 end
 if ~exist('dirnameApp','var') || isempty(dirnameApp)
-    dirnameApp = ['../', dirnameInstall];
+    dirnameApp = getAppDir();
 end
 if ~exist('options','var')
     options = 'end';
@@ -49,8 +49,8 @@ if optionExists(options,'start')
     if exist([dirnameInstall, 'Buildme.log'],'file')
         delete([dirnameInstall, 'Buildme.log']);
     end
-    if exist([dirnameApp, 'Buildme.log'],'file')
-        delete([dirnameApp, 'Buildme.log']);
+    if exist([dirnameApp, 'Buildme_Setup.log'],'file')
+        delete([dirnameApp, 'Buildme_Setup.log']);
     end
 end
 if exist([dirnameInstall, 'mccExcludedFiles.log'],'file')

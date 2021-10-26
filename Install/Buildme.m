@@ -11,7 +11,7 @@ exclLst = {
     'Docs';
     'Install';
     'UserFunctions';
-    'submodules'
+    'submodules';
     'Data';
     'setpaths.m';
     'getpaths.m';

@@ -1,5 +1,8 @@
 function createInstallFile(options)
 global installfilename
+global platform
+
+platform = [];
 
 % Start with a clean slate
 cleanup('','','start');
@@ -42,8 +45,8 @@ mkdir([dirnameInstall, installfilename]);
 
 % Generate executables
 if ~strcmp(options, 'nobuild')
-	Buildme_Setup();
-	Buildme();
+    Buildme_Setup();
+    Buildme();
     if ~ispc()
         c = str2cell(version(),'.');
         mcrver = sprintf('v%s%s', c{1}, c{2});
@@ -64,7 +67,7 @@ if exist(mc_exe_dir,'dir') == 7
     delete([dirnameInstall, installfilename, '/', platform.mc_exe_name, '.tar']);
 end
 
-for ii=1:length(platform.exename)
+for ii = 1:length(platform.exename)
     if exist([dirnameInstall, platform.exename{ii}],'file')
         copyfile([dirnameInstall, platform.exename{ii}], [dirnameInstall, installfilename, '/', platform.exename{ii}]);
     end
@@ -128,7 +131,7 @@ if exist([dirnameInstall, 'README.txt'],'file')
     copyfile([dirnameInstall, 'README.txt'], [dirnameInstall, installfilename]);
 end
 
-for ii=1:length(platform.iso2meshmex)
+for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a  
     % non existent file will be reported as exisiting as a mex file (exist() will return 3)
     % because there are other files with the same name and a .mex extention that do exist. 

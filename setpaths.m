@@ -120,6 +120,7 @@ try
     appThis         = filesepStandard_startup(pwd);
     appThisPaths    = findDotMFolders(appThis, exclSearchList);
     if addremove == 0
+        deleteNamespace(appname);
         removeSearchPaths(appThis);
         return;
     end
