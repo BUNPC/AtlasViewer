@@ -31,8 +31,8 @@ global stats
 
 handles = stats.handles;
 
-msgFail{1}    = sprintf('AtlasViewer failed to install properly. Error code %d', stats.err);
-msgFail{2}    = 'Contact jdubb@bu.edu for help with installation.';
+msgFail{1}   = sprintf('%s failed to install properly. Error code %d', stats.name, stats.err);
+msgFail{2}   = 'Contact jdubb@bu.edu for help with installation.';
 
 hGui         = handles.this;
 hMsgFinished = handles.msgFinished;
@@ -58,11 +58,11 @@ handles = stats.handles;
 
 msgSuccess{1} = 'Installation Completed Successfully!';
 if ispc()
-    msgSuccess{2} = 'To run: Click on the AtlasViewerGUI icon on your Desktop to launch one of these applications';
+    msgSuccess{2} = sprintf('To run: Click on the %s icon on your Desktop to launch one of these applications', stats.name);
 elseif islinux()
-    msgSuccess{2} = 'To run: Click on the AtlasViewerGUI.sh icon on your Desktop to launch one of these applications';
+    msgSuccess{2} = sprintf('To run: Click on the %s.sh icon on your Desktop to launch one of these applications', stats.name);
 elseif ismac()
-    msgSuccess{2} = 'To run: Click on the AtlasViewerGUI.command icon on your Desktop to launch one of these applications';
+    msgSuccess{2} = sprintf('To run: Click on the %s.command icon on your Desktop to launch one of these applications', stats.name);
 end
 
 set(handles.this, 'name','SUCCESS:');
@@ -79,6 +79,9 @@ fclose(fd);
 % ---------------------------------------------------------------------------
 function finishInstallGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global stats
+global logger
+
+logger = InitLogger(logger);
 
 handles.output = hObject;
 guidata(hObject, handles);
@@ -87,16 +90,15 @@ stats.err = 0;
 stats.handles.this = hObject;
 stats.handles.msgFinished = handles.textFinished;
 stats.handles.msgMoreInfo = handles.textMoreInfo;
-stats.dirnameApp = getAppDir_av('isdeployed');
+stats.dirnameApp = getAppDir('isdeployed');
 stats.pushbuttonOKPress = false;
 
-fprintf('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);
+stats.name = varargin{1};
+
+
+logger.Write('FinishInstallGUI_OpeningFcn: dirnameApp = %s\n', stats.dirnameApp);
 
 platform = setplatformparams();
-
-%%%%%%%%%%%%%%%%% 
-% Error checks
-%%%%%%%%%%%%%%%%% 
 
 errcode = 1;
 
@@ -148,9 +150,11 @@ varargout{1} = stats.err;
 
 
 % ---------------------------------------------------------------------------
-function pushbuttonOK_Callback(hObject, eventdata, handles)
+function pushbuttonOK_Callback(~, ~, handles)
 global stats
+global logger
 
+logger.Write('Completing Installation ...\n');
 stats.pushbuttonOKPress = true;
 
-delete(stats.handles.this);
+delete(handles.figure1);

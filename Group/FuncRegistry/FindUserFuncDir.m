@@ -1,15 +1,24 @@
 function userfuncdir = FindUserFuncDir(obj)
-userfuncdir = {};
-dirnameApp = getAppDir_av();
+global cfg
 
-userfuncdir{1} = [dirnameApp, 'Group/FuncRegistry/UserFunctions/'];
+cfg = InitConfig(cfg);
+
+userfuncdir = {};
+dirnameApp = getAppDir();
+
+if ~ispathvalid([dirnameApp, 'FuncRegistry/UserFunctions/'])
+    return;
+end
+userfuncdir{1} = [dirnameApp, 'FuncRegistry/UserFunctions/'];
 dirs = dir([userfuncdir{1}, '*']);
 for ii = 1:length(dirs)
-    if ~dirs(ii).isdir()
+    if ~dirs(ii).isdir
         continue
     elseif strcmp(dirs(ii).name, '..') || strcmp(dirs(ii).name, '.')
         continue
-    elseif strcmp(dirs(ii).name, 'Archive')    
+    elseif strcmp(dirs(ii).name, 'Archive')
+        obj.config = struct('InclArchivedFunctions','');
+        obj.config.InclArchivedFunctions = cfg.GetValue('Include Archived User Functions');        
         if strcmp(obj.config.InclArchivedFunctions, 'Yes')
             userfuncdir{end+1} = fullpath([userfuncdir{1}, 'Archive/']);
         end

@@ -26,21 +26,28 @@ else
     col(2,:) = col(1,:);
     type = {'r','r'};
 end
+
 if ~exist('siz','var') || isempty(siz)
-    siz = 11;
+    siz = [11, 22];
+end
+if length(siz)<2
+    siz(2) = siz(1)*2;
 end
 if ~exist('str','var') || isempty(str)
     str = '';
 end
 
 % Generate arrays from args for every pos
-if size(pos,1)<200
-    sizetxt = siz;
-    sizecir = siz*2;
-else
-    sizetxt = siz/2;
-    sizecir = siz;
-end
+% if size(pos,1)<200
+%     sizetxt = siz(1);
+%     sizecir = siz(2);
+% else
+%     sizetxt = siz(1)/2;
+%     sizecir = siz(2)/2;
+% end
+sizetxt = siz(1);
+sizecir = siz(2);
+
 if ndet>0
     colarr = [repmat(col(1,:),nsrc,1); repmat(col(2,:),ndet,1)];
     typearr = [repmat(type{1},nsrc,1); repmat(type{2},ndet,1)];
@@ -60,6 +67,8 @@ if isempty(str)
 else
     strarr = str;
 end
+
+
 
 
 % Assign arrays to every point

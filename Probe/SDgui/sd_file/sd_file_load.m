@@ -28,6 +28,7 @@ catch
 end
 
 if ~isfield(filedata,'SD')
+    [~, fname, ext] = fileparts(filename);
     err=4;
     SDgui_disp_msg(handles, sprintf('ERROR: SD data doesn''t exist or is corrupt in %s.', [fname,ext]), err);
     return;
@@ -51,5 +52,5 @@ elseif strcmp(ext, '.snirf')
     filedata.SD.MeasList = snirf.GetMeasList();
     filename = [fname, '.SD'];
 end
-
+filedata.SD = sd_data_Init(filedata.SD);
 

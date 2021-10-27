@@ -1,4 +1,4 @@
-function [pialsurf, fs2viewer, status] = fs2pialsurf(fs2viewer)
+function [pialsurf, status] = fs2pialsurf(fs2viewer)
 
 pialsurf = initPialsurf();
 

@@ -1,18 +1,28 @@
 function SDgui_display(handles, SDo)
+global SD 
+
+if ~exist('SDo','var')
+    SDo = sd_data_Init();
+end
 
 % Initialize SD object with data from SD file
 % then fix any errors in the SD file data
-sd_data_Init(SDo);
+SD = sd_data_Init(SDo);
+
+SDgui_AtlasViewerGUI('update');
 
 err = sd_data_ErrorFix();
 if err
     return;
 end
 
+data3D = SDgui_3DViewSelected(handles);
+
 % Now we're ready to use the SD data
-SrcPos       = sd_data_Get('SrcPos');
-DetPos       = sd_data_Get('DetPos');
-DummyPos     = sd_data_Get('DummyPos');
+SrcPos       = sd_data_Get(['SrcPos', data3D]);
+DetPos       = sd_data_Get(['DetPos', data3D]);
+DummyPos     = sd_data_Get(['DummyPos', data3D]);
+Landmarks    = sd_data_Get(['Landmarks', data3D]);
 ml           = sd_data_GetMeasList();
 sl           = sd_data_GetSpringList();
 al           = sd_data_GetAnchorList();
@@ -20,11 +30,11 @@ Lambda       = sd_data_Get('Lambda');
 SpatialUnit  = sd_data_Get('SpatialUnit');
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES %%%%%%%
-probe_geometry_axes_Init(handles,SrcPos,DetPos,DummyPos,ml);
+probe_geometry_axes_Init(handles, SrcPos, DetPos, DummyPos, Landmarks, ml);
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES2 %%%%%%%
-probe_geometry_axes2_Init(handles,[SrcPos; DetPos; DummyPos],...
-    size([SrcPos; DetPos],1),sl);
+probe_geometry_axes2_Init(handles, [SrcPos; DetPos; DummyPos], ...
+                          size([SrcPos; DetPos],1), Landmarks, sl);
 
 
 %%%%%%%% Initialize source, detector and dummy optode tables in SD %%%%%%%
@@ -33,10 +43,13 @@ optode_det_tbl_Update(handles);
 optode_dummy_tbl_Update(handles);
 
 %%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
-optode_spring_tbl_Init(handles,sl);
+optode_spring_tbl_Init(handles, sl);
 
 %%%%%%%% Initialize optode anchor points tables in SD %%%%%%%
-optode_anchor_tbl_Init(handles,al);
+optode_anchor_tbl_Init(handles, al);
+
+%%%%%%%% Initialize optode spring tables in the to SD %%%%%%%
+optode_dummy_tbl_Init(handles, DummyPos, size(SrcPos,1)+size(DetPos,1));
 
 %%%%%%%% Initialize Spatial Unit
 %    if strcmpi(SpatialUnit,'cm')
@@ -46,7 +59,7 @@ optode_anchor_tbl_Init(handles,al);
 %    end
 
 %%%%%%%% Initialize Lambda Panel %%%%%%%
-if length(Lambda)>0
+if length(Lambda)>0 %#ok<ISMT>
     wavelength1_edit_Update(handles,Lambda(1));
 else
     wavelength1_edit_Update(handles,[]);

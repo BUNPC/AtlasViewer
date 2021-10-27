@@ -1,10 +1,19 @@
 function fs2viewer = initFs2Viewer(handles, dirnameSubj)
 
-layer = initLayer();
+% Parse arguments
+if nargin==0
+    handles = [];
+    dirnameSubj = pwd;
+end
+if nargin==1
+    dirnameSubj = pwd;
+end
+dirnameSubj = filesepStandard(dirnameSubj);
 
+layer = initLayer();
 fs2viewer = struct(...
                    'pathname','', ...
-                   'handles',struct('menuItemFs2Viewer',handles.menuItemFs2Viewer), ...
+                   'handles',struct('menuItemFs2Viewer',[]), ...
                    'mripaths',struct('volumes','','surfaces','','surfaces_flash',''), ... 
                    'layers',struct('head',layer, ...
                                    'skin',layer, ...
@@ -46,25 +55,19 @@ fs2viewer.mripaths.surfaces_flash  = dirnameMriSurfFlash;
 
 fs2viewer = findMriFiles(fs2viewer);
 
-if (~exist([dirnameSubj, 'anatomical/headsurf.mesh'],'file') && ...
-    ~exist([dirnameSubj, 'anatomical/headvol.vox'],'file')) || ...
-    ~exist([dirnameSubj, 'anatomical/pialsurf.mesh'],'file')
-
-    if exist([dirnameSubj, fs2viewer.hseg.filename],'file')
-        set(fs2viewer.handles.menuItemFs2Viewer,'enable','on');
-    elseif exist([dirnameSubj, fs2viewer.layers.head.filename],'file')
-        set(fs2viewer.handles.menuItemFs2Viewer,'enable','on');
-    else
-        % set(fs2viewer.handles.menuItemFs2Viewer,'enable','off');
-    end
-
-else
-
-    %set(fs2viewer.handles.menuItemFs2Viewer,'enable','off');
-
+if ~isempty(handles)
+    fs2viewer.handles.menuItemFs2Viewer = handles.menuItemFs2Viewer;
+    if (~exist([dirnameSubj, 'anatomical/headsurf.mesh'],'file') && ...
+            ~exist([dirnameSubj, 'anatomical/headvol.vox'],'file')) || ...
+            ~exist([dirnameSubj, 'anatomical/pialsurf.mesh'],'file')        
+        if exist([dirnameSubj, fs2viewer.hseg.filename],'file')
+            set(fs2viewer.handles.menuItemFs2Viewer,'enable','on');
+        elseif exist([dirnameSubj, fs2viewer.layers.head.filename],'file')
+            set(fs2viewer.handles.menuItemFs2Viewer,'enable','on');
+        else
+            % set(fs2viewer.handles.menuItemFs2Viewer,'enable','off');
+        end        
+    else        
+        %set(fs2viewer.handles.menuItemFs2Viewer,'enable','off');        
+    end    
 end
-
-
-
-
-

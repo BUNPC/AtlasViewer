@@ -77,7 +77,7 @@ function probe_geometry_axes_DetUpdate(handles, dpos, i, event)
     optpos_det = getOptPosFromAxes(h_nodes_d);
     optpos=[optpos_src; optpos_det; optpos_dummy];
     resize_axes(hObject, optpos);
-    axes_view=set_view_probe_geometry_axes(hObject,optpos);
+    axes_view = SDgui_set_axes_view(hObject, optpos);
 
     % Update SD data
     sd_data_SetMeasList(ml);

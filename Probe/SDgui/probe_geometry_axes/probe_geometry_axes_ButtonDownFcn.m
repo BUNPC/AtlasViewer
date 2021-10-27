@@ -1,4 +1,4 @@
-function probe_geometry_axes_ButtonDownFcn(hObject, eventdata, handles)
+function probe_geometry_axes_ButtonDownFcn(hObject, ~, handles)
 
 % Usage:
 % 
@@ -31,9 +31,6 @@ fs        = probe_geometry_axes_data.fontsize;
 fc_s      = probe_geometry_axes_data.fontcolor_s;
 fc_d      = probe_geometry_axes_data.fontcolor_d;
 threshold = probe_geometry_axes_data.threshold;
-
-% Set threshold level
-l = 1;
 
 optpos_det = getOptPosFromAxes(h_nodes_d);
 optpos_src = getOptPosFromAxes(h_nodes_s);
@@ -239,19 +236,19 @@ y2 = max(bbox(:,r(2)));
 
 
 % Determine which optodes lie within the bounding box
-for ii=1:size(optpos_src)
+for ii = 1:size(optpos_src)
     if ((optpos_src(ii,r(1)) >= x1) & (optpos_src(ii,r(1)) <= x2)) & ...
-       ((optpos_src(ii,r(2)) >= y1) & (optpos_src(ii,r(2)) <= y2))
+       ((optpos_src(ii,r(2)) >= y1) & (optpos_src(ii,r(2)) <= y2)) 
         isrc(jj) = ii;
-        jj=jj+1;
+        jj = jj+1;
     end
 end
 
-for ii=1:size(optpos_det)
+for ii = 1:size(optpos_det)
     if ((optpos_det(ii,r(1)) >= x1) & (optpos_det(ii,r(1)) <= x2)) & ...
-       ((optpos_det(ii,r(2)) >= y1) & (optpos_det(ii,r(2)) <= y2))
+       ((optpos_det(ii,r(2)) >= y1) & (optpos_det(ii,r(2)) <= y2)) 
         idet(kk) = ii;
-        kk=kk+1;
+        kk = kk+1;
     end
 end
 

@@ -1,10 +1,9 @@
-function [refpts, labels] = makeLandmarksBackwardCompatible(refpts, labels)
+function refpts = makeLandmarksBackwardCompatible(refpts)
 
 if isstruct(refpts)
-    r = refpts;
+    labels = refpts.labels;
 else
-    r.pos = refpts;
-    r.labels = labels;
+    labels = refpts;
 end
 
 ar_flag = 0;
@@ -14,8 +13,8 @@ a2_flag = 0;
 rpa_flag = 0;
 lpa_flag = 0;
 
-for ii=1:length(r.labels)
-    switch(lower(r.labels{ii}))
+for ii=1:length(labels)
+    switch(lower(labels{ii}))
         case 'ar'
             ar_flag = ii;
         case 'al'
@@ -32,36 +31,16 @@ for ii=1:length(r.labels)
 end
 
 if (rpa_flag==0 & lpa_flag==0) & (a2_flag & a1_flag)
-    r.labels{a2_flag} = 'rpa';
-    r.labels{a1_flag} = 'lpa';
+    labels{a2_flag} = 'rpa';
+    labels{a1_flag} = 'lpa';
 elseif (rpa_flag==0 & lpa_flag==0) & (ar_flag & al_flag)
-    r.labels{ar_flag} = 'rpa';
-    r.labels{al_flag} = 'lpa';
+    labels{ar_flag} = 'rpa';
+    labels{al_flag} = 'lpa';
 end
-
-%{
-if (rpa_flag==0 & lpa_flag==0) & (a2_flag & a1_flag)
-    q = menu('Landmarks RPA and LPA missing. Do you want to use A2 and A1 as RPA and LPA landmarks?','Yes','No');
-    if q==1
-        r.labels{a2_flag} = 'rpa';
-        r.labels{a1_flag} = 'lpa';
-    end
-    
-elseif (rpa_flag==0 & lpa_flag==0) & (ar_flag & al_flag)
-    q = menu('Landmarks RPA and LPA missing. Do you want to use Ar and Al as RPA and LPA landmarks?','Yes','No');
-    if q==1
-        r.labels{ar_flag} = 'rpa';
-        r.labels{al_flag} = 'lpa';
-    end
-end
-%}
-
 
 if isstruct(refpts)
-    refpts = r;
-    labels = {};
+    refpts.labels = labels;
 else
-    refpts = r.pos;
-    labels = r.labels;
+    refpts = labels;
 end
 

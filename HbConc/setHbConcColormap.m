@@ -5,7 +5,7 @@ hclim = hbconc.handles.editColormapThreshold;
 if ~isempty(hAxes)
     axes(hAxes);
 else
-    colorbar off;
+    %colorbar off;
     return;
 end
 

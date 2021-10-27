@@ -35,17 +35,13 @@ val = get(hbconc.handles.popupmenuImageDisplay,'value');
 if ~exist('hAxes','var')
     hAxes = hbconc.handles.axes;
 end
-if ishandles(hbconc.handles.HbO)
-    delete(hbconc.handles.HbO);
-end
-if ishandles(hbconc.handles.HbR)
-    delete(hbconc.handles.HbR);
-end
 
 hold on
 viewAxesXYZ(hAxes, axes_order);
 HbO = hbconc.HbO;
 HbR = hbconc.HbR;
+hHbO_old = hbconc.handles.HbO;
+hHbR_old = hbconc.handles.HbR;
 if ~isempty(hbconc.mesh)
     hbconc.handles.HbO = ....
         displayIntensityOnMesh(hbconc.mesh, HbO, 'off','off', axes_order);
@@ -57,6 +53,9 @@ hold off;
 if ~isempty(hAxes)
     axes(hAxes);
 end
+
+
+
 
 % Enable or disable display controls based on the availability of the 
 % HbO or HbR handles
@@ -95,3 +94,9 @@ else
       
 end
 
+if ishandles(hHbO_old)
+    delete(hHbO_old);
+end
+if ishandles(hHbR_old)
+    delete(hHbR_old);
+end

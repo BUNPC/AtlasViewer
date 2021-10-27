@@ -1,10 +1,5 @@
 function pathname = sd_file_panel_GetPathname(handles)
-
-pathname = get(handles.textViewFilePath, 'string');
+pathname = filesepStandard(get(handles.editFolderName, 'string'));
 if isempty(pathname)
-    pathname = pwd;
-end
-pathname(pathname=='\') = '/';
-if pathname(end) ~= '/'
-    pathname(end+1) = '/';
+    pathname = filesepStandard(pwd);
 end

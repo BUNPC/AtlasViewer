@@ -86,15 +86,19 @@ names = {};
 if length(varargin)>=1
     if ispathvalid(varargin{1}, 'file:checkextension')
         
+        maxiter = 20;
+        iter = 0;
         filename = varargin{1};
         fid = fopen(filename,'rt');
-        while 1
+        while iter<maxiter
+            iter = iter+1;
             str = fgetl(fid);
             if str == -1 
                 break;
             end
-            names{end+1}=str;
+            names{end+1} = str; %#ok<*AGROW>
         end
+        fclose(fid);
         
     else
         

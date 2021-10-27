@@ -1,38 +1,38 @@
-function probe = setProbeDisplay(probe, headsurf, method, iCh)
+function probe = setProbeDisplay(probe, headobj, method, iCh)
 
 hProjectionRays = probe.handles.hProjectionRays;
 hSprings        = probe.handles.hSprings;
 hMeasList       = probe.handles.hMeasList;
 noptorig        = probe.noptorig;
-sl              = probe.sl;
+sl              = probe.registration.sl;
 hOidx           = probe.hOptodesIdx;
-nopt            = size(probe.handles.hOptodes,1);
+nopt            = size(probe.handles.labels,1);
 optViewMode     = probe.optViewMode;
 
 % Parse arguments
 if ~exist('method','var') || isempty(method)
-    if isempty(probe.al)
+    if isempty(probe.registration.al)
         method = 'digpts';
     else
         method = 'springs';
     end
 end
-if ~exist('headsurf','var') || isempty(headsurf)
-    headsurf=[];
+if ~exist('headobj','var') || isempty(headobj)
+    headobj=[];
 end
 if ~exist('iCh','var')
     iCh=[];
 end
 
 if strcmp(optViewMode,'numbers')
-    set(probe.handles.hOptodesCircles,'visible','off');
-    hOptodes      = probe.handles.hOptodes;
+    set(probe.handles.circles,'visible','off');
+    hOptodes      = [probe.handles.labels; probe.handles.hRefpts];
 elseif strcmp(optViewMode,'circles')
-    set(probe.handles.hOptodes,'visible','off');
-    hOptodes      = probe.handles.hOptodesCircles;
+    set(probe.handles.labels,'visible','off');
+    hOptodes      = [probe.handles.circles; probe.handles.hRefpts;];
 end
 
-if isempty(probe.handles.hOptodes) || isempty(probe.optpos)
+if isempty(probe.handles.labels) || (isempty(probe.optpos_reg) && isempty(probe.optpos))
     return;
 end
 
@@ -47,7 +47,7 @@ if ishandles(hMeasList)
 end
 
 % Enable/disable gui objects
-probe = updateProbeGuiControls(probe, headsurf, method);
+probe = updateProbeGuiControls(probe, headobj);
 
 probe = setOptodeNumbering(probe);
 
@@ -71,6 +71,11 @@ if strcmp(method,'digpts')
           set(hMeasList,'visible','off');
       elseif ishandles(hMeasList)
           set(hMeasList,'visible','on');
+      end
+      if ishandles(hSprings) & probe.hideSprings
+          set(hSprings,'visible','off');
+      elseif ishandles(hSprings)
+          set(hSprings,'visible','on');
       end
    end
 elseif strcmp(method,'springs')

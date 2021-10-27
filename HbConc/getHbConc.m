@@ -1,4 +1,4 @@
-function hbconc = getHbConc(hbconc, dirname, pialsurf, probe, currElem)
+function hbconc = getHbConc(hbconc, dirname, pialsurf, probe, dataTree)
 
 if isempty(hbconc)
     return;
@@ -24,13 +24,11 @@ end
 
 hbconc.mesh = pialsurf.mesh;
 
-% Check if there's group acquisition data to load
-if ~isempty(currElem) && ~currElem.IsEmpty()
-    hbconc.HbConcRaw = currElem.GetDcAvg();
-    hbconc.tHRF      = currElem.GetTHRF();
-end
+hbconc = loadDataHbConc(hbconc, dataTree);
 
-% If there's subject data 
+if ~hbconc.isempty(hbconc)
+    hbconc.pathname = dirname;
+end
 
 if ~isempty(hbconc.HbConcRaw)
     if ~isempty(probe.ml) & ~isempty(probe.optpos_reg)
@@ -47,13 +45,4 @@ if ~isempty(hbconc.HbConcRaw)
 else
     enableHbConcGen(hbconc, 'off');
     enableHbConcDisplay(hbconc, 'off');    
-end
-
-if ~hbconc.isempty(hbconc)
-    hbconc.pathname = dirname;
-end
-
-if length(hbconc.tHRF) >  1
-    hbconc.config.tRangeMin = hbconc.tHRF(1);
-    hbconc.config.tRangeMax = hbconc.tHRF(end);
 end

@@ -1,6 +1,6 @@
 function probe = getRegSpringError(probe)
 
-if isempty(probe.handles.hOptodes)
+if isempty(probe.handles.labels)
     return
 end
 
@@ -12,7 +12,7 @@ else
     return;
 end
 
-hOptodes   = probe.handles.hOptodes;
+hOptodes   = probe.handles.labels;
 sl         = probe.sl;
 
 ncol = 5;

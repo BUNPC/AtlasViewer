@@ -201,9 +201,6 @@ hbconc       = atlasViewer.hbconc;
 probe        = atlasViewer.probe;
 
 dirnameSubj  = atlasViewer.dirnameSubj;
-dirnameAtlas = atlasViewer.dirnameAtlas;
-T_vol2mc     = atlasViewer.headvol.T_2mc;
-hGroupList   = atlasViewer.handles.hGroupList;
 
 cmd = get(hObject,'String');
 
@@ -284,7 +281,7 @@ if strcmpi(cmd, 'DONE')
    
 else
     
-    idx = findstr(' ', cmd)+1;
+    idx = find(cmd==' ')+1;
     labels{1} = cmd(idx:end);
     [refpts, currentPt] = updateRefpts(refpts, headsurf, labels, atlasViewer.axesv(2).handles.axesSurfDisplay);
     if isempty(currentPt)

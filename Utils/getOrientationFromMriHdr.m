@@ -1,6 +1,7 @@
 function [ostr, vox2ras] = getOrientationFromMriHdr(hdr)
 
 ostr = '';
+vox2ras = [];
 
 if isempty(hdr)
     return;

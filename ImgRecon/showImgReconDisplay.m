@@ -1,5 +1,8 @@
 function imgrecon = showImgReconDisplay(imgrecon, hAxes, valLocErr, valRes, valHbO, valHbR)
 
+if isempty(imgrecon.handles.hLocalizationError)
+    return;
+end
 if isempty(hAxes)
     hAxes=gca;
 end
@@ -26,6 +29,3 @@ set(imgrecon.handles.hLocalizationError, 'visible',valLocErr);
 set(imgrecon.handles.hResolution, 'visible',valRes);
 set(imgrecon.handles.hHbO, 'visible',valHbO);
 set(imgrecon.handles.hHbR, 'visible',valHbR);
-
-
-

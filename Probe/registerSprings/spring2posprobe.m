@@ -13,8 +13,12 @@ end
 refpts.labels = lower(refpts.labels);
 
 %%% Create connectivity list
-optpos = probe.optpos;
-sl     = probe.sl;
+if ~isempty(probe.optpos_reg)
+    optpos = probe.optpos_reg;
+else
+    optpos = probe.optpos;
+end
+sl     = probe.registration.sl;
 
 %%% find maximum # of springs stemming from one optode 
 for k = 1:size(optpos,1); r = find(sl(:,1)==k); m(k) = length(r); clear r; end;
@@ -34,7 +38,7 @@ for ii=1:size(optpos,1)
 end
 
 %%% Resolve anchor points list
-al = probe.al;
+al = probe.registration.al;
 for ii=1:size(al,1)
     if ischar(al{ii,1})
         al{ii,1} = str2num(al{ii,1});

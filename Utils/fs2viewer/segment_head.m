@@ -10,7 +10,6 @@ function fs2viewer = segment_head(fs2viewer)
 %
 
 layers = fs2viewer.layers;
-dirnameVol = fs2viewer.mripaths.volumes;
 
 % Head volume
 if ~isempty(layers.head.filename)
@@ -35,7 +34,7 @@ end
 % Skull volume
 if ~isempty(layers.skull.filename)
     if layers.skull.isvolume
-        [~, layers.skull] = loadMri(fs2viewer, layers.skull.filename);    
+        layers.skull = loadMri(layers.skull);    
     else
         layers.skull.volume.vol = surf_file2vol(layers.skull.filename, layers.head.volsize, layers.head.surf2vol);
     end
@@ -86,4 +85,6 @@ hseg.filename = sprintf('%s/hseg%s', dname, ext);
 fs2viewer.layers = layers;
 fs2viewer.hseg = hseg;
 fs2viewer.hseg.orientation = getOrientationFromMriHdr(fs2viewer.hseg.volume);
+
+
 

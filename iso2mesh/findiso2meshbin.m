@@ -5,7 +5,7 @@ function dirname = findiso2meshbin()
 dirname = ffpath('iso2mesh/bin');
 
 if isempty(dirname)
-    dirnameApp = getAppDir_av();
+    dirnameApp = getAppDir();
     if exist(dirnameApp,'dir')
         dirname = dirnameApp;
     end

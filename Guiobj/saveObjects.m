@@ -1,10 +1,10 @@
-function saveObjects(filename, varargin)
+function saveObjects(filename, varargin) %#ok<*INUSL>
 
 if isempty(varargin)
     return;
 end
 
-vrnum = AtlasViewerGUI_version();
+vrnum = AtlasViewerGUI_version(); %#ok<*NASGU>
 
 hwait = waitbar(0,'Please wait for AtlasViewer to save the state ...');
 

@@ -1,59 +1,47 @@
 function probe = importProbe(probe, filename, headsurf, refpts)
-global SD
-
-SD = [];
+if ~exist('headsurf','var')
+    headsurf = [];
+end
+if ~exist('refpts','var')
+    refpts = [];
+end
 
 [pname, fname, ext] = fileparts(filename);
 pname = filesepStandard(pname);
 switch lower(ext)
     case '.txt'
-
-        probe.optpos   = load([pname, fname, ext], '-ascii');
-        probe.nopt     = size(probe.optpos,1);
-        probe.noptorig = size(probe.optpos,1);
+        probe = loadProbeFormTextFile(probe, [pname, fname, ext]);
 
     case {'.sd','.nirs'}
 
         filedata = load([pname, fname, ext], '-mat');
-        SD0 = filedata.SD;
+        probe = loadSD(probe, filedata.SD);
 
     case {'.snirf'}
 
         snirf = SnirfClass([pname, fname, ext]);
-        SD0 = snirf.GetSDG();
-        SD0.MeasList = snirf.GetMeasList();
+        SD = snirf.GetSDG();
+        SD.MeasList = snirf.GetMeasList();
+        probe = loadSD(probe, SD);
 end
 
-if isempty(SD0)
-    return;
-end
-
-probe = loadSD(probe, SD0);
-probe = preRegister(probe, headsurf, refpts);
-sd_data_Init(SD0);
-if isProbeFlat(SD) && ~registrationInfo(SD)
-    q = MenuBox('Flat probe does not contain enough data to register it to the head. Do you want to open probe in SDgui to add registration data?', {'Yes','No'});
-    if q==2
-        return;
-    end
-    h = SDgui(filename, 'userargs');    
-    probe = loadSD(probe, SD);
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3. Preregister
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe = preRegister(probe, headsurf, refpts);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 4. Check if registration data exists only if data from SD data was loaded. 
+% If it was but probe is neither registered to head nor has registration 
+% data, then offer to add it manually
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+probe = checkRegistrationData(pname, probe, headsurf);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 5. Save new probe
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+probe.save(probe);
 
 
-% ------------------------------------------------------------
-function waitForGUI(h)
-
-timer = tic;
-fprintf('SDgui is busy ...\n');
-while ishandle(h)
-    if mod(toc(timer), 5)>4.5
-        fprintf('SDgui is busy ...\n');
-        timer = tic;
-    end
-    pause(.1);
-end
 
 

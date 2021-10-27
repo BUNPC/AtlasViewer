@@ -13,11 +13,12 @@ A = get(hObject, 'Data');
 cnames = get(hObject, 'ColumnName');
 cwidth = get(hObject, 'ColumnWidth');
 ceditable = get(hObject, 'ColumnEditable');
+data3D = SDgui_3DViewSelected(handles);
 
 srcmap = sd_data_Get('SrcMap');
-srcpos = sd_data_Get('SrcPos');
+srcpos = sd_data_Get(['SrcPos', data3D]);
 nwl = sd_data_GetNwl();
-offset = size(sd_data_Get('SrcPos'), 2)+1;
+offset = size(sd_data_Get(['SrcPos', data3D]), 2)+1;
 A(:,offset+1:end) = {''};
 for j=1:nwl
     for i=1:size(srcpos,1)

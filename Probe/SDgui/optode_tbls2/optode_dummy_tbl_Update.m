@@ -1,10 +1,12 @@
 function optode_dummy_tbl_Update(handles)
 
-OptPos       = sd_data_Get('DummyPos');
+data3D      = SDgui_3DViewSelected(handles);
+
+OptPos       = sd_data_Get(['DummyPos', data3D]);
 GrommetType  = sd_data_Get('DummyGrommetType');
-GrommetRot  = sd_data_Get('DummyGrommetRot');
-SrcPos       = sd_data_Get('SrcPos');
-DetPos       = sd_data_Get('DetPos');
+GrommetRot   = sd_data_Get('DummyGrommetRot');
+SrcPos       = sd_data_Get(['SrcPos', data3D]);
+DetPos       = sd_data_Get(['DetPos', data3D]);
 optid        = size([SrcPos; DetPos],1);
 
 % Generate table data

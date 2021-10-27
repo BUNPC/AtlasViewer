@@ -1,5 +1,20 @@
 function [digpts, pts] = getDigpts(digpts, dirname, refpts)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Parse arguments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Arg 1
+if ~exist('digpts','var') || isempty(digpts)
+    digpts = initDigpts();
+end
+
+% Arg 2
+if ~exist('dirname','var') || isempty(dirname)
+    dirname = filesepStandard(pwd);
+end
+
+% Arg 3
 if ~exist('refpts','var')
     refpts = [];
 end
@@ -49,7 +64,7 @@ end
 
 digpts = resetDigpts(digpts);
 
-iP=1; iS=1; iD=1; iR=1;
+iP=1; iR=1;
 fid = fopen(inputfile,'r');
 while 1
     try
@@ -74,6 +89,9 @@ while 1
             iD=str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
             digpts.detpos(iD,:) = str2num(str(k+1:end));
             % iD=iD+1;
+        elseif lower(str(1))=='m' && isnumber(str(2))
+            iM = str2num(str(2:min(strfind(str,':'))-1));  % Use the index from the file
+            digpts.dummypos(iM,:) = str2num(str(k+1:end));
         elseif str(1)=='@'
             digpts.pcpos(iP,:) = str2num(str(k+1:end));
             iP=iP+1;
@@ -241,10 +259,15 @@ while 1
 end
 fclose(fid);
 
-digpts = setDigptsOrientation(digpts, dirname);
 if ~digpts.isempty(digpts)
     digpts.pathname = dirname;
 end
+
+if isempty(refpts) || isempty(refpts.isempty(refpts))
+    return
+end
+
+digpts = setDigptsOrientation(digpts, dirname);
 
 
 

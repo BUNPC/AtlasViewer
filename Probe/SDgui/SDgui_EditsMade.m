@@ -4,8 +4,7 @@ global SD
 
 b = true;
 if ~sd_data_IsEmpty()
-    status = data_diff(SD, filedata.SD);
-    if status == 3
+    if ~sd_data_Equal(SD, filedata.SD)
         return
     end
 end

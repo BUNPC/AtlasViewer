@@ -1,47 +1,22 @@
-function b = sd_data_IsEmpty()
+function b = sd_data_IsEmpty(SDo)
 global SD
 
+if nargin==0
+    SDo = SD;
+end
+
 b = false;
-
-if ~isempty(SD.SrcPos)
+if ~isempty(SDo.SrcPos)
     return;
 end
-if ~isempty(SD.DetPos)
+if ~isempty(SDo.DetPos)
     return;
 end
-if ~isempty(SD.SrcGrommetType)
+if ~isempty(SDo.SrcPos3D)
     return;
 end
-if ~isempty(SD.DetGrommetType)
+if ~isempty(SDo.DetPos3D)
     return;
 end
-if ~isempty(SD.DummyGrommetType)
-    return;
-end
-if ~isempty(SD.DummyPos)
-    return;
-end
-if ~isempty(SD.MeasList)
-    return;
-end
-if ~isempty(SD.SpringList)
-    return;
-end
-if ~isempty(SD.AnchorList)
-    return;
-end
-if ~isempty(SD.MeasListAct)
-    return;
-end
-if ~isempty(SD.SrcMap)
-    return;
-end
-if ~isempty(SD.SpatialUnit)
-    return;
-end
-if ~isempty(SD.auxChannels)
-    return;
-end
-
 b = true;
 
