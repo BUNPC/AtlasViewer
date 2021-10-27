@@ -1,6 +1,8 @@
 function obj = initFontSizeConfigParams(obj, name)
+global cfg
 
-cfg = ConfigFileClass();
+cfg = InitConfig(cfg);
+
 textSize = str2num(cfg.GetValue([name, ' Font Size']));
 circleSize = str2num(cfg.GetValue([name, ' Circle Size']));
 if ~isempty(textSize)

@@ -242,6 +242,9 @@ listboxGroupTree_Callback([], [1, 0, 0], handles)
 % --------------------------------------------------------------------------------------------
 function [nSubjs, nRuns] = GenerateGroupDisplayLists()
 global datatreegui
+global cfg
+
+cfg = InitConfig(cfg);
 
 list = datatreegui.dataTree.DepthFirstTraversalList();
 views = datatreegui.listboxGroupTreeParams.views;
@@ -249,7 +252,6 @@ jj = 0; kk = 0;
 nSubjs = 0;
 nRuns = 0;
 
-cfg = ConfigFileClass();
 subjViewDefault = cfg.GetValue('Data Tree Subject Default View');
 
 for ii = 1:length(list)

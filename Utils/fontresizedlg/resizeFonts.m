@@ -18,8 +18,10 @@ end
 % ------------------------------------------------
 function savePermanent(name)
 global resizedlg
+global cfg
 
-cfg = ConfigFileClass();
+cfg = InitConfig(cfg);
+
 cfg.SetValue([name, ' Font Size'], num2str(resizedlg.output(1)));
 cfg.SetValue([name, ' Circle Size'], num2str(resizedlg.output(2)));
 if cfg.Modified()

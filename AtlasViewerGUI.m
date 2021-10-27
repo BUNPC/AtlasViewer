@@ -365,12 +365,14 @@ end
 % -----------------------------------------------------------------------
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global atlasViewer
+global cfg
 
 setNamespace('AtlasViewerGUI');
 
 if isempty(varargin)
     atlasViewer = [];
 end
+cfg = ConfigFileClass();
 
 % Choose default command line output for AtlasViewerGUI
 handles.output = hObject;
@@ -490,6 +492,7 @@ function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
 fclose all;
+
 if isempty(atlasViewer)
     deleteNamespace('AtlasViewerGUI');
     return;

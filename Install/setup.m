@@ -63,7 +63,7 @@ logger = Logger([dirnameSrc, 'Setup']);
 
 v = getVernum();
 logger.Write('==========================================\n');
-logger.Write('Setup script for %s v%s.%s,%s:\n', exename, v{1}, v{2}, v{3});
+logger.Write('Setup script for %s v%s.%s.%s:\n', exename, v{1}, v{2}, v{3});
 logger.Write('==========================================\n\n');
 
 logger.Write('Platform params:\n');
@@ -144,7 +144,6 @@ copyFile([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']
 copyFile([dirnameSrc, 'Refpts'], [dirnameDst, 'Refpts']);
 copyFile([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
 copyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
-copyFile([dirnameSrc, 'DataTree'],          [dirnameDst, 'DataTree']);
 
 % Check if there a fluence profile to load in this particular search path
 if ispathvalid([dirnameSrc, 'fluenceProfs.tar'])
