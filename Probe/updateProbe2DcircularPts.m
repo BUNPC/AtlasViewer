@@ -43,12 +43,12 @@ probe_refpts_idx =  ismember(sphere.label, SD.Landmarks.labels);
 % refpts_2D.pos = [sphere_xc(probe_refpts_idx) sphere_yc(probe_refpts_idx) sphere_zc(probe_refpts_idx)];
 refpts_2D.label = sphere.label(probe_refpts_idx);
 %%
-refpts_theta =  sphere_theta(probe_refpts_idx);
-refpts_phi = 90 - sphere_phi(probe_refpts_idx); % elevation angle from top axis
+refpts_theta =  sphere.theta(probe_refpts_idx);
+refpts_phi = 90 - sphere.phi(probe_refpts_idx); % elevation angle from top axis
 
 refpts_theta = (2 * pi * refpts_theta) / 360; % convert to radians
 refpts_phi = (2 * pi * refpts_phi) / 360;
-[x,y] = pol2cart(refpts_theta,refpts_phi);      % get plane coordinates
+[x,y] = pol2cart(refpts_theta, refpts_phi);      % get plane coordinates
 xy = [x y];
 
 %%
