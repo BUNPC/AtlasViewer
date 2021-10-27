@@ -88,7 +88,7 @@ function setpaths(options)
 currdir = pwd;
 
 try
-
+    
     warning('off','MATLAB:rmpath:DirNotFound');
     
     appname = 'AtlasViewerGUI';

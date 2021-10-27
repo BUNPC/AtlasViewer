@@ -75,7 +75,7 @@ end
 if exist([dirnameInstall, platform.setup_script],'file')==2
     copyfile([dirnameInstall, platform.setup_script], [dirnameInstall, installfilename]);
 end
-for ii=1:length(platform.setup_exe)
+for ii = 1:length(platform.setup_exe)
     if exist([dirnameInstall, platform.setup_exe{ii}],'file')
         if ispc()
             copyfile([dirnameInstall, platform.setup_exe{1}], [dirnameInstall, installfilename, '/installtemp']);
@@ -106,6 +106,20 @@ for ii=1:length(platform.createshort_script)
         copyfile([dirnameInstall, platform.createshort_script{ii}], [dirnameInstall, installfilename]);
     end
 end
+
+dirnameSrc = filesepStandard(fileparts(which([exename, '.m'])));
+cfg = ConfigFileClass();
+for ii = 1:length(cfg.filenames)
+    p = filesepStandard(fileparts(cfg.filenames{ii}));
+    k = strfind(p, dirnameSrc);
+    pathRelative = p(k+length(dirnameSrc):end);
+    fprintf('Copying  %s  to  %s\n', cfg.filenames{ii}, [dirnameInstall, installfilename, '/', pathRelative]);
+    if ~ispathvalid([dirnameInstall, installfilename, '/', pathRelative])
+        mkdir([dirnameInstall, installfilename, '/', pathRelative])
+    end
+    copyfile(cfg.filenames{ii}, [dirnameInstall, installfilename, '/', pathRelative]);
+end
+
 if exist([dirnameApp, 'AppSettings.cfg'],'file')
     copyfile([dirnameApp, 'AppSettings.cfg'], [dirnameInstall, installfilename]);
 end

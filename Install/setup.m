@@ -16,7 +16,7 @@ try
     dirnameSrc = currdir;
     dirnameDst = getAppDir('isdeployed');
 
-    cleanup()
+    cleanup();
     
     main();
     
@@ -106,6 +106,7 @@ catch ME
     msg{3} = sprintf('installation folder and then retry installation.');
     menu([msg{:}], 'OK');
 	pause(5);
+	printStack(ME)
     rethrow(ME)
 end
 
@@ -143,7 +144,7 @@ copyFile([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']
 copyFile([dirnameSrc, 'Refpts'], [dirnameDst, 'Refpts']);
 copyFile([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
 copyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
-
+copyFile([dirnameSrc, 'DataTree'],          [dirnameDst, 'DataTree']);
 
 % Check if there a fluence profile to load in this particular search path
 if ispathvalid([dirnameSrc, 'fluenceProfs.tar'])
@@ -270,10 +271,14 @@ try
     logger.Write('Copying %s to %s\n', src, dst);
     copyfile(src, dst);
 
-    waitbar(iStep/nSteps, h); iStep = iStep+1;
+    if ~isempty(iStep)
+        waitbar(iStep/nSteps, h); iStep = iStep+1;
+    end
     pause(1);
 catch ME
-    close(h);
+    if ishandles(h)
+        close(h);
+    end
     printStack(ME);
     if iscell(src)
         src = src{1};
@@ -328,9 +333,10 @@ try
         system(cmd);
         
     end
-catch
+catch ME
     msg{1} = sprintf('Error: Could not create %s shortcuts on Desktop. Exiting installation.', exename);
     menu([msg{:}], 'OK');
+    printStack(ME)
     return;    
 end
 
