@@ -74,17 +74,13 @@ fields = fieldnames(objs);
 % Check for a saved viewer state file and restore 
 % state if it exists. 
 vrnum = [];
+warning('off', 'MATLAB:dispatcher:UnresolvedFunctionHandle');
 if exist([atlasViewer.dirnameSubj 'atlasViewer.mat'], 'file')
 
-    load([atlasViewer.dirnameSubj 'atlasViewer.mat'],'-mat');
-    for ii=1:length(fields)
+    load([atlasViewer.dirnameSubj 'atlasViewer.mat'],'-mat'); %#ok<LOAD>
+    for ii = 1:length(fields)
         if exist(fields{ii},'var')
-            % Initialized object exists in saved state. Check its compatibility with current version
-            eval(sprintf('b = ~isempty(objs.%s.checkCompatability);', fields{ii}));
-            if b==1
-                eval(sprintf('%s = objs.%s.checkCompatability(%s);', fields{ii}, fields{ii}, fields{ii}));
-            end
-            eval(sprintf('atlasViewer.%s = restoreObject(%s, objs.%s);', fields{ii}, fields{ii}, fields{ii}));
+            eval(sprintf('atlasViewer.%s = restoreObject(objs.%s, %s);', fields{ii}, fields{ii}, fields{ii}));
         else
             % Initialized object does NOT exist in saved state. Therefore no compatibility issues.  
             eval(sprintf('atlasViewer.%s = restoreObject(objs.%s, objs.%s);', fields{ii}, fields{ii}, fields{ii}));
@@ -105,6 +101,8 @@ else
     end
     
 end
+warning('on', 'MATLAB:dispatcher:UnresolvedFunctionHandle');
+
 
 atlasViewer.dirnameProbe = '';
 atlasViewer.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
