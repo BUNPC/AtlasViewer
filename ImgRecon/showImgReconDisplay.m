@@ -1,8 +1,5 @@
 function imgrecon = showImgReconDisplay(imgrecon, hAxes, valLocErr, valRes, valHbO, valHbR)
 
-if isempty(imgrecon.handles.hLocalizationError)
-    return;
-end
 if isempty(hAxes)
     hAxes=gca;
 end
@@ -17,7 +14,6 @@ if strcmp(valHbO, 'on') | strcmp(valHbR, 'on')
 else
     valImgRecon='off';
 end
-
 
 if strcmp(valMetrics,'off') & strcmp(valImgRecon,'off')
     imgrecon = setImgReconColormap(imgrecon, []);

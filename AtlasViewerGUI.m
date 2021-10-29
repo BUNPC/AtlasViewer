@@ -2763,12 +2763,6 @@ axesv       = atlasViewer.axesv;
 set(imgrecon.handles.popupmenuImageDisplay,'value',imgrecon.menuoffset+1);
 set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',imgrecon.cmThreshold(imgrecon.menuoffset+1,1), ...
                                                                  imgrecon.cmThreshold(imgrecon.menuoffset+1,2)));
-
-imgrecon = inputParamsImgRecon(imgrecon);
-if isempty(imgrecon)
-    return;
-end
-
 imgrecon = genImgReconMetrics(imgrecon, fwmodel, dirnameSubj);
 
 % Turn off image recon display
