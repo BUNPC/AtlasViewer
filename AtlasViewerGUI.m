@@ -185,7 +185,7 @@ end
 
 % Display all objects
 digpts     = displayDigpts(digpts);
-refpts     = displayRefpts(refpts);
+clcrefpts     = displayRefpts(refpts);
 probe      = displayProbe(probe, refpts);
 headsurf   = displayHeadsurf(headsurf);
 pialsurf   = displayPialsurf(pialsurf);
@@ -681,10 +681,11 @@ else
         MessageBox('Error registering probe using spring relaxation. Headvol object is empty');
         return;
     end
-    if ~probeHasSpringRegistration(probe)
-        msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
-        msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
-        msg{3} = sprintf('registration data using SDgui application.\n\n');
+    [reg_flag, msg] = probeHasSpringRegistration(probe);
+    if ~reg_flag
+%         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
+%         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
+%         msg{3} = sprintf('registration data using SDgui application.\n\n');
         MessageBox(msg);
         return
     end
@@ -3351,7 +3352,7 @@ if exist([dirnameSubj 'fw/Adot.mat'],'file')
         end
         return;
     else
-        delete([dirnameSubj 'fw/Adot*.mat']);
+%         delete([dirnameSubj 'fw/Adot*.mat']);
         fwmodel.Adot=[];
     end
 end
@@ -3791,9 +3792,13 @@ if get(handles.radiobuttonEditOptodeAV,'Value') && isfield(atlasViewer.probe,'ed
         else
            atlasViewer.probe.editOptodeInfo.currentOptode = size(atlasViewer.probe.optpos_reg,1);
         end
+        al_index = find([atlasViewer.probe.registration.al{:,1}]==idx);
         optode_pos = atlasViewer.probe.optpos_reg(idx,:);
         deleteAnOptode(idx)
         addAnOptode(optode_pos, handles)
+        if ~isempty(al_index)
+            atlasViewer.probe.registration.al{al_index,1} = atlasViewer.probe.editOptodeInfo.currentOptode;
+        end
         probe = displayProbe(atlasViewer.probe, atlasViewer.headsurf);
         atlasViewer.probe = probe;
          if get(handles.radiobutton_MeasListVisible,'Value')
@@ -4453,6 +4458,12 @@ if eventdata.Button == 1
                 optode_index = find(strcmp(optode_type_contents,opt_type));
                 set(handles.popupmenuSelectOptodeType,'Value',optode_index);
                 grommet_index = find(strcmp(grommet_type_contents,grommet_type));
+                if isempty(grommet_index)
+                    contents = cellstr(get(handles.popupmenu_selectGrommetType,'String'));
+                    contents{end+1} = grommet_type;
+                    set(handles.popupmenu_selectGrommetType,'String',contents);
+                    grommet_index = length(contents);
+                end
                 set(handles.popupmenu_selectGrommetType,'Value',grommet_index);
                 set(handles.edit_grommetRotation,'String',num2str(grommet_rot));
                 if ~isempty(al_idx)
@@ -4586,6 +4597,10 @@ elseif eventdata.Button == 3
             end
             
             if get(handles.radiobutton_MeasListVisible,'Value')
+                if strcmp(opt_type,'Dummy') || strcmp(target_opt_type,'Dummy')
+                    msgbox('Can not make measurement list for Dummy optode');
+                    return
+                end
                 if strcmp(opt_type,'Source')
                    if strcmp(target_opt_type,'Source')
                        return
@@ -4915,6 +4930,10 @@ function popupmenu_selectGrommetType_Callback(hObject, eventdata, handles)
 global atlasViewer
 if get(handles.radiobuttonEditOptodeAV,'Value')
     contents = cellstr(get(hObject,'String'));
+    choices = GetGrommetChoices();
+    if ~isempty(setdiff(choices,contents))
+        set(hObject,'String',choices);
+    end
     grommet_type =   contents{get(hObject,'Value')};
     if isfield(atlasViewer.probe,'editOptodeInfo') && isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
         idx = atlasViewer.probe.editOptodeInfo.currentOptode;
@@ -4947,22 +4966,7 @@ function popupmenu_selectGrommetType_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-choices = { ...
-    'none', ...
-    '#NIRX2', ...
-    '#NFLPS', ...
-    '#NFHPS',...
-    '#NFWMS', ...
-    '#NFDSO', ...
-    '#NOND1', ...
-    '#NOND2', ...
-    '#NOND3', ...
-    '#NN21A', ...
-    '#PMRK1', ...
-    '#EBPAS', ...
-    '#EECEH', ...
-    '#ACHLD', ...
-};
+choices = GetGrommetChoices();
 set(hObject,'String',choices);
 
 
@@ -5249,4 +5253,5 @@ else
         radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
     end
 end
+
 

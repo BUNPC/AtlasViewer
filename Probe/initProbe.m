@@ -407,6 +407,7 @@ end
 
 % probe1.ml is empty and probe2.ml seems valid, lets copy it...
 probe1.ml = probe2.ml;
+probe1.lambda = probe2.lambda;
 
 
 

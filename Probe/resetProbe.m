@@ -8,10 +8,6 @@ if ~exist('dirname', 'var')
 end
 dirname = filesepStandard(dirname);
 
-if ispathvalid([dirname, 'probe.SD'])
-    fprintf('Deleting %s\n', [dirname, 'probe.SD']);
-    delete([dirname, 'probe.SD']);
-end
 dirs = dir([dirname, '*']);
 for ii = 1:length(dirs)
     if ~dirs(ii).isdir
