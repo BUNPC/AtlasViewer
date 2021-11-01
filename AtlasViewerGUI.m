@@ -3432,7 +3432,7 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % New probe means resetting probe, anatomical labels and sensitivity profile
-probe       = resetProbe(probe);
+probe       = resetProbe(probe, atlasViewer.dirnameSubj, handles);
 fwmodel     = resetFwmodel(fwmodel);
 imgrecon    = resetImgRecon(imgrecon);
 labelssurf  = resetLabelssurf(labelssurf);

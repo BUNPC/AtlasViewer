@@ -1,4 +1,4 @@
-function probe = resetProbe(probe, dirname)
+function probe = resetProbe(probe, dirname, handles)
 
 if nargin==0 || isempty(probe)
     probe = initProbe;
@@ -8,10 +8,6 @@ if ~exist('dirname', 'var')
 end
 dirname = filesepStandard(dirname);
 
-if ispathvalid([dirname, 'probe.SD'])
-    fprintf('Deleting %s\n', [dirname, 'probe.SD']);
-    delete([dirname, 'probe.SD']);
-end
 dirs = dir([dirname, '*']);
 for ii = 1:length(dirs)
     if ~dirs(ii).isdir
@@ -23,9 +19,8 @@ for ii = 1:length(dirs)
     if strcmp(dirs(ii).name, '..')
         continue;
     end
-    resetProbe(probe, [dirname, dirs(ii).name]);
+    resetProbe(probe, [dirname, dirs(ii).name], handles);
 end
-
 
 % dynamic handles
 if ishandles(probe.handles.labels)
@@ -55,7 +50,7 @@ for ii=1:length(probe.handles.hProjectionTbl)
     end
 end
 
-probe = initProbe();
+probe = initProbe(handles);
 
 
 
