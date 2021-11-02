@@ -1,12 +1,8 @@
-function obj = initFontSizeConfigParams(obj)
+function obj = initFontSizeConfigParams(obj, name)
+global cfg
 
-if iscell(obj.name)
-    name = obj.name{end};
-else
-    name = obj.name;
-end
+cfg = InitConfig(cfg);
 
-cfg = ConfigFileClass();
 textSize = str2num(cfg.GetValue([name, ' Font Size']));
 circleSize = str2num(cfg.GetValue([name, ' Circle Size']));
 if ~isempty(textSize)

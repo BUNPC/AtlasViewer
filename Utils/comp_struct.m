@@ -108,7 +108,11 @@ elseif (isstruct(s1) && isstruct(s2)) && (length(s1) ~= length(s2))
     fs1 = n1; 
     fs2 = n2; 
     if p; display_cond('Paused .....',mode); pause; end
-elseif isa(s1,'sym') && isa(s2,'sym')
+elseif isa(s1,'sym') && isa(s2,'sym') && ~isdeployed()
+    % Remove this case in deployed version because it contains 'subs' call unless we get the appropriate matlab compiler license. 
+    % Here's the compiler warning: 'Either remove the file or function from your code, or use 
+    % the MATLAB function "isdeployed" to ensure the function is not invoked in the deployed component.'
+    
     % compare two symbolic expresions
     % direct compare
     ss1 = simple(s1); ss2 = simple(s2);
@@ -117,18 +121,19 @@ elseif isa(s1,'sym') && isa(s2,'sym')
         % could still be equal, but not able to reduce the symbolic expresions
         % get factors
         f1 = symvar(ss1); f2 = symvar(ss2);
-        w = warning; 
+        w = warning;
         if isEqual(f1,f2)
             % same symbolic variables.  same eqn?
-            temp = [1 findstr(f1,' ') + 1]; tres = NaN * zeros(1,30);
+            temp = [1 strfind(f1,' ') + 1]; tres = NaN * zeros(1,30);
             for jj = 1:1e3
                 ss1e = ss1; ss2e = ss2;
+                
                 for ii = 1:length(temp)
                     tv = (real(rand^rand)) / (real(rand^rand));
                     ss1e = subs(ss1e,f1(temp(ii)),tv);
                     ss2e = subs(ss2e,f2(temp(ii)),tv);
                 end
-
+                
                 % check for match
                 if isnan(ss1e) || isnan(ss2e)
                     tres(jj) = 1;
@@ -136,7 +141,7 @@ elseif isa(s1,'sym') && isa(s2,'sym')
                     tres(jj) = 1;
                 end
             end
-
+            
             % now check symbolic equation results
             if sum(tres) == length(tres)
                 % symbolics assumed to be the same equation

@@ -1,4 +1,7 @@
 function headsurf = displayHeadsurf(headsurf, hAxes, options)
+global cfg
+
+cfg = InitConfig(cfg);
 
 if isempty(headsurf)
     return;
@@ -37,8 +40,7 @@ if isempty(headsurf.mesh)
     return;
 else
     viewAxesXYZ(hAxes, axes_order);
-    cfg = ConfigFileClass();
-    head_opacity = cfg.GetValue('Head Opacity');
+    head_opacity = str2num(cfg.GetValue('Head Opacity'));
     if ~exist('head_opacity','var')
         head_opacity = 0.7;
     end

@@ -60,7 +60,7 @@ probe = struct( ...
                'optViewMode','numbers', ...
                'center',[], ...
                'orientation', '', ...
-               'checkCompatability',[], ...
+               'checkCompatability',@checkCompatability, ...
                'isempty',@isempty_loc, ...
                'copy',@copy_loc, ...
                'copyLandmarks',@copyLandmarks, ...
@@ -74,7 +74,8 @@ probe = struct( ...
                'T_2mc',eye(4) ...
               );
           
-probe = initFontSizeConfigParams(probe);
+
+probe = initFontSizeConfigParams(probe, 'Probe Optodes');
 probe = initRegistration(probe);
 
 if exist('handles','var')
@@ -233,7 +234,7 @@ if probe.isempty(probe)
     return;
 end
 SD = convertProbe2SD(probe);
-SD = updateProbe2DcircularPts(SD);
+
 % create snirf object 
 snirf = SnirfClass();
 probe_snirf_object = ProbeClass(SD);
@@ -409,5 +410,17 @@ end
 probe1.ml = probe2.ml;
 probe1.lambda = probe2.lambda;
 
+% ----------------------------------------------------------------
+function probe2 = checkCompatability(probe2, probe1, field)
+switch(field)
+    case 'sl'
+        probe2.registration.sl = probe1.sl;
+    case 'al'
+        probe2.registration.al = probe1.al;
+    case 'dummypos'
+        probe2.registration.dummypos = probe1.dummypos;
+    case 'ndummy'
+        probe2.registration.dummypos = probe1.ndummy;
+end
 
 

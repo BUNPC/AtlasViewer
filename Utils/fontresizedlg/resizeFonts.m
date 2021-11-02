@@ -1,14 +1,8 @@
-function obj = resizeFonts(obj)
+function obj = resizeFonts(obj, name)
 global resizedlg
 
-if iscell(obj.name)
-    name = obj.name{end};
-else
-    name = obj.name;
-end
-
 waitForGui(FontSizeDlg(obj, [name, ' Font Resize']));
-savePermanent(obj, name);
+savePermanent(name);
 
 obj.handles.textSize = resizedlg.output(1);
 obj.handles.circleSize = resizedlg.output(2);
@@ -22,16 +16,14 @@ end
 
 
 % ------------------------------------------------
-function savePermanent(obj, name)
+function savePermanent(name)
 global resizedlg
+global cfg
 
-cfg = ConfigFileClass();
-if obj.handles.textSize ~= resizedlg.output(1)
-   cfg.SetValue([name, ' Font Size'], num2str(resizedlg.output(1)));
-end
-if obj.handles.circleSize ~= resizedlg.output(2)
-   cfg.SetValue([name, ' Circle Size'], num2str(resizedlg.output(2)));
-end
+cfg = InitConfig(cfg);
+
+cfg.SetValue([name, ' Font Size'], num2str(resizedlg.output(1)));
+cfg.SetValue([name, ' Circle Size'], num2str(resizedlg.output(2)));
 if cfg.Modified()
     cfg.Save();
 end

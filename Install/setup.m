@@ -1,24 +1,45 @@
 function setup()
 global h
 global nSteps
+global dirnameSrc
+global dirnameDst
 
-[~, exename] = getAppname();
+try
 
-setNamespace(exename)
+    currdir = filesepStandard(pwd);
+        
+    h = waitbar(0,'Installation Progress ...');
+       
+    [~, exename] = getAppname();
+    setNamespace(exename)
+    
+    dirnameSrc = currdir;
+    dirnameDst = getAppDir('isdeployed');
 
-h = waitbar(0,'Installation Progress ...');
+    cleanup();
+    
+    main();
+    
+    % Check that everything was installed properly
+    finishInstallGUI(exename);
+    
+    waitbar(nSteps/nSteps, h);
+    close(h);
+    
+catch ME
+    
+    printStack(ME)
+    cd(currdir)
+    if ishandles(h)
+        close(h);
+    end
+    rethrow(ME)
+        
+end
+cd(currdir)
 
-main();
 
-% Check that everything was installed properly
-r = finishInstallGUI(exename);
-
-waitbar(nSteps/nSteps, h);
-close(h);
-
-cleanup();
-
-
+    
 
 % ------------------------------------------------------------
 function main()
@@ -26,51 +47,35 @@ global h
 global nSteps
 global iStep
 global platform
+global logger
+global dirnameSrc
+global dirnameDst
 
 nSteps = 100;
 iStep = 1;
 
-[appname, exename] = getAppname();
+fprintf('dirnameSrc = %s\n', dirnameSrc)
+fprintf('dirnameDst = %s\n', dirnameDst)
 
-if ismac()
-    dirnameSrc = sprintf('~/Downloads/%s_install/', lower(appname));
-else
-	dirnameSrc = [pwd, '/'];
-end
-dirnameDst = getAppDir('isdeployed');
+logger = Logger([dirnameSrc, 'Setup']);
 
-% Uninstall
-try
-    if exist(dirnameDst,'dir')
-        rmdir(dirnameDst, 's');
-    end
-catch ME
-    close(h);
-    printStack();
-    msg{1} = sprintf('Error: Could not remove old installation folder %s. It might be in use by other applications.\n', dirnameDst);
-    msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
-    msg{3} = sprintf('installation folder and then retry installation.');
-    menu([msg{:}], 'OK');
-    pause(5);
-    rethrow(ME)
-end
-
+[~, exename] = getAppname();
 
 v = getVernum();
-fprintf('=================================\n');
-fprintf('Setup script for %s v%s.%s:\n', exename, v{1}, v{2});
-fprintf('=================================\n\n');
+logger.Write('==========================================\n');
+logger.Write('Setup script for %s v%s.%s.%s:\n', exename, v{1}, v{2}, v{3});
+logger.Write('==========================================\n\n');
 
-fprintf('Platform params:\n');
-fprintf('  arch: %s\n', platform.arch);
-fprintf('  mc_exe: %s%s\n', platform.mc_exe_name, platform.mc_exe_ext);
-fprintf('  exename: %s\n', platform.exename{1});
-fprintf('  setup_exe: %s\n', platform.setup_exe{1});
-fprintf('  setup_script: %s\n', platform.setup_script);
-fprintf('  dirnameApp: %s\n', platform.dirnameApp);
-fprintf('  mcrpath: %s\n', platform.mcrpath);
-fprintf('  iso2meshmex: %s\n', platform.iso2meshmex{1});
-fprintf('  iso2meshbin: %s\n\n', platform.iso2meshbin);
+logger.Write('Platform params:\n');
+logger.Write('  arch: %s\n', platform.arch);
+logger.Write('  mc_exe: %s%s\n', platform.mc_exe_name, platform.mc_exe_ext);
+logger.Write('  exename: %s\n', platform.exename{1});
+logger.Write('  setup_exe: %s\n', platform.setup_exe{1});
+logger.Write('  setup_script: %s\n', platform.setup_script);
+logger.Write('  dirnameApp: %s\n', platform.dirnameApp);
+logger.Write('  mcrpath: %s\n', platform.mcrpath);
+logger.Write('  iso2meshmex: %s\n', platform.iso2meshmex{1});
+logger.Write('  iso2meshbin: %s\n\n', platform.iso2meshbin);
 
 deleteShortcuts();
 
@@ -101,6 +106,7 @@ catch ME
     msg{3} = sprintf('installation folder and then retry installation.');
     menu([msg{:}], 'OK');
 	pause(5);
+	printStack(ME)
     rethrow(ME)
 end
 
@@ -116,58 +122,58 @@ dirnameDst = fullpath(dirnameDst);
 % for mac installation because the executable is actually a directory.
 % Copyfile only copies the contents of a folder so to copy the whole thing
 % you need to specify the root foder same as the source.
-for ii=1:length(platform.exename)
-    copyFileToInstallation([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
+for ii = 1:length(platform.exename)
+    copyFile([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
 end
-
+copyFile([dirnameSrc, 'AppSettings.cfg'],   dirnameDst);
 
 % Copy all the Colin atlas folder files
-copyFileToInstallation([dirnameSrc, 'headsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'headsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation({[dirnameSrc, 'headvol.vox'], [dirnameSrc, 'headvol.vox.gz']}, [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'headvol2ras.txt'],       [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'headvol_dims.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'headvol_tiss_type.txt'], [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'labelssurf.mat'],        [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'labelssurf2vol.txt'],    [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'pialsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'pialsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'refpts.txt'],            [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'refpts2vol.txt'],        [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']);
-copyFileToInstallation([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
-copyFileToInstallation([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
-
+copyFile([dirnameSrc, 'headsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'headsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
+copyFile({[dirnameSrc, 'headvol.vox'], [dirnameSrc, 'headvol.vox.gz']}, [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'headvol2ras.txt'],       [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'headvol_dims.txt'],      [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'headvol_tiss_type.txt'], [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'labelssurf.mat'],        [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'labelssurf2vol.txt'],    [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'pialsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'pialsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'refpts.txt'],            [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'refpts2vol.txt'],        [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']);
+copyFile([dirnameSrc, 'Refpts'], [dirnameDst, 'Refpts']);
+copyFile([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
+copyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
 
 % Check if there a fluence profile to load in this particular search path
-if ~isempty(dir([dirnameSrc, 'fluenceProfs.tar']))
-    untar('fluenceProfs.tar');
+if ispathvalid([dirnameSrc, 'fluenceProfs.tar'])
+    untar([dirnameSrc, 'fluenceProfs.tar']);
 end
 fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
 for ii=1:length(fluenceProfFnames)
     genMultWavelengthSimInFluenceFiles([dirnameSrc, fluenceProfFnames(ii).name], 2);
-    copyFileToInstallation([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
+    copyFile([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
 end
-copyFileToInstallation([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Colin/fw']);
-copyFileToInstallation([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
+copyFile([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Colin/fw']);
+copyFile([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
 
 
-for ii=1:length(platform.iso2meshmex)
+for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a
     % non existent file will be reported as exisiting as a mex file (exist() will return 3)
     % because there are other files with the same name and a .mex extention that do exist.
     % dir doesn't have this problem.
     if ~isempty(dir([dirnameSrc, platform.iso2meshmex{ii}]))
-        fprintf('Copying %s to %s\n', [dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
-        copyFileToInstallation([dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
+        logger.Write('Copying %s to %s\n', [dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
+        copyFile([dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
         if isunix()
             system(sprintf('chmod 755 %s', [dirnameDst, '', platform.iso2meshmex{ii}]'));
         end
     else
-        fprintf('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
+        logger.Write('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
     end
 end
-copyFileToInstallation([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
+copyFile([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
 
 
 createDesktopShortcuts(dirnameSrc, dirnameDst);
@@ -179,19 +185,61 @@ pause(2);
 
 
 % -----------------------------------------------------------------
-function cleanup()
-if ismac()
+function err = cleanup()
+global dirnameSrc
+global dirnameDst
+
+err = 0;
+
+% Uninstall old installation
+try
+    if exist(dirnameDst,'dir')
+        rmdir(dirnameDst, 's');
+    end
+catch ME
+    printStack(ME);
+    msg{1} = sprintf('Error: Could not remove old installation folder %s. It might be in use by other applications.\n', dirnameDst);
+    msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
+    msg{3} = sprintf('installation folder and then retry installation.');
+    menu([msg{:}], 'OK');
+    pause(5);
+    rethrow(ME)
+end
+
+% Change source dir if not on PC
+if ~ispc() && ~isdeployed()
+    dirnameSrc0 = dirnameSrc;
+    
+    dirnameSrc = sprintf('~/Downloads/%s_install/', lower(getAppname));
+    fprintf('SETUP:    current folder is %s\n', pwd);   
     rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
-    rmdir_safe('~/Downloads/%s_install/', lower(getAppname()));
+    rmdir_safe(dirnameSrc);
+    rmdir_safe('~/Desktop/Test/');
+    
+    if ispathvalid(dirnameSrc)
+        err = -1;
+    end
+    if ispathvalid('~/Desktop/%s_install/')
+        err = -1;
+    end
+    if ispathvalid('~/Desktop/Test/')
+        err = -1;
+    end
+       
+    copyFile(dirnameSrc0, dirnameSrc);
+    cd(dirnameSrc);
 end
 
 
 
+
+
 % -------------------------------------------------------------------
-function copyFileToInstallation(src, dst, type)
+function copyFile(src, dst, type)
 global h
 global nSteps
 global iStep
+global logger
 
 if ~exist('type', 'var')
     type = 'file';
@@ -219,14 +267,18 @@ try
     end
     
     % Copy file from source to destination folder
-    fprintf('Copying %s to %s\n', src, dst);
+    logger.Write('Copying %s to %s\n', src, dst);
     copyfile(src, dst);
 
-    waitbar(iStep/nSteps, h); iStep = iStep+1;
+    if ~isempty(iStep)
+        waitbar(iStep/nSteps, h); iStep = iStep+1;
+    end
     pause(1);
 catch ME
-    close(h);
-    printStack();
+    if ishandles(h)
+        close(h);
+    end
+    printStack(ME);
     if iscell(src)
         src = src{1};
     end
@@ -280,9 +332,10 @@ try
         system(cmd);
         
     end
-catch
+catch ME
     msg{1} = sprintf('Error: Could not create %s shortcuts on Desktop. Exiting installation.', exename);
     menu([msg{:}], 'OK');
+    printStack(ME)
     return;    
 end
 

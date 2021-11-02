@@ -74,17 +74,13 @@ fields = fieldnames(objs);
 % Check for a saved viewer state file and restore 
 % state if it exists. 
 vrnum = [];
+warning('off', 'MATLAB:dispatcher:UnresolvedFunctionHandle');
 if exist([atlasViewer.dirnameSubj 'atlasViewer.mat'], 'file')
 
-    load([atlasViewer.dirnameSubj 'atlasViewer.mat'],'-mat');
-    for ii=1:length(fields)
+    load([atlasViewer.dirnameSubj 'atlasViewer.mat'],'-mat'); %#ok<LOAD>
+    for ii = 1:length(fields)
         if exist(fields{ii},'var')
-            % Initialized object exists in saved state. Check its compatibility with current version
-            eval(sprintf('b = ~isempty(objs.%s.checkCompatability);', fields{ii}));
-            if b==1
-                eval(sprintf('%s = objs.%s.checkCompatability(%s);', fields{ii}, fields{ii}, fields{ii}));
-            end
-            eval(sprintf('atlasViewer.%s = restoreObject(%s, objs.%s);', fields{ii}, fields{ii}, fields{ii}));
+            eval(sprintf('atlasViewer.%s = restoreObject(objs.%s, %s);', fields{ii}, fields{ii}, fields{ii}));
         else
             % Initialized object does NOT exist in saved state. Therefore no compatibility issues.  
             eval(sprintf('atlasViewer.%s = restoreObject(objs.%s, objs.%s);', fields{ii}, fields{ii}, fields{ii}));
@@ -105,6 +101,8 @@ else
     end
     
 end
+warning('on', 'MATLAB:dispatcher:UnresolvedFunctionHandle');
+
 
 atlasViewer.dirnameProbe = '';
 atlasViewer.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
@@ -365,12 +363,14 @@ end
 % -----------------------------------------------------------------------
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global atlasViewer
+global cfg
 
 setNamespace('AtlasViewerGUI');
 
 if isempty(varargin)
     atlasViewer = [];
 end
+cfg = ConfigFileClass();
 
 % Choose default command line output for AtlasViewerGUI
 handles.output = hObject;
@@ -490,6 +490,7 @@ function AtlasViewerGUI_DeleteFcn(~, ~, ~)
 global atlasViewer
 
 fclose all;
+
 if isempty(atlasViewer)
     deleteNamespace('AtlasViewerGUI');
     return;
@@ -1338,7 +1339,10 @@ imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off'
 hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off');
 
 fwmodel = displaySensitivity(fwmodel, pialsurf, [], probe);
-
+if isempty(fwmodel.Adot)
+    return
+end
+    
 set(pialsurf.handles.radiobuttonShowPial, 'value',0);
 uipanelBrainDisplay_Callback(pialsurf.handles.radiobuttonShowPial, [], handles);
 
@@ -2760,12 +2764,6 @@ axesv       = atlasViewer.axesv;
 set(imgrecon.handles.popupmenuImageDisplay,'value',imgrecon.menuoffset+1);
 set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',imgrecon.cmThreshold(imgrecon.menuoffset+1,1), ...
                                                                  imgrecon.cmThreshold(imgrecon.menuoffset+1,2)));
-
-imgrecon = inputParamsImgRecon(imgrecon);
-if isempty(imgrecon)
-    return;
-end
-
 imgrecon = genImgReconMetrics(imgrecon, fwmodel, dirnameSubj);
 
 % Turn off image recon display
@@ -3477,13 +3475,13 @@ atlasViewer.imgrecon     = imgrecon;
 % --------------------------------------------------------------------
 function menuItemRefptsFontSize_Callback(~, ~, ~)
 global atlasViewer
-atlasViewer.refpts = resizeFonts(atlasViewer.refpts);
+atlasViewer.refpts = resizeFonts(atlasViewer.refpts, 'Reference Points');
 
 
 % --------------------------------------------------------------------
 function menuItemProbeFontSize_Callback(~, ~, ~)
 global atlasViewer
-atlasViewer.probe = resizeFonts(atlasViewer.probe);
+atlasViewer.probe = resizeFonts(atlasViewer.probe, 'Probe Optodes');
 
 
 
@@ -5253,5 +5251,4 @@ else
         radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
     end
 end
-
 

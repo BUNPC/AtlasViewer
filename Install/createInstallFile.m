@@ -1,5 +1,11 @@
 function createInstallFile(options)
 global installfilename
+global platform
+
+platform = [];
+
+% Start with a clean slate
+cleanup('','','start');
 
 installfilename = sprintf('%s_install', lower(getAppname()));
 [~, exename] = getAppname();
@@ -11,7 +17,7 @@ if ~exist('options','var') || isempty(options)
 end
 
 % Find installation path and add it to matlab search paths
-dirnameApp = getAppDir;
+dirnameApp = getAppDir();
 if isempty(dirnameApp)
     MessageBox('Cannot create installation package. Could not find root application folder.');
     deleteNamespace(exename)
@@ -26,9 +32,6 @@ end
 addpath(dirnameInstall, '-end')
 cd(dirnameInstall);
 
-% Start with a clean slate
-cleanup(dirnameInstall, dirnameApp, 'start');
-
 % Set the executable names based on the platform type
 platform = setplatformparams();
 
@@ -42,14 +45,19 @@ mkdir([dirnameInstall, installfilename]);
 
 % Generate executables
 if ~strcmp(options, 'nobuild')
-	Buildme_Setup();
-	Buildme();
-    if islinux()
-        perl('./makesetup.pl','./run_setup.sh','./setup.sh');
-    elseif ismac()
-        perl('./makesetup.pl','./run_setup.sh','./setup.command');
+    Buildme_Setup();
+    Buildme();
+    if ~ispc()
+        c = str2cell(version(),'.');
+        mcrver = sprintf('v%s%s', c{1}, c{2});
+        if islinux()
+            perl('./makesetup.pl','./run_setup.sh','./setup.sh', mcrver);
+        elseif ismac()
+            perl('./makesetup.pl','./run_setup.sh','./setup.command', mcrver);
+        end
     end
 end
+
 
 % Zip up MC application 
 mc_exe_dir = [dirnameApp,  'ForwardModel/', platform.mc_exe_name];
@@ -59,7 +67,7 @@ if exist(mc_exe_dir,'dir') == 7
     delete([dirnameInstall, installfilename, '/', platform.mc_exe_name, '.tar']);
 end
 
-for ii=1:length(platform.exename)
+for ii = 1:length(platform.exename)
     if exist([dirnameInstall, platform.exename{ii}],'file')
         copyfile([dirnameInstall, platform.exename{ii}], [dirnameInstall, installfilename, '/', platform.exename{ii}]);
     end
@@ -67,7 +75,7 @@ end
 if exist([dirnameInstall, platform.setup_script],'file')==2
     copyfile([dirnameInstall, platform.setup_script], [dirnameInstall, installfilename]);
 end
-for ii=1:length(platform.setup_exe)
+for ii = 1:length(platform.setup_exe)
     if exist([dirnameInstall, platform.setup_exe{ii}],'file')
         if ispc()
             copyfile([dirnameInstall, platform.setup_exe{1}], [dirnameInstall, installfilename, '/installtemp']);
@@ -85,6 +93,10 @@ if exist([dirnameApp, 'Group/FuncRegistry'],'dir')
         copyfile([dirnameApp, 'Group/FuncRegistry'], [dirnameInstall, installfilename, '/Group/FuncRegistry']);
     end
 end
+if exist([dirnameApp, 'Refpts/10-5-System_Mastoids_EGI129.csd'],'file')
+    mkdir([dirnameInstall, installfilename, '/Refpts'])
+    copyfile([dirnameApp, 'Refpts/10-5-System_Mastoids_EGI129.csd'], [dirnameInstall, installfilename, '/Refpts']);
+end
 if exist([dirnameApp, 'Test'],'dir')
     copyfile([dirnameApp, 'Test'], [dirnameInstall, installfilename, '/Test']);
 end
@@ -94,6 +106,24 @@ for ii=1:length(platform.createshort_script)
         copyfile([dirnameInstall, platform.createshort_script{ii}], [dirnameInstall, installfilename]);
     end
 end
+
+dirnameSrc = filesepStandard(fileparts(which([exename, '.m'])));
+cfg = ConfigFileClass();
+for ii = 1:length(cfg.filenames)
+    p = filesepStandard(fileparts(cfg.filenames{ii}));
+    k = strfind(p, dirnameSrc);
+    pathRelative = p(k+length(dirnameSrc):end);
+    fprintf('Copying  %s  to  %s\n', cfg.filenames{ii}, [dirnameInstall, installfilename, '/', pathRelative]);
+    if ~ispathvalid([dirnameInstall, installfilename, '/', pathRelative])
+        mkdir([dirnameInstall, installfilename, '/', pathRelative])
+    end
+    copyfile(cfg.filenames{ii}, [dirnameInstall, installfilename, '/', pathRelative]);
+end
+
+if exist([dirnameApp, 'AppSettings.cfg'],'file')
+    copyfile([dirnameApp, 'AppSettings.cfg'], [dirnameInstall, installfilename]);
+end
+
 if exist(getAtlasDir(),'dir')
     copyfile([getAtlasDir(), 'anatomical/*.*'], [dirnameInstall, installfilename]);
     copyfile([getAtlasDir(), 'fw/*.*'], [dirnameInstall, installfilename]);
@@ -115,7 +145,7 @@ if exist([dirnameInstall, 'README.txt'],'file')
     copyfile([dirnameInstall, 'README.txt'], [dirnameInstall, installfilename]);
 end
 
-for ii=1:length(platform.iso2meshmex)
+for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a  
     % non existent file will be reported as exisiting as a mex file (exist() will return 3)
     % because there are other files with the same name and a .mex extention that do exist. 

@@ -19,7 +19,7 @@ end
 
 
 % ------------------------------------------------------------------
-function val = Initialize(handles, args)
+function Initialize(handles, args)
 global resizedlg
 
 if isempty(resizedlg)
@@ -52,30 +52,34 @@ end
 % Get initial font size percentage based on external graphic object size if it exists
 if ishandles(resizedlg.hlabels)
     fs = get(resizedlg.hlabels(1), 'fontsize');
-    percent_fs = fontSizeToPercentage(fs);
+    sliderval_fs = fs2slider(fs);
 else
-    percent_fs = get(handles.sliderFontResize, 'value');
-    fs = percentToFontSize(percent_fs);
+    sliderval_fs = get(handles.sliderFontResize, 'value');
+    fs = slider2fs(sliderval_fs);
 end
 
 % Get initial circle size percentage based on external graphic object size if it exists
 if ishandles(resizedlg.hcircles)
     cs = get(resizedlg.hcircles(1), 'markersize');
-    percent_cs = circleSizeToPercentage(cs);
+    sliderval_cs = cs2slider(cs);
 else
-    percent_cs = get(handles.sliderCircleResize, 'value');
-    cs = percentToCircleSize(percent_cs);
+    sliderval_cs = get(handles.sliderCircleResize, 'value');
+    cs = slider2cs(sliderval_cs);
 end
 
 resizedlg.output = [fs, cs];
 
-set(handles.editFontResize, 'string', num2str(uint32(100*percent_fs)));
-set(handles.sliderFontResize, 'value', percent_fs);
-UpdateFontSize(handles, percent_fs)
+set(handles.editFontResize, 'string', num2str(fs));
+set(handles.sliderFontResize, 'value', sliderval_fs);
+set(handles.editFontSizeMin, 'string', resizedlg.maxmin(1,1));
+set(handles.editFontSizeMax, 'string', resizedlg.maxmin(1,2));
+UpdateFontSize(handles, fs);
 
-set(handles.editCircleResize, 'string', num2str(uint32(100*percent_cs)));
-set(handles.sliderCircleResize, 'value', percent_cs);
-UpdateCircleSize(handles, percent_cs)
+set(handles.editCircleResize, 'string', num2str(cs));
+set(handles.sliderCircleResize, 'value', sliderval_cs);
+set(handles.editCircleSizeMin, 'string', resizedlg.maxmin(2,1));
+set(handles.editCircleSizeMax, 'string', resizedlg.maxmin(2,2));
+UpdateCircleSize(handles, cs);
 
 
 
@@ -100,34 +104,93 @@ varargout{1} = handles.figure1;
 
 
 % ------------------------------------------------------------------
+function fs = slider2fs(slider)
+global resizedlg
+fs = uint32(resizedlg.maxmin(1,1) + slider*(resizedlg.maxmin(1,2)-resizedlg.maxmin(1,1)));
+
+
+
+% ------------------------------------------------------------------
+function slider = fs2slider(fs)
+global resizedlg
+slider = (round(fs) - resizedlg.maxmin(1,1))/(resizedlg.maxmin(1,2)-resizedlg.maxmin(1,1));
+
+
+
+% ------------------------------------------------------------------
+function cs = slider2cs(slider)
+global resizedlg
+cs = uint32(resizedlg.maxmin(2,1) + slider*(resizedlg.maxmin(2,2)-resizedlg.maxmin(2,1)));
+
+
+
+% ------------------------------------------------------------------
+function slider = cs2slider(cs)
+global resizedlg
+slider = (round(cs) - resizedlg.maxmin(2,1))/(resizedlg.maxmin(2,2)-resizedlg.maxmin(2,1));
+
+
+
+% ------------------------------------------------------------------
 function sliderFontResize_Callback(hObject, ~, handles) %#ok<*DEFNU>
 val = get(hObject, 'value');
-set(handles.editFontResize, 'string', num2str(uint32(val*100)));
-UpdateFontSize(handles, val);
+fs = slider2fs(val);
+set(handles.editFontResize, 'string', num2str(fs));
+UpdateFontSize(handles, fs);
 
 
 
 % ------------------------------------------------------------------
 function editFontResize_Callback(hObject, ~, handles)
-val = str2num(get(hObject, 'string'));
-set(handles.sliderFontResize, 'value', val/100);
-UpdateFontSize(handles, val/100);
+global resizedlg
+s = get(hObject, 'string');
+if ~isnumber(s)
+    p = get(handles.sliderFontResize, 'value');
+    fsprev = slider2fs(p);
+    set(hObject, 'string',num2str(fsprev))
+    return;
+end
+fs = str2num(s);
+if fs<resizedlg.maxmin(1,1) || fs>resizedlg.maxmin(1,2)
+    p = get(handles.sliderFontResize, 'value');
+    fsprev = slider2fs(p);
+    set(hObject, 'string',num2str(fsprev))
+    return;
+end
+set(handles.sliderFontResize, 'value', fs2slider(fs));
+UpdateFontSize(handles, fs);
 
 
 
 % -------------------------------------------------------------------
 function sliderCircleResize_Callback(hObject, ~, handles)
 val = get(hObject, 'value');
-set(handles.editCircleResize, 'string', num2str(uint32(val*100)));
-UpdateCircleSize(handles, val);
+cs = slider2cs(val);
+set(handles.editCircleResize, 'string', num2str(cs));
+UpdateCircleSize(handles, cs);
 
 
 
 % -------------------------------------------------------------------
 function editCircleResize_Callback(hObject, ~, handles)
-val = str2num(get(hObject, 'string'));
-set(handles.sliderCircleResize, 'value', val/100);
-UpdateCircleSize(handles, val/100);
+global resizedlg
+s = get(hObject, 'string');
+if ~isnumber(s)
+    p = get(handles.sliderCircleResize, 'value');
+    csprev = slider2cs(p);
+    set(hObject, 'string',num2str(csprev))
+    return;
+end
+cs = str2num(s);
+if cs<resizedlg.maxmin(2,1) || cs>resizedlg.maxmin(2,2)
+    p = get(handles.sliderCircleResize, 'value');
+    csprev = slider2cs(p);
+    set(hObject, 'string',num2str(csprev))
+    return;
+end
+set(handles.sliderCircleResize, 'value', cs2slider(cs));
+UpdateCircleSize(handles, cs);
+
 
 
 
@@ -136,10 +199,10 @@ function pushbuttonSave_Callback(~, ~, handles)
 global resizedlg
 
 p = str2num(get(handles.editFontResize, 'string'));
-fs = UpdateFontSize(handles, p/100);
+fs = UpdateFontSize(handles, p);
 
 p = str2num(get(handles.editCircleResize, 'string'));
-cs = UpdateCircleSize(handles, p/100);
+cs = UpdateCircleSize(handles, p);
 
 resizedlg.output = [fs, cs];
 close(handles.figure1);
@@ -153,9 +216,8 @@ close(handles.figure1);
 
 
 % ------------------------------------------------------------------
-function sz = UpdateFontSize(handles, val)
+function sz = UpdateFontSize(handles, sz)
 global resizedlg
-sz = percentToFontSize(val);
 set(handles.textShowFontSize, 'fontsize',sz);
 if ishandles(resizedlg.hlabels)
     set(resizedlg.hlabels, 'fontsize',sz);
@@ -163,9 +225,8 @@ end
 
 
 % ------------------------------------------------------------------
-function sz = UpdateCircleSize(handles, val)
+function sz = UpdateCircleSize(handles, sz)
 global resizedlg
-sz = percentToCircleSize(val);
 setMarkerSize(handles.axesShowCircleSize, sz);
 if ishandles(resizedlg.hcircles)
     set(resizedlg.hcircles, 'markersize',sz);

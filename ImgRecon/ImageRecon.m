@@ -251,7 +251,12 @@ if value2 == 1 & ndims(Adot_scalp) < 3
 end
 
 %%%% Get probe data 
-SD   = convertProbe2SD(probe);
+SD = convertProbe2SD(probe);
+SD2 = dataTree.currElem.GetMeasList();
+SD2.Lambda = dataTree.currElem.GetWls();
+SD.Lambda = SD2.Lambda;
+SD.MeasList = SD2.MeasList;
+SD.MeasListAct = SD2.MeasListAct;
 
 % Get fnirs time course data
 dc   = dataTree.currElem.GetDcAvg();
@@ -434,6 +439,7 @@ saveImgRecon(imgrecon);
 atlasViewer.imgrecon = imgrecon;
 
 
+
 % ---------------------------------------------------------------------------------
 function plotHb_Callback(~, ~, handles)
 % This function executes on button press in plotHb.
@@ -525,7 +531,6 @@ hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off
 
 % Turn resolution on and localization error display off
 imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'on', 'off');
-
 
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
