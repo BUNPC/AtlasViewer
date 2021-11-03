@@ -60,7 +60,7 @@ if isempty(fwmodel.fluenceProfFnames)
         fluenceProfFnames = dir([dirnameFluence, 'fluenceProf*.mat']);
     end
     
-    for ii=1:length(fluenceProfFnames)
+    for ii = 1:length(fluenceProfFnames)
         foo = loadFluenceProf([dirnameFluence, fluenceProfFnames(ii).name], 'index');
         fwmodel.fluenceProfFnames{foo.index} = [dirnameFluence, fluenceProfFnames(ii).name];
     end
