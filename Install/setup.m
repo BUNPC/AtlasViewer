@@ -6,6 +6,8 @@ global dirnameDst
 
 try
 
+    setNamespace('AtlasViewerGUI');
+    
     currdir = filesepStandard(pwd);
         
     h = waitbar(0,'Installation Progress ...');
@@ -188,8 +190,11 @@ pause(2);
 function err = cleanup()
 global dirnameSrc
 global dirnameDst
+global logger 
 
 err = 0;
+
+logger = [];
 
 % Uninstall old installation
 try
@@ -207,27 +212,30 @@ catch ME
 end
 
 % Change source dir if not on PC
-if ~ispc() && ~isdeployed()
-    dirnameSrc0 = dirnameSrc;
-    
+if ~ispc()
     dirnameSrc = sprintf('~/Downloads/%s_install/', lower(getAppname));
     fprintf('SETUP:    current folder is %s\n', pwd);   
-    rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
-    rmdir_safe(dirnameSrc);
-    rmdir_safe('~/Desktop/Test/');
     
-    if ispathvalid(dirnameSrc)
-        err = -1;
+    if ~isdeployed()
+        rmdir_safe(sprintf('~/Desktop/%s_install/', lower(getAppname())));
+        if ~pathscompare(dirnameSrc, dirnameSrc0)
+            rmdir_safe(dirnameSrc);            
+            if ispathvalid(dirnameSrc)
+                err = -1;
+            end
+            copyFile(dirnameSrc0, dirnameSrc);
+        end
+        rmdir_safe('~/Desktop/Test/');
+        
+        if ispathvalid('~/Desktop/%s_install/')
+            err = -1;
+        end
+        if ispathvalid('~/Desktop/Test/')
+            err = -1;
+        end
+        
+        cd(dirnameSrc);
     end
-    if ispathvalid('~/Desktop/%s_install/')
-        err = -1;
-    end
-    if ispathvalid('~/Desktop/Test/')
-        err = -1;
-    end
-       
-    copyFile(dirnameSrc0, dirnameSrc);
-    cd(dirnameSrc);
 end
 
 
@@ -267,7 +275,13 @@ try
     end
     
     % Copy file from source to destination folder
-    logger.Write('Copying %s to %s\n', src, dst);
+    
+    logmsg = sprintf('Copying %s to %s\n', src, dst);
+    if isempty(logger)
+        fprintf(logmsg);
+    else
+        logger.Write(logmsg);
+    end
     copyfile(src, dst);
 
     if ~isempty(iStep)
