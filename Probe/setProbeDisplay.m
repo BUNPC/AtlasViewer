@@ -4,6 +4,8 @@ hProjectionRays = probe.handles.hProjectionRays;
 hSprings        = probe.handles.hSprings;
 hMeasList       = probe.handles.hMeasList;
 noptorig        = probe.noptorig;
+nsrc            = probe.nsrc;
+ndet            = probe.ndet;
 sl              = probe.registration.sl;
 hOidx           = probe.hOptodesIdx;
 nopt            = size(probe.handles.labels,1);
@@ -79,7 +81,7 @@ if strcmp(method,'digpts')
       end
    end
 elseif strcmp(method,'springs')
-   iDummy = noptorig+1 : nopt;
+   iDummy = nsrc+ndet+1 : nopt;
    iSprDum=[];
    for i=1:length(iDummy)
       iSprDum = [iSprDum; find(sl(:,1)==iDummy(i) | sl(:,2)==iDummy(i))]; 

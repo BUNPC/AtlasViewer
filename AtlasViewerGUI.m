@@ -3873,6 +3873,10 @@ if ~isempty(sl)
     sl(s_idx,2) = sl(s_idx,2)-1;
 end
 al = atlasViewer.probe.registration.al;
+al_idx = find([al{:,1}]== idx);
+if ~isempty(al_idx)
+    al(al_idx,:) = [];
+end
 for u = 1:size(al,1)
     if al{u,1} >= idx
         al{u,1} = al{u,1}-1;
@@ -4386,6 +4390,10 @@ if eventdata.Button == 1
                         sl(s_idx,2) = sl(s_idx,2)-1;
                     end
                     al = atlasViewer.probe.registration.al;
+                    al_idx = find([al{:,1}]== idx);
+                    if ~isempty(al_idx)
+                        al(al_idx,:) = [];
+                    end
                     for u = 1:size(al,1)
                         if al{u,1} >= idx
                             al{u,1} = al{u,1}-1;
