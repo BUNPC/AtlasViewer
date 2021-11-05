@@ -183,7 +183,7 @@ end
 
 % Display all objects
 digpts     = displayDigpts(digpts);
-clcrefpts     = displayRefpts(refpts);
+refpts     = displayRefpts(refpts);
 probe      = displayProbe(probe, refpts);
 headsurf   = displayHeadsurf(headsurf);
 pialsurf   = displayPialsurf(pialsurf);
