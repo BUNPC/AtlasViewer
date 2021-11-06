@@ -74,6 +74,7 @@ probe = struct( ...
                'T_2mc',eye(4) ...
               );
           
+
 probe = initFontSizeConfigParams(probe, 'Probe Optodes');
 probe = initRegistration(probe);
 
@@ -407,9 +408,7 @@ end
 
 % probe1.ml is empty and probe2.ml seems valid, lets copy it...
 probe1.ml = probe2.ml;
-
-
-
+probe1.lambda = probe2.lambda;
 
 % ----------------------------------------------------------------
 function probe2 = checkCompatability(probe2, probe1, field)

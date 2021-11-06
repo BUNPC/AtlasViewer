@@ -1,9 +1,9 @@
 function imgrecon = inputParamsImgRecon(imgrecon)
 
-if ~isempty(imgrecon.localizationError) & ~isempty(imgrecon.resolution)
-    imgrecon = [];
-    return;
-end
+% if ~isempty(imgrecon.localizationError) & ~isempty(imgrecon.resolution)
+%     imgrecon = [];
+%     return;
+% end
 
 params = fieldnames(imgrecon.imageParams);
 defaultVals={};
