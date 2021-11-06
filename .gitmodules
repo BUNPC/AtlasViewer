@@ -5,4 +5,4 @@
 [submodule "Group/DataTree"]
 	path = Group/DataTree
 	url = https://github.com/BUNPC/DataTree
-	branch = master
+	branch = development
