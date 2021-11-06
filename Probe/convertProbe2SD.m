@@ -58,10 +58,17 @@ end
 
 % add refpts and head mesh to SD file
 if ~isempty(atlasViewer)
+    if isfield(atlasViewer.refpts,'eeg_system')
+        SD.Landmarks.eeg_system = atlasViewer.refpts.eeg_system;
+    end
+    if isfield(atlasViewer.refpts,'scaling')
+        SD.Landmarks.scaling = atlasViewer.refpts.scaling;
+    end
     SD.Landmarks.pos = atlasViewer.refpts.pos;
     SD.Landmarks.labels = atlasViewer.refpts.labels;
     SD.mesh = atlasViewer.headsurf.mesh;
 end
 
 SD = updateProbe2DcircularPts(probe, SD);
+
 

@@ -16,6 +16,7 @@ refpts_labels = {'T7','T8','Oz','Fpz','Cz','C3','C4','Pz','Fz'};
 % get positions for refpts_labels from both sphere and probe ref pts
 for u = 1:length(refpts_labels)
     label = refpts_labels{u};
+
     idx = ismember(SD.Landmarks.labels, label);
     if isempty(idx)
         return
@@ -57,6 +58,7 @@ xy = xy/norm_factor;               % set maximum to unit length
 xy = xy/2 + 0.5;                    % adjust to range 0-1
 refpts_2D.pos = xy;
 SD.Landmarks2D = refpts_2D;
+
 %%
 if isfield(SD,'SrcPos3D') & ~isempty(SD.SrcPos3D)
     SD.SrcPos2D = convert_optodepos_to_circlular_2D_pos(SD.SrcPos3D, T, norm_factor);
@@ -67,8 +69,6 @@ end
 if isfield(SD,'DummyPos3D') & ~isempty(SD.DummyPos3D)
     SD.DummyPos2D = convert_optodepos_to_circlular_2D_pos(SD.DummyPos3D, T, norm_factor);
 end
-
-
 
 % -------------------------------------------------------------------------------
 function xy = convert_optodepos_to_circlular_2D_pos(pos, T, norm_factor)
@@ -83,3 +83,4 @@ elevation = pi/2-elevation;
 xy = [x y];
 xy = xy/norm_factor;               % set maximum to unit length
 xy = xy/2 + 0.5;
+
