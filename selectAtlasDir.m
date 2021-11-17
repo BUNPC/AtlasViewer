@@ -25,7 +25,7 @@ while 1
         if q==1
             continue;
         elseif q==2
-            dirname = [];
+            dirname = '';
             break;
         end
     end

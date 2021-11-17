@@ -1,16 +1,15 @@
 function b = isAtlasDir(dirname)
+global logger
 
 b = false;
 
-if ~exist('dirname','var') | ~exist(dirname,'dir')
+logger.Write('isAtlasDir:   Checking  %s atlas folder\n', dirname);
+
+if ~exist('dirname','var') || ~exist(dirname,'dir')
     return;
 end
 
-% Add trailing file separator to dirname if there is none
-dirname(dirname=='\') = '/';
-if dirname(end) ~= '/' 
-    dirname(end+1) = '/';
-end
+dirname = filesepStandard(dirname);
 
 if exist([dirname, 'anatomical'],'dir')~=7
     return;

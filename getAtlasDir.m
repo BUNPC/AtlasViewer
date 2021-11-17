@@ -1,4 +1,7 @@
 function dirname = getAtlasDir(arg)
+global logger
+
+logger = InitLogger(logger);
 
 if ~exist('arg','var')
     arg={};
@@ -11,25 +14,23 @@ if length(arg) > 2
     dirname = arg{2};
 end
 
+
+
+% Set the components of the default atlas dir pathname
+% <dirnameApp>/<dirnameRootAtlases>/<defaultAtlases{ii}>
+% for both executable and matlab IDE
+dirnameApp = getAppDir();
+defaultAtlases =  {'Colin','Colin_old'};
+
+logger.Write('getAtlasDir:   dirnameApp - %s\n', dirnameApp);
+
 % No argument supplied or argument supplied but directory 
 % doesn't exist. In this case try finding defaults 
-if isempty(dirname) | ~exist(dirname,'file')
-
-    % Set the components of the default atlas dir pathname
-    % <dirnameApp>/<dirnameRootAtlases>/<defaultAtlases{ii}>
-    % for both executable and matlab IDE
-    dirnameApp = getAppDir();
-    if isdeployed()
-        dirnameRootAtlases = '';
-    else
-        dirnameRootAtlases = 'Data/';
-    end
-    defaultAtlases =  {'Colin','Colin_old'};
-    
-    
+if isempty(dirname) || ~exist(dirname,'file')
+           
     % Search for atlas in default locations
-    for ii=1:length(defaultAtlases)
-        dirname = [dirnameApp, dirnameRootAtlases, defaultAtlases{ii}];
+    for ii = 1:length(defaultAtlases)
+        dirname = [dirnameApp, 'Data/', defaultAtlases{ii}];
         if isAtlasDir(dirname)
             break;
         else
@@ -47,11 +48,11 @@ if isempty(dirname) | ~exist(dirname,'file')
 % Argument supplied, dir exists but is not an atlas dir. It's an invitation
 % for the user to pick the atlas from a list of atlases. Supposedly dirname contains
 % a database of atlases.
-elseif exist(dirname,'file') & ~isAtlasDir(dirname)
+elseif exist(dirname,'file') && ~isAtlasDir(dirname)
 
-    for ii=1:length(defaultAtlases)
+    for ii = 1:length(defaultAtlases)
         if isAtlasDir([dirname, '/', defaultAtlases])
-            dirname = [dirname, '/', defaultAtlases];
+            dirname = [dirname, '/', defaultAtlases]; %#ok<AGROW>
         else
             dirname = '';
         end
@@ -59,22 +60,18 @@ elseif exist(dirname,'file') & ~isAtlasDir(dirname)
     if isempty(dirname)
         dirname = selectAtlasDir(dirname);
     end
-        
+    
 end
 
 
 % Check if we still have no atlas dir and warn user if that's the case
-if isempty(dirname) | dirname==0
+if isempty(dirname)
     menu('Warning: Couldn''t find default atlas directory.','OK');
-    dirname = '';
     return;
 end
 
-fprintf('Found atlas: %s\n', dirname);
+logger.Write('Found atlas: %s\n', dirname);
+dirname = filesepStandard(dirname);
 
-% Add trailing file separator to dirname if there is none
-dirname(dirname=='\') = '/';
-if dirname(end) ~= '/' 
-    dirname(end+1) = '/';
-end
+
 

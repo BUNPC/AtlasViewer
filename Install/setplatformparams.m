@@ -11,7 +11,6 @@ else
     dirnameHome = 'c:/users/public/';
 end
 
-
 platform = struct(...
     'arch','', ...
     'mc_exe_name','tMCimg', ...
@@ -61,7 +60,6 @@ elseif ispc()
     platform.exename{1} = 'AtlasViewerGUI.exe';
     platform.exenameDesktopPath = [platform.desktopPath, '/', platform.exename{1}, '.lnk'];
     platform.setup_exe{1} = 'setup.exe';
-    platform.setup_exe{2} = 'installtemp';
     platform.setup_script = 'setup.bat';
     platform.createshort_script{1} = 'createShortcut.bat';
     platform.createshort_script{2} = 'createShortcut.vbs';

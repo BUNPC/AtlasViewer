@@ -41,7 +41,7 @@ end
 cd(currdir)
 
 
-    
+ 
 
 % ------------------------------------------------------------
 function main()
@@ -77,7 +77,7 @@ logger.Write('  setup_script: %s\n', platform.setup_script);
 logger.Write('  dirnameApp: %s\n', platform.dirnameApp);
 logger.Write('  mcrpath: %s\n', platform.mcrpath);
 logger.Write('  iso2meshmex: %s\n', platform.iso2meshmex{1});
-logger.Write('  iso2meshbin: %s\n\n', platform.iso2meshbin);
+logger.Write('  iso2meshbin: %s\n\n', filesepStandard(platform.iso2meshbin));
 
 deleteShortcuts();
 
@@ -95,24 +95,6 @@ catch ME
     rethrow(ME)
 end
 
-try 
-    mkdir([dirnameDst, 'Colin']);
-    mkdir([dirnameDst, 'Colin/anatomical']);
-    mkdir([dirnameDst, 'Colin/fw']);
-    mkdir([dirnameDst, platform.mc_exe_name]);
-    mkdir([dirnameDst, 'Test']);
-catch ME
-    close(h);
-    msg{1} = sprintf('Error: Could not create installtion subfolder. Installtion folder might be in use by other applications.\n');
-    msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
-    msg{3} = sprintf('installation folder and then retry installation.');
-    menu([msg{:}], 'OK');
-	pause(5);
-	printStack(ME)
-    rethrow(ME)
-end
-
-
 % Get full paths for source and destination directories
 dirnameSrc = fullpath(dirnameSrc);
 dirnameDst = fullpath(dirnameDst);
@@ -125,40 +107,13 @@ dirnameDst = fullpath(dirnameDst);
 % Copyfile only copies the contents of a folder so to copy the whole thing
 % you need to specify the root foder same as the source.
 for ii = 1:length(platform.exename)
-    copyFile([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
+    myCopyFile([dirnameSrc, platform.exename{ii}],  [dirnameDst, platform.exename{ii}]);
 end
-copyFile([dirnameSrc, 'AppSettings.cfg'],   dirnameDst);
-
-% Copy all the Colin atlas folder files
-copyFile([dirnameSrc, 'headsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'headsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFile({[dirnameSrc, 'headvol.vox'], [dirnameSrc, 'headvol.vox.gz']}, [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'headvol2ras.txt'],       [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'headvol_dims.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'headvol_tiss_type.txt'], [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'labelssurf.mat'],        [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'labelssurf2vol.txt'],    [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'pialsurf.mesh'],         [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'pialsurf2vol.txt'],      [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'refpts.txt'],            [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'refpts2vol.txt'],        [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'refpts_labels.txt'],     [dirnameDst, 'Colin/anatomical']);
-copyFile([dirnameSrc, 'Refpts'], [dirnameDst, 'Refpts']);
-copyFile([dirnameSrc, platform.mc_exe_name, '.tar.gz'], [dirnameDst, platform.mc_exe_name]);
-copyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
-
-% Check if there a fluence profile to load in this particular search path
-if ispathvalid([dirnameSrc, 'fluenceProfs.tar'])
-    untar([dirnameSrc, 'fluenceProfs.tar']);
-end
-fluenceProfFnames = dir([dirnameSrc, 'fluenceProf*.mat']);
-for ii=1:length(fluenceProfFnames)
-    genMultWavelengthSimInFluenceFiles([dirnameSrc, fluenceProfFnames(ii).name], 2);
-    copyFile([dirnameSrc, fluenceProfFnames(ii).name],  [dirnameDst, 'Colin/fw']);
-end
-copyFile([dirnameSrc, 'projVoltoMesh_brain.mat'], [dirnameDst, 'Colin/fw']);
-copyFile([dirnameSrc, 'projVoltoMesh_scalp.mat'], [dirnameDst, 'Colin/fw']);
-
+myCopyFile([dirnameSrc, 'AppSettings.cfg'],   dirnameDst);
+myCopyFile([dirnameSrc, 'Data'],         [dirnameDst, 'Data']);
+myCopyFile([dirnameSrc, platform.mc_exe_name], [dirnameDst, platform.mc_exe_name]);
+myCopyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
+myCopyFile([dirnameSrc, 'LastCheckForUpdates.dat'], dirnameDst);
 
 for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a
@@ -166,17 +121,13 @@ for ii = 1:length(platform.iso2meshmex)
     % because there are other files with the same name and a .mex extention that do exist.
     % dir doesn't have this problem.
     if ~isempty(dir([dirnameSrc, platform.iso2meshmex{ii}]))
-        logger.Write('Copying %s to %s\n', [dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
-        copyFile([dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
+        myCopyFile([dirnameSrc, platform.iso2meshmex{ii}], dirnameDst);
         if isunix()
             system(sprintf('chmod 755 %s', [dirnameDst, '', platform.iso2meshmex{ii}]'));
         end
-    else
-        logger.Write('ERROR: %s does NOT exist...\n', [dirnameSrc, platform.iso2meshmex{ii}]);
     end
 end
-copyFile([dirnameSrc, 'Test'], [dirnameDst, 'Test'], 'dir');
-
+myCopyFile([dirnameSrc, 'Test'], [dirnameDst, 'Test']);
 
 createDesktopShortcuts(dirnameSrc, dirnameDst);
 
@@ -223,7 +174,7 @@ if ~ispc()
             if ispathvalid(dirnameSrc)
                 err = -1;
             end
-            copyFile(dirnameSrc0, dirnameSrc);
+            myCopyFile(dirnameSrc0, dirnameSrc);
         end
         rmdir_safe('~/Desktop/Test/');
         
@@ -236,69 +187,6 @@ if ~ispc()
         
         cd(dirnameSrc);
     end
-end
-
-
-
-
-
-% -------------------------------------------------------------------
-function copyFile(src, dst, type)
-global h
-global nSteps
-global iStep
-global logger
-
-if ~exist('type', 'var')
-    type = 'file';
-end
-
-try
-    % If src is one of several possible filenames, then src to any one of
-    % the existing files.
-    if iscell(src)
-        for ii=1:length(src)
-            if ~isempty(dir(src{ii}))
-                src = src{ii};
-                break;
-            end
-        end
-    end
-    
-    assert(logical(exist(src, type)));
-    
-    % Check if we need to untar the file 
-    k = findstr(src,'.tar.gz'); %#ok<FSTR>
-    if ~isempty(k)
-        untar(src,fileparts(src));
-        src = src(1:k-1);
-    end
-    
-    % Copy file from source to destination folder
-    
-    logmsg = sprintf('Copying %s to %s\n', src, dst);
-    if isempty(logger)
-        fprintf(logmsg);
-    else
-        logger.Write(logmsg);
-    end
-    copyfile(src, dst);
-
-    if ~isempty(iStep)
-        waitbar(iStep/nSteps, h); iStep = iStep+1;
-    end
-    pause(1);
-catch ME
-    if ishandles(h)
-        close(h);
-    end
-    printStack(ME);
-    if iscell(src)
-        src = src{1};
-    end
-    menu(sprintf('Error: Could not copy %s to installation folder.', src), 'OK');
-    pause(5);
-    rethrow(ME);
 end
 
 
