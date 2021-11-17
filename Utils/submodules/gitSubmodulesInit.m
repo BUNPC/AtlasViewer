@@ -24,7 +24,9 @@ cmds{ii,1} = sprintf('cd %s', repoFull); ii = ii+1;
 cmds{ii,1} = sprintf('git config --global http.sslverify "false"'); ii = ii+1;
 for jj = 1:size(submodules,1)
     [~, submodulename] = fileparts(submodules{jj,1});
-    cmds{ii,1} = sprintf('git config --file=.gitmodules submodule.%s.url %s', submodules{jj,3}(1:end-1), [urlroot, '/', submodulename]); ii = ii+1;
+    if ~strcmp(submodules{jj,1}, [urlroot, '/', submodulename])
+        cmds{ii,1} = sprintf('git config --file=.gitmodules submodule.%s.url %s', submodules{jj,3}(1:end-1), [urlroot, '/', submodulename]); ii = ii+1;
+    end
 end
 cmds{ii,1} = sprintf('git submodule update --init --recursive --remote'); ii = ii+1;
 
