@@ -17,6 +17,9 @@ if ~exist('options','var')
     options = 'end';
 end
 
+if ~optionExists(options,'start')    
+    fclose all
+end
 
 if exist([dirnameInstall, installfilename],'dir')
     rmdir_safe([dirnameInstall, installfilename]);
@@ -38,20 +41,37 @@ if ispathvalid([dirnameInstall, 'desktopPath.txt'])
     delete([dirnameInstall, 'desktopPath.txt']);
 end
 
-for ii=1:length(platform.setup_exe)
+for ii = 1:length(platform.setup_exe)
     if exist([dirnameInstall, platform.setup_exe{ii}],'file')==2
         delete([dirnameInstall, platform.setup_exe{ii}]);
     elseif exist([dirnameInstall, platform.setup_exe{ii}],'dir')==7
         rmdir_safe([dirnameInstall, platform.setup_exe{ii}]);
     end
 end
+
 if optionExists(options,'start')
-    if exist([dirnameInstall, 'Buildme.log'],'file')
-        delete([dirnameInstall, 'Buildme.log']);
+    
+    % First try using git to clean house
+    currdir = pwd;
+    cd(getAppDir());
+    cmd = sprintf('git clean -d -f -x   ./Install');
+    system(cmd);
+    cd(currdir)
+    
+    % Now delete explicitly
+    if exist([dirnameApp, 'Buildme.log'],'file')
+        delete([dirnameApp, 'Buildme.log']);
     end
     if exist([dirnameApp, 'Buildme_Setup.log'],'file')
         delete([dirnameApp, 'Buildme_Setup.log']);
     end
+    if exist([dirnameInstall, 'Buildme.log'],'file')
+        delete([dirnameInstall, 'Buildme.log']);
+    end
+    if exist([dirnameInstall, 'Buildme_Setup.log'],'file')
+        delete([dirnameInstall, 'Buildme_Setup.log']);
+    end
+        
 end
 if exist([dirnameInstall, 'mccExcludedFiles.log'],'file')
     delete([dirnameInstall, 'mccExcludedFiles.log']);

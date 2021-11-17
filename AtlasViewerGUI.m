@@ -17,7 +17,6 @@ if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
-    
 end
 % End AtlasViewerGUI initialization code - DO NOT EDIT
 
@@ -27,6 +26,7 @@ end
 function InitSubj(hObject, handles, argExtern)
 global atlasViewer
 global DEBUG
+global logger
 
 DEBUG = 0;
 
@@ -65,9 +65,9 @@ objs.imgrecon    = initImgRecon(handles);
 objs.hbconc      = initHbConc(handles);
 objs.fs2viewer   = initFs2Viewer(handles, atlasViewer.dirnameSubj);
 
-fprintf('   MC application path = %s\n', objs.fwmodel.mc_exepath);
-fprintf('   MC application binary = %s\n', objs.fwmodel.mc_exename);
-fprintf('\n');
+logger.Write('MC application path = %s\n', objs.fwmodel.mc_exepath);
+logger.Write('MC application binary = %s\n', objs.fwmodel.mc_exename);
+logger.Write('\n');
 
 fields = fieldnames(objs);
 
@@ -87,9 +87,9 @@ if exist([atlasViewer.dirnameSubj 'atlasViewer.mat'], 'file')
         end
     end
     if ~isempty(vrnum)
-        fprintf('Loading saved viewer state created by AtlasViewerGUI V%s\n', vrnum);
+        logger.Write('Loading saved viewer state created by AtlasViewerGUI V%s\n', vrnum);
     else
-        fprintf('Loading saved viewer state created by a version of AtlasViewerGUI prior to V2.0.1\n');
+        logger.Write('Loading saved viewer state created by a version of AtlasViewerGUI prior to V2.0.1\n');
     end
     
     % Otherwise simply initialize objects from scratch
@@ -197,7 +197,6 @@ axesv      = displayAxesv(axesv, headsurf, headvol, initDigpts());
 fwmodel.menuoffset  = popupmenuorder.Sensitivity.idx-1;
 imgrecon.menuoffset = popupmenuorder.LocalizationError.idx-1;
 hbconc.menuoffset   = popupmenuorder.HbOConc.idx-1;
-
 
 atlasViewer.headsurf    = headsurf;
 atlasViewer.pialsurf    = pialsurf;
@@ -364,8 +363,11 @@ end
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 global atlasViewer
 global cfg
+global logger
 
 setNamespace('AtlasViewerGUI');
+
+logger = Logger('AtlasViewer');
 
 if isempty(varargin)
     atlasViewer = [];
@@ -384,13 +386,32 @@ end
 
 initAxesv(handles);
 
+% Print args
+for ii = 1:length(varargin)
+    if isempty(varargin{ii})
+        continue;
+    end
+    if strcmp(varargin{ii}, 'userargs')
+        continue;
+    end
+    if ischar(varargin{ii})
+        logger.Write('Args #%d = %s\n', ii, varargin{ii});
+    elseif isnumeric(varargin{ii})
+        logger.Write('Args #%d = %0.1f\n', ii, varargin{ii});
+    end
+end
+logger.Write('\n');
+
+logger.Write('Current Folder = %s\n', filesepStandard(pwd));
+
 atlasViewer.dirnameSubj = getSubjDir(varargin);
 atlasViewer.dirnameAtlas = getAtlasDir(varargin);
 
-fprintf('%s\n', banner());
-fprintf('   dirnameApp = %s\n', getAppDir());
-fprintf('   dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
-fprintf('   dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+logger.Write('%s\n\n', banner());
+logger.Write('dirnameApp = %s\n', getAppDir());
+logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
+logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+logger.Write('\n');
 
 cd(atlasViewer.dirnameSubj);
 
@@ -426,7 +447,7 @@ end
 set(handles.editSelectChannel,'string','0 0');
 set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
 
-positionDataTreeGUI(handles, 'init');
+positionDataTreeGUI(handles);
 
 % check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
 if exist('mcxlab.m','file')
@@ -442,7 +463,7 @@ end
 
 
 % -------------------------------------------------------------------
-function positionDataTreeGUI(handles, options)
+function positionDataTreeGUI(handles)
 global atlasViewer
 
 if isempty(atlasViewer.handles.dataTree)
@@ -525,7 +546,7 @@ deleteNamespace('AtlasViewerGUI');
 
 
 % ----------------------------------------------------------------
-function radiobuttonShowHead_Callback(hObject, eventdata, handles)
+function radiobuttonShowHead_Callback(hObject, ~, ~)
 global atlasViewer;
 hHeadSurf = atlasViewer.headsurf.handles.surf;
 
@@ -541,7 +562,7 @@ end
 
 
 % ------------------------------------------------------------------
-function editHeadTransparency_Callback(hObject, eventdata, handles)
+function editHeadTransparency_Callback(hObject, ~, ~)
 global atlasViewer;
 
 hHeadSurf = atlasViewer.headsurf.handles.surf;
@@ -574,7 +595,7 @@ end
 
 
 % --------------------------------------------------------------------
-function editBrainTransparency_Callback(hObject, eventdata, handles)
+function editBrainTransparency_Callback(hObject, ~, ~)
 global atlasViewer;
 
 hPialSurf = atlasViewer.pialsurf.handles.surf;
@@ -845,7 +866,6 @@ function menuItemChangeAtlasDir_Callback(~, ~, ~)
 global atlasViewer
 dirnameSubj = atlasViewer.dirnameSubj;
 dirnameAtlas = atlasViewer.dirnameAtlas;
-axesv = atlasViewer.axesv;
 fwmodel = atlasViewer.fwmodel;
 
 
@@ -865,14 +885,6 @@ if length(dirnameAtlas)==1
         return;
     end
 end
-if ~exist([dirnameSubj,'viewer'],'dir')
-    mkdir([dirnameSubj,'viewer']);
-else
-    delete([dirnameSubj 'viewer/headvol*']);
-end
-fid = fopen([dirnameSubj,'viewer/settings.cfg'],'w');
-fprintf(fid,'%s',dirnameAtlas);
-fclose(fid);
 
 % Restart AtlasViewerGUI with the new atlas directory.
 AtlasViewerGUI(dirnameSubj, dirnameAtlas, fwmodel.mc_exepath, 'userargs');
