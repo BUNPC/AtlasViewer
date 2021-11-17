@@ -6,11 +6,12 @@ msgs = {};
 if ~exist('options','var') || (isnumeric(options) && options==0)
     options = 'init';
 end
-if ~optionExists_startup(options,'init') && ~optionExists_startup(options,'update') 
-    return;
-end
 
 s = parseGitSubmodulesFile();
+if ~optionExists_startup(options,'init') && ~optionExists_startup(options,'update') 
+    addSearchPaths(s);
+    return;
+end
 
 % Check for missing libs
 kk = checkMissingLibraries(s);
