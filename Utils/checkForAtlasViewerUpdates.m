@@ -31,7 +31,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
             updateTxt = version{1}{1};
         end
         web_vrnum = str2cell(version{1}{1},'.');
-        this_vrnum = getVernum();
+        this_vrnum = getVernum('AtlasViewerGUI');
         promptFlag = compareVernum(web_vrnum, this_vrnum);  % If fetched vernum is greater
         if (promptFlag)
             choice = questdlg(sprintf(['An update for AtlasViewer is available:\n',...

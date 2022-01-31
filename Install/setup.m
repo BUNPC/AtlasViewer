@@ -63,7 +63,7 @@ logger = Logger([dirnameSrc, 'Setup']);
 
 [~, exename] = getAppname();
 
-v = getVernum();
+v = getVernum('AtlasViewerGUI');
 logger.Write('==========================================\n');
 logger.Write('Setup script for %s v%s.%s.%s:\n', exename, v{1}, v{2}, v{3});
 logger.Write('==========================================\n\n');
