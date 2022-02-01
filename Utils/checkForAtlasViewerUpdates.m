@@ -15,7 +15,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
             fprintf('Server could not be reached to check for updates.')
             return
         end
-        SetLastCheckForUpdates(datetime);
+        SetLastCheckForUpdates();
         
         % Open a hidden web browser
         wb = com.mathworks.mde.webbrowser.WebBrowser.createBrowser;
@@ -31,7 +31,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
             updateTxt = version{1}{1};
         end
         web_vrnum = str2cell(version{1}{1},'.');
-        this_vrnum = getVernum('AtlasViewerGUI');
+        this_vrnum = getVernum();
         promptFlag = compareVernum(web_vrnum, this_vrnum);  % If fetched vernum is greater
         if (promptFlag)
             choice = questdlg(sprintf(['An update for AtlasViewer is available:\n',...

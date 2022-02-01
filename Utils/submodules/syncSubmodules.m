@@ -15,8 +15,6 @@ function [cmds, errs, msgs] = syncSubmodules(repo, options, preview)
 
 cmds = {};
 
-currdir = pwd;
-
 if ~exist('repo','var') || isempty(repo)
     repo = [pwd, '/'];
 end
@@ -43,10 +41,17 @@ for jj = 1:size(submodules,1)
     
     repo1 = submodules{jj,2};
     repo2 = [repoFull, 'submodules/', submodulename];
-
+    
+    if repo1(end)=='\' || repo1(end)=='/'
+        repo1 = repo1(1:end-1);
+    end
+    if repo2(end)=='\' || repo2(end)=='/'
+        repo2 = repo2(1:end-1);
+    end
+    
     fprintf('Synching "%s" library:\n', submodulename);
-    fprintf('Repo1:  %s, v%s\n', repo1, getVernum(repo1));
-    fprintf('Repo2:  %s, v%s\n', repo2, getVernum(repo2));
+    fprintf('Repo1:  %s, v%s\n', repo1, getVernum(submodulename, repo1));
+    fprintf('Repo2:  %s, v%s\n', repo2, getVernum(submodulename, repo2));
     fprintf('====================================================================\n');   
     
     identical(1) = sync(repo1, repo2, false, preview);
@@ -88,7 +93,7 @@ for kk = 1:length(f2)
         [~, fname1,ext1] = fileparts(f1{ll});
         if strcmp([fname1,ext1], [fname2,ext2]) 
             if ~filesEqual(f2{kk}, f1{ll},'exact') && ~peerlessOnly
-                fprintf('Difference found:     Copying %s to %s\n', f2{kk}, f1{ll})
+                fprintf('Copying %s to %s\n', f2{kk}, f1{ll})
                 identical = false;
                 if preview == false
                     copyfile(f2{kk}, f1{ll})
@@ -100,16 +105,16 @@ for kk = 1:length(f2)
     end
     
     if ~foundflag
-        if peerlessOnly
+        if ~peerlessOnly
             p = pathsubtract(f2{kk}, repo2);
-            fprintf('No matching file found for %s.      Adding %s\n', f2{kk}, [repo1, p]);
+            fprintf('Adding %s\n', [repo1, p]);
             if preview == false
                 copyfile(f2{kk}, [repo1, p]);
-                gitAdd(repo1, [repo1, p]);
+                gitAdd(repo1, p);
             end
             identical = false;
         else
-            fprintf('No matching file found for %s.      Deleting %s\n', f2{kk}, f2{kk});
+            fprintf('Deleting %s\n', f2{kk});
             if preview == false
                 gitDelete(repo2, f2{kk});
             end

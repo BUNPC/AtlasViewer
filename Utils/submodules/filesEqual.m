@@ -34,10 +34,6 @@ while 1
     l2 = fgetl(filesequal.fd2);
     lcount2 = lcount2+1;
 
-    if feof(filesequal.fd1) && feof(filesequal.fd2)
-        break;
-    end
-    
     if optionExists(options,'exact')
         if ~strcmp(l1,l2)
             Close();
@@ -62,7 +58,12 @@ while 1
     if ~equivalent(l1, l2)
         Close();
         return;
-    end   
+    end
+    
+    if feof(filesequal.fd1) && feof(filesequal.fd2)
+        break;
+    end
+        
 end
 
 Close();
@@ -81,6 +82,10 @@ fclose(filesequal.fd2);
 
 % ------------------------------------
 function b = equivalent(s1, s2)
+if iswholenum(s1) && iswholenum(s2)
+    b = s1 == s2;
+    return;
+end
 s1(s1<33) = '';
 s2(s2<33) = '';
 b = strcmp(s1,s2);

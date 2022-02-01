@@ -13,7 +13,7 @@ try
     
     warning('off','MATLAB:rmpath:DirNotFound');
     
-    appname = 'AtlasViewerGUI';
+    appname = 'DataTreeClass';
     
     % Parse arguments
     addremove = 1;
@@ -27,14 +27,14 @@ try
         end
     end
     
-    % Add libraries on which AtlasViewer depends
+    % Add libraries on which DataTreeClass depends
     addDependenciesSearchPaths()    
     
     % Create list of possible known similar apps that may conflic with current
     % app
-    appNameExclList = {'AtlasViewerGUI','Homer2_UI','brainScape','ResolveCommonFunctions'};
-    appNameInclList = {'Homer3'};
-    exclSearchList  = {'.git','.idea','Data','Docs','*_install','*.app','submodules'};
+    appNameExclList = {'AtlasViewerGUI','Homer3','Homer2_UI','brainScape','ResolveCommonFunctions'};
+    appNameInclList = {};
+    exclSearchList  = {'.git','Data','Docs','*_install','*.app'};
     
     appThis         = filesepStandard_startup(pwd);
     appThisPaths    = findDotMFolders(appThis, exclSearchList);
@@ -79,7 +79,7 @@ try
     end
     
     % Remove all search paths for all other apps except for current one, to
-    % make sure that we use only search from the current app for download shared
+    % make that we use only search from the current app for download shared
     % libraries (i.e, submodules).
     for ii = 1:length(appExclList)
         removeSearchPaths(appExclList{ii})
@@ -103,7 +103,7 @@ try
         foo = findDotMFolders(appInclList{ii}, exclSearchList);
         addSearchPaths(foo);
     end
-    
+        
     if  ~isempty(which('setpaths_proprietary.m'))
         setpaths_proprietary(options);
     end
@@ -119,16 +119,17 @@ catch ME
     
 end
 
-PrintSystemInfo([], appname)
+appnames = [appname; dependencies()];
+PrintSystemInfo([], appnames)
 
 cd(currdir);
 
 
 % ---------------------------------------------------
 function d = dependencies()
-d = {    
-    'DataTree';
+d = {
     'Utils';
+    'FuncRegistry';
     };
 
 
@@ -146,7 +147,7 @@ end
 
 
 % ----------------------------------------------------
-function addSearchPaths(appPaths)
+function addSearchPaths(appPaths, options)
 if ischar(appPaths)
     p = genpath(appPaths);
     if ispc
@@ -156,6 +157,10 @@ if ischar(appPaths)
     end        
     appPaths = str2cell(p, delimiter);
 end
+if ~exist('options', 'var')
+    options = '';
+end
+
 for kk = 1:length(appPaths)
     if strfind(appPaths{kk}, '.git')
         continue;
@@ -199,23 +204,19 @@ fprintf('REMOVED search paths for app %s\n', app);
 
 % ----------------------------------------------------
 function   addDependenciesSearchPaths()
-if exist([pwd, '/Utils/submodules'],'dir')
-    addpath([pwd, '/Utils/submodules'],'-end');
-end
 d = dependencies();
 for ii = 1:length(d)
-    rootpath = findFolder(pwd, d{ii});
-    if ispathvalid_startup([rootpath, '/Shared'],'dir')
-        rootpath = [rootpath, '/Shared'];
+    rootpath = '';
+    if exist([pwd, '/', d{ii}],'dir')
+        rootpath = [pwd, '/'];
+    elseif exist([pwd, '/../', d{ii}],'dir')
+        rootpath = [pwd, '/../'];
     end
-    if ~exist(rootpath,'dir')
+    if ~exist([rootpath, d{ii}],'dir')
         fprintf('ERROR: Could not find required dependency %s\n', d{ii})
         continue;
     end
-    addSearchPaths(rootpath);
-end
-if exist([pwd, '/Utils/submodules'],'dir')
-    addpath([pwd, '/Utils/submodules'],'-end');
+    addSearchPaths([rootpath, d{ii}]);
 end
 
 

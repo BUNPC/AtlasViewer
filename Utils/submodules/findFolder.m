@@ -11,4 +11,9 @@ for ii = 1:length(dirpaths)
         dirpath = dirpaths{ii};
         break;
     end
+    if ispathvalid_startup([dirname, dirpaths{ii}])
+        dirpath = dirpaths{ii};
+        break;
+    end
 end
+

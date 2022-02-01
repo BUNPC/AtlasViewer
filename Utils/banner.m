@@ -1,4 +1,3 @@
-function [title, verstr, vernum] = banner()
-[verstr, vernum] = version2string();
+function title = banner()
 platform = ['R', version('-release')];
-title = sprintf('AtlasViewerGUI  (v%s, %s) - %s', verstr, platform, filesepStandard(pwd));
+title = sprintf('AtlasViewerGUI  (v%s, %s) - %s', getVernum('AtlasViewerGUI'), platform, filesepStandard(pwd));
