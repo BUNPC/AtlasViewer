@@ -232,6 +232,7 @@ classdef ProbeClass < FileLoadSaveClass
             hdf5write_safe(fileobj, [location, '/landmarkPos2D'], obj.landmarkPos2D, 'rw:2D');
             hdf5write_safe(fileobj, [location, '/sourcePos3D'], obj.sourcePos3D, 'rw:3D');
             hdf5write_safe(fileobj, [location, '/detectorPos3D'], obj.detectorPos3D, 'rw:3D');
+
             hdf5write_safe(fileobj, [location, '/landmarkPos3D'], obj.landmarkPos3D, 'rw:3D');
             hdf5write_safe(fileobj, [location, '/frequencies'], obj.frequencies);
             hdf5write_safe(fileobj, [location, '/timeDelays'], obj.timeDelays);

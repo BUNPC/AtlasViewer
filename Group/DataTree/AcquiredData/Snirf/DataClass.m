@@ -209,6 +209,7 @@ classdef DataClass < FileLoadSaveClass
         
         
         % -------------------------------------------------------
+
         function SaveHdf5(obj, fileobj, location)
             if ~exist('fileobj', 'var') || isempty(fileobj)
                 error('Unable to save file. No file name given.')
@@ -256,6 +257,7 @@ classdef DataClass < FileLoadSaveClass
                 params = propnames(obj);
             end
             if ismember('dataTimeSeries',params)
+
             if obj.IsEmpty()
                 err = -1;
             end
@@ -272,6 +274,7 @@ classdef DataClass < FileLoadSaveClass
                 end
             end
         end
+
         
     end
     
@@ -356,7 +359,7 @@ classdef DataClass < FileLoadSaveClass
         
         % ---------------------------------------------------------
         function t = GetTime(obj)
-            
+
             t = obj.time;
         end
         

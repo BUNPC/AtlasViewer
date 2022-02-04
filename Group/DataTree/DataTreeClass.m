@@ -114,6 +114,7 @@ classdef DataTreeClass <  handle
         
         
         
+
         % --------------------------------------------------------------
         function delete(obj)
             if isa(obj.logger, 'Logger')

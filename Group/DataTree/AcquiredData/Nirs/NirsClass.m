@@ -192,6 +192,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                 err = 0;                
             end
             
+
             if isproperty(fdata,'t')
                 obj.t = fdata.t;
                 if ~isempty(obj.t)
