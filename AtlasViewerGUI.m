@@ -108,7 +108,7 @@ atlasViewer.dirnameProbe = '';
 atlasViewer.handles.menuItemRegisterAtlasToDigpts = handles.menuItemRegisterAtlasToDigpts;
 
 % Set the AtlasViewerGUI version number
-[~, V] = AtlasViewerGUI_version(hObject);
+V = AtlasViewerGUI_version(hObject);
 atlasViewer.vrnum = V;
 
 
@@ -414,9 +414,8 @@ logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
 logger.Write('\n');
 
 cd(atlasViewer.dirnameSubj);
-
 checkForAtlasViewerUpdates();
-PrintSystemInfo([], 'AtlasViewer');
+PrintSystemInfo([], 'AtlasViewerGUI');
 
 hDataTreeGUI = [];
 if length(varargin)>3

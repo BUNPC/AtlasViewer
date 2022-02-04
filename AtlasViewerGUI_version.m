@@ -1,11 +1,10 @@
-function [verstr, vernum] = AtlasViewerGUI_version(hObject)
+function verstr = AtlasViewerGUI_version(hObject)
 
 if ~exist('hObject','var')
     hObject = -1;
 end
 
-[title, verstr, vernum] = banner();
-
+verstr = getVernum('AtlasViewerGUI');
 if ishandle(hObject)
-    set(hObject,'name', title);
+    set(hObject,'name', banner());
 end

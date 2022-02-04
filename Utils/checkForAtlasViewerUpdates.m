@@ -15,7 +15,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
             fprintf('Server could not be reached to check for updates.')
             return
         end
-        SetLastCheckForUpdates(datetime);
+        SetLastCheckForUpdates();
         
         % Open a hidden web browser
         wb = com.mathworks.mde.webbrowser.WebBrowser.createBrowser;
