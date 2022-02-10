@@ -86,24 +86,25 @@ fprintf('Loading fNIRS data from %s ...\n', datatreegui.dataTree.currElem.GetNam
 if isa(eventdata, 'matlab.ui.eventdata.ActionData')
     
     % Get the [iGroup,iSubj,iRun] mapping of the clicked lisboxFiles entry
-    [iGroup, iSubj, iRun] = MapList2GroupTree(iList);
+    [iGroup, iSubj, iSess, iRun] = MapList2GroupTree(iList);
     
     % Set current processing element
-    datatreegui.dataTree.SetCurrElem(iGroup, iSubj, iRun);
+    datatreegui.dataTree.SetCurrElem(iGroup, iSubj, iSess, iRun);
  
 elseif ~isempty(eventdata)
     
     iGroup = eventdata(1);
     iSubj = eventdata(2);
-    iRun = eventdata(3);
-    iList = MapGroupTree2List(iGroup, iSubj, iRun);
+    iSess = eventdata(3);
+    iRun = eventdata(4);
+    iList = MapGroupTree2List(iGroup, iSubj, iSess, iRun);
     if iList==0
         return;
     end
     set(hObject,'value', iList);    
 
     % Set current processing element
-    datatreegui.dataTree.SetCurrElem(iGroup, iSubj, iRun);
+    datatreegui.dataTree.SetCurrElem(iGroup, iSubj, iSess, iRun);
 end
 
 datatreegui.dataTree.LoadCurrElem();
@@ -159,16 +160,6 @@ function listboxFilesErr_Callback(~, ~, ~) %#ok<*DEFNU>
 
 
 
-% -----------------------------------------------------------------------
-function s = InitListboxGroupTreeParams()
-s = struct('listMaps',struct('names',{{}}, 'idxs', []), ...
-           'views',struct(...
-                'GROUP',1, ...
-                'SUBJS',2, ...
-                'RUNS',3), ...
-           'viewSetting',0);
-
-
 % --------------------------------------------------------------------------------------------
 function DisplayGroupTree(handles)
 global datatreegui;
@@ -176,18 +167,20 @@ global datatreegui;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize listboxGroupTree params struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datatreegui.listboxGroupTreeParams = InitListboxGroupTreeParams();
+datatreegui.listboxGroupTreeParams = struct('listMaps',struct('names',{{}}, 'idxs', []), ...
+                                        'views', struct('GROUP',1, 'SUBJS',2, 'SESS',3, 'NOSESS',4, 'RUNS',5), ...
+                                        'viewSetting',0);
                       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Generate linear lists from group tree nodes for the 3 group views
 % in listboxGroupTree
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[nSubjs, nRuns] = GenerateGroupDisplayLists();
+[nSubjs, nSess, nRuns] = GenerateGroupDisplayLists();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Determine the best view for the data files 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[viewSetting, views] = SetView(handles, nSubjs, nRuns);
+[viewSetting, views] = SetView(handles, nSubjs, nSess, nRuns);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set listbox used for displaying valid data
@@ -234,76 +227,82 @@ if ~isempty(handles)
     end
 end
 
-listboxGroupTree_Callback([], [1, 0, 0], handles)
+listboxGroupTree_Callback([], [1, 0, 0, 0], handles)
 
 
 
 
 % --------------------------------------------------------------------------------------------
-function [nSubjs, nRuns] = GenerateGroupDisplayLists()
+function [nSubjs, nSess, nRuns] = GenerateGroupDisplayLists()
 global datatreegui
-global cfg
-
-cfg = InitConfig(cfg);
 
 list = datatreegui.dataTree.DepthFirstTraversalList();
 views = datatreegui.listboxGroupTreeParams.views;
-jj = 0; kk = 0;
+jj=0; hh=0; kk=0; mm=0;
 nSubjs = 0;
+nSess = 0;
 nRuns = 0;
-
-subjViewDefault = cfg.GetValue('Data Tree Subject Default View');
-
 for ii = 1:length(list)
+    
     % Add group level nodes only to whole-tree list
     if list{ii}.IsGroup()
         datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).names{ii,1} = list{ii}.GetName;
         datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).idxs(ii,:) = list{ii}.GetIndexID;
     
-        % If subject default view config param is set to 'top down' then
-        % includes group in subject view 
-        if strcmp(subjViewDefault, 'top down')
-            jj = jj+1;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = list{ii}.GetFileName;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
-        end
-        
+        kk=kk+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).names{kk,1}  = list{ii}.GetFileName;
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).idxs(kk,:)   = list{ii}.GetIndexID;
+    
     % Add subject level nodes to whole-tree and subject lists
     elseif list{ii}.IsSubj()
         datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).names{ii,1}   = ['    ', list{ii}.GetName];
         datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).idxs(ii,:) = list{ii}.GetIndexID;
         
-        % If subject default view config param is set to 'top down' then
-        % includes group in subject view 
-        if strcmp(subjViewDefault, 'top down')
-            jj = jj+1;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = ['    ', list{ii}.GetName];
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
-        else
-            jj = jj+1;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = list{ii}.GetName;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
-        end
-        
+        jj=jj+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = list{ii}.GetName;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
     
+        kk=kk+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).names{kk,1}  = ['    ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).idxs(kk,:)   = list{ii}.GetIndexID;
+
         nSubjs = nSubjs+1;
+        
+    % Add session level nodes to whole-tree and session lists
+    elseif list{ii}.IsSess()
+        datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).names{ii,1} = ['        ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).idxs(ii,:) = list{ii}.GetIndexID;
+            
+        jj=jj+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = ['    ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
+
+        hh=hh+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SESS).names{hh,1}  = list{ii}.GetFileName;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SESS).idxs(hh,:)   = list{ii}.GetIndexID;
+    
+        nSess = nSess+1;
         
     % Add run level nodes to ALL lists 
     elseif list{ii}.IsRun()
-        datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).names{ii,1}   = ['        ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).names{ii,1}   = ['            ', list{ii}.GetFileName];
         datatreegui.listboxGroupTreeParams.listMaps(views.GROUP).idxs(ii,:) = list{ii}.GetIndexID;
-        
-        % If subject default view config param is set to 'bottom up' then
-        % includes runs in subject view 
-        if strcmp(subjViewDefault, 'bottom up')
-            jj = jj+1;
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = ['    ', list{ii}.GetFileName];
-            datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
-        end
-        
-        kk = kk+1;
-        datatreegui.listboxGroupTreeParams.listMaps(views.RUNS).names{kk,1}  = list{ii}.GetFileName;
-        datatreegui.listboxGroupTreeParams.listMaps(views.RUNS).idxs(kk,:)   = list{ii}.GetIndexID;
+            
+        jj=jj+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).names{jj,1} = ['        ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.SUBJS).idxs(jj,:)  = list{ii}.GetIndexID;
+
+        hh=hh+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.SESS).names{hh,1}  = ['    ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.SESS).idxs(hh,:)   = list{ii}.GetIndexID;
+
+        kk=kk+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).names{kk,1}  = ['            ', list{ii}.GetFileName];
+        datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).idxs(kk,:)   = list{ii}.GetIndexID;
+
+        mm=mm+1;
+        datatreegui.listboxGroupTreeParams.listMaps(views.RUNS).names{mm,1}  = list{ii}.GetFileName;
+        datatreegui.listboxGroupTreeParams.listMaps(views.RUNS).idxs(mm,:)   = list{ii}.GetIndexID;
 
         nRuns = nRuns+1;
         
@@ -312,18 +311,32 @@ end
 
 
 
-% --------------------------------------------------------------------------------------------
-function [viewSetting, views] = SetView(handles, nSubjs, nRuns)
+% -----------------------------------------------------
+function [viewSetting, views] = SetView(handles, nSubjs, nSess, nRuns)
 global datatreegui
 
-set(handles.menuItemGroupViewSettingGroup,'checked','off');
-set(handles.menuItemGroupViewSettingSubjects,'checked','on');
-set(handles.menuItemGroupViewSettingRuns,'checked','off');
+if nSess == nRuns
+    set(handles.menuItemGroupViewSettingGroup,'checked','off');
+    set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','on');
+    set(handles.menuItemGroupViewSettingRuns,'checked','off');
+else
+    set(handles.menuItemGroupViewSettingGroup,'checked','on');
+    set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingRuns,'checked','off');
+end
 
 if strcmp(get(handles.menuItemGroupViewSettingGroup,'checked'),'on')
     datatreegui.listboxGroupTreeParams.viewSetting = datatreegui.listboxGroupTreeParams.views.GROUP;
 elseif strcmp(get(handles.menuItemGroupViewSettingSubjects,'checked'),'on')
     datatreegui.listboxGroupTreeParams.viewSetting = datatreegui.listboxGroupTreeParams.views.SUBJS;
+elseif strcmp(get(handles.menuItemGroupViewSettingSessions,'checked'),'on')
+    datatreegui.listboxGroupTreeParams.viewSetting = datatreegui.listboxGroupTreeParams.views.SESS;
+elseif strcmp(get(handles.menuItemGroupViewSettingNoSessions,'checked'),'on')
+    datatreegui.listboxGroupTreeParams.viewSetting = datatreegui.listboxGroupTreeParams.views.NOSESS;
 elseif strcmp(get(handles.menuItemGroupViewSettingRuns,'checked'),'on')
     datatreegui.listboxGroupTreeParams.viewSetting = datatreegui.listboxGroupTreeParams.views.RUNS;
 else
@@ -335,21 +348,22 @@ views = datatreegui.listboxGroupTreeParams.views;
 
 
 
-% -----------------------------------------------------------------------
-function [iGroup, iSubj, iRun] = MapList2GroupTree(iList)
+
+% -----------------------------------------------------
+function [iGroup, iSubj, iSess, iRun] = MapList2GroupTree(iList)
 global datatreegui
 
 viewSetting = datatreegui.listboxGroupTreeParams.viewSetting;
 
 iGroup = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs(iList,1);
 iSubj  = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs(iList,2);
-iRun   = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs(iList,3);
+iSess  = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs(iList,3);
+iRun   = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs(iList,4);
 
 
 
-
-% -----------------------------------------------------------------------
-function iList = MapGroupTree2List(iGroup, iSubj, iRun)
+% -----------------------------------------------------
+function iList = MapGroupTree2List(iGroup, iSubj, iSess, iRun)
 global datatreegui
 
 % Function to convert from processing element 3-tuple index to 
@@ -359,14 +373,15 @@ viewSetting = datatreegui.listboxGroupTreeParams.viewSetting;
 idxs = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).idxs;
 
 % Convert processing element tuple index to a scalar
-scalar0 = index2scalar(iGroup, iSubj, iRun);
+scalar0 = index2scalar(iGroup, iSubj, iSess, iRun);
 
 % Find closest match to processing element argument in the listMap 
 for ii = 1:size(idxs, 1)
     ig = idxs(ii,1);
     is = idxs(ii,2);
-    ir = idxs(ii,3);
-    scalar1 = index2scalar(ig, is, ir);
+    ie = idxs(ii,3);
+    ir = idxs(ii,4);
+    scalar1 = index2scalar(ig, is, ie, ir);
     if scalar0<=scalar1
         break;
     end
@@ -376,8 +391,8 @@ iList = ii;
 
 
 % -----------------------------------------------------
-function scalar = index2scalar(ig, is, ir)
-scalar = ig*100 + is*10 + ir;
+function scalar = index2scalar(ig, is, ie, ir)
+scalar = ig*1000 + is*100 + ie*10 + ir;
 
 
 
@@ -397,6 +412,8 @@ if strcmp(get(hObject, 'checked'), 'on')
 
     datatreegui.listboxGroupTreeParams.viewSetting = views.GROUP;    
     set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','off');
     set(handles.menuItemGroupViewSettingRuns,'checked','off');
 end
 
@@ -419,9 +436,56 @@ if strcmp(get(hObject, 'checked'), 'on')
 
     datatreegui.listboxGroupTreeParams.viewSetting = views.SUBJS;
     set(handles.menuItemGroupViewSettingGroup,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','off');
     set(handles.menuItemGroupViewSettingRuns,'checked','off');
 end
 
+
+
+% --------------------------------------------------------------------
+function menuItemGroupViewSettingSessions_Callback(hObject, ~, handles)
+global datatreegui
+
+if strcmp(get(hObject, 'checked'), 'off')
+    set(hObject, 'checked','on');
+else
+    return;
+end
+views = datatreegui.listboxGroupTreeParams.views;
+if strcmp(get(hObject, 'checked'), 'on')
+    iListNew = FindGroupDisplayListMatch(views.SESS);
+    set(handles.listboxGroupTree, 'value',iListNew, 'string', datatreegui.listboxGroupTreeParams.listMaps(views.SESS).names);
+
+    datatreegui.listboxGroupTreeParams.viewSetting = views.SESS;
+    set(handles.menuItemGroupViewSettingGroup,'checked','off');
+    set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingRuns,'checked','off');
+end
+
+
+
+% --------------------------------------------------------------------
+function menuItemGroupViewSettingNoSessions_Callback(hObject, ~, handles)
+global datatreegui
+
+if strcmp(get(hObject, 'checked'), 'off')
+    set(hObject, 'checked','on');
+else
+    return;
+end
+views = datatreegui.listboxGroupTreeParams.views;
+if strcmp(get(hObject, 'checked'), 'on')
+    iListNew = FindGroupDisplayListMatch(views.NOSESS);
+    set(handles.listboxGroupTree, 'value',iListNew, 'string', datatreegui.listboxGroupTreeParams.listMaps(views.NOSESS).names);
+
+    datatreegui.listboxGroupTreeParams.viewSetting = views.NOSESS;
+    set(handles.menuItemGroupViewSettingGroup,'checked','off');
+    set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');
+    set(handles.menuItemGroupViewSettingRuns,'checked','off');
+end
 
 
 
@@ -442,8 +506,9 @@ if strcmp(get(hObject, 'checked'), 'on')
     datatreegui.listboxGroupTreeParams.viewSetting = views.RUNS;
     set(handles.menuItemGroupViewSettingGroup,'checked','off');
     set(handles.menuItemGroupViewSettingSubjects,'checked','off');
+    set(handles.menuItemGroupViewSettingSessions,'checked','off');    
+    set(handles.menuItemGroupViewSettingNoSessions,'checked','off');
 end
-
 
 
 
@@ -463,7 +528,8 @@ iList = [];
 groupIdx = datatreegui.dataTree.currElem.GetIndexID();
 iG = groupIdx(1); 
 iS = groupIdx(2); 
-iR = groupIdx(3);
+iE = groupIdx(3); 
+iR = groupIdx(4);
 
 % 
 % 6 states, 3 transitional events
@@ -522,7 +588,7 @@ iR = groupIdx(3);
 % listbox entries)
 listIdxs = datatreegui.listboxGroupTreeParams.listMaps(iView).idxs;
 for ii = 1:length(listIdxs)
-    if listIdxs(ii,1)>=iG && listIdxs(ii,2)>=iS && listIdxs(ii,3)>=iR
+    if listIdxs(ii,1)>=iG && listIdxs(ii,2)>=iS && listIdxs(ii,3)>=iE && listIdxs(ii,4)>=iR
         iList = ii;
         break;
     end
