@@ -160,6 +160,14 @@ function listboxFilesErr_Callback(~, ~, ~) %#ok<*DEFNU>
 
 
 
+% -----------------------------------------------------------------------
+function s = InitListboxGroupTreeParams()
+s = struct('listMaps',struct('names',{{}}, 'idxs',[]), ...
+                             'views', struct('GROUP',1, 'SUBJS',2, 'SESS',3, 'NOSESS',4, 'RUNS',5), ...
+                             'viewSetting',0);
+
+
+
 % --------------------------------------------------------------------------------------------
 function DisplayGroupTree(handles)
 global datatreegui;
@@ -167,9 +175,7 @@ global datatreegui;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize listboxGroupTree params struct
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datatreegui.listboxGroupTreeParams = struct('listMaps',struct('names',{{}}, 'idxs', []), ...
-                                        'views', struct('GROUP',1, 'SUBJS',2, 'SESS',3, 'NOSESS',4, 'RUNS',5), ...
-                                        'viewSetting',0);
+datatreegui.listboxGroupTreeParams = InitListboxGroupTreeParams();
                       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Generate linear lists from group tree nodes for the 3 group views
