@@ -15,8 +15,9 @@ SD                      = convertProbe3D_2_SD(probe, SD);
 SD.nSrcs                = probe.nsrc;
 SD.nDets                = probe.ndet;
 SD.MeasList             = [];
+[unique_probe_ml, ia, ic] = unique(probe.ml(:,[1,2]),'rows', 'stable'); 
 for ii = 1:length(SD.Lambda)
-    SD.MeasList         = [SD.MeasList; [probe.ml(:,[1,2]), ones(size(probe.ml,1),1), ii*ones(size(probe.ml,1),1)]];
+    SD.MeasList         = [SD.MeasList; [unique_probe_ml, ones(size(unique_probe_ml,1),1), ii*ones(size(unique_probe_ml,1),1)]];
 end
 if size(probe.ml,2) > 2
     for ii = 1:length(SD.Lambda)
