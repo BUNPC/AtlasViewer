@@ -3409,7 +3409,7 @@ if ishandles(hSDgui)
     menu('SDgui already active.','OK');
     return;
 end
-atlasViewer.probe = resetProbe(atlasViewer.probe);
+atlasViewer.probe = resetProbe(atlasViewer.probe, pwd, handles);
 atlasViewer.probe.handles.hSDgui = SDgui(atlasViewer.dirnameProbe,'userargs');
 set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
 
