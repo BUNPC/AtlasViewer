@@ -186,7 +186,7 @@ classdef SubjClass < TreeNodeClass
                 sess.SetIndexID(obj.iGroup, obj.iSubj, jj);
                 sess.SetPath(obj.path);                      % Inherit root path from subject
                 obj.sess(jj) = sess;
-                obj.logger.Write('      Added session %s to subject %s.\n', obj.sess(jj).GetFileName, obj.GetName);
+                obj.logger.Write('      Added session %s to subject %s.\n', obj.sess(jj).GetFileName, obj.GetFileName);
             end
             
             % Add sess to subj
@@ -505,6 +505,19 @@ classdef SubjClass < TreeNodeClass
         % ----------------------------------------------------------------------------------
         function bbox = GetSdgBbox(obj)
             bbox = obj.sess(1).GetSdgBbox();
+        end
+        
+        
+        % ----------------------------------------------------------------------------------
+        function probe = GetProbe(obj)
+            probe = obj.sess(1).GetProbe();
+%             for sess = obj.sess
+%                for run = sess.runs
+%                     if ~(probe == run.GetProbe()) 
+%                         warning(['Probe ', run.name, 'differs from ', obj.sess(1).runs(1).name]) 
+%                     end
+%                end   
+%            end
         end
         
         

@@ -187,7 +187,7 @@ classdef SessClass < TreeNodeClass
                 run.SetIndexID(obj.iGroup, obj.iSubj, obj.iSess, jj);
                 run.SetPath(obj.path);                      % Inherit root path from session
                 obj.runs(jj) = run;
-                obj.logger.Write('         Added run %s to session %s.\n', obj.runs(jj).GetFileName, obj.GetName);
+                obj.logger.Write('         Added run %s to session %s.\n', obj.runs(jj).GetFileName, obj.GetFileName);
             end
         end
         
@@ -436,13 +436,15 @@ classdef SessClass < TreeNodeClass
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods
         
+        
         % ----------------------------------------------------------------------------------
-        function SetSDG(obj,option)
-            if exist('option','var')
-                obj.SD = obj.runs(1).GetSDG(option);
-            else
-                obj.SD = obj.runs(1).GetSDG();
-            end
+        function probe = GetProbe(obj, option)
+            probe = obj.runs(1).GetProbe();
+%             for run = obj.runs
+%                if ~(probe == run.GetProbe()) 
+%                   warning(['Probe ', run.name, 'differs from ', obj.runs(1).name]) 
+%                end
+%             end
         end
         
         
