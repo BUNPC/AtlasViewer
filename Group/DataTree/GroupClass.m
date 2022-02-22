@@ -307,7 +307,7 @@ classdef GroupClass < TreeNodeClass
                 subj.SetIndexID(obj.iGroup, jj);
                 subj.SetPath(obj.path);                      % Inherit root path from group
                 obj.subjs(jj) = subj;
-                obj.logger.Write(sprintf('   Added subject %s to group %s.\n', obj.subjs(jj).GetName, obj.GetName));
+                obj.logger.Write('   Added subject %s to group %s.\n', obj.subjs(jj).GetFileName, obj.GetFileName);
             end
                         
             % Add sess to subj
@@ -829,6 +829,21 @@ classdef GroupClass < TreeNodeClass
     % Public Set/Get methods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods
+        
+        
+        % ----------------------------------------------------------------------------------
+        function probe = GetProbe(obj)
+            probe = obj.subjs(1).GetProbe();
+%             for subj = obj.subjs
+%                 for sess = subj.sess
+%                    for run = sess.runs
+%                         if ~(probe == run.GetProbe()) 
+%                             warning(['Probe ', run.name, ' differs from ', obj.subjs(1).sess(1).runs(1).name]) 
+%                         end
+%                    end   
+%                 end
+%             end
+        end
         
         
         % ----------------------------------------------------------------------------------

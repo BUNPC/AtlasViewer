@@ -5,6 +5,9 @@ if ~exist('repo','var') || isempty(repo)
     repo = pwd;
 end
 repoFull = filesepStandard_startup(repo, 'full');
+[~,f,e] = fileparts(repoFull(1:end-1));
+
+h = waitbar(0, sprintf('Please wait for date of last rev for "%s" ...', [f,e]));
 
 f1 = findTypeFiles(repoFull, '.m');
 f2 = findTypeFiles(repoFull, '.txt');
@@ -18,6 +21,7 @@ for ii = 1:length(f)
         date = d;
         dateS = ds;
     end
+    waitbar(ii / length(f), h)
 end
 
-
+close(h);

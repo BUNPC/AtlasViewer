@@ -226,8 +226,8 @@ classdef DataClass < FileLoadSaveClass
                 H5F.close(fid);
             end
             
-            hdf5write_safe(fileobj, [location, '/dataTimeSeries'], obj.dataTimeSeries);
-            hdf5write_safe(fileobj, [location, '/time'], obj.time);
+            hdf5write_safe(fileobj, [location, '/dataTimeSeries'], obj.dataTimeSeries, 'array');
+            hdf5write_safe(fileobj, [location, '/time'], obj.time, 'array');
             
             for ii=1:length(obj.measurementList)
                 obj.measurementList(ii).SaveHdf5(fileobj, [location, '/measurementList', num2str(ii)]);
@@ -256,16 +256,16 @@ classdef DataClass < FileLoadSaveClass
                 params = propnames(obj);
             end
             if ismember('dataTimeSeries',params)
-                if obj.IsEmpty()
-                    err = -1;
-                end
-                if size(obj.dataTimeSeries,1) ~= length(obj.time)
-                    err = -1;
-                end
-                if size(obj.dataTimeSeries,2) ~= length(obj.measurementList)
-                    err = -1;
-                end
+            if obj.IsEmpty()
+                err = -1;
             end
+            if size(obj.dataTimeSeries,1) ~= length(obj.time)
+                err = -1;
+            end
+            if size(obj.dataTimeSeries,2) ~= length(obj.measurementList)
+                err = -1;
+            end
+        end
             if ismember('time',params)
                 if isempty(obj.time)
                     err = -1;
@@ -356,6 +356,7 @@ classdef DataClass < FileLoadSaveClass
         
         % ---------------------------------------------------------
         function t = GetTime(obj)
+            
             t = obj.time;
         end
         
