@@ -19,7 +19,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
         
         % Open a hidden web browser
         wb = com.mathworks.mde.webbrowser.WebBrowser.createBrowser;
-        wb.setCurrentLocation(url);
+        % wb.setCurrentLocation(url);
         p = getParentRecursive(wb);
         p.setVisible(0);
         

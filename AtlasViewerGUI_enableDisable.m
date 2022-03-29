@@ -35,5 +35,8 @@ else
 end
 
 pos = get(handles.uipanelImageDisplay, 'position');
-parent = get(handles.uipanelImageDisplay, 'position');
+parent = get(handles.uipanelImageDisplay, 'parent');
 set(handles.uipanelProbeDesignEdit, 'parent',parent, 'position',pos);
+
+
+
