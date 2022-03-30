@@ -235,18 +235,8 @@ if probe.isempty(probe)
 end
 SD = convertProbe2SD(probe);
 
-% create snirf object 
-snirf = SnirfClass();
-probe_snirf_object = ProbeClass(SD);
-snirf.probe = probe_snirf_object;
-snirf.data = DataClass();
-% measurementList = MeasListClass(SD.MeasList);
-for ii=1:size(SD.MeasList,1)
-    snirf.data.measurementList(end+1) = MeasListClass(SD.MeasList(ii,:));
-end
-% snirf.data(1).measurementList = measurementList;
-metaDataTags = MetaDataTagsClass();
-snirf.metaDataTags = metaDataTags;
+% Create snirf object containing probe data
+snirf = SnirfClass(SD);
 if ~isempty(SD) && ~exist([probe.pathname, 'probe.SD'],'file')
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
     snirf.Save([probe.pathname, 'probe.snirf'])
@@ -254,7 +244,6 @@ elseif ~isempty(SD)
     save([probe.pathname, 'probe.SD'],'-mat', 'SD');
     snirf.Save([probe.pathname, 'probe.snirf'])
 end
-
 
 
 

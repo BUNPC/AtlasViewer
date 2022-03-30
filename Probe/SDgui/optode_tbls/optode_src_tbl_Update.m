@@ -4,7 +4,7 @@ data3D      = SDgui_3DViewSelected(handles);
 
 OptPos       = sd_data_Get(['SrcPos', data3D]);
 GrommetType  = sd_data_Get('SrcGrommetType');
-GrommetRot  = sd_data_Get('SrcGrommetRot');
+GrommetRot   = sd_data_Get('SrcGrommetRot');
 SrcMap       = sd_data_Get('SrcMap');
 srcmap_show  = optode_src_tbl_srcmap_show_GetVal(handles);
 
@@ -18,7 +18,7 @@ for ii = 1:size(OptPos,1)
     A{ii,2} = real2str(OptPos(ii,2));
     A{ii,3} = real2str(OptPos(ii,3));
     A{ii,4} = GrommetType{ii};
-    A{ii,5} = GrommetRot{ii};
+    A{ii,5} = GrommetRot(ii);
 end
 A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
 

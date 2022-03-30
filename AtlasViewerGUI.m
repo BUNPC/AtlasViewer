@@ -3744,19 +3744,10 @@ if get(handles.radiobuttonEditOptodeAV,'Value') && isfield(atlasViewer.probe,'ed
     idx = atlasViewer.probe.editOptodeInfo.currentOptode;
     if idx <= nrsc
         opt_type = 'Source';
-%         opt_no = idx;
-%         grommet_type = atlasViewer.probe.SrcGrommetType{opt_no};
-%         grommet_rot = atlasViewer.probe.SrcGrommetRot{opt_no};
     elseif idx <= nrsc+ndet
         opt_type = 'Detector';
-%         opt_no = idx-nrsc;
-%         grommet_type = atlasViewer.probe.DetGrommetType{opt_no};
-%         grommet_rot = atlasViewer.probe.DetGrommetRot{opt_no};
     else
         opt_type = 'Dummy';
-%         opt_no = idx-nrsc;
-%         grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
-%         grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
     end
     
     if strcmp(selected_optode_type, opt_type)
@@ -3889,14 +3880,12 @@ optpos_reg = atlasViewer.probe.optpos_reg;
 if strcmpi(selected_optode_type,'Source')
     optpos_reg = [optpos_reg(1:nrsc,:); selected_point; optpos_reg(nrsc+1:end,:)];
     atlasViewer.probe.SrcGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.SrcGrommetRot(end+1) = grommet_rot;
     atlasViewer.probe.optpos_reg = optpos_reg;
     atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
     nrsc = nrsc+1;
     atlasViewer.probe.nsrc = nrsc;
     atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
-%             atlasViewer.probe.SrcGrommetType{end+1} = '';
-%             atlasViewer.probe.SrcGrommetRot{end+1} = 0;
 
     % add measurement list to new optode
     det_dist = sqrt(sum((optpos_reg(nrsc+1:nrsc+ndet,:)-selected_point).^2,2));
@@ -3942,7 +3931,7 @@ if strcmpi(selected_optode_type,'Source')
 elseif strcmpi(selected_optode_type,'Detector')
     optpos_reg = [optpos_reg(1:nrsc+ndet,:); selected_point; optpos_reg(nrsc+ndet+1:end,:)];
     atlasViewer.probe.DetGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.DetGrommetRot(end+1) = grommet_rot;
     atlasViewer.probe.optpos_reg = optpos_reg;
     atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
     ndet = ndet+1;
@@ -3993,7 +3982,7 @@ elseif strcmpi(selected_optode_type,'Dummy')
     atlasViewer.probe.optpos_reg = [atlasViewer.probe.optpos_reg; selected_point];
     atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
     atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.DummyGrommetRot(end+1) = grommet_rot;
     opt_pos = size(atlasViewer.probe.optpos_reg,1);
     atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
 
@@ -4156,14 +4145,12 @@ if eventdata.Button == 1
             if strcmpi(selected_optode_type,'Source')
                 optpos_reg = [optpos_reg(1:nrsc,:); selected_point; optpos_reg(nrsc+1:end,:)];
                 atlasViewer.probe.SrcGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.SrcGrommetRot(end+1) = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
                 atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
                 nrsc = nrsc+1;
                 atlasViewer.probe.nsrc = nrsc;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
-    %             atlasViewer.probe.SrcGrommetType{end+1} = '';
-    %             atlasViewer.probe.SrcGrommetRot{end+1} = 0;
 
                 % add measurement list to new optode
                 det_dist = sqrt(sum((optpos_reg(nrsc+1:nrsc+ndet,:)-selected_point).^2,2));
@@ -4208,8 +4195,8 @@ if eventdata.Button == 1
                 atlasViewer.probe = probe;
             elseif strcmpi(selected_optode_type,'Detector')
                 optpos_reg = [optpos_reg(1:nrsc+ndet,:); selected_point; optpos_reg(nrsc+ndet+1:end,:)];
-                atlasViewer.probe.DetGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.DetGrommetType(end+1) = selected_grommet_type;
+                atlasViewer.probe.DetGrommetRot(end+1) = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
                 atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
                 ndet = ndet+1;
@@ -4260,7 +4247,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.optpos_reg = [atlasViewer.probe.optpos_reg; selected_point];
                 atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
                 atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.DummyGrommetRot(end+1) = grommet_rot;
                 opt_pos = size(atlasViewer.probe.optpos_reg,1);
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
 
@@ -4415,17 +4402,17 @@ if eventdata.Button == 1
                     opt_type = 'Source';
                     opt_no = idx;
                     grommet_type = atlasViewer.probe.SrcGrommetType{opt_no};
-                    grommet_rot = atlasViewer.probe.SrcGrommetRot{opt_no};
+                    grommet_rot = atlasViewer.probe.SrcGrommetRot(opt_no);
                 elseif idx <= nrsc+ndet
                     opt_type = 'Detector';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DetGrommetType{opt_no};
-                    grommet_rot = atlasViewer.probe.DetGrommetRot{opt_no};
+                    grommet_rot = atlasViewer.probe.DetGrommetRot(opt_no);
                 else
                     opt_type = 'Dummy';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
-                    grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
+                    grommet_rot = atlasViewer.probe.DummyGrommetRot(idx-nrsc-ndet);
                 end
                 optode_index = find(strcmp(optode_type_contents,opt_type));
                 set(handles.popupmenuSelectOptodeType,'Value',optode_index);
@@ -4975,13 +4962,13 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
         ndet = atlasViewer.probe.ndet;
         if idx <= nrsc
             opt_no = idx;
-            atlasViewer.probe.SrcGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.SrcGrommetRot(opt_no) = grommet_rot;
         elseif idx <= nrsc+ndet
             opt_no = idx-nrsc;
-            atlasViewer.probe.DetGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.DetGrommetRot(opt_no) = grommet_rot;
         else
             opt_no = idx-nrsc-ndet;
-            atlasViewer.probe.DummyGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.DummyGrommetRot(opt_no) = grommet_rot;
         end
         if isProbeChanged(atlasViewer.probe_copy,atlasViewer.probe)
             set(handles.text_isProbeChanged,'String','Click Register Probe to Surface to save the probe');

@@ -1,4 +1,4 @@
-function status = error_check_optode_tbls(tbl_data1, tbl_data2, r, c)
+function status = error_check_optode_tbls(tbl_data1, tbl_data2, r, c, data3D)
 
 status = 0;
 tbl_data1 = tbl_data1(:,1:3);
@@ -31,11 +31,13 @@ else
         end
     end
     
-    if ~isempty(optpos) && ...
-            length(unique(optpos(:,1)))>1 && ...
-            length(unique(optpos(:,2)))>1 && ...
-            length(unique(optpos(:,3)))>1        
-        status = 2;
+    if isempty(data3D)
+        if ~isempty(optpos) && ...
+                length(unique(optpos(:,1)))>1 && ...
+                length(unique(optpos(:,2)))>1 && ...
+                length(unique(optpos(:,3)))>1
+            status = 2;
+        end
     end
     
 end

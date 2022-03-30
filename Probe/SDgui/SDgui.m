@@ -305,13 +305,13 @@ if ~isempty(x{1})
     
     lstS = str2num(x{1});
     
-    if length(unique(lstS))~=SD.nSrcs
+    if length(unique(lstS))~=size(SD.SrcPos,1)
         warndlg('Source list must reorder all sources');
         return
     else
         SD.SrcPos = SD.SrcPos(lstS,:);
         
-        for iS=1:SD.nSrcs
+        for iS=1:size(SD.SrcPos,1)
             lst = find(SD.MeasList(:,1)==lstS(iS));
             MeasList(lst,1) = iS;
             
@@ -333,21 +333,21 @@ end
 % reorder the detectors
 if ~isempty(x{2})
     lstD = str2num(x{2});    
-    if length(unique(lstD))~=SD.nDets
+    if length(unique(lstD))~=size(SD.DetPos,1)
         warndlg('Detector list must reorder all sources');
         return
     else
         SD.DetPos = SD.DetPos(lstD,:);        
-        for iD=1:SD.nDets
+        for iD=1:size(SD.DetPos,1)
             lst = find(SD.MeasList(:,2)==lstD(iD));
             MeasList(lst,2) = iD;            
-            lst = find(SD.SpringList(:,1)==(SD.nSrcs+lstD(iD)));
-            SpringList(lst,1) = (SD.nSrcs+iD);
-            lst = find(SD.SpringList(:,2)==(SD.nSrcs+lstD(iD)));
-            SpringList(lst,2) = (SD.nSrcs+iD);            
+            lst = find(SD.SpringList(:,1)==(size(SD.SrcPos,1)+lstD(iD)));
+            SpringList(lst,1) = (size(SD.SrcPos,1)+iD);
+            lst = find(SD.SpringList(:,2)==(size(SD.SrcPos,1)+lstD(iD)));
+            SpringList(lst,2) = (size(SD.SrcPos,1)+iD);            
             for iA=1:size(SD.AnchorList,1)
-                if SD.AnchorList{iA,1}==(SD.nSrcs+lstD(iD))
-                    AnchorList{iA,1} = (SD.nSrcs+iD);
+                if SD.AnchorList{iA,1}==(size(SD.SrcPos,1)+lstD(iD))
+                    AnchorList{iA,1} = (size(SD.SrcPos,1)+iD);
                 end
             end
         end
@@ -356,7 +356,7 @@ end
 
 % Sort the MeasList
 MeasList2 = [];
-for iS = 1:SD.nSrcs
+for iS = 1:size(SD.SrcPos,1)
     lst = find(MeasList(:,1)==iS & MeasList(:,4)==1);
     mlTmp = MeasList(lst,:);
     [~,lst] = sort(mlTmp(:,2));

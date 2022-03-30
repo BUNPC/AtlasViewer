@@ -21,12 +21,6 @@ if(~isfield(SD,'DummyPos'))
     SD.DummyPos = [];
 end
 
-% SrcPos
-SD.nSrcs = size(SD.SrcPos,1);
-
-% DetPos
-SD.nDets = size(SD.DetPos,1);
-
 % Lambda
 nwl = sd_data_GetNwl();
 if ~isfield(SD,'Lambda') || isempty(SD.Lambda)
@@ -114,10 +108,10 @@ end
 % SrcMap
 if ~isfield(SD,'SrcMap')
     SD.SrcMap = [];
-elseif nwl>0 && SD.nSrcs>0 && isempty(SD.SrcMap)
+elseif nwl>0 && size(SD.SrcPos,1)>0 && isempty(SD.SrcMap)
     sd_data_SetSrcMapDefault();
-elseif nwl>0 && SD.nSrcs>0 && (size(SD.SrcMap,1) ~= nwl)
-    SD.SrcMap = reshape(SD.SrcMap(:),nwl,SD.nSrcs);
+elseif nwl>0 && size(SD.SrcPos,1)>0 && (size(SD.SrcMap,1) ~= nwl)
+    SD.SrcMap = reshape(SD.SrcMap(:),nwl,size(SD.SrcPos,1));
 end
 
 
@@ -151,7 +145,7 @@ else
     end
     
     nwl = sd_data_GetNwl();
-    if (nwl ~= length(unique(SD.MeasList(:,end)))) && (SD.nSrcs>0)
+    if (nwl ~= length(unique(SD.MeasList(:,end)))) && (size(SD.SrcPos,1)>0)
         status = 5;
     end
 end

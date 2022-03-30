@@ -20,7 +20,7 @@ for ii = 1:size(OptPos,1)
     A{ii,3} = real2str(OptPos(ii,2));
     A{ii,4} = real2str(OptPos(ii,3));
     A{ii,5} = GrommetType{ii};
-    A{ii,6} = GrommetRot{ii};
+    A{ii,6} = GrommetRot(ii);
 end
 A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
 
