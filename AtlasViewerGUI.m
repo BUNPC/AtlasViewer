@@ -361,9 +361,20 @@ end
 
 % -----------------------------------------------------------------------
 function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+%
+% Syntax:
+%    
+%    AtlasViewerGUI()
+%    AtlasViewerGUI(dirnameSubj)
+%    AtlasViewerGUI(dirnameSubj, dirnameAtlas)
+%
 global atlasViewer
 global cfg
 global logger
+
+for ii = 1:length(varargin)
+    varargin{ii} = filesepStandard(varargin{ii},'nameonly');
+end
 
 setNamespace('AtlasViewerGUI');
 
@@ -386,20 +397,8 @@ end
 
 initAxesv(handles);
 
-% Print args
-for ii = 1:length(varargin)
-    if isempty(varargin{ii})
-        continue;
-    end
-    if strcmp(varargin{ii}, 'userargs')
-        continue;
-    end
-    if ischar(varargin{ii})
-        logger.Write('Args #%d = %s\n', ii, varargin{ii});
-    elseif isnumeric(varargin{ii})
-        logger.Write('Args #%d = %0.1f\n', ii, varargin{ii});
-    end
-end
+PrintSystemInfo([], 'AtlasViewerGUI', varargin);
+
 logger.Write('\n');
 
 logger.Write('Current Folder = %s\n', filesepStandard(pwd));
@@ -415,7 +414,6 @@ logger.Write('\n');
 
 cd(atlasViewer.dirnameSubj);
 checkForAtlasViewerUpdates();
-PrintSystemInfo([], 'AtlasViewerGUI');
 
 hDataTreeGUI = [];
 if length(varargin)>3
@@ -447,13 +445,6 @@ set(handles.editSelectChannel,'string','0 0');
 set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
 
 positionDataTreeGUI(handles);
-
-% check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
-if exist('mcxlab.m','file')
-    set(handles.menuItemRunMCXlab,'enable','on');
-else
-    set(handles.menuItemRunMCXlab,'enable','off');
-end
 
 if isfield(atlasViewer,'probe')
    atlasViewer.probe_copy   = atlasViewer.probe; % this is useful for testing if the probe is modified 
@@ -3562,7 +3553,7 @@ set(hObject, checked_propname, onoff);
 
 
 % --------------------------------------------------------------------
-function menuItemResetForwardModel_Callback(hObject, eventdata, handles)
+function menuItemResetForwardModel_Callback(~, ~, handles)
 global atlasViewer
 msg{1} = sprintf('WARNING: This action will reset the Forward Model to a known ''empty'' state. ');
 msg{2} = sprintf('This means all the Monte Carlo output and Sensitivity Profile for this subject will be deleted. ');
@@ -3585,26 +3576,18 @@ atlasViewer.fwmodel = getFwmodel(atlasViewer.fwmodel, atlasViewer.dirnameSubj, a
 
 % --------------------------------------------------------------------
 function menuItemProbeDesignEditAV_Callback(hObject, eventdata, handles)
-% hObject    handle to menuItemProbeDesignEditAV (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 global atlasViewer
 
 headSurf = atlasViewer.headsurf.handles.surf;
-set(handles.uipanelProbeDesignEdit,'Units','normalized','Position',[0.7113 0.033 0.227 0.265])
-% set(handles.uipanelProbeDesignEdit,'Units','normalized','Position',[0.7113 0.033 0.4 0.265])
-% set(handles.uibuttongroupEditOptode,'Units','normalized','Position',[0.05 0.5 0.7 0.4])
-% set(handles.uipaneSpringListDist,'Units','normalized','Position',[0.05 0.05 0.7 0.4])
 if strcmpi(get(handles.uipanelProbeDesignEdit,'Visible'),'On')
     set(handles.uipanelProbeDesignEdit,'Visible','Off')
     set(handles.menuItemProbeDesignEditAV,'Checked','Off')
     set(handles.uipanel_EditOptode,'Visible','Off')
     set(handles.checkboxOptodeSDMode,'Enable','on')
     if isfield(atlasViewer.probe.handles,'hSprings_editOptode')
-    if ishandles(atlasViewer.probe.handles.hSprings_editOptode)
-        delete(atlasViewer.probe.handles.hSprings_editOptode);
-    end
+        if ishandles(atlasViewer.probe.handles.hSprings_editOptode)
+            delete(atlasViewer.probe.handles.hSprings_editOptode);
+        end
     end
 
     if isfield(atlasViewer.probe.handles,'hMeasList_editOptode')
@@ -3641,13 +3624,10 @@ elseif strcmpi(get(handles.uipanelProbeDesignEdit,'Visible'),'Off')
     end
 end
 
-% --- Executes on button press in radiobuttonAddOptodeAV.
-function radiobuttonAddOptodeAV_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobuttonAddOptodeAV (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobuttonAddOptodeAV
+
+% --------------------------------------------------------------------
+function radiobuttonAddOptodeAV_Callback(hObject, eventdata, handles)
 global atlasViewer
 set(handles.radiobuttonAddOptodeAV,'Value',1.0)
 set(handles.radiobuttonRemoveOptodeAV,'Value',0.0)
@@ -3690,13 +3670,8 @@ set(handles.edit_assignAnchorPt,'Enable','off');
 set(handles.edit_grommetRotation,'Enable','on');
 
 
-% --- Executes on button press in radiobuttonRemoveOptodeAV.
+% --------------------------------------------------------------------
 function radiobuttonRemoveOptodeAV_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobuttonRemoveOptodeAV (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobuttonRemoveOptodeAV
 global atlasViewer
 set(handles.radiobuttonAddOptodeAV,'Value',0.0)
 set(handles.radiobuttonRemoveOptodeAV,'Value',1.0)
@@ -3730,13 +3705,10 @@ set(handles.popupmenu_selectGrommetType,'Enable','off');
 set(handles.edit_assignAnchorPt,'Enable','off');
 set(handles.edit_grommetRotation,'Enable','off');
 
-% --- Executes on button press in radiobuttonEditOptodeAV.
-function radiobuttonEditOptodeAV_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobuttonEditOptodeAV (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobuttonEditOptodeAV
+
+% --------------------------------------------------------------------
+function radiobuttonEditOptodeAV_Callback(~, ~, handles)
 set(handles.radiobuttonAddOptodeAV,'Value',0.0)
 set(handles.radiobuttonRemoveOptodeAV,'Value',0.0)
 set(handles.radiobuttonEditOptodeAV,'Value',1.0)
@@ -3750,14 +3722,10 @@ set(handles.edit_grommetRotation,'Enable','off');
 % set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
 % set(handles.uitable_editMLorSL,'Units','normalized','Position',[0.1 0.1 0.88 0.55])
 
-% --- Executes on selection change in popupmenuSelectOptodeType.
-function popupmenuSelectOptodeType_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenuSelectOptodeType (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuSelectOptodeType contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenuSelectOptodeType
+
+% --------------------------------------------------------------------
+function popupmenuSelectOptodeType_Callback(hObject, eventdata, handles)
 global atlasViewer
 nrsc = atlasViewer.probe.nsrc;
 ndet = atlasViewer.probe.ndet;
@@ -3776,19 +3744,10 @@ if get(handles.radiobuttonEditOptodeAV,'Value') && isfield(atlasViewer.probe,'ed
     idx = atlasViewer.probe.editOptodeInfo.currentOptode;
     if idx <= nrsc
         opt_type = 'Source';
-%         opt_no = idx;
-%         grommet_type = atlasViewer.probe.SrcGrommetType{opt_no};
-%         grommet_rot = atlasViewer.probe.SrcGrommetRot{opt_no};
     elseif idx <= nrsc+ndet
         opt_type = 'Detector';
-%         opt_no = idx-nrsc;
-%         grommet_type = atlasViewer.probe.DetGrommetType{opt_no};
-%         grommet_rot = atlasViewer.probe.DetGrommetRot{opt_no};
     else
         opt_type = 'Dummy';
-%         opt_no = idx-nrsc;
-%         grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
-%         grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
     end
     
     if strcmp(selected_optode_type, opt_type)
@@ -3818,8 +3777,10 @@ if get(handles.radiobuttonEditOptodeAV,'Value') && isfield(atlasViewer.probe,'ed
     end 
 end
 
+
+
+% --------------------------------------------------------------------
 function deleteAnOptode(idx)
-    
 global atlasViewer
 optpos_reg = atlasViewer.probe.optpos_reg;
 ml = atlasViewer.probe.ml;
@@ -3901,6 +3862,8 @@ atlasViewer.probe.ml = ml;
 atlasViewer.probe.registration.sl = sl;
 
 
+
+% --------------------------------------------------------------------
 function addAnOptode(selected_point, handles)
 global atlasViewer
 contents = cellstr(get(handles.popupmenuSelectOptodeType,'String'));
@@ -3917,14 +3880,12 @@ optpos_reg = atlasViewer.probe.optpos_reg;
 if strcmpi(selected_optode_type,'Source')
     optpos_reg = [optpos_reg(1:nrsc,:); selected_point; optpos_reg(nrsc+1:end,:)];
     atlasViewer.probe.SrcGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.SrcGrommetRot(end+1) = grommet_rot;
     atlasViewer.probe.optpos_reg = optpos_reg;
     atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
     nrsc = nrsc+1;
     atlasViewer.probe.nsrc = nrsc;
     atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
-%             atlasViewer.probe.SrcGrommetType{end+1} = '';
-%             atlasViewer.probe.SrcGrommetRot{end+1} = 0;
 
     % add measurement list to new optode
     det_dist = sqrt(sum((optpos_reg(nrsc+1:nrsc+ndet,:)-selected_point).^2,2));
@@ -3970,7 +3931,7 @@ if strcmpi(selected_optode_type,'Source')
 elseif strcmpi(selected_optode_type,'Detector')
     optpos_reg = [optpos_reg(1:nrsc+ndet,:); selected_point; optpos_reg(nrsc+ndet+1:end,:)];
     atlasViewer.probe.DetGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.DetGrommetRot(end+1) = grommet_rot;
     atlasViewer.probe.optpos_reg = optpos_reg;
     atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
     ndet = ndet+1;
@@ -4021,7 +3982,7 @@ elseif strcmpi(selected_optode_type,'Dummy')
     atlasViewer.probe.optpos_reg = [atlasViewer.probe.optpos_reg; selected_point];
     atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
     atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
-    atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
+    atlasViewer.probe.DummyGrommetRot(end+1) = grommet_rot;
     opt_pos = size(atlasViewer.probe.optpos_reg,1);
     atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
 
@@ -4033,8 +3994,9 @@ elseif strcmpi(selected_optode_type,'Dummy')
 end
 
 
-% --- Executes during object creation, after setting all properties.
-function popupmenuSelectOptodeType_CreateFcn(hObject, eventdata, handles)
+
+% --------------------------------------------------------------------
+function popupmenuSelectOptodeType_CreateFcn(hObject, ~, ~)
 % hObject    handle to popupmenuSelectOptodeType (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -4047,39 +4009,22 @@ end
 
 
 
-function editSpringListDist_Callback(hObject, eventdata, handles)
-% hObject    handle to editSpringListDist (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of editSpringListDist as text
-%        str2double(get(hObject,'String')) returns contents of editSpringListDist as a double
+% --------------------------------------------------------------------
+function editSpringListDist_Callback(~, ~, ~)
 
 
-% --- Executes during object creation, after setting all properties.
-function editSpringListDist_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to editSpringListDist (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+% --------------------------------------------------------------------
+function editSpringListDist_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 
-function editMeasurementListDist_Callback(hObject, eventdata, handles)
-% hObject    handle to editMeasurementListDist (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of editMeasurementListDist as text
-%        str2double(get(hObject,'String')) returns contents of editMeasurementListDist as a double
-
+% --------------------------------------------------------------------
+function editMeasurementListDist_Callback(hObject, ~, handles)
 global atlasViewer
-
 answer = questdlg('This change will impact all new optodes. Do you want to apply it to the existing measurement list?', ...
     '',...
 	'Yes', ...
@@ -4167,19 +4112,14 @@ end
 
 
 
-% --- Executes during object creation, after setting all properties.
-function editMeasurementListDist_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to editMeasurementListDist (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+% --------------------------------------------------------------------
+function editMeasurementListDist_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
+% --------------------------------------------------------------------
 function headsurf_btndwn(hObject, eventdata, handles)
 global atlasViewer
 if eventdata.Button == 1
@@ -4205,14 +4145,12 @@ if eventdata.Button == 1
             if strcmpi(selected_optode_type,'Source')
                 optpos_reg = [optpos_reg(1:nrsc,:); selected_point; optpos_reg(nrsc+1:end,:)];
                 atlasViewer.probe.SrcGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.SrcGrommetRot(end+1) = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
                 atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
                 nrsc = nrsc+1;
                 atlasViewer.probe.nsrc = nrsc;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
-    %             atlasViewer.probe.SrcGrommetType{end+1} = '';
-    %             atlasViewer.probe.SrcGrommetRot{end+1} = 0;
 
                 % add measurement list to new optode
                 det_dist = sqrt(sum((optpos_reg(nrsc+1:nrsc+ndet,:)-selected_point).^2,2));
@@ -4257,8 +4195,8 @@ if eventdata.Button == 1
                 atlasViewer.probe = probe;
             elseif strcmpi(selected_optode_type,'Detector')
                 optpos_reg = [optpos_reg(1:nrsc+ndet,:); selected_point; optpos_reg(nrsc+ndet+1:end,:)];
-                atlasViewer.probe.DetGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.DetGrommetType(end+1) = selected_grommet_type;
+                atlasViewer.probe.DetGrommetRot(end+1) = grommet_rot;
                 atlasViewer.probe.optpos_reg = optpos_reg;
                 atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
                 ndet = ndet+1;
@@ -4309,7 +4247,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.optpos_reg = [atlasViewer.probe.optpos_reg; selected_point];
                 atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
                 atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
-                atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
+                atlasViewer.probe.DummyGrommetRot(end+1) = grommet_rot;
                 opt_pos = size(atlasViewer.probe.optpos_reg,1);
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
 
@@ -4464,17 +4402,17 @@ if eventdata.Button == 1
                     opt_type = 'Source';
                     opt_no = idx;
                     grommet_type = atlasViewer.probe.SrcGrommetType{opt_no};
-                    grommet_rot = atlasViewer.probe.SrcGrommetRot{opt_no};
+                    grommet_rot = atlasViewer.probe.SrcGrommetRot(opt_no);
                 elseif idx <= nrsc+ndet
                     opt_type = 'Detector';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DetGrommetType{opt_no};
-                    grommet_rot = atlasViewer.probe.DetGrommetRot{opt_no};
+                    grommet_rot = atlasViewer.probe.DetGrommetRot(opt_no);
                 else
                     opt_type = 'Dummy';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
-                    grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
+                    grommet_rot = atlasViewer.probe.DummyGrommetRot(idx-nrsc-ndet);
                 end
                 optode_index = find(strcmp(optode_type_contents,opt_type));
                 set(handles.popupmenuSelectOptodeType,'Value',optode_index);
@@ -4686,13 +4624,9 @@ elseif eventdata.Button == 3
 end
 
 
-% --- Executes on button press in radiobutton_SpringListVisible.
-function radiobutton_SpringListVisible_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton_SpringListVisible (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton_SpringListVisible
+% --------------------------------------------------------------------
+function radiobutton_SpringListVisible_Callback(hObject, eventdata, handles)
 global atlasViewer
 set(handles.radiobutton_SpringListVisible,'Value',1.0)
 set(handles.radiobutton_MeasListVisible,'Value',0.0)
@@ -4734,13 +4668,10 @@ else
     set(handles.checkboxOptodeSDMode,'Enable','off')
 end
 
-% --- Executes on button press in radiobutton_MeasListVisible.
-function radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton_MeasListVisible (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton_MeasListVisible
+
+% --------------------------------------------------------------------
+function radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
 global atlasViewer
 set(handles.radiobutton_SpringListVisible,'Value',0.0)
 set(handles.radiobutton_MeasListVisible,'Value',1.0)
@@ -4752,7 +4683,7 @@ else
     if isfield(atlasViewer.probe,'editOptodeInfo') & isfield( atlasViewer.probe.editOptodeInfo,'currentOptode')
         ml = atlasViewer.probe.ml;
         if ~isempty(ml)
-        [ml,ia,ic] = unique(ml(:,1:2),'rows');
+        [ml,ia] = unique(ml(:,1:2),'rows');
         sl = atlasViewer.probe.registration.sl;
         idx = atlasViewer.probe.editOptodeInfo.currentOptode;
 
@@ -4811,17 +4742,10 @@ else
     set(handles.checkboxOptodeSDMode,'Enable','off')
 end
 
-% --- Executes when entered data in editable cell(s) in uitable_editMLorSL.
-function uitable_editMLorSL_CellEditCallback(hObject, eventdata, handles)
-% hObject    handle to uitable_editMLorSL (see GCBO)
-% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
-%	Indices: row and column indices of the cell(s) edited
-%	PreviousData: previous data for the cell(s) edited
-%	EditData: string(s) entered by the user
-%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
-%	Error: error string when failed to convert EditData to appropriate value for Data
-% handles    structure with handles and user data (see GUIDATA)
 
+
+% --------------------------------------------------------------------
+function uitable_editMLorSL_CellEditCallback(hObject, eventdata, handles)
 global atlasViewer
 Indices = eventdata.Indices;
 data = eventdata.Source.Data;
@@ -4847,16 +4771,10 @@ elseif get(handles.radiobutton_SpringListVisible,'Value')
 end
 
 
-% --- Executes on button press in checkbox_optodeEditMode.
-function checkbox_optodeEditMode_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox_optodeEditMode (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkbox_optodeEditMode
-global atlasViewer
+% --------------------------------------------------------------------
+function checkbox_optodeEditMode_Callback(hObject, ~, ~)
 if get(hObject,'Value')
-    
 %     probe =  atlasViewer.probe;
 %     if isfield(probe.handles,'hMeasList_editOptode')
 %         if ishandles(probe.handles.hMeasList_editOptode)
@@ -4873,8 +4791,10 @@ if get(hObject,'Value')
 %     set(probe.handles.labels, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
 end
 
-function optodeEditMode_btndwn(hObject, eventdata, handles)
 
+
+% --------------------------------------------------------------------
+function optodeEditMode_btndwn(hObject, eventdata, handles)
 global atlasViewer
 if strcmp(eventdata.Source.Type,'text')
     ml = atlasViewer.probe.ml;
@@ -4940,14 +4860,8 @@ if strcmp(eventdata.Source.Type,'text')
 end
 
 
-% --- Executes on selection change in popupmenu_selectGrommetType.
-function popupmenu_selectGrommetType_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu_selectGrommetType (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_selectGrommetType contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_selectGrommetType
+% --------------------------------------------------------------------
+function popupmenu_selectGrommetType_Callback(hObject, ~, handles)
 global atlasViewer
 if get(handles.radiobuttonEditOptodeAV,'Value')
     contents = cellstr(get(hObject,'String'));
@@ -4976,14 +4890,10 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
     end  
 end
 
-% --- Executes during object creation, after setting all properties.
-function popupmenu_selectGrommetType_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu_selectGrommetType (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+
+% --------------------------------------------------------------------
+function popupmenu_selectGrommetType_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -4992,14 +4902,8 @@ set(hObject,'String',choices);
 
 
 
-function edit_assignAnchorPt_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_assignAnchorPt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_assignAnchorPt as text
-%        str2double(get(hObject,'String')) returns contents of edit_assignAnchorPt as a double
-
+% --------------------------------------------------------------------
+function edit_assignAnchorPt_Callback(hObject, ~, handles)
 global atlasViewer
 
 if get(handles.radiobuttonEditOptodeAV,'Value')
@@ -5037,27 +4941,18 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
     end
 end
 
-% --- Executes during object creation, after setting all properties.
-function edit_assignAnchorPt_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_assignAnchorPt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+
+% --------------------------------------------------------------------
+function edit_assignAnchorPt_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 
-function edit_grommetRotation_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_grommetRotation (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_grommetRotation as text
-%        str2double(get(hObject,'String')) returns contents of edit_grommetRotation as a double
+% --------------------------------------------------------------------
+function edit_grommetRotation_Callback(hObject, ~, handles)
 global atlasViewer
 if get(handles.radiobuttonEditOptodeAV,'Value')
     grommet_rot = str2double(get(hObject, 'String'));
@@ -5067,13 +4962,13 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
         ndet = atlasViewer.probe.ndet;
         if idx <= nrsc
             opt_no = idx;
-            atlasViewer.probe.SrcGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.SrcGrommetRot(opt_no) = grommet_rot;
         elseif idx <= nrsc+ndet
             opt_no = idx-nrsc;
-            atlasViewer.probe.DetGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.DetGrommetRot(opt_no) = grommet_rot;
         else
             opt_no = idx-nrsc-ndet;
-            atlasViewer.probe.DummyGrommetRot{opt_no} = grommet_rot;
+            atlasViewer.probe.DummyGrommetRot(opt_no) = grommet_rot;
         end
         if isProbeChanged(atlasViewer.probe_copy,atlasViewer.probe)
             set(handles.text_isProbeChanged,'String','Click Register Probe to Surface to save the probe');
@@ -5081,35 +4976,24 @@ if get(handles.radiobuttonEditOptodeAV,'Value')
     end  
 end
 
-% --- Executes during object creation, after setting all properties.
-function edit_grommetRotation_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_grommetRotation (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+
+% --------------------------------------------------------------------
+function edit_grommetRotation_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
-% --- Executes during object creation, after setting all properties.
-function text_isProbeChanged_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to text_isProbeChanged (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
+
+% --------------------------------------------------------------------
+function text_isProbeChanged_CreateFcn(hObject, ~, ~)
 set(hObject,'String','');
 
 
 
-function edit_Lamdbas_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_Lamdbas (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_Lamdbas as text
-%        str2double(get(hObject,'String')) returns contents of edit_Lamdbas as a double
+% --------------------------------------------------------------------
+function edit_Lamdbas_Callback(hObject, ~, handles)
 global atlasViewer
 lambdas = str2num(get(hObject, 'string'));
 
@@ -5138,73 +5022,41 @@ if ~isempty(atlasViewer.probe.ml)
 end
 
 
-% --- Executes during object creation, after setting all properties.
-function edit_Lamdbas_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_Lamdbas (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+% --------------------------------------------------------------------
+function edit_Lamdbas_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 
-function edit_Lambda2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_Lambda2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_Lambda2 as text
-%        str2double(get(hObject,'String')) returns contents of edit_Lambda2 as a double
+% --------------------------------------------------------------------
+function edit_Lambda2_Callback(~, ~, ~)
 
 
-% --- Executes during object creation, after setting all properties.
-function edit_Lambda2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_Lambda2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+% --------------------------------------------------------------------
+function edit_Lambda2_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 
-function edit_Lambda3_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_Lambda3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_Lambda3 as text
-%        str2double(get(hObject,'String')) returns contents of edit_Lambda3 as a double
+% --------------------------------------------------------------------
+function edit_Lambda3_Callback(~, ~, ~)
 
 
-% --- Executes during object creation, after setting all properties.
-function edit_Lambda3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_Lambda3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+% --------------------------------------------------------------------
+function edit_Lambda3_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
 
 
-% --- Executes on button press in checkbox_displayAllOptodes.
+% --------------------------------------------------------------------
 function checkbox_displayAllOptodes_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox_displayAllOptodes (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox_displayAllOptodes
 global atlasViewer
 if get(handles.checkbox_displayAllOptodes,'Value')
     if get(handles.radiobutton_SpringListVisible,'Value')
@@ -5228,7 +5080,7 @@ if get(handles.checkbox_displayAllOptodes,'Value')
         col2_name = 'Detector';
         if ~isempty(ml)
             sl = atlasViewer.probe.registration.sl;
-            [data,ia,ic] = unique(ml(:,1:3),'rows');
+            data = unique(ml(:,1:3),'rows');
             data(:,3) = data(:,3)*0;
             data(:,2) = data(:,2)+nrsc;
             [Lia1, Locb1] = ismember(data(:,1:2),sl(:,1:2),'rows');
@@ -5274,4 +5126,5 @@ else
         radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
     end
 end
+
 

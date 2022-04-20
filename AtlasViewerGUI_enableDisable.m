@@ -17,7 +17,6 @@ if refpts.isempty(refpts)
     end
 end
 
-
 if isempty(digpts.refpts.pos) | isempty(refpts.pos) | isempty(headsurf.mesh.vertices)
     set(handles.menuItemRegisterAtlasToDigpts,'enable','off')
 else
@@ -27,5 +26,17 @@ end
 % Set the GUI controls for post-probe-registration controls, 
 % like fw model, image recon, hb overlay, 
 fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf);
+
+% check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
+if exist('mcxlab.m','file')
+    set(handles.menuItemRunMCXlab,'enable','on');
+else
+    set(handles.menuItemRunMCXlab,'enable','off');
+end
+
+pos = get(handles.uipanelImageDisplay, 'position');
+parent = get(handles.uipanelImageDisplay, 'parent');
+set(handles.uipanelProbeDesignEdit, 'parent',parent, 'position',pos);
+
 
 

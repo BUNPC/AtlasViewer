@@ -99,51 +99,43 @@ end
 if isfield(SD1,'SrcGrommetRot')
     if isempty(SD1.SrcGrommetRot)
         for ii = 1:size(SD2.SrcPos,1)
-            SD2.SrcGrommetRot{ii} = 0;
+            SD2.SrcGrommetRot(ii) = 0;
         end
     else
         SD2.SrcGrommetRot = SD1.SrcGrommetRot;
     end
 elseif isempty(SD2.SrcGrommetRot)
     for ii = 1:size(SD2.SrcPos,1)
-        SD2.SrcGrommetRot{ii} = 0;
+        SD2.SrcGrommetRot(ii) = 0;
     end
 end
 
 if isfield(SD1,'DetGrommetRot')
     if isempty(SD1.DetGrommetRot)
         for ii = 1:size(SD2.DetPos,1)
-            SD2.DetGrommetRot{ii} = 0;
+            SD2.DetGrommetRot(ii) = 0;
         end
     else
         SD2.DetGrommetRot = SD1.DetGrommetRot;
     end
 elseif isempty(SD2.DetGrommetRot)
     for ii = 1:size(SD2.DetPos,1)
-        SD2.DetGrommetRot{ii} = 0;
+        SD2.DetGrommetRot(ii) = 0;
     end
 end
 
 if isfield(SD1,'DummyGrommetRot')
     if isempty(SD1.DummyGrommetRot)
         for ii = 1:size(SD2.DummyPos,1)
-            SD2.DummyGrommetRot{ii} = 0;
+            SD2.DummyGrommetRot(ii) = 0;
         end
     else
         SD2.DummyGrommetRot = SD1.DummyGrommetRot;
     end
 elseif isempty(SD2.DummyGrommetRot)
     for ii = 1:size(SD2.DummyPos,1)
-        SD2.DummyGrommetRot{ii} = 0;
+        SD2.DummyGrommetRot(ii) = 0;
     end
-end
-
-if isfield(SD1,'nSrcs')
-    SD2.nSrcs = SD1.nSrcs;
-end
-
-if isfield(SD1,'nDets')
-    SD2.nDets = SD1.nDets;
 end
 
 if isfield(SD1,'nDummys')
@@ -216,6 +208,7 @@ SD2.DetGrommetType = fixGrommetType(SD2.DetGrommetType, SD2.DetPos);
 SD2.DummyGrommetType = fixGrommetType(SD2.DummyGrommetType, SD2.DummyPos);
 
 
+
 % -----------------------------------------------------------------
 function grommet = fixGrommetRot(grommet, optode)
 d = size(optode,1) - length(grommet);
@@ -223,7 +216,7 @@ if d<0
     grommet(size(optode,1)+1:end) = [];
 elseif d>0
     for ii = 1:size(optode,1)
-        grommet{ii} = 0;
+        grommet(ii) = 0;
     end
 end
 

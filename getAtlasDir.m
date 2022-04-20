@@ -70,8 +70,8 @@ if isempty(dirname)
     return;
 end
 
-logger.Write('Found atlas: %s\n', dirname);
 dirname = filesepStandard(dirname);
+logger.Write('Found atlas: %s\n', dirname);
 
 
 

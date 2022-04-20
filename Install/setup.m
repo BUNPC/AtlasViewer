@@ -65,7 +65,7 @@ logger = Logger([dirnameSrc, 'Setup']);
 
 v = getVernum('AtlasViewerGUI');
 logger.Write('==========================================\n');
-logger.Write('Setup script for %s v%s.%s.%s:\n', exename, v{1}, v{2}, v{3});
+logger.Write('Setup script for %s v%s:\n', exename, v);
 logger.Write('==========================================\n\n');
 
 logger.Write('Platform params:\n');
@@ -113,6 +113,7 @@ myCopyFile([dirnameSrc, 'AppSettings.cfg'],   dirnameDst);
 myCopyFile([dirnameSrc, 'Data'],         [dirnameDst, 'Data']);
 myCopyFile([dirnameSrc, platform.mc_exe_name], [dirnameDst, platform.mc_exe_name]);
 myCopyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
+myCopyFile([dirnameSrc, 'Version.txt'],     dirnameDst);
 myCopyFile([dirnameSrc, 'LastCheckForUpdates.dat'], dirnameDst);
 
 for ii = 1:length(platform.iso2meshmex)

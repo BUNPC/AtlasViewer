@@ -19,7 +19,9 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
         
         % Open a hidden web browser
         wb = com.mathworks.mde.webbrowser.WebBrowser.createBrowser;
-        wb.setCurrentLocation(url);
+        if ~ismac()
+            setCurrentLocation(wb, url);
+        end
         p = getParentRecursive(wb);
         p.setVisible(0);
         
@@ -31,7 +33,7 @@ if (strcmp(cfg.GetValue('Check For Updates'),'on'))
             updateTxt = version{1}{1};
         end
         web_vrnum = str2cell(version{1}{1},'.');
-        this_vrnum = getVernum();
+        this_vrnum = str2cell(getVernum('AtlasViewerGUI'), '.');
         promptFlag = compareVernum(web_vrnum, this_vrnum);  % If fetched vernum is greater
         if (promptFlag)
             choice = questdlg(sprintf(['An update for AtlasViewer is available:\n',...

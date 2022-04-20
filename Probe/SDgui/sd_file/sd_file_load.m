@@ -13,7 +13,7 @@ if isempty(file)
     return;
 end
 
-if file.isdir()
+if file.isdir
     err=1;
     SDgui_disp_msg(handles, sprintf('ERROR: %s is a folder. Please choose a file.', filename), err);
     return;
@@ -48,8 +48,8 @@ elseif strcmp(ext, '.snirf')
         return;
     end
     snirf = SnirfClass(filename);
-    filedata.SD = snirf.GetSDG();
-    filedata.SD.MeasList = snirf.GetMeasList();
+    dotnirs = NirsClass(snirf);
+    filedata.SD  = dotnirs.SD;
     filename = [fname, '.SD'];
 end
 filedata.SD = sd_data_Init(filedata.SD);

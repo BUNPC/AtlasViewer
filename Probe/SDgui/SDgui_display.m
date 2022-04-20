@@ -3,6 +3,8 @@ global SD
 
 if ~exist('SDo','var')
     SDo = sd_data_Init();
+elseif isproperty(SDo, 'SD')
+    SDo = SDo.SD;
 end
 
 % Initialize SD object with data from SD file
