@@ -54,8 +54,7 @@ xy = [x y];
 
 %%
 norm_factor = max(max(xy));
-xy = xy/norm_factor;               % set maximum to unit length
-xy = xy/2 + 0.5;                    % adjust to range 0-1
+xy = xy/norm_factor;          
 refpts_2D.pos = xy;
 SD.Landmarks2D = refpts_2D;
 
@@ -82,5 +81,5 @@ elevation = pi/2-elevation;
 [x,y] = pol2cart(azimuth,elevation);      % get plane coordinates
 xy = [x y];
 xy = xy/norm_factor;               % set maximum to unit length
-xy = xy/2 + 0.5;
+% xy = xy/2 + 0.5;
 

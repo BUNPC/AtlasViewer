@@ -55,6 +55,9 @@ if isfield(SD,'DummyPos3D')
     probe.optpos_reg(iStart : iEnd, :) = SD.DummyPos3D;
 end
 
+if isfield(SD,'orientation')
+    probe.orientation = SD.orientation;
+end
 
 if isfield(SD,'MeasList') && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
     k = find(SD.MeasList(:,4)==1);
