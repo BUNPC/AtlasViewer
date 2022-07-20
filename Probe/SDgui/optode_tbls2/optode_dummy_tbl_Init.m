@@ -10,11 +10,15 @@ for i=1:MAXTBLSIZE
       D{i,2} = real2str( OptPos(i,1));
       D{i,3} = real2str( OptPos(i,2));
       D{i,4} = real2str( OptPos(i,3));
+      D{i,5} = '';
+      D{i,6} = '';
    else
       D{i,1} = '';
       D{i,2} = '';
       D{i,3} = '';
-      D{i,4} = '';      
+      D{i,4} = '';
+      D{i,5} = '';
+      D{i,6} = '';
    end
 end
 userdata.tbl_size = nopt;

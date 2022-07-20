@@ -184,7 +184,8 @@ end
 % Display all objects
 digpts     = displayDigpts(digpts);
 refpts     = displayRefpts(refpts);
-probe      = displayProbe(probe, refpts);
+% probe.orientation = refpts.orientation;
+probe      = displayProbe(probe);
 headsurf   = displayHeadsurf(headsurf);
 pialsurf   = displayPialsurf(pialsurf);
 labelssurf = displayLabelssurf(labelssurf);
@@ -714,10 +715,10 @@ else
     % Get registered optode positions and then display springs
     probe = registerProbe2Head(probe, headvol, refpts);
     probe = probe.copyLandmarks(probe, refpts);
-    probe.save(probe);
+%     probe.save(probe);
     
 end
-probe.orientation = refpts.orientation;
+% probe.orientation = refpts.orientation;
 probe.center      = refpts.center;
 
 % Clear old registration from gui after registering probe to avoid 
@@ -3409,7 +3410,7 @@ if ishandles(hSDgui)
     menu('SDgui already active.','OK');
     return;
 end
-atlasViewer.probe = resetProbe(atlasViewer.probe);
+atlasViewer.probe = resetProbe(atlasViewer.probe, pwd, handles);
 atlasViewer.probe.handles.hSDgui = SDgui(atlasViewer.dirnameProbe,'userargs');
 set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
 
@@ -3423,6 +3424,12 @@ atlasViewer.labelssurf = labelssurf;
 % --------------------------------------------------------------------
 function menuItemProbeImport_Callback(hObject, eventdata, handles)
 global atlasViewer
+
+if ~isempty(atlasViewer.dataTree)
+    msgbox({'Current folder has acquired or processeed data, importing another probe is not allowed.', ...
+        'If you want to import another probe, Please start AtlasViewer in that folder'});
+    return
+end
 
 dirnameProbe = atlasViewer.dirnameProbe;
 probe        = atlasViewer.probe;
@@ -3590,6 +3597,12 @@ function menuItemProbeDesignEditAV_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 global atlasViewer
+
+if ~isempty(atlasViewer.dataTree)
+    msgbox({'Current folder has acquired or processeed data, editing probe is not allowed.', ...
+        'If you want to edit the probe, copy the probe into different folder and start AtlasViewer in that folder.'});
+    return
+end
 
 headSurf = atlasViewer.headsurf.handles.surf;
 set(handles.uipanelProbeDesignEdit,'Units','normalized','Position',[0.7113 0.033 0.227 0.265])
@@ -5274,4 +5287,105 @@ else
         radiobutton_MeasListVisible_Callback(hObject, eventdata, handles)
     end
 end
+
+
+
+% --------------------------------------------------------------------
+function menutemSaveProbeSD_Callback(hObject, eventdata, handles)
+% hObject    handle to menutemSaveProbeSD (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global atlasViewer
+
+if isempty(atlasViewer.probe.filename_to_save)
+    [filename, pathname] = uiputfile('*.SD');
+else
+    pathname = atlasViewer.probe.pathname;
+    filename = [atlasViewer.probe.filename_to_save '.SD'];
+end
+
+SD = convertProbe2SD(atlasViewer.probe);
+save([pathname filename],'-mat', 'SD');
+atlasViewer.probe.pathname = pathname;
+atlasViewer.probe.filename_to_save = filename(1:end-3);
+
+% --------------------------------------------------------------------
+function menuItemSaveProbeSNIRF_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemSaveProbeSNIRF (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global atlasViewer
+
+if isempty(atlasViewer.probe.filename_to_save)
+    [filename, pathname] = uiputfile('*.SNIRF');
+else
+    pathname = atlasViewer.probe.pathname;
+    filename = [atlasViewer.probe.filename_to_save '.SNIRF'];
+end
+atlasViewer.probe.pathname = pathname;
+atlasViewer.probe.filename_to_save = filename(1:end-6);
+SD = convertProbe2SD(atlasViewer.probe);
+
+% create snirf object 
+snirf = SnirfClass();
+probe_snirf_object = ProbeClass(SD);
+snirf.probe = probe_snirf_object;
+snirf.data = DataClass();
+% measurementList = MeasListClass(SD.MeasList);
+for ii=1:size(SD.MeasList,1)
+    snirf.data.measurementList(end+1) = MeasListClass(SD.MeasList(ii,:));
+end
+% snirf.data(1).measurementList = measurementList;
+metaDataTags = MetaDataTagsClass();
+snirf.metaDataTags = metaDataTags;
+
+snirf.Save([pathname filename])
+
+
+
+% --------------------------------------------------------------------
+function menuItemSaveProbeSDas_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemSaveProbeSDas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global atlasViewer
+
+[filename, pathname] = uiputfile('*.SD');
+SD = convertProbe2SD(atlasViewer.probe);
+save([pathname filename],'-mat', 'SD');
+atlasViewer.probe.pathname = pathname;
+atlasViewer.probe.filename_to_save = filename(1:end-3);
+
+
+
+% --------------------------------------------------------------------
+function menuitemDisplayProbeOnUnitCircle_Callback(hObject, eventdata, handles)
+% hObject    handle to menuitemDisplayProbeOnUnitCircle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function menuitemDisplayProbeOnUnitCircle_optodeCircles_Callback(hObject, eventdata, handles)
+% hObject    handle to menuitemDisplayProbeOnUnitCircle_optodeCircles (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global atlasViewer
+displayProbeOnUnitCircle(atlasViewer.probe, 'circles')
+
+
+% --------------------------------------------------------------------
+function menuitemDisplayProbeOnUnitCircle_optodeNumbers_Callback(hObject, eventdata, handles)
+% hObject    handle to menuitemDisplayProbeOnUnitCircle_optodeNumbers (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global atlasViewer
+displayProbeOnUnitCircle(atlasViewer.probe, 'numbers')
+
+
 

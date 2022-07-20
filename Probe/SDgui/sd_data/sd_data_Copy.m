@@ -50,6 +50,10 @@ else
     end
 end
 
+if isfield(SD1,'orientation')
+    SD2.orientation = SD1.orientation;
+end
+
 if isfield(SD1,'Landmarks')
     SD2.Landmarks = SD1.Landmarks;
 end
