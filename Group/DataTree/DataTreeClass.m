@@ -282,11 +282,25 @@ classdef DataTreeClass <  handle
                 end
                 
             end
+            
+            obj.PrintProcStream();
+            
             obj.logger.Write('Loaded data set in %0.1f seconds\n', toc(t1));
         end
         
         
-                
+
+        % ---------------------------------------------------------------
+        function PrintProcStream(obj)
+            obj.logger.Write('\n');
+            obj.logger.Write('============================================\n\n');
+            obj.groups(1).PrintProcStream();
+            obj.logger.Write('============================================\n');
+            obj.logger.Write('\n');
+        end
+        
+            
+            
         % ---------------------------------------------------------------
         function SetDataStorageScheme(obj)
 
@@ -346,6 +360,11 @@ classdef DataTreeClass <  handle
             obj.ErrorCheckLoadedFiles();
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Generate the stimulus conditions for the group tree
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            obj.groups(iGroup).SetConditions();
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Load derived or post-acquisition data from a file if it
             % exists
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -358,11 +377,6 @@ classdef DataTreeClass <  handle
             	obj.groups(iGroup).InitProcStream(procStreamCfgFile);
             end
             
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Generate the stimulus conditions for the group tree
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.groups(iGroup).SetConditions();
-
         end
         
         
@@ -452,6 +466,33 @@ classdef DataTreeClass <  handle
 
         
         % ----------------------------------------------------------
+        function idx = FindProcElem(obj, name)
+            idx = [];
+            for ii = 1:length(obj.groups)
+                if strcmp(name, obj.groups(ii).GetName())
+                    idx = obj.groups(ii).GetIndexID();
+                    break;
+                end
+                if strcmp(name, obj.groups(ii).GetFilename())
+                    idx = obj.groups(ii).GetIndexID();
+                    break;
+                end
+                idx = obj.groups(ii).FindProcElem(name);
+                if ~isempty(idx)
+                    break;
+                end
+            end
+        end
+        
+        
+        % ----------------------------------------------------------
+        function CondNames = GetConditions(obj)
+             iG = obj.GetCurrElem().iGroup;
+             CondNames = obj.groups(iG).GetConditions();
+        end
+        
+        
+        % ----------------------------------------------------------
         function ErrorCheckLoadedFiles(obj)
             if isempty(obj.filesErr)
                 return
@@ -512,7 +553,9 @@ classdef DataTreeClass <  handle
             
             % Free up memory of current element before reassigning it to
             % another node. 
-            obj.currElem.FreeMemory();
+            if strcmp(obj.dataStorageScheme, 'files')
+                obj.currElem.FreeMemory();
+            end
             
             if     iSubj==0 && iSess==0 && iRun==0
                 obj.currElem = obj.groups(iGroup);
@@ -592,16 +635,16 @@ classdef DataTreeClass <  handle
         
         
         % ----------------------------------------------------------
-        function Save(obj, hwait)
-            if ~exist('hwait','var')
-                hwait = [];
-            end
-            
+        function Save(obj, hwait)           
             % Check that there is anough disk space. NOTE: for now we
             % assume that all groups are on the same drive. This should be 
             % changed but for now we simplify. 
             if getFreeDiskSpace() <= 0
                 return;
+            end
+            
+            if nargin==1
+                hwait = waitbar_improved(0,  'Saving groups. Please wait ...');
             end
             
             t1 = tic;
@@ -610,12 +653,18 @@ classdef DataTreeClass <  handle
                 obj.groups(ii).Save(hwait);
             end
             obj.logger.Write('Completed saving processing results for all groups in %0.3f seconds.\n', toc(t1));
+            
+            if nargin==1
+                close(hwait);
+            end
         end
 
 
         % ----------------------------------------------------------
         function CalcCurrElem(obj)
+            obj.currElem.ExportProcStreamFunctionsOpen();
             obj.currElem.Calc();
+            obj.currElem.ExportProcStreamFunctionsClose();
         end
 
         
@@ -684,16 +733,16 @@ classdef DataTreeClass <  handle
             if nfolders==0
                 nfolders = 1;
             end
-            numFilesMsg = sprintf('with %d data files in %d folders\n', dataInit.nfiles, nfolders);
+            numFilesMsg = sprintf('%d data files in %d folders\n', dataInit.nfiles, nfolders);
             obj.logger.Write('\n');
             if dataInit.nfiles == 0
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Did not find any data0 files %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Did not find any data0 files %s.\n', numFilesMsg);
             elseif dataInit.dirFormats.type > 3 && dataInit.dirFormats.type < 9
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found BIDS data set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found BIDS data set (format #%d) with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             elseif dataInit.dirFormats.type < 4
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found non-standard format set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found non-standard data set (format #%d)  with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             elseif dataInit.dirFormats.type > 8
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found non-standard but BIDS-like data set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found non-standard but BIDS-like data set (format #%d) with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             end
             obj.logger.Write('\n');
         end

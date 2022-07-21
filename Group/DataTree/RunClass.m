@@ -1,9 +1,5 @@
 classdef RunClass < TreeNodeClass
-    
-    properties % (Access = private)
-        acquired;
-    end
-    
+       
     methods
                 
         % ----------------------------------------------------------------------------------
@@ -19,7 +15,7 @@ classdef RunClass < TreeNodeClass
             %   run1     = RunClass('./s1/neuro_run01.nirs',1,1,1,1);
             %   run1copy = RunClass(run1);
             %           
-            obj@TreeNodeClass(varargin);            
+            obj@TreeNodeClass(varargin);
             
             obj.type  = 'run';
             if nargin==0
@@ -328,6 +324,20 @@ classdef RunClass < TreeNodeClass
             Print@TreeNodeClass(obj, indent);
         end
         
+
+        
+        % ---------------------------------------------------------------
+        function PrintProcStream(obj)
+            fcalls = obj.procStream.GetFuncCallChain();
+            obj.logger.Write('Run processing stream:\n');
+            for ii = 1:length(fcalls)
+                obj.logger.Write('%s\n', fcalls{ii});
+            end
+            obj.logger.Write('\n');
+        end
+        
+            
+            
     end    % Public methods
     
     
@@ -382,7 +392,11 @@ classdef RunClass < TreeNodeClass
             if ~exist('iBlk','var') || isempty(iBlk)
                 iBlk = 1;
             end
-            d = obj.acquired.GetDataTimeSeries(options, iBlk);
+            if isempty(options) || strcmp(options, 'reshape')
+                d = obj.acquired.GetDataTimeSeries(options, iBlk);
+            else
+                d = obj.GetDataTimeSeries@TreeNodeClass(options, iBlk);
+            end
         end
         
         
@@ -433,10 +447,15 @@ classdef RunClass < TreeNodeClass
             obj.procStream.input.SetMeasListVis(ones(size(ch, 1), 1));
         end
             
+        
+        
         % ----------------------------------------------------------------------------------
-        function ch = GetMeasList(obj, iBlk)
+        function ch = GetMeasList(obj, options, iBlk)
             if ~exist('iBlk','var') || isempty(iBlk)
                 iBlk=1;
+            end
+            if ~exist('options','var')
+                options = '';
             end
             
             ch = struct('MeasList',[], 'MeasListVis',[], 'MeasListActMan',[], 'MeasListActAuto',[]);
@@ -444,7 +463,6 @@ classdef RunClass < TreeNodeClass
             ch.MeasList        = obj.acquired.GetMeasList(iBlk);
             ch.MeasListActMan  = obj.procStream.GetMeasListActMan(iBlk);
             ch.MeasListActAuto = obj.procStream.GetMeasListActAuto(iBlk);
-            ch.MeasListVis     = obj.procStream.GetMeasListVis(iBlk);
             if isempty(ch.MeasListActMan)
                 obj.InitMlActMan();  % TODO find a more sensical place to do this
                 ch.MeasListActMan  = obj.procStream.GetMeasListActMan(iBlk);
@@ -452,11 +470,12 @@ classdef RunClass < TreeNodeClass
             if isempty(ch.MeasListActAuto)
                 ch.MeasListActAuto = ones(size(ch.MeasList,1),1);
             end
-            if isempty(ch.MeasListVis)
-                obj.InitMlVis();
-                ch.MeasListVis = obj.procStream.GetMeasListVis(iBlk);
-            end
             ch.MeasListAct     = bitand(ch.MeasListActMan, ch.MeasListActMan);
+            if strcmp(options,'reshape')
+                [ch.MeasList, order] = sortrows(ch.MeasList);
+                ch.MeasListActMan = ch.MeasListActMan(order);
+                ch.MeasListActAuto = ch.MeasListActAuto(order);
+            end
         end
 
         
@@ -854,15 +873,6 @@ classdef RunClass < TreeNodeClass
         end
         
         
-        
-        % ----------------------------------------------------------------------------------
-        function ExportHRF(obj, ~, iBlk)
-            if ~exist('iBlk','var') || isempty(iBlk)
-                iBlk = 1;
-            end
-            obj.ExportHRF@TreeNodeClass('', iBlk);
-        end
-
         
         % ----------------------------------------------------------------------------------
         function r = ListOutputFilenames(obj, options)
