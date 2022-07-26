@@ -6,6 +6,7 @@ end
 r = eventdata.Indices(1);
 c = eventdata.Indices(2);
 tbl_data = get(hObject,'data');
+% tbl_data = get( handles.optode_dummy_tbl,'data');
 userdata = get(hObject, 'userdata');
 tbl_size = userdata.tbl_size;
 data3D = SDgui_3DViewSelected(handles);
