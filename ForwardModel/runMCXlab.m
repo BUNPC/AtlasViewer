@@ -179,7 +179,7 @@ if isempty(mapMesh2Vox)
 end
 
 [mapMesh2Vox_scalp, fwmodel]        = projVoltoMesh_scalp(fwmodel, dirnameOut);
-mesh_scalp = fwmodel.mesh;
+mesh_scalp = fwmodel.mesh_scalp;
 save([dirnameOut_anatomical, 'mesh_scalp.mat'], 'mesh_scalp');
 clear mesh_scalp
 
