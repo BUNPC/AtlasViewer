@@ -169,7 +169,7 @@ end
 % from genSensitivityProfile.m
 fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
 [mapMesh2Vox, fwmodel]        = projVoltoMesh_brain(fwmodel, dirnameOut);
-headsurf.mesh = fwmodel.mesh;
+mesh = fwmodel.mesh;
 save([dirnameOut_anatomical, 'mesh_brain.mat'], 'mesh');
 clear mesh
 
