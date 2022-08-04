@@ -91,10 +91,6 @@ if dirnameSubj(end)~='/' && dirnameSubj(end)~='\'
     dirnameSubj(end+1)='/';
 end
 dirnameOut = [dirnameSubj 'fw/'];
-dirnameOut_anatomical = [dirnameSubj 'anatomical/'];
-if ~exist(dirnameOut_anatomical, 'dir')
-  mkdir(dirnameOut_anatomical);
-end
 % Sources and detector optode positions and number
 % from genMCinput.m
 nsrc = probe.nsrc;
@@ -170,7 +166,7 @@ end
 fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
 [mapMesh2Vox, fwmodel]        = projVoltoMesh_brain(fwmodel, dirnameOut);
 mesh = fwmodel.mesh;
-save([dirnameOut_anatomical, 'mesh_brain.mat'], 'mesh');
+save(fullfile(dirnameOut,'mesh_brain.mat'), 'mesh');
 clear mesh
 
 if isempty(mapMesh2Vox)
@@ -180,7 +176,7 @@ end
 
 [mapMesh2Vox_scalp, fwmodel]        = projVoltoMesh_scalp(fwmodel, dirnameOut);
 mesh_scalp = fwmodel.mesh_scalp;
-save([dirnameOut_anatomical, 'mesh_scalp.mat'], 'mesh_scalp');
+save(fullfile(dirnameOut,'mesh_scalp.mat'), 'mesh_scalp');
 clear mesh_scalp
 
 if isempty(mapMesh2Vox_scalp)
