@@ -2448,6 +2448,14 @@ dirnameSubj = atlasViewer.dirnameSubj;
 fwmodel.Adot = [];
 fwmodel = genSensitivityProfileFromFluenceProf(fwmodel, probe, T_vol2mc, dirnameSubj);
 
+mesh = fwmodel.mesh;
+save(fullfile(dirnameSubj, 'fw', 'mesh_brain.mat'), 'mesh');
+clear mesh
+
+mesh_scalp = fwmodel.mesh_scalp;
+save(fullfile(dirnameSubj, 'fw', 'mesh_scalp.mat'), 'mesh_scalp');
+clear mesh_scalp
+
 atlasViewer.fwmodel = fwmodel;
 menuItemGenerateLoadSensitivityProfile_Callback([], struct('EventName','profile'), handles);
 
