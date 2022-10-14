@@ -1,4 +1,4 @@
-function PrintSystemInfo(logger, appname)
+function PrintSystemInfo(logger, appname, varargin)
 if ~exist('logger','var')
     logger = [];
 end
@@ -31,6 +31,8 @@ for ii = 1:length(appnames)
         logger.Write('Running %s, %s %s\n', appnames{ii}, vs, platform);
     end
 end
+printArgs(varargin);
+
 logger.Write('\n');
 logger.Write('============\n');
 logger.Write('SYSTEM INFO:\n');
@@ -68,4 +70,27 @@ for ii = 1:size(submodules,1)
     url             = submodules{ii,1};
     [~, libs{ii,1}] = fileparts(url);
 end
+
+
+
+% --------------------------------------------------------------------
+function printArgs(args)
+global logger
+
+for ii = 1:length(args)
+    if strcmp(args{ii}, 'userargs')
+        break;
+    end
+    if ischar(args{ii})
+        logger.Write('   arg %d:  ''%s''\n', ii, args{ii});
+    elseif isnumeric(args{ii})
+        logger.Write('   arg %d:  %s\n', ii, num2str(args{ii}));
+    elseif iscell(args{ii})
+        printArgs(args{ii});
+    end
+end
+
+
+
+
 

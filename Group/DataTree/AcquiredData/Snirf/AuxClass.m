@@ -110,6 +110,8 @@ classdef AuxClass < FileLoadSaveClass
                 end
                 
             end
+            
+            obj.SetError(err); 
         end
 
         
@@ -254,6 +256,10 @@ classdef AuxClass < FileLoadSaveClass
             end
             if length(obj.dataTimeSeries) ~= length(obj.time)
                 err = -4;
+                return
+            end
+            if ~ischar(obj.name)
+                err = -5;
                 return
             end
         end

@@ -11,6 +11,8 @@ classdef DataTreeClass <  handle
         logger
         warningflag
         dataStorageScheme
+        warnings
+        errorStats
     end
     
     
@@ -32,7 +34,8 @@ classdef DataTreeClass <  handle
             obj.currElem            = TreeNodeClass().empty();
             obj.reg                 = RegistriesClass().empty();
             obj.dirnameGroups       = {};
-            
+            obj.warnings            = '';
+            obj.errorStats        = [0,0,0];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Parse args
@@ -282,11 +285,36 @@ classdef DataTreeClass <  handle
                 end
                 
             end
+            
+            obj.PrintProcStream();
+            
             obj.logger.Write('Loaded data set in %0.1f seconds\n', toc(t1));
         end
         
         
-                
+
+        % ---------------------------------------------------------------
+        function PrintProcStream(obj, banner)
+            if ~exist('banner','var')
+                banner = '';
+            end
+            obj.logger.Write('\n');
+            if ~isempty(banner)
+                obj.logger.Write('\n');
+                obj.logger.Write('!! ******** START  %s', banner);
+                obj.logger.Write('\n');
+            end
+            obj.groups(1).PrintProcStream();
+            if ~isempty(banner)
+                obj.logger.Write('\n');
+                obj.logger.Write('!! ******** END  %s\n', banner);
+                obj.logger.Write('\n');
+            end
+            obj.logger.Write('\n');
+        end
+        
+            
+            
         % ---------------------------------------------------------------
         function SetDataStorageScheme(obj)
 
@@ -346,6 +374,11 @@ classdef DataTreeClass <  handle
             obj.ErrorCheckLoadedFiles();
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Generate the stimulus conditions for the group tree
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            obj.groups(iGroup).SetConditions();
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Load derived or post-acquisition data from a file if it
             % exists
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -358,11 +391,6 @@ classdef DataTreeClass <  handle
             	obj.groups(iGroup).InitProcStream(procStreamCfgFile);
             end
             
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Generate the stimulus conditions for the group tree
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.groups(iGroup).SetConditions();
-
         end
         
         
@@ -452,7 +480,58 @@ classdef DataTreeClass <  handle
 
         
         % ----------------------------------------------------------
+        function idx = FindProcElem(obj, name)
+            idx = [];
+            for ii = 1:length(obj.groups)
+                if strcmp(name, obj.groups(ii).GetName())
+                    idx = obj.groups(ii).GetIndexID();
+                    break;
+                end
+                if strcmp(name, obj.groups(ii).GetFilename())
+                    idx = obj.groups(ii).GetIndexID();
+                    break;
+                end
+                idx = obj.groups(ii).FindProcElem(name);
+                if ~isempty(idx)
+                    break;
+                end
+            end
+        end
+        
+        
+        % ----------------------------------------------------------
+        function CondNames = GetConditions(obj)
+             iG = obj.GetCurrElem().iGroup;
+             CondNames = obj.groups(iG).GetConditions();
+        end
+        
+        
+        % ----------------------------------------------------------
         function ErrorCheckLoadedFiles(obj)
+            maxWarningsDisplay = 25;
+            for iF = 1:length(obj.files)
+                if ~isempty(obj.files(iF).GetErrorMsg())
+                    if obj.errorStats(2) > maxWarningsDisplay
+                        continue
+                    end
+                    if isempty(obj.warnings)
+                        obj.warnings = sprintf('%s:   %s\n\n', obj.files(iF).name, obj.files(iF).GetErrorMsg());
+                    elseif obj.errorStats(2) < maxWarningsDisplay-1
+                        obj.warnings = sprintf('%s%s:   %s\n\n', obj.warnings, obj.files(iF).name, obj.files(iF).GetErrorMsg());
+                    elseif obj.errorStats(2) == maxWarningsDisplay-1
+                        obj.warnings = sprintf('%s  . . . Reached maximum number of warnings to display\n\n', obj.warnings);                        
+                    end
+                    if obj.files(iF).IsFile()
+                        obj.errorStats(2) = obj.errorStats(2)+1;
+                    end
+                else
+                    if obj.files(iF).IsFile()
+                        obj.errorStats(1) = obj.errorStats(1)+1;
+                    end
+                end
+            end
+            obj.errorStats(3) = length(obj.filesErr);
+
             if isempty(obj.filesErr)
                 return
             end
@@ -462,6 +541,24 @@ classdef DataTreeClass <  handle
                 obj.logger.Write('   %s\n', obj.filesErr(iF).name)
             end
             obj.logger.Write('\n')
+        end
+        
+        
+        % ----------------------------------------------------------
+        function w = GetWarningsReport(obj)
+            [nFileSuccess, nFilesWarning, nFilesFailed] = obj.GetErrorStats();
+            if ~isempty(obj.warnings)
+                obj.warnings = sprintf('The following %d files were loaded with warnings:\n=========================================\n%s', nFilesWarning, obj.warnings);
+            end
+            w = obj.warnings;
+        end
+        
+        
+        % ----------------------------------------------------------
+        function [nFileSuccess, nFilesWarning, nFilesFailed] = GetErrorStats(obj)
+            nFileSuccess = obj.errorStats(1);
+            nFilesWarning = obj.errorStats(2);
+            nFilesFailed = obj.errorStats(3);
         end
         
         
@@ -512,7 +609,9 @@ classdef DataTreeClass <  handle
             
             % Free up memory of current element before reassigning it to
             % another node. 
-            obj.currElem.FreeMemory();
+            if strcmp(obj.dataStorageScheme, 'files')
+                obj.currElem.FreeMemory();
+            end
             
             if     iSubj==0 && iSess==0 && iRun==0
                 obj.currElem = obj.groups(iGroup);
@@ -592,16 +691,16 @@ classdef DataTreeClass <  handle
         
         
         % ----------------------------------------------------------
-        function Save(obj, hwait)
-            if ~exist('hwait','var')
-                hwait = [];
-            end
-            
+        function Save(obj, hwait)           
             % Check that there is anough disk space. NOTE: for now we
             % assume that all groups are on the same drive. This should be 
             % changed but for now we simplify. 
             if getFreeDiskSpace() <= 0
                 return;
+            end
+            
+            if nargin==1
+                hwait = waitbar_improved(0,  'Saving groups. Please wait ...');
             end
             
             t1 = tic;
@@ -610,12 +709,20 @@ classdef DataTreeClass <  handle
                 obj.groups(ii).Save(hwait);
             end
             obj.logger.Write('Completed saving processing results for all groups in %0.3f seconds.\n', toc(t1));
+            
+            if nargin==1
+                close(hwait);
+            end
         end
 
 
         % ----------------------------------------------------------
         function CalcCurrElem(obj)
+            banner = sprintf('Calculating derived data at %s with the following processing stream:\n\n', char(datetime(datetime, 'Format','HH:mm:ss, MMMM d, yyyy')));
+            obj.PrintProcStream(banner);
+            obj.currElem.ExportProcStreamFunctionsOpen();
             obj.currElem.Calc();
+            obj.currElem.ExportProcStreamFunctionsClose();
         end
 
         
@@ -684,16 +791,16 @@ classdef DataTreeClass <  handle
             if nfolders==0
                 nfolders = 1;
             end
-            numFilesMsg = sprintf('with %d data files in %d folders\n', dataInit.nfiles, nfolders);
+            numFilesMsg = sprintf('%d data files in %d folders\n', dataInit.nfiles, nfolders);
             obj.logger.Write('\n');
             if dataInit.nfiles == 0
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Did not find any data0 files %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Did not find any data0 files %s.\n', numFilesMsg);
             elseif dataInit.dirFormats.type > 3 && dataInit.dirFormats.type < 9
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found BIDS data set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found BIDS data set (format #%d) with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             elseif dataInit.dirFormats.type < 4
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found non-standard format set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found non-standard data set (format #%d)  with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             elseif dataInit.dirFormats.type > 8
-                obj.logger.Write('DataTreeClass.FindAndLoadGroups:   Found non-standard but BIDS-like data set %s.\n', numFilesMsg);
+                obj.logger.Write('DataTreeClass.PrintDatasetFormat:   Found non-standard but BIDS-like data set (format #%d) with %s files.\n', dataInit.dirFormats.type, numFilesMsg);
             end
             obj.logger.Write('\n');
         end

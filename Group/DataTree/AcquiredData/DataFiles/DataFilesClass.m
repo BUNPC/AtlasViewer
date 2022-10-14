@@ -20,7 +20,7 @@ classdef DataFilesClass < handle
     methods
         
         % ----------------------------------------------------
-        function obj = DataFilesClass(varargin)            
+        function obj = DataFilesClass(varargin)
             obj.files = FileClass.empty();
             obj.filesErr = FileClass.empty();
             obj.filetype = '';
@@ -182,12 +182,19 @@ classdef DataFilesClass < handle
                 'ses-*';
                 ['nirs/sub-*_run-*_nirs.', obj.filetype];
                 }
-                                
+                               
                 %%%% 9. BIDS-like folder structure without file naming restrictions
                 {
                 'sub-*';
                 'ses-*';
                 ['nirs/*.', obj.filetype];
+                }
+                                
+                %%%% 10. BIDS-like folder structure without nirs sub-folder
+                {
+                'sub-*';
+                'ses-*';
+                ['*.', obj.filetype];
                 }
                                 
                 };
@@ -217,10 +224,13 @@ classdef DataFilesClass < handle
             parentdir = filesepStandard(parentdir);
             pattern = obj.dirFormats.choices{iFormat}{iPattern};
             
-            dirs = mydir([parentdir, pattern]);
+            dirs = mydir([parentdir, pattern], obj.rootdir);
             
             dirnamePrev = '';
             for ii = 1:length(dirs)
+                if dirs(ii).IsEmpty()
+                    continue;
+                end
                 if dirs(ii).IsFile()
                     if strcmp(pattern, '*')
                         continue
@@ -257,7 +267,7 @@ classdef DataFilesClass < handle
                 if obj.SearchLookupTable(pathrel2)
                     continue;
                 end
-                obj.files(end+1) = FileClass([obj.rootdir, '/', pathrel2]);
+                obj.files(end+1) = FileClass([obj.rootdir, '/', pathrel2], obj.rootdir);
                 obj.AddLookupTable(obj.files(end).name)
             end
         end
@@ -455,30 +465,46 @@ classdef DataFilesClass < handle
             end
             
             % Try to create object of data filetype and load data into it
+            msg = 'Please wait while we check group folder for valid data files ...';
+            hwait = waitbar_improved(0, msg);
             dataflag = false;
             for ii = 1:length(obj.files)
                 if obj.files(ii).isdir
                     continue;
                 end
-                filename = [obj.files(ii).rootdir, obj.files(ii).name];
+                filename = [obj.rootdir, obj.files(ii).name];
                 eval( sprintf('o = %s(filename);', constructor) );
-                if o.GetError()<0
-                    obj.logger.Write('DataFilesClass.ErrorCheck:   FAILED error check - %s will not be added to data set\n', filename);
+                if  o.GetError() < 0
+                    obj.logger.Write('DataFilesClass.ErrorCheck - ERROR: In file "%s" %s. File will not be added to data set\n', obj.files(ii).name, o.GetErrorMsg());
                     errorIdxs = [errorIdxs, ii]; %#ok<AGROW>
+                elseif  contains(o.GetErrorMsg(), '''data'' field corrupt and unusable')                    
+                    obj.logger.Write('DataFilesClass.ErrorCheck - WARNING: In file "%s" %s. File will not be added to data set\n', obj.files(ii).name, o.GetErrorMsg());
+                    errorIdxs = [errorIdxs, ii]; %#ok<AGROW>
+                elseif  contains(o.GetErrorMsg(), '''data'' field is invalid')                    
+                    obj.logger.Write('DataFilesClass.ErrorCheck - WARNING: In file "%s" %s. File will not be added to data set\n', obj.files(ii).name, o.GetErrorMsg());
+                    errorIdxs = [errorIdxs, ii]; %#ok<AGROW>
+                elseif ~isempty(o.GetErrorMsg())
+                    obj.logger.Write('DataFilesClass.ErrorCheck - WARNING: In file  "%s"  %s. File will be added anyway.\n', obj.files(ii).name, o.GetErrorMsg());
+                    dataflag = true;
                 else
                     dataflag = true;
                 end
+                if ~isempty(o.GetErrorMsg())
+                    obj.files(ii).SetError(o.GetErrorMsg());
+                end
+                hwait = waitbar_improved(ii/length(obj.files), hwait, msg);
             end
+            
             if dataflag==false
                 obj.files = FileClass.empty();
             else
                 for jj = 1:length(errorIdxs)
                     obj.filesErr(end+1) = obj.files(errorIdxs(jj)).copy;
-                    obj.filesErr(end).SetError('Invalid Data Format');
                 end
             	obj.files(errorIdxs) = [];
                 obj.nfiles = obj.nfiles - length(errorIdxs);
             end
+            close(hwait);
         end
         
         

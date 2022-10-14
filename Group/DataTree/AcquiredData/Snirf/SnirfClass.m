@@ -86,6 +86,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             % obj = SnirfClass(filename, dataStorageScheme);
             % obj = SnirfClass(dotnirs);
             % obj = SnirfClass(dotnirs, numdatabllocks);
+            % obj = SnirfClass(SD);
             % obj = SnirfClass(data, stim);
             % obj = SnirfClass(data, stim, probe);
             % obj = SnirfClass(data, stim, probe, aux);
@@ -132,7 +133,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 % obj = SnirfClass(dotnirs);
                 % obj = SnirfClass(dotnirs, numdatabllocks);
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                elseif isstruct(varargin{1}) || isa(varargin{1}, 'NirsClass')
+                elseif NirsClass(varargin{1}).IsValid()
                     
                     % obj = SnirfClass(dotnirs);
                     tfactors = 1;    % Debug simulation parameter
@@ -141,37 +142,46 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                     if nargin==2
                         tfactors = varargin{2};
                     end
-                    dotnirs = varargin{1};
+                    dotnirs = NirsClass(varargin{1});
                     obj.GenSimulatedTimeBases(dotnirs, tfactors);
                     
                     % Required fields
-                    for ii=1:length(tfactors)
+                    for ii = 1:length(tfactors)
                         obj.data(ii) = DataClass(obj.nirs_tb(ii).d, obj.nirs_tb(ii).t(:), obj.nirs_tb(ii).SD.MeasList);
                     end
-                    obj.probe      = ProbeClass(dotnirs.SD);
-                    
+                    obj.probe       = ProbeClass(dotnirs.SD);                    
+                    obj.metaDataTags.SetLengthUnit(dotnirs.SD.SpatialUnit);
                     
                     % Optional fields
-                    if isfield(dotnirs,'s')
-                        for ii=1:size(dotnirs.s,2)
-                            if isfield(dotnirs, 'CondNames')
+                    if isproperty(dotnirs,'s')
+                        for ii = 1:size(dotnirs.s,2)
+                            if isproperty(dotnirs, 'CondNames')
                                 obj.stim(ii) = StimClass(dotnirs.s(:,ii), dotnirs.t(:), dotnirs.CondNames{ii});
                             else
                                 obj.stim(ii) = StimClass(dotnirs.s(:,ii), dotnirs.t(:), num2str(ii));
                             end
                         end
                     end
-                    if isfield(dotnirs,'aux')
-                        for ii=1:size(dotnirs.aux,2)
+                    if isproperty(dotnirs,'aux')
+                        for ii = 1:size(dotnirs.aux,2)
                             obj.aux(ii) = AuxClass(dotnirs.aux(:,ii), dotnirs.t(:), sprintf('aux%d',ii));
                         end
                     end
                     
                     % Add required field metadatatags that has no .nirs
                     % equivalent 
-                    obj.metaDataTags   = MetaDataTagsClass();
-
+                    obj.metaDataTags   = MetaDataTagsClass('', dotnirs.SD.SpatialUnit);
                     
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % obj = SnirfClass(SD);
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                elseif NirsClass(varargin{1}).IsProbeValid()
+                    
+                    n = NirsClass(varargin{1});
+                    obj.probe = ProbeClass(n.SD);
+                    obj.data = DataClass(n.SD);                    
+                    obj.metaDataTags   = MetaDataTagsClass('', n.SD.SpatialUnit);
+                                        
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % obj = SnirfClass(data, stim);
                 % obj = SnirfClass(data, stim, probe);
@@ -221,7 +231,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 end
                 
                 obj.data(1) = DataClass(d, t(:), SD.MeasList);
-                for ii=1:size(s,2)
+                for ii = 1:size(s,2)
                     if nargin==5
                         condition = num2str(ii);
                     else
@@ -230,7 +240,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                     obj.stim(ii) = StimClass(s(:,ii), t(:), condition);
                 end
                 obj.probe      = ProbeClass(SD);
-                for ii=1:size(aux,2)
+                for ii = 1:size(aux,2)
                     obj.aux(ii) = AuxClass(aux, t(:), sprintf('aux%d',ii));
                 end
                 
@@ -259,11 +269,12 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             obj.errmsgs = {
                 'MATLAB could not load the file.'
                 '''formatVersion'' is invalid.'
-                '''metaDataTags'' is invalid.'
-                '''data'' is invalid.'
-                '''stim'' is invalid and could not be loaded'
-                '''probe'' is invalid.'
-                '''aux'' is invalid and could not be loaded'
+                '''metaDataTags'' field is invalid.'
+                '''data'' field is invalid.'
+                '''stim'' field has corrupt data. Some or all stims could not be loaded'
+                '''probe'' field is invalid.'
+                '''aux'' field is invalid and could not be loaded'
+                'WARNING: ''data'' field corrupt and unusable'
                 };
         end
         
@@ -316,11 +327,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             
             % Copy mutable properties to new object instance;
             objnew.stim = CopyHandles(obj.stim);
-            
-            if strcmp(options, 'extended')
-                t = obj.GetTimeCombined();
-                objnew.data = DataClass([],t,[]);
-            end
+            objnew.SortStims();
         end
         
         
@@ -406,13 +413,17 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 if ii > length(obj.data)
                     obj.data(ii) = DataClass;
                 end
-                if obj.data(ii).LoadHdf5(fileobj, [obj.location, '/data', num2str(ii)]) < 0
+                
+                err = obj.data(ii).LoadHdf5(fileobj, [obj.location, '/data', num2str(ii)]);
+                if err < 0
                     obj.data(ii).delete();
                     obj.data(ii) = [];
-                    if ii==1
-                        err = -1;
+                    if err == -1
+                        err = 0;
                     end
                     break;
+                elseif err > 0
+                    break
                 end
                 ii=ii+1;
             end
@@ -439,10 +450,21 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                     obj.stim(ii).delete();
                     obj.stim(ii) = [];
                     break;
+                else
+                    for kk = 1:ii-1
+                        if strcmp(obj.stim(kk).name, obj.stim(ii).name)
+                            obj.stim(ii).delete();
+                            obj.stim(ii) = [];
+                            err = err-6;
+                            break
+                        end
+                    end
+                    if err ~= 0
+                        break;
+                    end
                 end
                 ii=ii+1;
             end
-            obj.SortStims();
             
             % Load original, unedited stims, if they exist
             ii=1;
@@ -464,8 +486,11 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         % -------------------------------------------------------
         function err = LoadProbe(obj, fileobj, ~)
+            % get lenth unit through class method
+            LengthUnit = obj.metaDataTags.Get('LengthUnit');
             obj.probe = ProbeClass();
-            err = obj.probe.LoadHdf5(fileobj, [obj.location, '/probe']);
+            err = obj.probe.LoadHdf5(fileobj, [obj.location, '/probe'], LengthUnit);
+            obj.metaDataTags.Set('LengthUnit','mm');
             
             % This is a required field. If it's empty means the whole snirf object is bad
             if isempty(obj.probe)
@@ -554,8 +579,13 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
                 end
 
                 %%%% Load data
-                if obj.LoadData(obj.fid) < 0 && err >= 0
+                errtmp = obj.LoadData(obj.fid);
+                if errtmp < 0 && err >= 0
                     err = -4;
+                elseif errtmp == 5 && err >= 0
+                	err = 8;
+                elseif errtmp > 0 && err >= 0
+                    err = 4;
                 end
 
                 %%%% Load stim
@@ -614,14 +644,12 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         % -------------------------------------------------------
         function SaveStim(obj, fileobj)
-            for ii=1:length(obj.stim)
-                if ~isempty(obj.stim(ii).data)  % Do not save empty stim conditions to SNIRF files
-                    obj.stim(ii).SaveHdf5(fileobj, [obj.location, '/stim', num2str(ii)]);
-                end
+            for ii = 1:length(obj.stim)
+                obj.stim(ii).SaveHdf5(fileobj, [obj.location, '/stim', num2str(ii)]);
             end
             if isempty(obj.stim0)
                 obj.stim0 = obj.stim.copy();
-                for ii=1:length(obj.stim0)
+                for ii = 1:length(obj.stim0)
                     obj.stim0(ii).SaveHdf5(fileobj, [obj.location, '/stim0', num2str(ii)]);
                 end
             end
@@ -638,7 +666,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         % -------------------------------------------------------
         function SaveAux(obj, fileobj)
-            for ii=1:length(obj.aux)
+            for ii = 1:length(obj.aux)
                 obj.aux(ii).SaveHdf5(fileobj, [obj.location, '/aux', num2str(ii)]);
             end
         end
@@ -939,8 +967,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             if isempty(obj.metaDataTags)
                 return;
             end
-            tag = obj.metaDataTags.Get('LengthUnit');
-            val = tag.value;
+            val = obj.metaDataTags.Get('LengthUnit');
         end
         
     end
@@ -965,8 +992,29 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         
         % ---------------------------------------------------------
-        function datamat = GetDataTimeSeries(obj, options, iBlk)
-            datamat = [];
+        function ml = GetMeasurementList(obj, matrixMode, iBlk)
+            ml = [];
+            if ~exist('matrixMode','var')
+                matrixMode = '';
+            end
+            if ~exist('iBlk','var') || isempty(iBlk)
+                iBlk = 1;
+            end
+            if iBlk>length(obj.data)
+                return;
+            end
+            for ii = 1:length(iBlk)
+                ml = [ml; obj.data(ii).GetMeasurementList(matrixMode)];
+            end
+        end
+        
+        
+        
+        % ---------------------------------------------------------
+        function [d, t, ml] = GetDataTimeSeries(obj, options, iBlk)
+            d = [];
+            t = [];
+            ml = [];
             if ~exist('options','var')
                 options = '';
             end
@@ -976,20 +1024,44 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             if iBlk>length(obj.data)
                 return;
             end
-            datamat = obj.data(iBlk).GetDataTimeSeries(options);
+            [d, t, ml] = obj.data(iBlk).GetDataTimeSeries(options);
         end
+        
         
         
         % ---------------------------------------------------------
-        function datamat = GetAuxDataMatrix(obj)
+        function [datamat, p, Nmin] = GetAuxDataMatrix(obj, obj2)            
             datamat = [];
+            p = 0;
+            Nmin = 0;
+            
             if isempty(obj.aux)
                 return;
             end
-            for ii=1:length(obj.aux)
-                datamat(:,ii) = obj.aux(ii).GetDataTimeSeries();
+            if ~exist('obj2','var')
+                obj2 = obj.data(1);            
+            end
+            
+            % Get all aux channels to be on the same time base with
+            % obj2 which by default is the data
+            p = round(1/mean(diff(obj2.GetTime())));
+            d0 = obj2.GetDataTimeSeries();
+            Nmin = size(d0,1);
+            for ii = 1:length(obj.aux)
+                q = round(1/mean(diff(obj.aux(ii).GetTime())));
+                d = obj.aux(ii).GetDataTimeSeries();
+                temp{ii} = resample(d, p, q);
+                if size(temp{ii},1) < Nmin
+                    Nmin = size(temp{ii},1);
+                end
+            end
+
+            % Create data matrix 
+            for ii = 1:length(temp)
+                datamat(:,ii) = temp{ii}(1:Nmin); %#ok<*AGROW>
             end
         end
+        
         
         
         % ---------------------------------------------------------
@@ -1220,6 +1292,15 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
             
         end
         
+        
+        % ---------------------------------------------------------
+        function unit = GetSpatialUnit(obj)
+            unit = obj.metaDataTags.Get('LengthUnits');
+        end
+        
+        
+        
+        
     end
     
     
@@ -1327,7 +1408,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function DeleteStims(obj, tPts, condition)
+        function DeleteStims(obj, tPts, ~)
             % Find all stims for any conditions which match the time points.
             for ii=1:length(obj.stim)
                 obj.stim(ii).DeleteStims(tPts);
@@ -1336,7 +1417,7 @@ classdef SnirfClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function ToggleStims(obj, tPts, condition)
+        function ToggleStims(obj, tPts, ~)
             % Find all stims for any conditions which match the time points.
             for ii=1:length(obj.stim)
                 obj.stim(ii).ToggleStims(tPts);
