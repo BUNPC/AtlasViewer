@@ -26,14 +26,16 @@ function [cmds, errs, msgs] = syncSubmodules(repo, options, preview)
 %
 % Examples:
 %
-%   % Next 3 examples will only preview but will not change anything in the destination repo
+%   % Next three examples will only preview but will not change anything in the destination repo
 %
 %   syncSubmodules();
 %   syncSubmodules(pwd);
 %   syncSubmodules(pwd, 'init');
+%       syncSubmodules(pwd, 'init', true);
 %
 %
-%   % Next 2 examples will make changes in the destination repo
+%   % Next two examples will make changes in the destination repo, that is
+%   % your local repo with the later git commit
 %
 %   syncSubmodules(pwd, 'init', false);
 %   syncSubmodules(pwd, 'update', false);
@@ -42,8 +44,6 @@ function [cmds, errs, msgs] = syncSubmodules(repo, options, preview)
 global synctool
 
 synctool = struct('repoParentFull','', 'repo1',[], 'repo2',[]);
-
-cmds = {};
 
 if ~exist('repo','var') || isempty(repo)
     repo = [pwd, '/'];
@@ -107,7 +107,7 @@ if ~exist('peerlessonly','var')
     peerlessonly = false;
 end
 
-fileTypes = {'.m','.txt','.cfg','.numberfiles','.fig'};
+fileTypes = {'.m','.txt','.cfg','.numberfiles','.fig','.gitmodules','.snirf','.nirs'};
 for iRepo = 1:2
     for iFt = 1:length(fileTypes)
         if eval( sprintf('~exist(''f%d'',''var'')', iRepo) )
@@ -231,6 +231,15 @@ switch(lower(action))
     case 'add'
         if preview == false
             actionstr = 'Adding';
+            
+            % NOTE: As of Matlab R2020b, copyfile does not create the
+            % folder containing the destination file, if that folder does
+            % not already exist. Therefore we check if it exists; if not we
+            % create it.
+            p = fileparts(fdst);
+            if ~ispathvalid(p)
+                mkdir(p)
+            end
             copyfile(fsrc, fdst);
             gitAdd(repo.path, fdst);
         else

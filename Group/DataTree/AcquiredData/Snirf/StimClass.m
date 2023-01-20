@@ -38,6 +38,9 @@ classdef StimClass < FileLoadSaveClass
                         obj.data = [];
                         obj.dataLabels = {'Onset', 'Duration', 'Amplitude'};
                     end
+                elseif iscell(varargin{1})
+                    obj.dataLabels = {'Onset', 'Duration', 'Amplitude'};
+                    obj.AddTsvData(varargin{1});
                 end
             elseif nargin==2
                 if ischar(varargin{1})
@@ -186,6 +189,7 @@ classdef StimClass < FileLoadSaveClass
         end
         
         
+        
         % -------------------------------------------------------
         function Copy(obj, obj2)
             obj.name = obj2.name;
@@ -204,6 +208,7 @@ classdef StimClass < FileLoadSaveClass
         end
         
         
+        
         % -------------------------------------------------------
         function B = eq(obj, obj2)
             B = false;
@@ -219,7 +224,7 @@ classdef StimClass < FileLoadSaveClass
             end
             
             % Now check contents
-            if ~all(obj.data(:)==obj2.data(:))
+            if ~all( abs(obj.data(:)-obj2.data(:)) < (obj.errmargin/10) )
                 return;
             end
             
@@ -233,6 +238,7 @@ classdef StimClass < FileLoadSaveClass
             end
             B = true;
         end
+        
         
         
         % -------------------------------------------------------
@@ -280,6 +286,82 @@ classdef StimClass < FileLoadSaveClass
         end
         
 
+
+        % ----------------------------------------------------------------------------------
+        function AddTsvData(obj, tsv, condition)
+            if size(tsv,1)<2
+                return
+            end
+            if ~exist('condition','var')
+                condition = '';
+            end
+            fields1 = tsv(1,:);
+            iColCond = find(strcmp(fields1, 'trial_type'));
+            for jj = 1:length(fields1)
+                if jj == iColCond
+                    continue
+                end
+                if includes(lower(obj.dataLabels), lower(fields1{jj}))
+                    continue
+                end
+                obj.dataLabels{end+1} = fields1{jj}; 
+            end
+            fields2 = obj.dataLabels;
+            if isempty(iColCond)
+                return
+            end
+            if isempty(condition)
+                if isnumeric(tsv{2,iColCond})
+                    tsv{2,iColCond} = num2str(tsv{2,iColCond});
+                end
+                obj.name = tsv{2,iColCond};
+            else
+                obj.name = condition;
+            end
+            
+            kk = 1;
+            tPts = [];
+            duration = [];
+            amp = [];
+            more = [];
+            for ii = 2:size(tsv,1)
+                if isnumeric(tsv{ii,iColCond})
+                    tsv{ii,iColCond} = num2str(tsv{ii,iColCond});
+                end
+                if ~strcmpi(obj.name, tsv{ii,iColCond})
+                    continue
+                end
+                hh = 1;
+                for iCol = 1:size(tsv(ii,:),2)
+                    k = find(strcmpi(fields2, fields1{iCol}));
+                    if isempty(k)
+                        continue
+                    end
+                    if ischar(tsv{ii,iCol})
+                        item = str2double(tsv{ii,iCol});
+                    else
+                        item = tsv{ii,iCol};
+                    end
+                    switch (lower(fields1{iCol}))
+                        case 'onset'
+                            tPts(kk,1) = item;
+                        case 'duration'
+                            duration(kk,1) = item;
+                        case 'amplitude'
+                            amp(kk,1) = item;
+                        case 'trial_type'
+                            
+                        otherwise
+                            more(kk,hh) = item;
+                            hh = hh+1;
+                    end
+                end
+                kk = kk+1;
+            end
+            obj.AddStims(tPts, duration, amp, more);
+            
+        end
+    
     end
     
     
@@ -367,30 +449,23 @@ classdef StimClass < FileLoadSaveClass
             % Add one or more stims to with a given duration, amplitude, and additional
             % column data given by more
             if ~exist('duration','var')
-                duration = 10;
+                duration = 10+zeros(length(tPts),1);
             end
             if ~exist('amp','var')
-                amp = 1;
+                amp = ones(length(tPts),1);
             end
-            if ~exist('more', 'var') | isempty(more)
-               more = zeros(size(obj.data, 2) - 3);
+            if ~exist('more', 'var')
+               more = [];
             end
-            if ~isempty(obj.data)
-                if ~isempty(more) & length(more) > (size(obj.data, 2) - 3)
-                    obj.data(:, end+length(more)) = 0;  % Pad to accomodate additional data columns 
-                end
-                for i=1:length(tPts)
-                    if ~obj.Exists(tPts(i))
-                        obj.data(end+1,:) = [tPts(i), duration, amp, more];
-                        obj.states(end+1,:) = [tPts(i), 1];
-                    end
-                end 
-            else  % If this stim is being added to an empty condition
-                for i = 1:length(tPts)
-                    obj.data(i,:) = [tPts(i), duration, amp, more];
-                    obj.states(i,:) = [tPts(i), 1];
-                end
+            
+            if length(duration) < length(tPts)
+                duration = [duration; 10+zeros(length(tPts)-length(duration),1)];
             end
+            if length(amp) < length(tPts)
+                amp = [amp; ones(length(tPts)-length(amp),1)];
+            end            
+            obj.data = [obj.data; tPts, duration, amp, more];
+            obj.states = [obj.states; tPts, ones(length(tPts),1)];
         end
 
         
@@ -402,13 +477,8 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('amp','var')
                 amp = 1;
             end
-            for ii=1:length(tPts)
-                k = find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin );
-                if isempty(k)
-                    continue;
-                end
-                obj.data(k,3) = amp;
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
+            obj.data(k,3) = amp;            
         end
 
         
@@ -420,13 +490,8 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('state','var')
                 state = 1;
             end
-            for ii=1:length(tPts)
-                k = find( abs(obj.states(:,1)-tPts(ii)) < obj.errmargin );
-                if isempty(k)
-                    continue;
-                end
-                obj.states(k,2) = state;
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
+            obj.states(k,2) = state;
         end
         
         
@@ -459,6 +524,22 @@ classdef StimClass < FileLoadSaveClass
         end
         
         
+        % -------------------------------------------------------
+        function k = GetIncludedStimIdxs(obj, tPts)
+            k = [];
+            if length(tPts)<2
+                errmargin = obj.errmargin;
+            else
+                errmargin = mean(diff(tPts));
+            end
+            for ii = 1:size(obj.data,1)
+                if ~isempty(find( abs(obj.data(ii,1)-tPts) < errmargin))
+                    k = [k; ii];
+                end
+            end
+        end        
+        
+        
         % ----------------------------------------------------------------------------------
         function SetDuration(obj, duration, tPts)
             if isempty(obj.data)
@@ -470,13 +551,7 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('tPts','var')
                 tPts = obj.data(:,1);
             end
-            k=[];
-            for ii=1:length(tPts)
-                k(ii) = find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin );
-                if isempty(k)
-                    continue;
-                end
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
             obj.data(k,2) = duration;
         end
 
@@ -490,10 +565,7 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('tPts','var')
                 tPts = obj.data(:,1);
             end
-            k = [];
-            for ii=1:length(tPts)
-                k(ii) = find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin );
-            end            
+            k = GetIncludedStimIdxs(obj, tPts);
             duration = obj.data(k,2);
         end
         
@@ -509,13 +581,7 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('tPts','var')
                 tPts = obj.data(:,1);
             end
-            k=[];
-            for ii=1:length(tPts)
-                k(ii) = find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin );
-                if isempty(k)
-                    continue;
-                end
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
             obj.data(k,3) = amps;
         end
 
@@ -529,10 +595,7 @@ classdef StimClass < FileLoadSaveClass
             if ~exist('tPts','var')
                 tPts = obj.data(:,1);
             end
-            k = [];
-            for ii=1:length(tPts)
-                k(ii) = find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin );
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
             amps = obj.data(k,3);
         end
         
@@ -545,11 +608,7 @@ classdef StimClass < FileLoadSaveClass
             
             % Find all stims for any conditions which match the time points and 
             % delete them from data. 
-            k = [];
-            j = [];
-            for ii=1:length(tPts)
-                k = [k, find( abs(obj.data(:,1)-tPts(ii)) < obj.errmargin )];
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
             obj.data(k,:) = [];
             obj.states(k,:) = [];
         end
@@ -564,10 +623,7 @@ classdef StimClass < FileLoadSaveClass
             
             % Find all stims for any conditions which match the time points and 
             % flip their states
-            k = [];
-            for ii=1:length(tPts)
-                k = [k, find( abs(obj.states(:,1)-tPts(ii)) < obj.errmargin )];
-            end
+            k = GetIncludedStimIdxs(obj, tPts);
             obj.states(k,2) = -1*obj.states(k,2);
         end
         
@@ -667,3 +723,4 @@ classdef StimClass < FileLoadSaveClass
     end
     
 end
+ 

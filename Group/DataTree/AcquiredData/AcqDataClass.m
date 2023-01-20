@@ -1,5 +1,8 @@
 classdef AcqDataClass < matlab.mixin.Copyable
        
+    properties (Access = public)
+        bids
+    end
     properties (Access = private)
         logger
     end
@@ -77,16 +80,36 @@ classdef AcqDataClass < matlab.mixin.Copyable
     methods
         
         % -------------------------------------------------------
+        function obj = AcqDataClass(fileobj)
+            if nargin == 0
+                return
+            end
+            if iscell(fileobj)
+                if ~isempty(fileobj)
+                    fileobj = fileobj{1};
+                end
+            end
+            if ~ischar(fileobj)
+                fileobj = '';
+            end
+            obj.LoadBids(fileobj);           
+        end
+
+
+        
+        % -------------------------------------------------------
         function Initialize(obj)
             global logger
             obj.logger = InitLogger(logger);
         end
         
         
+        
         % -------------------------------------------------------
         function err = Error(obj)
             err = obj.GetError();
         end
+        
         
         
         % ---------------------------------------------------------
@@ -106,6 +129,77 @@ classdef AcqDataClass < matlab.mixin.Copyable
         end
         
         
+        
+        % -------------------------------------------------------
+        function err = LoadBids(obj, fileobj)
+            err = obj.LoadStimOverride(fileobj);
+        end
+        
+
+        
+        % -------------------------------------------------------
+        function status = LoadStimOverride(obj, fileobj)
+            global cfg
+            status = false;
+            cfg = InitConfig(cfg);
+            if strcmpi(cfg.GetValue('Load Stim From TSV File'), 'no')
+                return
+            end
+            obj.bids = struct('stim',{{}});            
+            if isempty(fileobj)
+                return
+            end
+            [p,f] = fileparts(fileobj);
+            if isempty(p)
+                p = filesepStandard(pwd);
+            end
+            k = strfind(f, '_nirs');
+            if isempty(k)
+                k = length(f)+1;
+            end
+            fnameTsv = [filesepStandard(p), f(1:k-1), '_events.tsv'];
+            file = mydir(fnameTsv);
+            if isempty(file)
+                return
+            end
+            obj.bids.stim = readTsv([filesepStandard(p), file(1).name],'numstr2num');
+            if isempty(obj.bids.stim)
+                return
+            end
+            s = TsvFile2Snirf(obj.bids.stim);
+            obj.stim = s.stim.copy();
+            status = true;
+        end
+        
+        
+        
+        % -------------------------------------------------------
+        function err = ReloadStim(obj, fileobj)
+            err = 0;
+            obj.bids = struct('stim',{{}});            
+            if isempty(fileobj)
+                return
+            end
+            [p,f] = fileparts(fileobj);
+            if isempty(p)
+                p = filesepStandard(pwd);
+            end
+            k = strfind(f, '_nirs');
+            if isempty(k)
+                k = length(f)+1;
+            end
+            fnameTsv = [filesepStandard(p), f(1:k-1), '_events.tsv'];
+            file = mydir(fnameTsv);
+            if isempty(file)
+                return
+            end
+            obj.bids.stim = readTsv([filesepStandard(p), file(1).name],'numstr2num');
+            s = TsvFile2Snirf(obj.bids.stim);
+            obj.stim = s.stim.copy();
+        end
+        
+        
+        
         % -------------------------------------------------------
         function FreeMemory(obj, filename)
             if ~exist('filename','var')
@@ -118,36 +212,17 @@ classdef AcqDataClass < matlab.mixin.Copyable
         end
         
         
+        
         % ---------------------------------------------------------
         function bbox = GetSdgBbox(obj)
             bbox = [];
-            
-            optpos = [obj.GetSrcPos('2D'); obj.GetDetPos('2D')];
-            if isempty(optpos)
-                return
+            if isa(obj, 'SnirfClass')
+                bbox = obj.probe.GetSdgBbox();
+            elseif isa(obj, 'NirsClass')
+                bbox = obj.SD.GetSdgBbox();
             end
-            
-            xmax = max(optpos(:,1));
-            ymax = max(optpos(:,2));
-
-            xmin = min(optpos(:,1));
-            ymin = min(optpos(:,2));
-            
-            width = xmax-xmin;
-            height = ymax-ymin;
-            
-            if width==0
-                width = 1;
-            end
-            if height==0
-                height = 1;
-            end
-            
-            px = width * 0.05; 
-            py = height * 0.05; 
-
-            bbox = [xmin-px, xmax+px, ymin-py, ymax+py];
         end
+        
         
         
         % ----------------------------------------------------------------------------------
@@ -179,6 +254,7 @@ classdef AcqDataClass < matlab.mixin.Copyable
         end
         
         
+        
         % ----------------------------------------------------------------------------------
         function t = GetTimeCombined(obj)
             % Function combines the time vectors for all data blocks into one time vectors. 
@@ -203,6 +279,7 @@ classdef AcqDataClass < matlab.mixin.Copyable
             t = tStart:tStep:tEnd;            
         end
         
+                
                 
         % ----------------------------------------------------------------------------------
         function data = GetStimData(~, ~)
@@ -250,6 +327,20 @@ classdef AcqDataClass < matlab.mixin.Copyable
         
         
         
+        % ----------------------------------------------------------------------------------
+        function fnameTsv = GetStimTsvFilename(obj)
+            fnameTsv = '';
+            [pname, fname] = fileparts(obj.GetFilename());
+            k = strfind(fname, '_nirs');
+            if isempty(k)
+                k = length(fname)+1;
+            end
+            if isempty(fname)
+                return;
+            end
+            fnameTsv = [filesepStandard(pname), fname(1:k-1), '_events.tsv'];
+        end
+                
     end
     
 end

@@ -68,8 +68,8 @@ classdef RunClass < TreeNodeClass
         % ----------------------------------------------------------------------------------
         function err = Load(obj)
             err = 0;
-            err1 = obj.LoadDerivedData();
-            err2 = obj.LoadAcquiredData();            
+            err1 = obj.LoadAcquiredData();            
+            err2 = obj.LoadDerivedData();
             if ~(err1==0 && err2==0)
                 err = -1;
             end
@@ -299,7 +299,7 @@ classdef RunClass < TreeNodeClass
             end
             
             if obj.DEBUG
-                fprintf('Calculating processing stream for group %d, subject %d, run %d\n', obj.iGroup, obj.iSubj, obj.iRun);
+                fprintf('Calculating processing stream for group %d, subject %d, session %d, run %d\n', obj.iGroup, obj.iSubj, obj.iSess, obj.iRun);
             end
             
             % Find all variables needed by proc stream, find them in this run, and load them to proc stream input
@@ -308,9 +308,9 @@ classdef RunClass < TreeNodeClass
             Calc@TreeNodeClass(obj);
 
             if obj.DEBUG
-                obj.logger.Write(sprintf('Completed processing stream for group %d, subject %d, run %d\n', obj.iGroup, obj.iSubj, obj.iRun));
+                obj.logger.Write(sprintf('Completed processing stream for group %d, subject %d, session %d, run %d\n', obj.iGroup, obj.iSubj, obj.iSess, obj.iRun));
                 obj.logger.Write('\n')
-            end            
+            end
         end
 
 
@@ -519,10 +519,28 @@ classdef RunClass < TreeNodeClass
         end
 
         
+        
         % ----------------------------------------------------------------------------------
         function SetStims_MatInput(obj, s, t, CondNames)
             obj.procStream.SetStims_MatInput(s, t, CondNames);
         end
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function ReloadStim(obj)
+            % Update call application GUI using it's generic Update function 
+            if ~isempty(obj.updateParentGui)
+                obj.updateParentGui('DataTreeClass', [obj.iGroup, obj.iSubj, obj.iSess, obj.iRun]);
+            end
+            if obj.DEBUG
+                fprintf('group %d, subject %d, session %d, run %d\n', obj.iGroup, obj.iSubj, obj.iSess, obj.iRun);
+            end
+            obj.acquired.LoadStim(obj.acquired.GetFilename());
+            obj.procStream.CopyStims(obj.acquired)
+            pause(.5)
+        end
+        
         
         
         % ----------------------------------------------------------------------------------
@@ -578,6 +596,10 @@ classdef RunClass < TreeNodeClass
         
         % ----------------------------------------------------------------------------------
         function bbox = GetSdgBbox(obj)
+            if obj.acquired.IsEmpty()
+                % No need to load whole of acquired data need only probe here
+                obj.acquired.LoadProbe(obj.acquired.GetFilename());
+            end
             bbox = obj.acquired.GetSdgBbox();
         end
         
@@ -845,6 +867,39 @@ classdef RunClass < TreeNodeClass
             vals = obj.procStream.input.GetStimValSettings();
         end        
         
+        
+        % ----------------------------------------------------------------------------------        
+        function ExportStim(obj, options)            
+            global cfg
+            if ~exist('options','var')
+                options = '';
+                if strcmpi(cfg.GetValue('Load Stim from TSV file'), 'no')
+                    options = 'regenerate';
+                end
+            end
+            SnirfFile2Tsv(obj.acquired, '', options);
+        end
+        
+        
+        % ----------------------------------------------------------------------------------
+        function fname = DeleteExportStim(obj)
+            fname = obj.acquired.GetStimTsvFilename();
+            if ispathvalid(fname)
+                try
+                    fprintf('Delete  %s\n', fname)
+                    delete(fname);
+                catch
+                end
+            end
+        end
+        
+    end
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    methods
         
         % ----------------------------------------------------------------------------------        
         function nbytes = MemoryRequired(obj, option)
