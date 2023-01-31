@@ -33,7 +33,7 @@ vp = atlasViewer.pialsurf.mesh.vertices;
 % Sanity check that the design probe exists. If not we have 
 % nothing to work with. 
 if isempty(atlasViewer.probe.optpos_reg)
-    menu('Design probe for this subject does not exist or is not registered to head','OK');
+    MenuBox('Design probe for this subject does not exist or is not registered to head','OK');
     return;
 end
 
@@ -62,7 +62,7 @@ cd(pathnm)
 % Define the distance threshold that isolates short separation channels
 ssThresh = 15; % millimeters
 
-userSelection = menu('Analysis Type','Inter-subject variability','Probe fabrication error');
+userSelection = MenuBox('Analysis Type',{'Inter-subject variability','Probe fabrication error'});
 
 tblFigPos = [.20,.15,.35,.20];
 
@@ -678,14 +678,14 @@ r = 0;
 if length(subjDirs)<2
     msg{1} = sprintf('Warning: need at least 2 subjects with atlasViewer.mat and\n');
     msg{2} = sprintf('registered probe to calculate probe placement variation.\n');    
-    menu([msg{:}], 'OK');
+    MenuBox(msg, 'OK');
     if ~isempty(errmsg)
         msg2{1} = sprintf('The following subject folders have probes that are NOT registered\n');
         msg2{2} = sprintf('to the head surface :\n\n');
         msg2{3} = sprintf('%s\n', errmsg);
         msg2{4} = sprintf('Check that all subject probes have been registered to the head\n');
         msg2{5} = sprintf('surface.\n');
-        menu([msg2{:}], 'OK');
+        MenuBox(msg2, 'OK');
     end
     r = -1;
 end

@@ -85,7 +85,7 @@ pos = nearest_point(vertices,pos);
 
 % Arg 3 (optional)
 if ~exist('labels','var')
-    menu('ERROR: Labels not found. Cannot determine reference points.', 'OK');
+    MenuBox('ERROR: Labels not found. Cannot determine reference points.', 'OK');
     return;
 end
 

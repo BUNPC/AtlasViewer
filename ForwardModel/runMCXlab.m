@@ -19,25 +19,25 @@ end
 % If probe isn't registered then can't generate sensitivity
 % from genSensitivityProfile.m
 if isempty(probe.optpos_reg)
-    menu('Error: Cannot generate sensitivity, because theprobe isn''t registered to the head','OK');
+    MenuBox('Error: Cannot generate sensitivity, because theprobe isn''t registered to the head', 'OK');
     return;
 end
 if isempty(probe.ml)
-    menu('Error: Cannot generate sensitivity, because the measurement list is missing','OK');
+    MenuBox('Error: Cannot generate sensitivity, because the measurement list is missing', 'OK');
     return;
 end
 iWav = unique(probe.ml(:,4));
 lst = find(probe.ml(:,4)==iWav(1));
 nMeas = length(lst);
 if nMeas==0
-    menu('Error: Cannot generate sensitivity, because the measurement list is empty','OK');
+    MenuBox('Error: Cannot generate sensitivity, because the measurement list is empty', 'OK');
     return;
 end
 
 % Adot already exists
 % from genSensitivityProfile.m
 if ~isempty( fwmodel.Adot)
-    q = menu('The Adot sensitivity profile has already been generated. Do you want to generate it again w MCXlab?','Yes','No');
+    q = MenuBox('The Adot sensitivity profile has already been generated. Do you want to generate it again w MCXlab?', {'Yes','No'});
     if q==1
         fwmodel.Adot=[];
     elseif q==2

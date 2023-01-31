@@ -23,7 +23,7 @@ end
 if sum(flags)>0
     UIControl_FontSize_bak = get(0, 'DefaultUIControlFontSize');
     set(0, 'DefaultUIControlFontSize', 12);
-    menu(sprintf('Warning: Missing the following required nifti files: %s.\n', filelist), 'OK');
+    MenuBox(sprintf('Warning: Missing the following required nifti files: %s.\n', filelist), 'OK');
     set(0, 'DefaultUIControlFontSize', UIControl_FontSize_bak);
 end
 

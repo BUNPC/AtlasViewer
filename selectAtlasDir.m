@@ -21,7 +21,7 @@ while 1
        exist([dirname, '/anatomical/headvol.vox'],'file')
         break
     else
-        q = menu('Selected directory is not a valid atlas directory. Please select valid atlas directory or cancel to avoid selecting','Select','Cancel');
+        q = MenuBox('Selected directory is not a valid atlas directory. Please select valid atlas directory or cancel to avoid selecting',{'Select','Cancel'});
         if q==1
             continue;
         elseif q==2

@@ -20,7 +20,7 @@ function optode_spring_tbl_CellEditCallback(hObject, eventdata, handles)
         
         optpos = [sd_data_Get(['SrcPos', data3D]); sd_data_Get(['DetPos', data3D])];
         if isempty(optpos)
-            ch=menu('Can''t add springs to empty probe. First create probe with at least 2 optodes','OK');
+            ch = MenuBox('Can''t add springs to empty probe. First create probe with at least 2 optodes','OK'); ch = ch(1);
             return;
         end
 

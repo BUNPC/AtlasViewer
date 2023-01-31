@@ -23,7 +23,7 @@ end
 h = [];
 hLighting = [];
 if isempty(labelssurf.mesh)
-    menu('Warning: labels file does not exist in current directory','ok');
+    MenuBox('Warning: labels file does not exist in current directory','ok');
     return;
 else
     viewAxesXYZ(hAxes, axes_order);

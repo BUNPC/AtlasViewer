@@ -54,8 +54,8 @@ ii = 1;
 while ii<=size(SD.SpringList,1)
     k = find(SD.SpringList(:,1)==SD.SpringList(ii,1) & SD.SpringList(:,2)==SD.SpringList(ii,2));
     if length(k)>1 && err==false
-        q = menu(sprintf('Corruption error: More than one spring for optode pair (%d,%d). Do you want to fix it by removing one spring?', ...
-            SD.SpringList(ii,1), SD.SpringList(ii,2)), 'YES','NO');
+        q = MenuBox(sprintf('Corruption error: More than one spring for optode pair (%d,%d). Do you want to fix it by removing one spring?', ...
+            SD.SpringList(ii,1), SD.SpringList(ii,2)), {'YES','NO'});
         if q==1
             SD.SpringList(k(2:end),:) = [];
         else

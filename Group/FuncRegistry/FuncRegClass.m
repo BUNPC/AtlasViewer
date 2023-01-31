@@ -113,7 +113,7 @@ classdef FuncRegClass < matlab.mixin.Copyable
             end
             idx = obj.GetIdx(funcname);
             if ~isempty(idx)
-                q = menu('Function entry already exists in registry. Do you want to reload it?', 'YES','NO');
+                q = MenuBox('Function entry already exists in registry. Do you want to reload it?', {'YES','NO'});
                 if q==2
                     return;
                 end

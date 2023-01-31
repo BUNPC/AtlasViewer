@@ -29,17 +29,17 @@ if ~exist('mode','var')
 end
 
 if isempty(fwmodel.mc_exename)
-    menu('No MC application found...Exiting MC session. ','OK');
+    MenuBox('No MC application found...Exiting MC session.', 'OK');
     return;
 end
 
 q=0;
 while q~=1
     if strcmp(mode,'interactive')
-    q = menu('Run MC application to generate output and click Done button when done.',...
-             'Ran MC app manually. Now done', ...
-             'MC app exists. Try running it.', ...
-             'Cancel');
+        q = MenuBox('Run MC application to generate output and click Done button when done.', ...
+                {'Ran MC app manually. Now done', ...
+                 'MC app exists. Try running it.', ...
+                 'Cancel'});
     else
         q = 2;
     end
@@ -52,12 +52,12 @@ while q~=1
         
     elseif q==1 
         if isempty(fwmodel.fluenceProf)
-            menu('Could not find MC output files.','OK');
+            q = MenuBox('Could not find MC output files.', 'OK'); 
         else            
-            q = menu('Could not find MC output files but precalculated fluence profiles are available. Do you want to use them?', 'Yes','No');
+            q = MenuBox('Could not find MC output files but precalculated fluence profiles are available. Do you want to use them?', {'Yes','No'});
             if q==1
                 set(fwmodel.handles.menuItemLoadPrecalculatedProfile,'enable','on');
-                menu('Select menu option "Load Precalculated Profile" in the "Forward Model" menu to calculate sensitivity', 'OK');
+                MenuBox('Select menu option "Load Precalculated Profile" in the "Forward Model" menu to calculate sensitivity', 'OK');
             end
         end
         
@@ -90,11 +90,11 @@ while q~=1
             count = 0;
             while ~all(fwmodel.errMCoutput(:)==3)
                 if mod(count,5)==0
-                    disp(sprintf('%d output files completed', length(find(fwmodel.errMCoutput(:)==3))));
+                    fprintf('%d output files completed\n', length(find(fwmodel.errMCoutput(:)==3)));
                 end
                 fwmodel = existMCOutput(fwmodel, probe, dirnameSubj);
                 if ~isMCRunning(fwmodel, dirnameSubj)
-                    menu('Doesn''t look like MC application is executing. Please run it manually','OK');
+                    MenuBox('Doesn''t look like MC application is executing. Please run it manually', 'OK');
                     enableDisableMCoutputGraphics(fwmodel, 'off');
                     break;
                 end
@@ -113,7 +113,7 @@ while q~=1
 
         else            
 
-            menu('Sorry. Couldn''t execute MC application. Please run it manually','OK');
+            MenuBox('Sorry. Couldn''t execute MC application. Please run it manually', 'OK');
             if ~all(fwmodel.errMCoutput(:)==3)
                 enableDisableMCoutputGraphics(fwmodel, 'off');
                 q=0;
@@ -177,7 +177,7 @@ end
 % -----------------------------------------------------------------
 function postCompletionMsg(fwmodel, probe)
 
-menu('Successfully finished generating MC output!', 'OK');
+MenuBox('Successfully finished generating MC output!', 'OK');
 if isempty(probe.ml)
     msg{1} = sprintf('WARNING: May not be able to generate sensitivity profile because measurement list\n');
     msg{2} = sprintf('is missing. This might be because the probe in the .SD or .nirs file for this subject does not\n');
@@ -188,5 +188,5 @@ else
     msg{2} = sprintf('under the Forward Model menu to generate the sensitivity profile');
     enableDisableMCoutputGraphics(fwmodel, 'on');
 end
-menu([msg{:}], 'OK');
+MenuBox(msg, 'OK');
 

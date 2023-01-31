@@ -90,7 +90,7 @@ catch ME
     msg{1} = sprintf('Error: Could not create installation folder. It might be in use by other applications.\n');
     msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
     msg{3} = sprintf('installation folder and then retry installation.');
-    menu([msg{:}], 'OK');
+    MenuBox([msg{:}], 'OK');
     close(h);
     rethrow(ME)
 end
@@ -157,7 +157,7 @@ catch ME
     msg{1} = sprintf('Error: Could not remove old installation folder %s. It might be in use by other applications.\n', dirnameDst);
     msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
     msg{3} = sprintf('installation folder and then retry installation.');
-    menu([msg{:}], 'OK');
+    MenuBox([msg{:}], 'OK');
     pause(5);
     rethrow(ME)
 end
@@ -236,7 +236,7 @@ try
     end
 catch ME
     msg{1} = sprintf('Error: Could not create %s shortcuts on Desktop. Exiting installation.', exename);
-    menu([msg{:}], 'OK');
+    MenuBox([msg{:}], 'OK');
     printStack(ME)
     return;    
 end

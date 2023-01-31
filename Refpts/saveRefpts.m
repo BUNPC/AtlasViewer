@@ -32,7 +32,7 @@ if strcmp(mode,'nosave')
 end
 
 if ~exist('./anatomical','dir')
-    q = menu('About to overwrite ref points in Atlas (non-subject folder). Is this OK?','OK','CANCEL');
+    q = MenuBox('About to overwrite ref points in Atlas (non-subject folder). Is this OK?',{'OK','CANCEL'});
     if q==2
         return;
     end
@@ -50,7 +50,7 @@ refpts_all = set_eeg_active_pts(refpts_all, 'nowarning');
 
 if exist([dirname,'refpts.txt'],'file') & strcmp(mode,'overwrite')
     msg = 'Old refpts.txt were moved to refpts.txt.bak';
-    % menu(msg,'OK');
+    % MenuBox(msg,'OK');
     fprintf('%s\n', msg);
     movefile([dirname, 'refpts.txt'], [dirname, 'refpts.txt.bak']);
     if exist([dirname,'refpts_labels.txt'],'file')

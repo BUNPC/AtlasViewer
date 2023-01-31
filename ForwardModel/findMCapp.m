@@ -71,7 +71,7 @@ while 1
     
     % Do a few basic error checks
     if istextfile(filenm)
-        q = menu('Selected file not an executable. Try again', 'OK', 'Cancel');
+        q = MenuBox('Selected file not an executable. Try again', {'OK', 'Cancel'}); 
         if q==2
             return;
         else
