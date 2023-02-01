@@ -225,28 +225,28 @@ Adot_scalp  = fwmodel.Adot_scalp;
 % Error checking
 if  value1 == 0 & value2 == 0 %#ok<*AND2>
     msg = sprintf('Please choose one image reconstruction option.');
-    menu(msg,'OK');
+    MenuBox(msg,'OK');
     return;
 end
 if  value1 == 1 & value2 == 1
     msg = sprintf('Please choose one image reconstruction option ONLY.');
-    menu(msg,'OK');
+    MenuBox(msg,'OK');
     return;
 end
 if value1 == 1 & isempty(Adot)
-    menu('You need the file fw/Adot.mat to perform this image reconstruction.','Okay');
+    MenuBox('You need the file fw/Adot.mat to perform this image reconstruction.','Okay');
     return;
 end
 if value1 == 1 & ndims(Adot) < 3 %#ok<*ISMAT>
-    menu('You need at least two wavelengths for image reconstruction.','Okay');
+    MenuBox('You need at least two wavelengths for image reconstruction.','Okay');
     return;
 end
 if value2 == 1 & isempty(Adot_scalp)
-    menu('You need the file fw/Adot_scalp.mat to perform this image reconstruction.','Okay');
+    MenuBox('You need the file fw/Adot_scalp.mat to perform this image reconstruction.','Okay');
     return;
 end
 if value2 == 1 & ndims(Adot_scalp) < 3
-    menu('You need at least two wavelengths for image reconstruction.','Okay');
+    MenuBox('You need at least two wavelengths for image reconstruction.','Okay');
     return;
 end
 
@@ -256,7 +256,6 @@ SD2 = dataTree.currElem.GetMeasList();
 SD2.Lambda = dataTree.currElem.GetWls();
 SD.Lambda = SD2.Lambda;
 SD.MeasList = SD2.MeasList;
-SD.MeasListAct = SD2.MeasListAct;
 
 % Get fnirs time course data
 dc   = dataTree.currElem.GetDcAvg();
@@ -264,23 +263,23 @@ tHRF = dataTree.currElem.GetTHRF();
 
 % Error checking of subject data itself
 if isempty(tHRF)
-    menu('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
+    MenuBox('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
     return;
 end
 if isempty(dc)
-    menu('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
+    MenuBox('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
     return;
 end
 if cond<1 | cond>size(dc, 4)
-    menu('Invalid condition for this time course.','Okay');
+    MenuBox('Invalid condition for this time course.','Okay');
     return;
 end
 if cond<1 | cond>size(dc, 4)
-    menu('Invalid condition for this time course.','Okay');
+    MenuBox('Invalid condition for this time course.','Okay');
     return;
 end
 if tRangeimg(1)<tHRF(1) | tRangeimg(1)>tHRF(end) | tRangeimg(2)<tHRF(1) | tRangeimg(2)>tHRF(end)
-    menu(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
+    MenuBox(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
     return;
 end
 
@@ -289,7 +288,7 @@ h = waitbar(0,'Please wait, running...');
 % use only active channels
 ml = SD.MeasList;
 if isfield(SD, 'MeasListAct') == 1
-    activeChLst = find(ml(:,4)==1 & SD.MeasListAct==1);
+    activeChLst = find(ml(:,4)==1);
     dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
 
@@ -305,7 +304,7 @@ end
 yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
 
 % get long separation channels only for reconstruction
-lst = find(ml(:,4)==1 & SD.MeasListAct==1);
+lst = find(ml(:,4)==1);
 rhoSD = zeros(length(lst),1);
 posM = zeros(length(lst),3);
 for iML = 1:length(lst)
@@ -316,7 +315,7 @@ longSepChLst = lst(find(rhoSD>=rhoSD_ssThresh));
 lstLS_all = [longSepChLst; longSepChLst+size(ml,1)/2]; % both wavelengths
 
 if isempty(lstLS_all)
-    menu(sprintf('All channels meet short separation threshold.\nYou need some long separation channels for image recon.\nPlease lower the threshold and retry.'), 'Okay');
+    MenuBox(sprintf('All channels meet short separation threshold.\nYou need some long separation channels for image recon.\nPlease lower the threshold and retry.'), 'Okay');
     return;
 end
 
@@ -342,7 +341,7 @@ if value1 == 1 % brain only reconstruction after short separation regression
     alpha = str2num(get(handles.alpha_brainonly,'String'));
     [HbO, HbR, err] = hmrImageReconConc(yavgimg, [], alpha, Amatrix);
     if err==1
-        menu('Error: Number of channels in measuremnt is not the same as in Adot.', 'Okay');
+        MenuBox('Error: Number of channels in measuremnt is not the same as in Adot.', 'Okay');
         return;
     end
     
@@ -379,7 +378,7 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
             JTJ = diag(J'*J);
         catch
             close(h);
-            menu(sprintf('Out of memory: JTJ = diag(J''*J) generates matrix that is too large!!'), 'Okay');
+            MenuBox(sprintf('Out of memory: JTJ = diag(J''*J) generates matrix that is too large!!'), 'Okay');
             return;
         end
         L = beta.*max(JTJ);
@@ -474,7 +473,7 @@ elseif value2 == 1
         HbR = Aimg_conc_scalp.HbR;
     end
 else
-    q = menu('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
+    q = MenuBox('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
     return;
 end
 
@@ -482,7 +481,7 @@ if isempty(imgrecon)
     return;
 end
 if isempty(HbO) & isempty(HbR)
-    menu('Missing reconstructed image. First generate HbO and HbR', 'Okay');
+    MenuBox('Missing reconstructed image. First generate HbO and HbR', 'Okay');
     return;
 end
 if isempty(fwmodel)

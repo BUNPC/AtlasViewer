@@ -107,7 +107,7 @@ headsurf.handles.surf=[];
 % and fixed (mostly fixed) in R2016a (9.0.1)
 matlabVerNewGraphics = '8.4';
 if verLessThan('matlab','9.0') & verGreaterThanOrEqual('matlab', matlabVerNewGraphics)
-    menu(sprintf(['Please NOTE that "Find Reference Points" uses a MATLAB graphics feature which has\n', ...
+    MenuBox(sprintf(['Please NOTE that "Find Reference Points" uses a MATLAB graphics feature which has\n', ...
         'a Matlab bug in versions R2014b (8.4) - R2015b (8.6). The bug occasionally causes the \n', ...
         'the datacursor to attach to vertices on the the hidden side of the graphics object instead\n', ...
         'of the one selected. This can be detected by observing how the black square data cursor moves\n', ...
@@ -116,8 +116,8 @@ if verLessThan('matlab','9.0') & verGreaterThanOrEqual('matlab', matlabVerNewGra
         'the vertex should be reselected.                                                                  \n\n', ...
         'Please Note: This issue was fixed in R2016a (9.0). Also this issue doesn''t exist in versions prior\n', ...
         'to R2014b (8.4), for example R2013b. Consider using an altrnative Matlab release...                ']), 'OK');
-    q = menu(sprintf(['Normally Matlab''s patch rendering would be used to draw the head surface. As a workaround to the\n', ...
-        'previously described bug, choose an alternative (to patch) rendering that works best for you.\n']), 'Point Cloud','Surf Mesh');
+    q = MenuBox(sprintf(['Normally Matlab''s patch rendering would be used to draw the head surface. As a workaround to the\n', ...
+        'previously described bug, choose an alternative (to patch) rendering that works best for you.\n']), {'Point Cloud','Surf Mesh'});
     if q==1
         headvol = displayHeadvol(headvol, handles.axesSurfDisplay);
     else
@@ -260,7 +260,7 @@ if strcmpi(cmd, 'DONE')
         if ~isempty(digpts.refpts.pos)
             set(digpts.handles.menuItemRegisterAtlasToDigpts,'enable','on');
         end
-        q = menu('Calculate EEG reference points?', 'OK','Cancel');
+        q = MenuBox('Calculate EEG reference points?', {'OK','Cancel'});
         if q == 1
             [refpts, err]  = calcRefpts(refpts, headvol);
             if err==-1
@@ -268,7 +268,7 @@ if strcmpi(cmd, 'DONE')
                 if err==-1
                     msg{1} = sprintf('The head surface and/or volume of this subject does not have enough vertices to\n');
                     msg{2} = sprintf('calculate the eeg reference points. Need a denser surface mesh for this subject...');
-                    menu([msg{:}],'OK');
+                    MenuBox(msg,'OK');
                     return;
                 end
             end
@@ -285,7 +285,7 @@ else
     labels{1} = cmd(idx:end);
     [refpts, currentPt] = updateRefpts(refpts, headsurf, labels, atlasViewer.axesv(2).handles.axesSurfDisplay);
     if isempty(currentPt)
-        menu('Warning: Selection made without data cursor head location','OK');
+        MenuBox('Warning: Selection made without data cursor head location','OK');
         return;
     end
     fprintf('%s: %s\n', labels{1}, num2str(currentPt));

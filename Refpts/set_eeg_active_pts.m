@@ -94,10 +94,10 @@ if ~isempty(labels_missing) & strcmpi(mode, 'warning')
     
     %{
     warningmsg{1} = sprintf('The following %s points are missing:\n%s', refpts.eeg_system.selected, labels_missing_str);
-    menu(warningmsg{1},'OK');
+    MenuBox(warningmsg{1},'OK');
     
     warningmsg{2} = sprintf('Use the Calculate menu item under Tool --> Reference Points to generate them.\n');
-    menu(warningmsg{2},'OK');
+    MenuBox(warningmsg{2},'OK');
     %}
     
 end

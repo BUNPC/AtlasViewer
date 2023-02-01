@@ -104,7 +104,7 @@ msg{ii} = sprintf('Either a) install git and rerun setpaths or b) download the s
 msg{ii} = sprintf('Select option:');
 msg = [msg{:}];
 
-q = menu(msg, {'Quit setpaths, install git and rerun setpaths','Download submodules manually and provide their locations'});
+q = MenuBox(msg, {'Quit setpaths, install git and rerun setpaths','Download submodules manually and provide their locations'});
 
 
 

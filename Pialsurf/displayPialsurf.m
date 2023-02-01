@@ -20,10 +20,8 @@ else
     axes_order = [1,2,3];
 end
 
-h=[];
-hLighting=[];
 if isempty(pialsurf.mesh)
-    menu('Warning: pialsurf file does not exist in current directory','ok');
+    MenuBox('Warning: pialsurf file does not exist in current directory','ok');
     return;
 else
     viewAxesXYZ(hAxes, axes_order);

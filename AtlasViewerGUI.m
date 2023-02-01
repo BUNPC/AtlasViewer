@@ -332,7 +332,7 @@ for i = 1:size(atlasViewer.refpts.handles.circles,1)
 end
 probe = atlasViewer.probe;   %%%% probe
 if isempty(probe.optpos_reg)
-    menu('There was a problem launching Edit_Probe. Probe is missing or is not registered to head.', 'OK');
+    MenuBox('There was a problem launching Edit_Probe. Probe is missing or is not registered to head.', 'OK');
     return;
 end
 [optodes, channels] = Edit_Probe(headsurf, refpts, probe, axes_order, 'userargs');
@@ -680,7 +680,7 @@ else
 end
 
 if isempty(probe.optpos_reg) && isempty(probe.optpos)
-    menu('No probe has been loaded or created. Use the SDgui to make or load a probe','ok');
+    MenuBox('No probe has been loaded or created. Use the SDgui to make or load a probe', 'ok');
     atlasViewer.probe = resetProbe(probe);
     return;
 end
@@ -903,7 +903,7 @@ nsrc       = probe.nsrc;
 ndet       = probe.noptorig-nsrc;
 ndummy     = probe.registration.ndummy;
 
-q = menu('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format','Yes','No');
+q = MenuBox('Saving registered probe in probe_reg.txt - is this OK? Choose ''No'' to save in other filename or format', {'Yes','No'});
 if q==2
     filename = uiputfile({'*.mat';'*.txt'},'Save registered probe to file');
     if filename==0
@@ -930,7 +930,7 @@ if strcmpi(ext,'txt') || isempty(ext)
         fprintf(fid,'m%d: %0.15f %0.15f %0.15f\n',ii,optpos_dummy(ii,:));
     end
     
-    qq = menu('Do you want to include the 10-20 reference points?','Yes','No');
+    qq = MenuBox('Do you want to include the 10-20 reference points?', {'Yes','No'});
     if qq==1
         fprintf(fid,'\n\n\n');
         for ii=1:size(refpts.pos,1)
@@ -983,7 +983,7 @@ for ii=1:n
     cmLst{ii} = sprintf('%s',colormaps(ii).name);
 end
 cmLst{n+1} = 'Cancel';
-ch = menu('Choose Labels Colormap',cmLst);
+ch = MenuBox('Choose Labels Colormap', cmLst);
 if ch>n
     return;
 end
@@ -1187,7 +1187,7 @@ qAdotExists = 0;
 
 % Check if there's a sensitivity profile which already exists
 if exist([dirnameSubj 'fw/Adot.mat'],'file')
-    qAdotExists = menu('Do you want to use the existing sensitivity profile in Adot.mat','Yes','No');
+    qAdotExists = MenuBox('Do you want to use the existing sensitivity profile in Adot.mat', {'Yes','No'});
     if qAdotExists == 1
         fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, struct('EventName','Action'), handles);
         if ~isempty(fwmodel.Adot)
@@ -1210,42 +1210,42 @@ if qAdotExists~=1
             msg1 = sprintf('MC input and output already exist for this probe.\n');
             msg2 = sprintf('Use ''Generate/Load Sensitivity Profile'' under the\n');
             msg3 = sprintf('Forward Model menu to generate the sensitivity profile');
-            menu([msg1,msg2,msg3],'OK');
+            MenuBox([msg1,msg2,msg3], 'OK');
             enableDisableMCoutputGraphics(fwmodel, 'on');
         else
             msg1 = sprintf('MC input and output already exist for this probe, but file with measurement list\n');
             msg2 = sprintf('is missing. NOTE: The .nirs file from an experiment using this probe\n');
             msg3 = sprintf('should contain the measurement list. Copy this file to the subject directory');
-            menu([msg1,msg2,msg3],'OK');
+            MenuBox([msg1,msg2,msg3], 'OK');
             enableDisableMCoutputGraphics(fwmodel, 'off');
         end
     else
         if ismember(-1,fwmodel.errMCoutput)
-            q = menu(sprintf('MC input does not match current probe. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
-                'Yes','No');
+            q = MenuBox(sprintf('MC input does not match current probe. Generate new input and output for MC app %s?',fwmodel.mc_appname), ...
+                {'Yes','No'});
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         elseif ismember(-2,fwmodel.errMCoutput)
-            q = menu(sprintf('MC input doesn''t match current MC settings. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
-                'Yes','No');
+            q = MenuBox(sprintf('MC input doesn''t match current MC settings. Generate new input and output for MC app %s?',fwmodel.mc_appname), ...
+                {'Yes','No'});
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         elseif all(fwmodel.errMCoutput>1)
-            q = menu(sprintf('MC input exists but newer than ouput. Generate new input and output for MC app %s?',fwmodel.mc_appname),...
-                'Yes','No');
+            q = MenuBox(sprintf('MC input exists but newer than ouput. Generate new input and output for MC app %s?',fwmodel.mc_appname), ...
+                {'Yes','No'});
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         elseif all(fwmodel.errMCoutput>0)
-            q = menu(sprintf('MC input exists but no output.'),...
-                sprintf('Overwrite input and generate output for MC app %s',fwmodel.mc_appname),...
+            q = MenuBox(sprintf('MC input exists but no output.'), ...
+                {sprintf('Overwrite input and generate output for MC app %s',fwmodel.mc_appname),...
                 'Generate new output only',...
-                'Cancel');
+                'Cancel'});
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
@@ -1253,8 +1253,7 @@ if qAdotExists~=1
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
             end
         else
-            q = menu(sprintf('Generate new input and output for MC app %s?',fwmodel.mc_appname),...
-                'Yes','No');
+            q = MenuBox(sprintf('Generate new input and output for MC app %s?',fwmodel.mc_appname), {'Yes','No'});
             if q==1
                 fwmodel = genMCinput(fwmodel, probe, dirnameSubj);
                 fwmodel = genMCoutput(fwmodel, probe, dirnameSubj);
@@ -1530,7 +1529,7 @@ end
 AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
 
 % Allow user to select reference points
-q = menu('Select basic reference points, Nz, Iz, LPA, RPA, Cz, for this anatomy?', 'OK','Cancel');
+q = MenuBox('Select basic reference points, Nz, Iz, LPA, RPA, Cz, for this anatomy?', {'OK','Cancel'});
 if q==1
     menuItemFindRefpts_Callback(hObject, eventdata, handles);
 end
@@ -1847,7 +1846,7 @@ e = GetExtinctions( wv );
 mua = e(:,1)*(hbt*so2) + e(:,2)*(hbt*(1-so2));
 musp = a * exp(-b*(wv-800)/800);
 
-ch = menu( sprintf('For wavelengths %s nm:\nmua = %s 1/mm\nmusp = %s 1/mm\n', num2str(wv),num2str(mua',4),num2str(musp,4)), 'okay');
+MenuBox( sprintf('For wavelengths %s nm:\nmua = %s 1/mm\nmusp = %s 1/mm\n', num2str(wv),num2str(mua',4),num2str(musp,4)), 'okay');
 
 
 
@@ -1893,7 +1892,7 @@ if ~labelssurf.isempty(labelssurf) && (eventdata == true)
 elseif eventdata == false
     vertices       = pialsurf.mesh.vertices;
 else
-    menu('Warning: No cortical anatomical labels provided for this anatomy.','Ok');
+    MenuBox('Warning: No cortical anatomical labels provided for this anatomy.', 'Ok');
     return;
 end
 T_headvol2mc       = headvol.T_2mc;
@@ -1901,8 +1900,8 @@ T_headvol2mc       = headvol.T_2mc;
 if isempty(hObject)
     option = 2;
 else
-    option = menu('Select projection type', 'Curr Subject Optodes','Curr Subject Channels', ...
-                  'Group Mean: Optodes','Group Mean: Channels','Cancel');
+    option = MenuBox('Select projection type', 'Curr Subject Optodes','Curr Subject Channels', ...
+                  {'Group Mean: Optodes','Group Mean: Channels','Cancel'});
 end
 
 % Project optodes to labeled cortex
@@ -1959,7 +1958,7 @@ switch(option)
 end
 
 if isempty(ptsProj)
-    menu('Warning: Projection is Empty', 'OK');
+    MenuBox('Warning: Projection is Empty', 'OK');
     return;
 end
 
@@ -2089,7 +2088,7 @@ for ii=1:length(d)
 end
 
 if ~isempty(iDirs)
-    q = menu('There are subject folders under the current subject. Do you want to process the group or only the current subject?', 'Group','Current Subject','Cancel');
+    q = MenuBox('There are subject folders under the current subject. Do you want to process the group or only the current subject?', {'Group','Current Subject','Cancel'});
     if q==1
         
         for ii=iDirs
@@ -2211,7 +2210,7 @@ if  exist([atlasViewer.dirnameSubj  'fw' filesep 'AdotVolSum.3pt'],'file')
     cd(atlasViewer.dirnameSubj);
 else
     msg = sprintf('You need to first generate a sensitivity profile with sensitivity matrix volume option enabled.');
-    menu(msg,'OK');
+    MenuBox(msg, 'OK');
     return;
 end
 
@@ -2387,7 +2386,7 @@ while 1
     
     % Do a few basic error checks
     if istextfile(filenm)
-        q = menu('Selected file not an executable. Try again', 'OK', 'Cancel');
+        q = MenuBox('Selected file not an executable. Try again', {'OK', 'Cancel'});
         if q==2
             return;
         else
@@ -2985,7 +2984,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3019,7 +3018,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3053,7 +3052,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3086,7 +3085,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3122,7 +3121,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3157,7 +3156,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3190,7 +3189,7 @@ if isempty(ax)
 end
 
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3222,7 +3221,7 @@ if isempty(ax)
 end
 
 if isempty(headsurf.orientation)
-    menu(ax.errmsg{1},'OK');
+    MenuBox(ax.errmsg{1}, 'OK');
     return;
 end
 
@@ -3250,7 +3249,7 @@ if isfield(atlasViewer,'headsurf')
         if err==-1
             msg{1} = sprintf('The head surface and/or volume of this subject does not have enough vertices to\n');
             msg{2} = sprintf('calculate the eeg reference points. Need a denser surface mesh for this subject...');
-            menu([msg{:}],'OK');
+            MenuBox(msg, 'OK');
             return;
         end
     end
@@ -3361,7 +3360,7 @@ pialsurf    = atlasViewer.pialsurf;
 
 % Check if there's a sensitivity profile which already exists
 if exist([dirnameSubj 'fw/Adot.mat'],'file')
-    qAdotExists = menu('Do you want to use the existing sensitivity profile in Adot.mat','Yes','No');
+    qAdotExists = MenuBox('Do you want to use the existing sensitivity profile in Adot.mat', {'Yes','No'});
     if qAdotExists == 1
         % JAY, I NEED TO FIX THIS FOR runMCXlab. WHAT DO I DO?
         fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, struct('EventName','Action'), handles);
@@ -3411,11 +3410,11 @@ labelssurf   = atlasViewer.labelssurf;
 
 hSDgui = atlasViewer.probe.handles.hSDgui;
 if isempty(which('SDgui'))
-    menu('SDgui doesn''t exist in the search path.','OK');
+    MenuBox('SDgui doesn''t exist in the search path.', 'OK');
     return;
 end
 if ishandles(hSDgui)
-    menu('SDgui already active.','OK');
+    MenuBox('SDgui already active.', 'OK');
     return;
 end
 atlasViewer.probe = resetProbe(atlasViewer.probe, pwd, handles);
@@ -3577,7 +3576,7 @@ set(hObject, checked_propname, onoff);
 
 
 % --------------------------------------------------------------------
-function menuItemResetForwardModel_Callback(hObject, eventdata, handles)
+function menuItemResetForwardModel_Callback(~, ~, handles)
 global atlasViewer
 msg{1} = sprintf('WARNING: This action will reset the Forward Model to a known ''empty'' state. ');
 msg{2} = sprintf('This means all the Monte Carlo output and Sensitivity Profile for this subject will be deleted. ');
@@ -3589,8 +3588,8 @@ if q==2
 end
 
 if ispathvalid([atlasViewer.dirnameSubj, 'fw'])
-    fprintf('rmdir(''%s'',''s'');\n', [atlasViewer.dirnameSubj, 'fw']);
-    rmdir([atlasViewer.dirnameSubj, 'fw'],'s');
+    fprintf('delete(''%s'');\n', [atlasViewer.dirnameSubj, 'fw/*']);
+    delete([atlasViewer.dirnameSubj, 'fw/*'])
 end
 atlasViewer.fwmodel = initFwmodel(handles);
 atlasViewer.fwmodel = getFwmodel(atlasViewer.fwmodel, atlasViewer.dirnameSubj, atlasViewer.pialsurf, ...

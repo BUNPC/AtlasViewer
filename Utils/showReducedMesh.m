@@ -10,7 +10,7 @@ fvn = mesh_reduced;
 
 mesh = fvn;
 
-q = menu( sprintf('The original pial surface has %d faces. It is recommended that this be less than 40,000 for best performance.\nShall I reduce this?',size(fv.faces,1)),'Yes','No');
+q = MenuBox( sprintf('The original pial surface has %d faces. It is recommended that this be less than 40,000 for best performance.\nShall I reduce this?',size(fv.faces,1)),{'Yes','No'});
 if q==1
     hf = figure;
     
@@ -28,9 +28,9 @@ if q==1
     set(h,'linestyle','none')
     light
     
-    q = menu('Accept this?','Yes','No');
+    q = MenuBox('Accept this?',{'Yes','No'});
     if q==2
-        q = menu('Proceed with the original mesh? This could take a long time.','Yes','No');
+        q = MenuBox('Proceed with the original mesh? This could take a long time.',{'Yes','No'});
         if q==1
             mesh = fv;
         end

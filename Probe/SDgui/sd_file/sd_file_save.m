@@ -52,7 +52,7 @@ else
     catch ME
         msg = sprintf('Error: %s', ME.message);
         SDgui_disp_msg(handles, msg, -1);
-        menu(msg,'ok');
+        MenuBox(msg,'ok');
         return;
     end
 end

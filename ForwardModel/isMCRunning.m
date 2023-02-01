@@ -17,7 +17,7 @@ end
 
 % If .fw_all_start file is missing then probably script is not running.
 if ~exist([dirname, '/fw/.fw_all_start'], 'file')
-    menu('Looks like fw_all shell script has stopped running.','OK');
+    MenuBox('Looks like fw_all shell script has stopped running.', 'OK');
     b=false;
     return;
 else
