@@ -3031,7 +3031,7 @@ updateViewAngles(ii, az, el);
 
 
 % --------------------------------------------------------------------
-function pushbuttonStandardViewsAnterior_Callback(hObject, ~, handles)
+function pushbuttonStandardViewsAnterior_Callback(hObject, eventdata, handles)
 global atlasViewer
 
 axesv = atlasViewer.axesv;
@@ -3576,7 +3576,7 @@ set(hObject, checked_propname, onoff);
 
 
 % --------------------------------------------------------------------
-function menuItemResetForwardModel_Callback(hObject, eventdata, handles)
+function menuItemResetForwardModel_Callback(~, ~, handles)
 global atlasViewer
 msg{1} = sprintf('WARNING: This action will reset the Forward Model to a known ''empty'' state. ');
 msg{2} = sprintf('This means all the Monte Carlo output and Sensitivity Profile for this subject will be deleted. ');
@@ -3588,8 +3588,8 @@ if q==2
 end
 
 if ispathvalid([atlasViewer.dirnameSubj, 'fw'])
-    fprintf('rmdir(''%s'',''s'');\n', [atlasViewer.dirnameSubj, 'fw']);
-    rmdir([atlasViewer.dirnameSubj, 'fw'],'s');
+    fprintf('delete(''%s'');\n', [atlasViewer.dirnameSubj, 'fw/*']);
+    delete([atlasViewer.dirnameSubj, 'fw/*'])
 end
 atlasViewer.fwmodel = initFwmodel(handles);
 atlasViewer.fwmodel = getFwmodel(atlasViewer.fwmodel, atlasViewer.dirnameSubj, atlasViewer.pialsurf, ...

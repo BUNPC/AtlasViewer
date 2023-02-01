@@ -256,7 +256,6 @@ SD2 = dataTree.currElem.GetMeasList();
 SD2.Lambda = dataTree.currElem.GetWls();
 SD.Lambda = SD2.Lambda;
 SD.MeasList = SD2.MeasList;
-SD.MeasListAct = SD2.MeasListAct;
 
 % Get fnirs time course data
 dc   = dataTree.currElem.GetDcAvg();
@@ -289,7 +288,7 @@ h = waitbar(0,'Please wait, running...');
 % use only active channels
 ml = SD.MeasList;
 if isfield(SD, 'MeasListAct') == 1
-    activeChLst = find(ml(:,4)==1 & SD.MeasListAct==1);
+    activeChLst = find(ml(:,4)==1);
     dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
 end
 
@@ -305,7 +304,7 @@ end
 yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
 
 % get long separation channels only for reconstruction
-lst = find(ml(:,4)==1 & SD.MeasListAct==1);
+lst = find(ml(:,4)==1);
 rhoSD = zeros(length(lst),1);
 posM = zeros(length(lst),3);
 for iML = 1:length(lst)
