@@ -1,27 +1,25 @@
-function b=isMCRunning(fwmodel,dirname)
-
-b=true;
-
+function b = isMCRunning(fwmodel, dirname)
+b = true;
 pause(.5);
 
 % Wait for shell script to create a .fw_all_start file which 
 % is an indication the script is running.
-tries=0;
-while tries<10
+tries = 0;
+while tries < 10
     if exist([dirname, '/fw/.fw_all_start'], 'file')
         break;
     end
-    tries=tries+1;
+    tries = tries+1;
     pause(.2);
 end
 
 % If .fw_all_start file is missing then probably script is not running.
 if ~exist([dirname, '/fw/.fw_all_start'], 'file')
     MenuBox('Looks like fw_all shell script has stopped running.', 'OK');
-    b=false;
+    b = false;
     return;
 else
-    nOutputIndicator=[];
+    nOutputIndicator = [];
     while isempty(nOutputIndicator)
         try
             nOutputIndicator = load([dirname, '/fw/.fw_all_start']);
@@ -33,20 +31,18 @@ else
     end
 end
 
-
 % Check if there are fewer output files then MC command executed
-nOutput = 0;
 switch(fwmodel.mc_appname)
     case 'tMCimg'
         nOutput = length(dir([dirname, '/fw/*.2pt']));
     case 'mcx'
         nOutput = length(dir([dirname, '/fw/*.mc2']));
     otherwise
-        b=false;
+        b = false;
         return;
 end
 if nOutputIndicator > nOutput
-    b=false;
+    b = false;
     return;
 end
 
@@ -59,14 +55,14 @@ if exist([dirname, '/fw/.fw_all_stop'], 'file')
     switch(fwmodel.mc_appname)
         case 'tMCimg'
             if isempty(dir([dirname, '/fw/*.2pt']))
-                b=false;                
+                b = false;                
             end
         case 'mcx'
             if isempty(dir([dirname, '/fw/*.mc2']))
-                b=false;                
+                b = false;                
             end
         otherwise
-            b=false;
+            b = false;
     end
 end
 

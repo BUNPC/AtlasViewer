@@ -153,8 +153,6 @@ else
     end
 end
 
-if ~fwmodel.isempty(fwmodel)
-    fwmodel.pathname = dirname;
-end
+fwmodel.pathname = dirname;
 
 

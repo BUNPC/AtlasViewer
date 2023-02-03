@@ -18,7 +18,5 @@ elseif isa(obj, 'DataTreeClass')
     if isempty(obj.IsEmpty())
         return;
     end
-    SD = obj.currElem.GetSDG('2D');
-    foo = obj.currElem.GetMeasList();
-    SD.MeasList = foo.MeasList;    
+    SD = obj.currElem.GetProbe();
 end
