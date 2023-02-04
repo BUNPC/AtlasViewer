@@ -71,7 +71,7 @@ while q ~= 1
         cd(dirnameSubj);
         delete('./fw/.fw_all*');
         if ~isempty(findstr(computer(),'PCWIN'))
-            status = executeBatchFile(fwmodel, '.\fw\fw_all.bat');
+            [fwmodel, status] = executeBatchFile(fwmodel, '.\fw\fw_all.bat');
         elseif ~isempty(findstr(computer(),'MAC'))
             system('chmod 755 ./fw/fw_all.csh');
             status = system('./fw/fw_all.csh&');
@@ -149,11 +149,11 @@ MenuBox(msg, 'OK');
 
 
 % ---------------------------------------------------------------
-function status = executeBatchFile(fwmodel, filename)
+function [fwmodel, status] = executeBatchFile(fwmodel, filename)
 global logger
 
 logger = InitLogger(logger, fwmodel.mc_exename);
-status = [];
+status = 0;
 [p,f] = fileparts(filename);
 dotStart = sprintf('%s/.%s_start', p,f);
 dotStop = sprintf('%s/.%s_stop', p,f);
@@ -164,6 +164,8 @@ try
     logger.CurrTime('*** Start Time:  ');
     logger.Write('\n');
     kk = 1;
+    wlPrev = 1;
+    iO = 1;
     while 1
         line = fgetl(fid);
         if line == -1
@@ -173,13 +175,25 @@ try
             continue;
         end
         logger.Write('%d. %s\n', kk, line);
-        [status(kk), output] = system(line);
+        [status, output] = system(line);
         logger.Write(sprintf('%s\n', output));
-        if status(kk)==0
-            fseek(fidStart, 0,-1);
-            fprintf(fidStart, '%d', kk);
+        if status~=0
+            logger.Write('Error: status = %d\n', status);
+            break
         end
+        c = str2cell(line, ' ');
+        fname = c{2}; fname(fname=='"')='';
+        [p,f,e] = fileparts(fname);
+        wl = str2num(f(3:end));
+        if wl>wlPrev
+            wlPrev = wl;
+            iO = 1;
+        end
+        fwmodel.errMCoutput(iO,wl) = getNumFiles([p,'/',f,e]);
+        fseek(fidStart, 0,-1);
+        fprintf(fidStart, '%d', kk);
         kk = kk+1;
+        iO = iO+1;
     end
     fclose(fid);
     fclose(fidStart);
@@ -193,4 +207,11 @@ end
 logger.Write('\n');
 logger.CurrTime('End Time:  ');
 logger.Write('\n');
+
+
+
+% ----------------------------------------------------------------
+function nOut = getNumFiles(fname)
+files = dir([fname, '.*']);
+nOut = length(files);
 

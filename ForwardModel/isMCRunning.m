@@ -55,7 +55,7 @@ if exist([dirname, '/fw/.fw_all_stop'], 'file')
     switch(fwmodel.mc_appname)
         case 'tMCimg'
             if isempty(dir([dirname, '/fw/*.2pt']))
-                b = false;                
+                b = false;
             end
         case 'mcx'
             if isempty(dir([dirname, '/fw/*.mc2']))
