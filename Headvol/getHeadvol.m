@@ -53,7 +53,5 @@ else
 
 end
 
-if ~headvol.isempty(headvol)
-    headvol.pathname = dirname0;
-end
+headvol.pathname = dirname0;
 

@@ -100,10 +100,7 @@ else
     [refpts.orientation, refpts.center] = getOrientation(nz, iz, rpa, lpa, cz);
       
 end
-
-if ~refpts.isempty(refpts)
-    refpts.pathname = dirname0;
-end
+refpts.pathname = dirname0;
 
 
 

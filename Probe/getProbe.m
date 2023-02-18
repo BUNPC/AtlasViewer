@@ -42,8 +42,15 @@ probe.pathname = dirname;
 % 1. Load probe data from the various possible sources
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe_data      = loadFromData(dirname, dataTree);
+
+% if probe_data is complete then we are done no more complexity dealing with other sources of probe info
+if isComplete(probe_data)
+    probe = probe.copy(probe, probe_data);
+    return;
+end
 probe_digpts    = loadProbeFromDigpts(digpts);
 probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. Copy all probe data loaded from different source which is not

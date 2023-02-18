@@ -156,7 +156,7 @@ if isempty(fwmodel.Adot)
                 if sum_p~=0
                     Ad(idx_p) = Ad(idx_p) * (1 - abs(sum_n)) / sum_p;
                 else
-                    disp(sprintf('No photons launched into tissue form Det %d',iD))
+                    fprintf('No photons launched into tissue form Det %d\n',iD)
                     Ad(idx_p) = 0;
                 end
                 
@@ -191,7 +191,7 @@ if isempty(fwmodel.Adot)
             if normfactor~=0
                 A = (As.*Ad)/normfactor;
             else
-                disp(sprintf('No photons detected between Src %d and Det %d',iS,iD))
+                fprintf('No photons detected between Src %d and Det %d',iS,iD);
                 A = zeros(size(As));
             end
             if fwmodel.AdotVolFlag
