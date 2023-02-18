@@ -13,9 +13,6 @@ if size(dodavgimg,1) ~=  size(Adot,1)
     return;
 end
 
-ncond = size(dodavgimg,2);
-img = zeros(size(Adot,2),ncond);
-
 B = Adot*Adot';
 
 

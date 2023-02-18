@@ -201,7 +201,6 @@ global atlasViewer
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
 value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
 cond = str2num(get(handles.Condition, 'String'));
-s = get(handles.ListofSubjects, 'Value');
 tRangeimg = str2num(get(handles.time_range,'String'));
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
@@ -211,7 +210,6 @@ if err<0
     return
 end
 
-dirnameSubj = atlasViewer.dirnameSubj;
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 probe = atlasViewer.probe;
@@ -257,9 +255,7 @@ SD2.Lambda = dataTree.currElem.GetWls();
 SD.Lambda = SD2.Lambda;
 SD.MeasList = SD2.MeasList;
 
-% Get fnirs time course data
-dc   = dataTree.currElem.GetDcAvg();
-tHRF = dataTree.currElem.GetTHRF();
+[dc, tHRF]  = dataTree.currElem.procStream.output.dcAvg.GetDataTimeSeries('reshape:matrix');
 
 % Error checking of subject data itself
 if isempty(tHRF)
@@ -285,15 +281,6 @@ end
 
 h = waitbar(0,'Please wait, running...');
 
-% use only active channels
-ml = SD.MeasList;
-if isfield(SD, 'MeasListAct') == 1
-    activeChLst = find(ml(:,4)==1);
-    dc = dc(:,:,activeChLst,:); % Homer assumes that MeasList is ordered first wavelength and then second, otherwise this breaks
-end
-
-dc(find(isnan(dc))) = 0;
-
 % get dod conversion for each cond, if more than one condition
 dod = [];
 for icond = 1:size(dc,4)
@@ -303,33 +290,7 @@ end
 % average HRF over a time range
 yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
 
-% get long separation channels only for reconstruction
-lst = find(ml(:,4)==1);
-rhoSD = zeros(length(lst),1);
-posM = zeros(length(lst),3);
-for iML = 1:length(lst)
-    rhoSD(iML) = sum((SD.SrcPos(ml(lst(iML),1),:) - SD.DetPos(ml(lst(iML),2),:)).^2).^0.5;
-    posM(iML,:) = (SD.SrcPos(ml(lst(iML),1),:) + SD.DetPos(ml(lst(iML),2),:)) / 2;
-end
-longSepChLst = lst(find(rhoSD>=rhoSD_ssThresh));
-lstLS_all = [longSepChLst; longSepChLst+size(ml,1)/2]; % both wavelengths
-
-if isempty(lstLS_all)
-    MenuBox(sprintf('All channels meet short separation threshold.\nYou need some long separation channels for image recon.\nPlease lower the threshold and retry.'), 'Okay');
-    return;
-end
-
-yavgimg = yavgimg(lstLS_all,:);
-SD.MeasList = SD.MeasList(lstLS_all,:);
-
-if ~exist([dirnameSubj, '/imagerecon/'],'dir')
-    mkdir([dirnameSubj, '/imagerecon']);
-end
-
 if value1 == 1 % brain only reconstruction after short separation regression
-    
-    Adot = Adot(activeChLst,:,:);
-    Adot = Adot(longSepChLst,:,:);
     
     % put A matrix together and combine with extinction coefficients
     E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
@@ -361,10 +322,10 @@ if value1 == 1 % brain only reconstruction after short separation regression
     
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
     
-    Adot = Adot(activeChLst,:,:);
+    Adot = Adot(activeChIdxs,:,:);
     Adot = Adot(longSepChLst,:,:);
     
-    Adot_scalp = Adot_scalp(activeChLst,:,:);
+    Adot_scalp = Adot_scalp(activeChIdxs,:,:);
     Adot_scalp = Adot_scalp(longSepChLst,:,:);
     
     % get alpha and beta for regularization
@@ -436,6 +397,30 @@ close(h); % close waitbar
 saveImgRecon(imgrecon);
 
 atlasViewer.imgrecon = imgrecon;
+
+
+
+
+% --------------------------------------------------------------------------------
+function activeChIdxs = GetActiveChannels(dc)
+activeChIdxs = [];
+
+% use only active channels
+% Get active/inactive channels
+kk = 1;
+for iDataType = 1:size(dc,2)
+    for iCond = 1:size(dc,4)
+        for iCh = 1:size(dc,3)
+            if ismember(iCh, activeChIdxs)
+                continue;
+            end
+            if ~all(isnan(dc(:,iDataType, iCh, iCond)))
+                activeChIdxs(kk) = iCh;
+                kk = kk+1;
+            end
+        end
+    end
+end
 
 
 

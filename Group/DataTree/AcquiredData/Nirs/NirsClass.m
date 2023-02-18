@@ -388,7 +388,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                             return;
                         end
                     else
-                        if eval( sprintf('~all( (obj.SD.%s(:) - obj2.SD.%s(:)) < EPS )', field, field) )
+                        if eval( sprintf('~all( abs(obj.SD.%s(:) - obj2.SD.%s(:)) < EPS )', field, field) )
                             return;
                         end
                     end
@@ -1049,7 +1049,6 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                 'SrcGrommetRot',[], ...
                 'DetGrommetRot',[], ...
                 'DummyGrommetRot',[], ...
-                'nDummys',0, ...
                 'Landmarks',obj.InitLandmarks(), ...
                 'Landmarks2D',obj.InitLandmarks(), ...
                 'Landmarks3D',obj.InitLandmarks(), ...
@@ -1065,6 +1064,51 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                 'ymax',0, ...
                 'auxChannels',[] ...
                 );
+        end
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function SetProbeSpatialUnit(obj, spatialUnitNew)
+            scaling = 1;            
+            if strcmpi(spatialUnitNew,'mm') && strcmpi(obj.SD.SpatialUnit,'cm')
+                scaling = 10;
+            elseif strcmpi(spatialUnitNew,'cm') && strcmpi(obj.SD.SpatialUnit,'mm')
+                scaling = 1/10;
+            end            
+            obj.SD.SpatialUnit = spatialUnitNew;
+            obj.SD.SrcPos = obj.SD.SrcPos * scaling;
+            obj.SD.DetPos = obj.SD.DetPos * scaling;
+            obj.SD.DummyPos = obj.SD.DummyPos * scaling;
+            if size(obj.SD.SpringList,2)==3
+                lst = find(obj.SD.SpringList(:,3)~=-1);
+                obj.SD.SpringList(lst,3) = obj.SD.SpringList(lst,3) * scaling;
+            end
+            obj.SD.Landmarks.pos = obj.SD.Landmarks.pos * scaling;
+            obj.SD.Landmarks3D.pos = obj.SD.Landmarks3D.pos * scaling;
+            obj.SD.Landmarks2D.pos = obj.SD.Landmarks2D.pos * scaling;
+        end
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function FixProbeSpatialUnit(obj)        
+            if isempty(obj.SD.SpatialUnit)
+                q = MenuBox('Spatial units not provided for this probe. Please specify spatial units used for the optode positions?', ...
+                    {'mm','cm','m'});
+                if q==1
+                    obj.SD.SpatialUnit = 'mm';
+                elseif q==2
+                    obj.SD.SpatialUnit = 'cm';
+                end
+            end
+            if ~strcmpi(obj.SD.SpatialUnit,'mm')
+                q = MenuBox(sprintf('This probe uses ''%s'' units for probe coordinates. We recommend converting to ''mm'' units, to be consistent with Homer. Do you want to convert probe coordinates from %s to mm?', ...
+                    obj.SD.SpatialUnit), {'YES','NO'}, 'upperleft');
+                if q==1
+                    obj.SetProbeSpatialUnit('mm')       
+                end
+            end
         end
         
         
@@ -1113,10 +1157,69 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             fields = propnames(obj.SD);
             for ii = 1:length(fields)
                 if eval( sprintf('isfield(SD, ''%s'')', fields{ii}) )
+                    if eval( sprintf('strcmp(class(obj.SD.%s), class(SD.%s))', fields{ii}, fields{ii}) )
                     eval( sprintf('obj.SD.%s = SD.%s;', fields{ii}, fields{ii}) );
+                    elseif eval( sprintf('isnumeric(obj.SD.%s)  &&  iscell(SD.%s)', fields{ii}, fields{ii}) )
+                        if eval( sprintf('~isempty(SD.%s)', fields{ii}) )
+                            eval( sprintf('obj.SD.%s = cell2array(SD.%s);', fields{ii}, fields{ii}) );
+                end
+                    elseif eval( sprintf('isscalar(obj.SD.%s)  &&  isscalar(SD.%s)', fields{ii}, fields{ii}) )
+                        eval( sprintf('obj.SD.%s = SD.%s;', fields{ii}, fields{ii}) );
+                    end
                 end
             end
+            
+            % Fill in any fields that don't conform to standard SD data structure 
+            
+            % SrcGrommetType
+            d1 = size(obj.SD.SrcPos,1) - length(obj.SD.SrcGrommetType);
+            if d1 > 0
+                obj.SD.SrcGrommetType(end+1:end+d1) = repmat({'none'}, d1, 1);
+            end
+            
+            % SrcGrommetRot
+            d2 = size(obj.SD.SrcPos,1) - length(obj.SD.SrcGrommetRot);
+            if d2 > 0
+                obj.SD.SrcGrommetRot(end+1:end+d2) = zeros(d2,1);
+            end
+            
+            % DetGrommetType
+            d1 = size(obj.SD.DetPos,1) - length(obj.SD.DetGrommetType);
+            if d1 > 0
+                obj.SD.DetGrommetType(end+1:end+d1) = repmat({'none'}, d1, 1);
+            end
+            
+            % DetGrommetRot
+            d2 = size(obj.SD.DetPos,1) - length(obj.SD.DetGrommetRot);
+            if d2 > 0
+                obj.SD.DetGrommetRot(end+1:end+d2) = zeros(d2,1);
+            end
+
+            % DummyGrommetType
+            d1 = size(obj.SD.DummyPos,1) - length(obj.SD.DummyGrommetType);
+            if d1 > 0
+                obj.SD.DummyGrommetType(end+1:end+d1) = repmat({'none'}, d1, 1);
+            end
+            
+            % DummyGrommetRot
+            d2 = size(obj.SD.DummyPos,1) - length(obj.SD.DummyGrommetRot);
+            if d2 > 0
+                obj.SD.DummyGrommetRot(end+1:end+d2) = zeros(d2,1);
+            end 
+                                    
+            % MesListAct
+            if size(obj.SD.MeasListAct,1) < size(obj.SD.MeasList,1)
+                d = size(obj.SD.MeasListAct,1) - size(obj.SD.MeasList,1);
+                if d < 0
+                    obj.SD.MeasListAct(end+1:end+abs(d)) = ones(abs(d),1);
+                elseif d>1
+                    obj.SD.MeasListAct(end-d:end) = [];
+                end
         end
+        
+        end
+        
+        
         
         
         % -------------------------------------------------------
@@ -1127,7 +1230,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function b = CopyStruct(obj, s)            
+        function CopyStruct(obj, s)            
             fields = propnames(obj);
             for ii = 1:length(fields)
                 if eval( sprintf('isfield(s, ''%s'')', fields{ii}) )

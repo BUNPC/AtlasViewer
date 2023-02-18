@@ -997,7 +997,7 @@ atlasViewer.labelssurf.colormapsIdx = ch;
 
 
 % --------------------------------------------------------------------
-function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, ~)
+function menuItemRegisterAtlasToDigpts_Callback(hObject, ~, handles)
 global atlasViewer
 global DEBUG
 
@@ -1033,6 +1033,7 @@ if refpts.isempty(refpts)
     return;
 end 
 if all(isregistered(refpts,digpts))
+    set(handles.pushbuttonRegisterProbeToSurface, 'enable','on')
     return;
 end
 
