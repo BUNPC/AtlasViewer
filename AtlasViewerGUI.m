@@ -22,6 +22,134 @@ end
 
         
 
+% ----------------------------------------------------------------------
+function CloseSupportingGuis(handles)
+global atlasViewer
+
+
+
+% ----------------------------------------------------------------------
+function ParseArgs(args)
+global atlasViewer
+global logger
+
+% Print args
+for ii = 1:length(args)
+    if isempty(args{ii})
+        continue;
+    end
+    if strcmp(args{ii}, 'userargs')
+        continue;
+    end
+    if ischar(args{ii})
+        logger.Write('Args #%d = %s\n', ii, args{ii});
+    elseif isnumeric(args{ii})
+        logger.Write('Args #%d = %0.1f\n', ii, args{ii});
+    end
+end
+logger.Write('\n');
+logger.Write('Current Folder = %s\n', filesepStandard(pwd));
+logger.Write('%s\n\n', banner());
+logger.Write('dirnameApp = %s\n', getAppDir());
+logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
+logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+logger.Write('\n');
+
+atlasViewer.dirnameSubj = getSubjDir(args);
+atlasViewer.dirnameAtlas = getAtlasDir(args);
+if length(args)>3
+    atlasViewer.handles.dataTree = args{4};
+    atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
+end
+if isempty(atlasViewer.dataTree)
+    atlasViewer.handles.dataTree = DataTreeGUI();
+end
+
+    
+    
+% ----------------------------------------------------------------------
+function InitStruct(args)
+global atlasViewer
+atlasViewer = struct(...
+    'dirnameSubj','', ...
+    'dirnameAtlas','', ...
+    'dataTree', [], ...
+    'handles', [], ...
+    'axesv',struct([]), ...
+    'headsurf',struct([]), ...
+    'pialsurf',struct([]), ...
+    'labelssurf',struct([]), ...
+    'refpts',struct([]), ...
+    'digpts',struct([]), ...
+    'headvol',struct([]), ...
+    'probe',struct([]), ...
+    'fwmodel',struct([]), ...
+    'imgrecon',struct([]), ...
+    'hbconc',struct([]), ...
+    'fs2viewer',struct([]), ...
+    'dirnameProbe','', ...
+    'probe_copy',[]...
+    );
+
+ParseArgs(args);
+
+
+
+% -----------------------------------------------------------------------
+function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+global atlasViewer
+global cfg
+global logger
+
+% Standard GUI initialization
+handles.output = hObject;
+guidata(hObject, handles);
+
+% Set up AV GUI stuff
+setNamespace('AtlasViewerGUI');
+logger = Logger('AtlasViewer');
+cfg = ConfigFileClass();
+CloseSupportingGuis(handles)
+InitStruct(varargin);
+
+if ~isempty(getappdata(gcf, 'zoomlevel'))
+    rmappdata(gcf, 'zoomlevel');
+end
+
+initAxesv(handles);
+
+cd(atlasViewer.dirnameSubj);
+checkForAtlasViewerUpdates();
+PrintSystemInfo([], 'AtlasViewerGUI');
+
+
+LoadSubj(hObject, eventdata, handles, varargin);
+
+if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
+    ImageRecon();
+end
+set(handles.editSelectChannel,'string','0 0');
+set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
+
+positionDataTreeGUI(handles);
+
+% check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
+if exist('mcxlab.m','file')
+    set(handles.menuItemRunMCXlab,'enable','on');
+else
+    set(handles.menuItemRunMCXlab,'enable','off');
+end
+
+if isfield(atlasViewer,'probe')
+   atlasViewer.probe_copy   = atlasViewer.probe; % this is useful for testing if the probe is modified 
+end
+
+if ishandles(atlasViewer.handles.dataTree)
+    figure(atlasViewer.handles.dataTree)
+end
+
+
+
 % ------------------------------------------------------------------
 function InitSubj(hObject, handles, argExtern)
 global atlasViewer
@@ -277,187 +405,6 @@ if ~headsurf.isempty(headsurf)  && ~pialsurf.isempty(pialsurf)
         pialsurf = initPialsurf();
             
     end
-end
-
-
-    
-    
-% --------------------------------------------------------------------
-function Edit_Probe_Callback(~, ~, ~)
-global atlasViewer;
-
-%%%% close GUI
-hij = findobj(0,'name','Edit Probe');
-if ~isempty(hij)
-    close(hij)
-end
-
-%%%% replace Edit_Probe.fig if it's oversized
-SOURCE      = which('Edit_Probe_backup.fig');
-DESTINATION = which('Edit_Probe.fig');
-if ~isempty(SOURCE) && ~isempty(DESTINATION)
-    if GetFileSize(DESTINATION) > 100000  %%% check if the file is oversized
-        delete(DESTINATION);
-        copyfile(SOURCE,DESTINATION,'f');
-    end
-elseif isempty(DESTINATION)
-    return;
-end
-
-%%%% NOTE: since we're getting the true vertex positions from the graphics handle
-%%%% rather than the mesh field of headsurf (which does contain the true
-%%%% positions) we need to apply axes_order. The reason to get it from the 
-%%%% graphics handle rather than headsurf.mesh is for the normals, to keep that 
-%%%% straight between vertices and normals we use the graphics handle. 
-if leftRightFlipped(atlasViewer.refpts)
-    axes_order = [2,1,3];
-else
-    axes_order = [1,2,3];
-end
-Hh = get(atlasViewer.headsurf.handles.surf); %%% head surface mesh
-headsurf.vertices = Hh.Vertices(:,axes_order);
-headsurf.faces    = Hh.Faces;
-if ~isempty(Hh.VertexNormals)
-    headsurf.normals = Hh.VertexNormals(:,axes_order);
-else
-    fv.vertices      = headsurf.vertices;
-    fv.faces         = headsurf.faces;
-    headsurf.normals = patchnormals(fv);
-end
-
-for i = 1:size(atlasViewer.refpts.handles.circles,1)
-    refpts{i,1} = atlasViewer.refpts.pos(i,:);
-    refpts{i,2} = atlasViewer.refpts.labels{i};
-    refpts{i,3} = atlasViewer.refpts.orientation;
-end
-probe = atlasViewer.probe;   %%%% probe
-if isempty(probe.optpos_reg)
-    MenuBox('There was a problem launching Edit_Probe. Probe is missing or is not registered to head.', 'OK');
-    return;
-end
-[optodes, channels] = Edit_Probe(headsurf, refpts, probe, axes_order, 'userargs');
-if isempty(optodes)
-    return;
-end
-atlasViewer.probe.mlmp = channels;   
-
-%%% update optode positions    
-for i=1:size(optodes,1)
-    atlasViewer.probe.optpos_reg(i,:) = optodes(i,:);   
-    set(atlasViewer.probe.handles.labels(i,1),'Position',optodes(i,axes_order));
-    set(atlasViewer.probe.handles.circles(i,1),'XData',optodes(i,axes_order(1)),'YData',optodes(i,axes_order(2)),'ZData',optodes(i,axes_order(3)));
-end
-
-%%%% update NIRS channel positions
-ml = atlasViewer.probe.ml;
-Num_Scr = atlasViewer.probe.nsrc;
-for i = 1:size(ml,1)
-    XData = [optodes(ml(i,1),axes_order(1)) optodes(ml(i,2)+Num_Scr,axes_order(1))];
-    YData = [optodes(ml(i,1),axes_order(2)) optodes(ml(i,2)+Num_Scr,axes_order(2))];
-    ZData = [optodes(ml(i,1),axes_order(3)) optodes(ml(i,2)+Num_Scr,axes_order(3))];
-    set(atlasViewer.probe.handles.hMeasList(i,1),'XData',XData,'YData',YData,'ZData',ZData)
-end
-
-
-
-% -----------------------------------------------------------------------
-function AtlasViewerGUI_OpeningFcn(hObject, eventdata, handles, varargin)
-global atlasViewer
-global cfg
-global logger
-
-setNamespace('AtlasViewerGUI');
-
-logger = Logger('AtlasViewer');
-
-if isempty(varargin)
-    atlasViewer = [];
-end
-cfg = ConfigFileClass();
-
-% Choose default command line output for AtlasViewerGUI
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-if ~isempty(getappdata(gcf, 'zoomlevel'))
-    rmappdata(gcf, 'zoomlevel');
-end
-
-initAxesv(handles);
-
-% Print args
-for ii = 1:length(varargin)
-    if isempty(varargin{ii})
-        continue;
-    end
-    if strcmp(varargin{ii}, 'userargs')
-        continue;
-    end
-    if ischar(varargin{ii})
-        logger.Write('Args #%d = %s\n', ii, varargin{ii});
-    elseif isnumeric(varargin{ii})
-        logger.Write('Args #%d = %0.1f\n', ii, varargin{ii});
-    end
-end
-logger.Write('\n');
-
-logger.Write('Current Folder = %s\n', filesepStandard(pwd));
-
-atlasViewer.dirnameSubj = getSubjDir(varargin);
-atlasViewer.dirnameAtlas = getAtlasDir(varargin);
-
-logger.Write('%s\n\n', banner());
-logger.Write('dirnameApp = %s\n', getAppDir());
-logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
-logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
-logger.Write('\n');
-
-cd(atlasViewer.dirnameSubj);
-checkForAtlasViewerUpdates();
-PrintSystemInfo([], 'AtlasViewerGUI');
-
-hDataTreeGUI = [];
-if length(varargin)>3
-    if ishandles(varargin{4})
-        hDataTreeGUI = varargin{4};
-    end
-end
-
-if isempty(hDataTreeGUI)
-    atlasViewer.handles.dataTree = DataTreeGUI();
-else
-    atlasViewer.dataTree.LoadCurrElem();
-end
-
-if ~isempty(atlasViewer.dirnameSubj) & atlasViewer.dirnameSubj ~= 0
-    if length(varargin)<2
-        varargin{1} = atlasViewer.dirnameSubj;
-        varargin{2} = 'userargs';
-    else
-        varargin{1} = atlasViewer.dirnameSubj;
-    end
-end
-LoadSubj(hObject, eventdata, handles, varargin);
-
-if ishandles(atlasViewer.imgrecon.handles.ImageRecon)
-    ImageRecon();
-end
-set(handles.editSelectChannel,'string','0 0');
-set(handles.togglebuttonMinimizeGUI, 'tooltipstring', 'Minimize GUI Window')
-
-positionDataTreeGUI(handles);
-
-% check for MCXlab in path - JAY, WHERE SHOULD THIS GO?
-if exist('mcxlab.m','file')
-    set(handles.menuItemRunMCXlab,'enable','on');
-else
-    set(handles.menuItemRunMCXlab,'enable','off');
-end
-
-if isfield(atlasViewer,'probe')
-   atlasViewer.probe_copy   = atlasViewer.probe; % this is useful for testing if the probe is modified 
 end
 
 
@@ -756,6 +703,9 @@ if strcmpi(get(handles.menuItemProbeDesignEditAV,'Checked'),'on')
         end
     end
 end
+
+
+
 
 
 % --------------------------------------------------------------------
@@ -1300,7 +1250,7 @@ end
 
 
 % --------------------------------------------------------------------
-function fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(hObject, eventdata, handles)
+function fwmodel = menuItemGenerateLoadSensitivityProfile_Callback(~, eventdata, handles)
 global atlasViewer
 
 fwmodel     = atlasViewer.fwmodel;
@@ -1468,7 +1418,6 @@ for ii = 1:sectionsize:probe.noptorig
     delete([dirnameOut 'fw*.inp*']);
     
 end
-
 atlasViewer.fwmodel = fwmodel;
 
 
@@ -1824,7 +1773,7 @@ end
 
 
 % --------------------------------------------------------------------
-function menuCalcOptProp_Callback(hObject, eventdata, handles)
+function menuCalcOptProp_Callback(~, ~, ~)
 
 prompt        = {'Wavelengths (nm)','HbT (uM)','SO2 (%)','Reduced Scattering Coefficient at 800 nm (1/mm)','Scattering Slope b'};
 name          = 'Calculate absorption and scattering';
@@ -2463,7 +2412,7 @@ menuItemGenerateLoadSensitivityProfile_Callback([], struct('EventName','profile'
 
 
 % --------------------------------------------------------------------
-function popupmenuImageDisplay_Callback(hObject, eventdata, handles)
+function popupmenuImageDisplay_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel  = atlasViewer.fwmodel;
@@ -2477,20 +2426,6 @@ val = get(hObject,'value');
 Ch = str2num(get(hbconc.handles.editSelectChannel, 'string'));
 fwmodel.Ch = Ch;
 hbconc.Ch = Ch;
-
-% Set colormap threshold and channel edit boxes 
-switch(val)
-    case fwmodel.menuoffset+1
-        set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
-    case {imgrecon.menuoffset+1, imgrecon.menuoffset+2, imgrecon.menuoffset+3, imgrecon.menuoffset+4}
-        set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',imgrecon.cmThreshold(val-imgrecon.menuoffset, 1), ...
-                                                               imgrecon.cmThreshold(val-imgrecon.menuoffset, 2)));                                                          
-    case {hbconc.menuoffset+1, hbconc.menuoffset+2}
-        set(handles.editColormapThreshold,'string',sprintf('%0.2g %0.2g',hbconc.cmThreshold(val-hbconc.menuoffset, 1), ...
-                                                               hbconc.cmThreshold(val-hbconc.menuoffset, 2)));                                                          
-    otherwise
-        return;
-end
 
 % Display image in main axes
 switch(val)
@@ -2569,17 +2504,14 @@ set(hObject, 'value',1);
 
 
 % --------------------------------------------------------------------
-function editSelectChannel_Callback(hObject, eventdata, handles)
+function editSelectChannel_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel      = atlasViewer.fwmodel;
 imgrecon     = atlasViewer.imgrecon;
 hbconc     = atlasViewer.hbconc;
 probe        = atlasViewer.probe;
-mesh         = atlasViewer.pialsurf.mesh;
-headsurf     = atlasViewer.headsurf;
 pialsurf     = atlasViewer.pialsurf;
-axesv        = atlasViewer.axesv; 
 
 ChStr = get(hObject,'string');
 if isempty(ChStr)
@@ -2633,28 +2565,27 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function editColormapThreshold_Callback(hObject, eventdata, handles)
+function editColormapThreshold_Callback(hObject, ~, handles)
 global atlasViewer
 
 fwmodel = atlasViewer.fwmodel;
 imgrecon = atlasViewer.imgrecon;
 hbconc = atlasViewer.hbconc;
 axesv = atlasViewer.axesv; 
-probe = atlasViewer.probe; 
 
 val = str2num(get(hObject, 'string'));
 if length(val)>1
     set(hObject,'string',sprintf('%0.2g %0.2g',val(1), val(2)));
 end
-
+cmThreshold = str2num(get(hObject,'string'));
 val = get(handles.popupmenuImageDisplay,'value');
 switch(val)
     case fwmodel.menuoffset+1
-        fwmodel = setSensitivityColormap(fwmodel, axesv(1).handles.axesSurfDisplay);
+        fwmodel = setSensitivityColormap(fwmodel, axesv(1).handles.axesSurfDisplay, [], cmThreshold);
     case {imgrecon.menuoffset+1, imgrecon.menuoffset+2, imgrecon.menuoffset+3, imgrecon.menuoffset+4}
-        imgrecon = setImgReconColormap(imgrecon, axesv(1).handles.axesSurfDisplay);
+        imgrecon = setImgReconColormap(imgrecon, axesv(1).handles.axesSurfDisplay, [], cmThreshold);
     case {hbconc.menuoffset+1, hbconc.menuoffset+2}
-        hbconc = setHbConcColormap(hbconc, axesv(1).handles.axesSurfDisplay);
+        hbconc = setHbConcColormap(hbconc, axesv(1).handles.axesSurfDisplay, [], cmThreshold);
 end
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
@@ -3489,13 +3420,6 @@ atlasViewer.imgrecon     = imgrecon;
 % global atlasViewer
 % SD = convertProbe2SD(atlasViewer.probe);
 % SDgui(SD);
-
-
-% this is removed and replaced with create/edit probe in AtlasViewer itself
-% --------------------------------------------------------------------
-% function menuItemProbeAdjust3DRegistration_Callback(~, ~, ~)
-% Edit_Probe_Callback
-
 
 
 % --------------------------------------------------------------------
@@ -4793,24 +4717,6 @@ end
 
 % --------------------------------------------------------------------
 function checkbox_optodeEditMode_Callback(~, ~, ~)
-%global atlasViewer
-%if get(hObject,'Value')
-    
-%     probe =  atlasViewer.probe;
-%     if isfield(probe.handles,'hMeasList_editOptode')
-%         if ishandles(probe.handles.hMeasList_editOptode)
-%             set(probe.handles.hMeasList_editOptode, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
-%         end
-%     end
-% 
-%     if isfield(probe.handles,'hSprings_editOptode')
-%         if ishandles(probe.handles.hSprings_editOptode)
-%            set(probe.handles.hSprings_editOptode, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
-%         end
-%     end
-%     
-%     set(probe.handles.labels, 'buttondownfcn', {@optodeEditMode_btndwn,handles})
-
 
 
 

@@ -77,58 +77,27 @@ end
 
 
 % -----------------------------------------------------------------------------
-function ListofSubjects_Callback(hObject, eventdata, handles, cond)
+function ListofSubjects_Callback(~, ~, handles)
 s = set(handles.ListofSubjects, 'Value');
 
 
-
 % -----------------------------------------------------------------------------
-function ListofSubjects_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-% -----------------------------------------------------------------------------
-function Condition_Callback(hObject, eventdata, handles)
+function Condition_Callback(~, ~, handles)
 cond = get(handles.Condition, 'String');
 
 
 % -----------------------------------------------------------------------------
-function Condition_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-% -----------------------------------------------------------------------------
-function time_range_Callback(hObject, eventdata, handles)
+function time_range_Callback(~, ~, handles)
 tRangeimg = str2num(get(handles.time_range,'String'));
 
 
 % -----------------------------------------------------------------------------
-function time_range_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% -----------------------------------------------------------------------------
-function shortsep_thresh_Callback(hObject, eventdata, handles)
+function shortsep_thresh_Callback(~, ~, handles)
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
 
 % -----------------------------------------------------------------------------
-function shortsep_thresh_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% -----------------------------------------------------------------------------
-function brainonly_Callback(hObject, eventdata, handles)
+function brainonly_Callback(~, ~, handles)
 value1 = get(handles.brainonly, 'Value');
 if value1==1
     set(handles.brain_scalp, 'value', 0);
@@ -137,7 +106,7 @@ end
 
 
 % -----------------------------------------------------------------------------
-function brain_scalp_Callback(hObject, eventdata, handles)
+function brain_scalp_Callback(~, ~, handles)
 value2 = get(handles.brain_scalp, 'Value');
 if value2==1
     set(handles.brainonly, 'value', 0);
@@ -145,77 +114,42 @@ end
 
 
 % -----------------------------------------------------------------------------
-function alpha_brainonly_Callback(hObject, eventdata, handles)
+function alpha_brainonly_Callback(~, ~, handles)
 alpha = str2num(get(handles.alpha_brainonly,'String'));
 
 
 % -----------------------------------------------------------------------------
-function alpha_brainonly_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% -----------------------------------------------------------------------------
-function alpha_brain_scalp_Callback(hObject, eventdata, handles)
+function alpha_brain_scalp_Callback(~, ~, handles)
 alpha = str2num(get(handles.alpha_brain_scalp,'String'));
 
 
 % -----------------------------------------------------------------------------
-function alpha_brain_scalp_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-% -----------------------------------------------------------------------------
-function beta_brain_scalp_Callback(hObject, eventdata, handles)
+function beta_brain_scalp_Callback(~, ~, handles)
 beta = str2num(get(handles.beta_brain_scalp,'String'));
 
 
 % -----------------------------------------------------------------------------
-function beta_brain_scalp_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% -----------------------------------------------------------------------------
-function plotylimit_Callback(hObject, eventdata, handles)
+function plotylimit_Callback(~, ~, handles)
 ylimits = str2num(get(handles.plotylimit,'String'));
-
-
-% -----------------------------------------------------------------------------
-function plotylimit_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 
 % -----------------------------------------------------------------------------
 function image_recon_Callback(~, ~, handles)
 global atlasViewer
 
+imgrecon = atlasViewer.imgrecon;
+fwmodel = atlasViewer.fwmodel;
+dataTree = atlasViewer.dataTree;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. Get image parameters from GUI 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
 value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
 cond = str2num(get(handles.Condition, 'String'));
 tRangeimg = str2num(get(handles.time_range,'String'));
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
-
-err = UpdateGuiControls(handles);
-if err<0
-    MessageBox('Error: data is missing ... existing image reconstruction GUI');
-    return
-end
-
-imgrecon = atlasViewer.imgrecon;
-fwmodel = atlasViewer.fwmodel;
-probe = atlasViewer.probe;
-dataTree = atlasViewer.dataTree;
-
-dataTree.currElem.Load();
 
 Adot        = fwmodel.Adot;
 Adot_scalp  = fwmodel.Adot_scalp;
@@ -248,49 +182,59 @@ if value2 == 1 & ndims(Adot_scalp) < 3
     return;
 end
 
-%%%% Get probe data 
-SD = convertProbe2SD(probe);
-SD2 = dataTree.currElem.GetMeasList();
-SD2.Lambda = dataTree.currElem.GetWls();
-SD.Lambda = SD2.Lambda;
-SD.MeasList = SD2.MeasList;
 
-[dc, tHRF]  = dataTree.currElem.procStream.output.dcAvg.GetDataTimeSeries('reshape:matrix');
-
-% Error checking of subject data itself
-if isempty(tHRF)
-    MenuBox('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
-    return;
-end
-if isempty(dc)
-    MenuBox('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
-    return;
-end
-if cond<1 | cond>size(dc, 4)
-    MenuBox('Invalid condition for this time course.','Okay');
-    return;
-end
-if cond<1 | cond>size(dc, 4)
-    MenuBox('Invalid condition for this time course.','Okay');
-    return;
-end
-if tRangeimg(1)<tHRF(1) | tRangeimg(1)>tHRF(end) | tRangeimg(2)<tHRF(1) | tRangeimg(2)>tHRF(end)
-    MenuBox(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
-    return;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2. Get processed data from dataTree
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if isempty(dataTree) || dataTree.IsEmpty()
+    MessageBox('Error: data is missing ... existing image reconstruction GUI');
+    return
 end
 
 h = waitbar(0,'Please wait, running...');
 
-% get dod conversion for each cond, if more than one condition
-dod = [];
-for icond = 1:size(dc,4)
-    dod(:,:,icond) = hmrConc2OD( squeeze(dc(:,:,:,icond)), SD, [6 6] );
+dataTree.currElem.Load();
+
+%%%% Get probe data 
+SD = extractSDFromDataTree(dataTree);
+
+%%%% Get HRF time course 
+[dcAvg, tHRF, ml_dcAvg]  = dataTree.currElem.procStream.output.dcAvg.GetDataTimeSeries('reshape:matrix');
+
+%%%% Use only active channels. Active channels in this case are channels that have NOT 
+%%%% been prunned by data tree processing AND long separation channels. 
+ml_dod  = dataTree.currElem.GetMeasurementList('matrix');
+[activeChLst_SDpairs, activeChLst_OD] = GetActiveChannels(dcAvg, ml_dcAvg, ml_dod, SD, rhoSD_ssThresh);
+
+%%%% After figuring out inactive channels in HRF, we can erase all NaN values 
+dcAvg(find(isnan(dcAvg))) = 0;
+
+%%%% Error checking of subject data itself
+if ErrorCheck_Data(dcAvg, tHRF, cond, tRangeimg) < 0 
+    return
 end
 
-% average HRF over a time range
+%%%%  get dod conversion for each cond, if more than one condition
+dod = [];
+ppf = dataTree.currElem.GetVar('ppf');
+for icond = 1:size(dcAvg,4)
+    dod(:,:,icond) = hmrConc2OD( squeeze(dcAvg(:, :, :, icond)), SD, ppf );
+end
+
+% average HRF (number of channels at all wavelengths X number of conditions) over a time range
 yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
 
+% Use only active channels
+yavgimg = yavgimg(activeChLst_OD, :);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3. Calculate image from processed dataTree data and GUI params 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if value1 == 1 % brain only reconstruction after short separation regression
+        
+    % Use only active sd pairs
+    Adot = Adot(activeChLst_SDpairs,:,:);
     
     % put A matrix together and combine with extinction coefficients
     E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
@@ -349,8 +293,8 @@ elseif value2 == 1 % brain and scalp reconstruction without short separation reg
         Adot(:,:,j) = J*LL;
     end
     
-    [u1,s1,v1]=svds(double([squeeze(Adot(:,:,1)) squeeze(Adot_scalp(:,:,1))]),size(Adot,1)); max_sing1 = max(s1(:));
-    [u2,s2,v2]=svds(double([squeeze(Adot(:,:,2)) squeeze(Adot_scalp(:,:,2))]),size(Adot,1)); max_sing2 = max(s2(:));
+    [u1,s1,v1] = svds(double([squeeze(Adot(:,:,1)) squeeze(Adot_scalp(:,:,1))]),size(Adot,1)); max_sing1 = max(s1(:));
+    [u2,s2,v2] = svds(double([squeeze(Adot(:,:,2)) squeeze(Adot_scalp(:,:,2))]),size(Adot,1)); max_sing2 = max(s2(:));
     
     % regularization parameters
     alpha1 = alpha * max_sing1 ;
@@ -402,25 +346,43 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % --------------------------------------------------------------------------------
-function activeChIdxs = GetActiveChannels(dc)
-activeChIdxs = [];
+function [activeChLst1, activeChLst2] = GetActiveChannels(y, ml, ml2, SD, rhoSD_ssThresh)
+mlact1 = mlAct_Initialize([], ml);
+mlact2 = mlAct_Initialize([], ml2);
 
-% use only active channels
-% Get active/inactive channels
-kk = 1;
-for iDataType = 1:size(dc,2)
-    for iCond = 1:size(dc,4)
-        for iCh = 1:size(dc,3)
-            if ismember(iCh, activeChIdxs)
-                continue;
-            end
-            if ~all(isnan(dc(:,iDataType, iCh, iCond)))
-                activeChIdxs(kk) = iCh;
-                kk = kk+1;
+% Get long separation channels and mark inacive all sd pairs that have short sep optodes
+for iML = 1:length(ml)
+    rho = sum( (SD.SrcPos(ml(iML,1),:) - SD.DetPos(ml(iML,2),:)) .^ 2) ^ 0.5;
+    if rho < rhoSD_ssThresh
+        k1 = mlact1(:,1)==ml(iML,1) & mlact1(:,2)==ml(iML,2);
+        k2 = mlact2(:,1)==ml(iML,1) & mlact2(:,2)==ml(iML,2);
+        mlact1(k1,3) = 0;
+        mlact2(k2,3) = 0;
+    end
+end
+
+% Get active channels prunned in processing
+for iDataType = 1:size(y,2)
+    for iCond = 1:size(y,4)
+        for iCh = 1:size(y,3)
+            if all(isnan(y(:,iDataType, iCh, iCond)))
+                mlact1(iCh,3) = 0;
             end
         end
     end
 end
+for ii = 1:size(mlact2,1)
+    k = find(mlact1(:,1)==mlact2(ii,1) & mlact1(:,2)==mlact2(ii,2));
+    if isempty(k)
+        continue;
+    end
+    if mlact1(k(1),3)==0
+        mlact2(ii,3) = 0;
+    end
+end
+k = mlact1(:,4)==1;
+activeChLst1 = find(mlact1(k,3) == 1);
+activeChLst2 = find(mlact2(:,3) == 1);
 
 
 
@@ -429,20 +391,19 @@ function plotHb_Callback(~, ~, handles)
 % This function executes on button press in plotHb.
 global atlasViewer
 
-value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
-value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
-
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 hbconc  = atlasViewer.hbconc;
 axesv = atlasViewer.axesv;
 pialsurf = atlasViewer.pialsurf;
 
+value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
+value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
+
 axes(axesv.handles.axesSurfDisplay);
 hold on;
 
-ylimits = str2num(get(handles.plotylimit,'String'));
-
+% Get the HbO and HbR images
 if value1 == 1
     Aimg_conc = imgrecon.Aimg_conc;
     HbO = Aimg_conc.HbO;
@@ -460,6 +421,21 @@ elseif value2 == 1
 else
     q = MenuBox('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
     return;
+end
+
+% Set image popupmenu to HbO if it's not already set to a Recon menu choice
+datatypeChoices = get(imgrecon.handles.popupmenuImageDisplay, 'string');
+v = get(imgrecon.handles.popupmenuImageDisplay, 'value');
+if any(strfind(lower(datatypeChoices{v}), 'recon'))
+    if contains(lower(datatypeChoices{v}), 'hbo')
+        ylimits = [min(HbO), max(HbO)];
+    else
+        ylimits = [min(HbR), max(HbR)];
+    end
+else
+    k = find(strcmpi(datatypeChoices, 'hbo recon'));
+    set(imgrecon.handles.popupmenuImageDisplay, 'value', k);
+    ylimits = [min(HbO), max(HbO)];
 end
 
 if isempty(imgrecon)
@@ -484,9 +460,6 @@ hHbO = displayIntensityOnMesh(imgrecon.mesh, HbO, 'off','off', axes_order);
 hHbR = displayIntensityOnMesh(imgrecon.mesh, HbR, 'off','off', axes_order);
 caxis([ylimits(1), ylimits(2)]);
 hold off;
-
-% Set image popupmenu to HbO
-set(imgrecon.handles.popupmenuImageDisplay,'value',imgrecon.menuoffset+3);
 
 % Since sensitivity profile exists, enable all image panel controls
 % for calculating metrics
@@ -518,3 +491,32 @@ imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off'
 
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
+
+
+
+
+% ----------------------------------------------------------------------------
+function err = ErrorCheck_Data(dcAvg, tHRF, cond, tRangeimg)
+err = -1;
+if isempty(tHRF)
+    MenuBox('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
+    return;
+end
+if isempty(dcAvg)
+    MenuBox('Error: dcAvg is missing from subject data. Check groupResults.mat or use Homer3 to generate new groupResults.mat file','Okay');
+    return;
+end
+if cond<1 || cond>size(dcAvg, 4)
+    MenuBox('Invalid condition for this time course.','Okay');
+    return;
+end
+if cond<1 || cond>size(dcAvg, 4)
+    MenuBox('Invalid condition for this time course.','Okay');
+    return;
+end
+if tRangeimg(1)<tHRF(1) || tRangeimg(1)>tHRF(end) || tRangeimg(2)<tHRF(1) || tRangeimg(2)>tHRF(end)
+    MenuBox(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
+    return;
+end
+err = 0;
+

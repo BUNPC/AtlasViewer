@@ -1033,6 +1033,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         end
         
         
+        
         % ----------------------------------------------------------------------------------
         function SD = InitProbe(obj)
             SD = struct(...
@@ -1071,11 +1072,17 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         % ----------------------------------------------------------------------------------
         function SetProbeSpatialUnit(obj, spatialUnitNew)
             scaling = 1;            
-            if strcmpi(spatialUnitNew,'mm') && strcmpi(obj.SD.SpatialUnit,'cm')
+            if strcmpi(spatialUnitNew,'mm')
+                if strcmpi(obj.SD.SpatialUnit,'cm')
                 scaling = 10;
-            elseif strcmpi(spatialUnitNew,'cm') && strcmpi(obj.SD.SpatialUnit,'mm')
+                end
+            elseif strcmpi(spatialUnitNew,'cm')
+                if strcmpi(obj.SD.SpatialUnit,'mm')
                 scaling = 1/10;
             end            
+            else
+                spatialUnitNew = '';
+            end
             obj.SD.SpatialUnit = spatialUnitNew;
             obj.SD.SrcPos = obj.SD.SrcPos * scaling;
             obj.SD.DetPos = obj.SD.DetPos * scaling;
@@ -1094,12 +1101,14 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         % ----------------------------------------------------------------------------------
         function FixProbeSpatialUnit(obj)        
             if isempty(obj.SD.SpatialUnit)
-                q = MenuBox('Spatial units not provided for this probe. Please specify spatial units used for the optode positions?', ...
-                    {'mm','cm','m'});
+                q = MenuBox('Spatial units not provided in probe data. Please specify spatial units of the optode coordinates?', ...
+                    {'mm','cm',sprintf('do not know')});
                 if q==1
                     obj.SD.SpatialUnit = 'mm';
                 elseif q==2
                     obj.SD.SpatialUnit = 'cm';
+                elseif q==3
+                    obj.SD.SpatialUnit = '';
                 end
             end
             if ~strcmpi(obj.SD.SpatialUnit,'mm')
