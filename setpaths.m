@@ -152,6 +152,7 @@ end
 % ---------------------------------------------------
 function setpermissions(appPath)
 if isunix() || ismac()
+    global logger
     if ~isempty(strfind(appPath, '/bin')) %#ok<*STREMP>
         cmd = sprintf('chmod 755 %s/*\n', appPath);
         logger.Write(cmd);
