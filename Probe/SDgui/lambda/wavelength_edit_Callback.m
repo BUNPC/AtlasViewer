@@ -1,4 +1,4 @@
-function wavelength_edit_Callback(hObject, eventdata, handles)
+function wavelength_edit_Callback(~, ~, handles)
 
 wstr{1} = get(handles.wavelength1_edit, 'string');
 wstr{2} = get(handles.wavelength2_edit, 'string');

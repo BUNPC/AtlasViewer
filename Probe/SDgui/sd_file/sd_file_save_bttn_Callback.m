@@ -1,4 +1,4 @@
-function sd_file_save_bttn_Callback(hObject, eventdata, handles)
+function sd_file_save_bttn_Callback(~, ~, handles)
 
 errmsg = '';
 
@@ -19,7 +19,7 @@ filename = [fname, ext];
 
 % Check for errors
 if isempty(filename)
-    errmsg = 'ERROR: File name invalid';
+    errmsg = 'ERROR: File name missing';
 elseif isempty(dir(pathname))
     errmsg = 'ERROR: Save directory doesn''t exist';
 end
@@ -27,9 +27,12 @@ end
 % If there are errors, open windows explorer to let user enter file name 
 if ~isempty(errmsg)
     SDgui_disp_msg(handles, errmsg, -1)
+    if isempty(ext)
+        ext = 'SD';
+    end
     
     % Change directory
-    [filename, pathname] = uiputfile('*.*','Save SD file', filename);
+    [filename, pathname] = uiputfile(sprintf('*.%s','Save SD file', ext), filename);
     if(filename == 0)
         return;
     end

@@ -1,5 +1,4 @@
 function fwmodel = displaySensitivity(fwmodel, pialsurf, labelssurf, probe, hAxes)
-
 if isempty(fwmodel)
     return;
 end
@@ -35,12 +34,12 @@ if isempty(probe.ml)
 end
 
 % Find the channels for which to display sensitivity
-if fwmodel.Ch(1)==0 & fwmodel.Ch(2)==0
-    iCh = 1:size(fwmodel.Adot,1);
+if fwmodel.Ch(1)==0 && fwmodel.Ch(2)==0
+    fwmodel.iCh = 1:size(fwmodel.Adot,1);
 else
-    iCh = find(probe.ml(:,1)==fwmodel.Ch(1) & probe.ml(:,2)==fwmodel.Ch(2), 1);
+    fwmodel.iCh = find(probe.ml(:,1)==fwmodel.Ch(1) & probe.ml(:,2)==fwmodel.Ch(2), 1);
 end
-if isempty(iCh)
+if isempty(fwmodel.iCh)
     return;
 end
 
@@ -49,17 +48,18 @@ end
 % between wavelengths
 iW = 1;
 viewAxesXYZ(hAxes, axes_order);
-if all(fwmodel.Adot(iCh(1),:,iW)==0)
-    intensity = fwmodel.cmThreshold(1).*ones(size(sum(fwmodel.Adot(iCh,:,iW),1),2), 1);
+if all(fwmodel.Adot(fwmodel.iCh(1),:,iW)==0)
+    intensity = fwmodel.cmThreshold(1).*ones(size(sum(fwmodel.Adot(fwmodel.iCh,:,iW),1),2), 1);
 else
-    intensity = log10(sum(fwmodel.Adot(iCh,:,iW),1));
+    intensity = log10(sum(fwmodel.Adot(fwmodel.iCh,:,iW),1));
 end
 
 if ishandles(fwmodel.handles.surf)
     delete(fwmodel.handles.surf);
 end
-fwmodel.handles.surf = ....
-    displayIntensityOnMesh(fwmodel.mesh, intensity, 'off','off', axes_order);
+intensity0 = zeros(length(intensity),1)-1;
+fwmodel.handles.surf = displayIntensityOnMesh(fwmodel.mesh, intensity, 'off','off', axes_order);
+fwmodel.handles.surf0 = displayIntensityOnMesh(fwmodel.mesh, intensity0, 'off','off', axes_order);
 hold off;
 
 
@@ -71,7 +71,7 @@ if ishandles(fwmodel.handles.surf) & (val == fwmodel.menuoffset+1)
     fwmodel = enableFwmodelDisplay(fwmodel, 'on');
     fwmodel = setSensitivityColormap(fwmodel, hAxes);
     
-    setProbeDisplay(probe,[],iCh);
+    setProbeDisplay(probe,[],fwmodel.iCh);
     
     set(pialsurf.handles.radiobuttonShowPial, 'value',0);
     uipanelBrainDisplay(pialsurf.handles.radiobuttonShowPial, {pialsurf, labelssurf});

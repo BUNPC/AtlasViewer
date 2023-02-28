@@ -39,11 +39,15 @@ e = e(:,1:2) / 10; % convert from /cm to /mm
 %einv = inv( e'*e )*e';
 
 lst = find( ml(:,4)==1 );
-for idx=1:length(lst)
+for idx = 1:length(lst)
     idx1 = lst(idx);
     idx2 = find( ml(:,4)>1 & ml(:,1)==ml(idx1,1) & ml(:,2)==ml(idx1,2) );
     rho = norm(SD.SrcPos(ml(idx1,1),:)-SD.DetPos(ml(idx1,2),:));
-    dod(:,[idx1 idx2']) = (e * dc(:,1:2,idx)')' .* (ones(nTpts,1)*rho*ppf);
+    try
+        dod(:,[idx1 idx2']) = (e * dc(:,1:2,idx)')' .* (ones(nTpts,1)*rho*ppf);
+    catch
+        d = 1;
+    end
 %    dc(:,:,idx) = ( einv * (dod(:,[idx1 idx2'])./(ones(nTpts,1)*rho*ppf))' )';
 end
 %dc(:,3,:) = dc(:,1,:) + dc(:,2,:);
