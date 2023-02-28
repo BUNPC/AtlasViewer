@@ -218,7 +218,6 @@ SD = [];
 % Check if probe in data tree
 if ~isempty(dataTree) && ~dataTree.IsEmpty()
     SD = extractSDFromDataTree(dataTree);
-    
     % Check if probe exists in old-style Homer processing files
 elseif exist([dirname, 'groupResults.mat'], 'file')
     filedata = load([dirname, 'groupResults.mat'], '-mat');
