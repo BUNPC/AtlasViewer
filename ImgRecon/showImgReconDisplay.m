@@ -1,27 +1,21 @@
 function imgrecon = showImgReconDisplay(imgrecon, hAxes, valLocErr, valRes, valHbO, valHbR)
-
 if isempty(hAxes)
-    hAxes=gca;
+    hAxes = gca;
 end
 
-if strcmp(valRes, 'on') | strcmp(valLocErr, 'on')
-    valMetrics='on';
+% Get the current selection
+[img, hImg] = getImgRecon_DisplayPanelImage(imgrecon);
+if strcmpi(valLocErr,'on') || strcmpi(valRes,'on') || strcmpi(valHbO,'on') || strcmpi(valHbR,'on')
+    imgrecon = setImgReconColormap(imgrecon, hAxes, img);
+    val = 'on';
 else
-    valMetrics='off';
-end
-if strcmp(valHbO, 'on') | strcmp(valHbR, 'on')
-    valImgRecon='on';
-else
-    valImgRecon='off';
-end
-
-if strcmp(valMetrics,'off') & strcmp(valImgRecon,'off')
-    imgrecon = setImgReconColormap(imgrecon, []);
-else
-    imgrecon = setImgReconColormap(imgrecon, hAxes);
+    val = 'off';
 end
 
 set(imgrecon.handles.hLocalizationError, 'visible',valLocErr);
 set(imgrecon.handles.hResolution, 'visible',valRes);
 set(imgrecon.handles.hHbO, 'visible',valHbO);
 set(imgrecon.handles.hHbR, 'visible',valHbR);
+setImageDisplay_EmptyImage(hImg, val);
+
+

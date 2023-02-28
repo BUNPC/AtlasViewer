@@ -59,7 +59,7 @@ if ~isempty(filename)
     if err
         SDgui_version(hObject);
         positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
-        setGuiFonts(hObject);        
+        setGuiFonts(hObject);
         return;
     end
 elseif ~isempty(varargin)
@@ -68,11 +68,16 @@ end
 
 sd_file_panel_SetPathname(handles, pathname);
 SDgui_version(hObject);
-positionGUI(hObject, 0.20, 0.10, 0.75, 0.78);
+positionGUI(hObject, [], [], 0.75, 0.78);
 setGuiFonts(hObject);
-popupmenuSpatialUnit_Callback([], [], handles)
-radiobuttonView3D_Callback([], [], handles);
+
+% Disable 3D view by default
+set(handles.radiobuttonView3D, 'value',0);
+radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles)
+
 EnableGUI(hObject);
+
+
 
 
 % -------------------------------------------------------------------
@@ -96,7 +101,7 @@ if SDgui_EditsMade()
         return;
     end
     if q==1
-        SDgui_saveasmenuitem_Callback([], [], handles)
+        SDgui_savemenuitem_Callback([], [], handles)
     end
 end
 filedata.SD = [];
@@ -163,7 +168,7 @@ sd_file_save(filename, pathname, handles);
 % -------------------------------------------------------------------
 function SDgui_radiobuttonSpringEnable_Callback(hObject, ~, handles)
 SDgui_chooseMode(hObject, handles);
-radiobuttonView3D_Callback([], [], handles);
+radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles);
 
 
 
@@ -268,23 +273,19 @@ optode_src_tbl_Update(handles);
 optode_det_tbl_Update(handles);
 optode_dummy_tbl_Update(handles);
 
-    
+
+
+
 % ------------------------------------------------------------------
 function popupmenuSpatialUnit_Callback(hObject, ~, handles)
 global SD
-
-if ~ishandles(hObject)
-    set(handles.popupmenuSpatialUnit, 'string', {'cm', 'mm'});
-    hObject = handles.popupmenuSpatialUnit;
-    strs = get(hObject, 'string');
-    idx = find(strcmp(strs, SD.SpatialUnit));
-    if ~isempty(idx) && (idx <= length(strs))
-        set(hObject, 'value', idx);
-    end
-end
 strs = get(hObject, 'string');
 idx = get(hObject, 'value');
-SD.SpatialUnit = strs{idx};
+n = NirsClass(SD);
+n.SetProbeSpatialUnit(strs{idx});
+SD = n.SD;
+SDgui_display(handles, SD);
+
 
 
 % --------------------------------------------------------------------
@@ -300,18 +301,21 @@ MeasList = SD.MeasList;
 SpringList = SD.SpringList;
 AnchorList = SD.AnchorList;
 
+nSrcs = size(SD.SrcPos,1);
+nDets = size(SD.DetPos,1);
+
 % reorder the sources
 if ~isempty(x{1})
     
     lstS = str2num(x{1});
     
-    if length(unique(lstS))~=SD.nSrcs
+    if length(unique(lstS)) ~= nSrcs
         warndlg('Source list must reorder all sources');
         return
     else
         SD.SrcPos = SD.SrcPos(lstS,:);
         
-        for iS=1:SD.nSrcs
+        for iS = 1:nSrcs
             lst = find(SD.MeasList(:,1)==lstS(iS));
             MeasList(lst,1) = iS;
             
@@ -320,7 +324,7 @@ if ~isempty(x{1})
             lst = find(SD.SpringList(:,2)==lstS(iS));
             SpringList(lst,2) = iS;
             
-            for iA=1:size(SD.AnchorList,1)
+            for iA = 1:size(SD.AnchorList,1)
                 if SD.AnchorList{iA,1}==lstS(iS)
                     AnchorList{iA,1} = iS;
                 end
@@ -333,21 +337,21 @@ end
 % reorder the detectors
 if ~isempty(x{2})
     lstD = str2num(x{2});    
-    if length(unique(lstD))~=SD.nDets
+    if length(unique(lstD)) ~= nDets
         warndlg('Detector list must reorder all sources');
         return
     else
         SD.DetPos = SD.DetPos(lstD,:);        
-        for iD=1:SD.nDets
-            lst = find(SD.MeasList(:,2)==lstD(iD));
+        for iD = 1:nDets
+            lst = find(SD.MeasList(:,2) == lstD(iD));
             MeasList(lst,2) = iD;            
-            lst = find(SD.SpringList(:,1)==(SD.nSrcs+lstD(iD)));
-            SpringList(lst,1) = (SD.nSrcs+iD);
-            lst = find(SD.SpringList(:,2)==(SD.nSrcs+lstD(iD)));
-            SpringList(lst,2) = (SD.nSrcs+iD);            
-            for iA=1:size(SD.AnchorList,1)
-                if SD.AnchorList{iA,1}==(SD.nSrcs+lstD(iD))
-                    AnchorList{iA,1} = (SD.nSrcs+iD);
+            lst = find(SD.SpringList(:,1) == (nSrcs+lstD(iD)));
+            SpringList(lst,1) = (nSrcs+iD);
+            lst = find(SD.SpringList(:,2) == (nSrcs+lstD(iD)));
+            SpringList(lst,2) = (nSrcs+iD);            
+            for iA = 1:size(SD.AnchorList,1)
+                if SD.AnchorList{iA,1} == (nSrcs+lstD(iD))
+                    AnchorList{iA,1} = (nSrcs+iD);
                 end
             end
         end
@@ -356,7 +360,7 @@ end
 
 % Sort the MeasList
 MeasList2 = [];
-for iS = 1:SD.nSrcs
+for iS = 1:nSrcs
     lst = find(MeasList(:,1)==iS & MeasList(:,4)==1);
     mlTmp = MeasList(lst,:);
     [~,lst] = sort(mlTmp(:,2));
@@ -385,11 +389,10 @@ SDgui_display(handles, SD)
 
 
 % --------------------------------------------------------------------
-function radiobuttonView3D_Callback(~, ~, handles) %#ok<*DEFNU>
+function radiobuttonView3D_Callback(hObject, ~, handles) %#ok<*DEFNU>
 global SD
 SDgui_display(handles, SD)
 
-hObject = handles.radiobuttonView3D;
 htoolbar = getToolbarHandle(handles);
 hAxes = chooseAxes(handles);
 if get(hObject, 'value')
@@ -405,12 +408,12 @@ if get(hObject, 'value')
         hm.MenuSelectedFcn = @(hObject,eventdata)SDgui('menuItemDelete3D_Callback',hObject,eventdata,guidata(hObject));
         hAxes.ContextMenu = hcm;
     end
-    
 else
     set(htoolbar, 'visible','off');
     set(get(hAxes,'zlabel'), 'visible','off')    
     rotate3d(hAxes, 'off')
 end
+
 
 
 % ---------------------------------------------------------------
@@ -465,7 +468,7 @@ SDgui_set_axes_view(hAxes);
 % --------------------------------------------------------------------
 function menuItemDelete3D_Callback(~, ~, handles)
 sd_data_Delete3D();
-radiobuttonView3D_Callback([], [], handles)
+radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles)
 
 
 
@@ -474,5 +477,3 @@ function menuItemDeleteRegistrationData_Callback(~, ~, handles)
 global SD
 sd_data_DeleteRegistrationData();
 SDgui_display(handles, SD);
-
-

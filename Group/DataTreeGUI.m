@@ -38,6 +38,8 @@ if datatreegui.dataTree.IsEmptyOutput()
 end
 DisplayGroupTree(handles);
 
+set(hObject, 'UserData',datatreegui.dataTree);
+
 
 
 % -----------------------------------------------------------------------
@@ -151,6 +153,7 @@ end
 fprintf('There is a separate subject folder corresponding to the selected fNIRS data.\n');
 fprintf('Opening datatreegui in new subject folder %s \n', dirnameSubjNew);
 AtlasViewerGUI(dirnameSubjNew, atlasViewer.dirnameAtlas, [], handles.figure1, 'userargs');
+
 
 
 
@@ -602,4 +605,3 @@ for ii = 1:length(listIdxs)
         break;
     end
 end
-

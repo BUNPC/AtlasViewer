@@ -3,7 +3,7 @@ global SD
 
 if ~exist('lasers','var') || isempty(lasers)
     nwl = sd_data_GetNwl();
-    if nwl>0 && SD.nSrcs>0
+    if nwl>0 && size(SD.SrcPos,1)>0
         if nwl<size(SD.SrcMap,1)
             SD.SrcMap(nwl+1:end,:) = [];
         end

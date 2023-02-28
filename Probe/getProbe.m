@@ -44,10 +44,6 @@ probe.pathname = dirname;
 probe_data      = loadFromData(dirname, dataTree);
 
 % if probe_data is complete then we are done no more complexity dealing with other sources of probe info
-if isComplete(probe_data)
-    probe = probe.copy(probe, probe_data);
-    return;
-end
 probe_digpts    = loadProbeFromDigpts(digpts);
 probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
 
@@ -106,7 +102,7 @@ probe = preRegister(probe, headsurf, refpts);
 probe = checkRegistrationData(dirname, probe, headsurf);
 
 % Generate measurement list mid points in 3D if #D optodes exist
-probe = findMeasMidPts(probe);
+probe = checkMeasList(probe);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5. Save new probe 
@@ -313,5 +309,35 @@ for ii = 1:length(dirs)
     files = [files; fileNew];
 end
 
+
+
+% -------------------------------------------------------------------------
+function probe = checkMeasList(probe)
+global logger
+logger = InitLogger(logger);
+
+while isempty(probe.ml)
+    msg{1} = sprintf('WARNING: measurement list missing from probe. Without a measurement list you can still ');
+    msg{2} = sprintf('register the existing probe and run Monte Carlo but you will not be able to generate a ');
+    msg{3} = sprintf('sensitivity profile. Do you want to choose a probe file from which to copy a measurement list?');
+    logger.Write(msg);
+    q = MenuBox(msg, {'YES','NO'});
+    if q==1
+        [fname, pname] = uigetfile({'*.SD';'*.nirs';'*.snirf'});
+        fnameFull = filesepStandard([pname, '/', fname]);
+        if ispathvalid(fnameFull)
+            probeSD = loadSD(probe, fnameFull);
+        end
+        logger.Write('Selecting  ''YES'':  probe file - %s\n', fnameFull);
+    else
+        logger.Write('Selecting  ''NO''\n');
+        break;
+    end
+    probe.ml = probeSD.ml;
+end
+if isempty(probe.ml)
+    return
+end
+probe = findMeasMidPts(probe);
 
 

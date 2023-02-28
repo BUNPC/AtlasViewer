@@ -4,3 +4,6 @@
 [submodule "Group/DataTree"]
 	path = Group/DataTree
 	url = https://github.com/BUNPC/DataTree
+[submodule "Group/FuncRegistry"]
+	path = Group/FuncRegistry
+	url = https://github.com/BUNPC/FuncRegistry

@@ -16,3 +16,6 @@ elseif ndims(yavg)==3 % this is ambiguous, dod with conditions, or conc without 
 elseif ndims(yavg)==2 % this is dod without conditions
     yavgimg = squeeze(mean(yavg(lst,:),1))';
 end    
+
+
+

@@ -1,5 +1,6 @@
 function sd_file_save(filename, pathname, handles)
 global filedata;
+global SD
 
 [~,~,ext] = fileparts(filename);
 
@@ -30,15 +31,21 @@ if ~isempty(msgWarnings)
         sprintf('Are you sure you want to save?\n\n'), ...
         };
     q = SDgui_disp_msg(handles, [msgs{:}], -1, 'menubox', {'YES','NO'});
-    if q == 2        
+    if q == 2
         return;
     end
 end
 
-
-
 sd_data_ErrorFix();
+
+% Check spatial unit and try to fix spatial units
 SD = sd_data_Get('all');
+n = NirsClass(SD);
+n.FixProbeSpatialUnit();
+SD = n.SD;
+
+SDgui_display(handles, SD);
+
 if ~isempty(ext) && strcmp(ext,'.nirs')
     sd_file_save2nirs([pathname, filename]);
 else
