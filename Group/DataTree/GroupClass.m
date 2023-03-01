@@ -71,7 +71,7 @@ classdef GroupClass < TreeNodeClass
         
         % ----------------------------------------------------------------------------------
         function InitVersion(obj)
-            obj.SetVersion();
+            obj.SetVersion(getVernum('DataTree'));
             obj.InitVersionStrFull();
         end
         
