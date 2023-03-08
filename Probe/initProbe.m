@@ -264,12 +264,12 @@ end
 
 % ------------------------------------------------
 function probe = scaleFactor(probe)
-if strcmp(guessUnit(probe), 'cm')
-    probe.optpos    = 10 * probe.optpos;
-    probe.srcpos    = 10 * probe.srcpos;
-    probe.detpos    = 10 * probe.detpos;
-    probe.registration.dummypos = 10 * probe.registration.dummypos;
-end
+% if strcmp(guessUnit(probe), 'cm')
+%     probe.optpos    = 10 * probe.optpos;
+%     probe.srcpos    = 10 * probe.srcpos;
+%     probe.detpos    = 10 * probe.detpos;
+%     probe.registration.dummypos = 10 * probe.registration.dummypos;
+% end
 
 
 % ------------------------------------------------
@@ -309,7 +309,8 @@ probe.registration = struct(...
     'springLenThresh',[3,10], ...
     'refpts',initRefpts(), ...
     'isempty',@isempty_reg_loc, ...
-    'init',@initRegistration ...
+    'init',@initRegistration, ...
+    'direction','probe2head' ...   % possible values:   { probe2atlas | atlas2probe }
     );
 
 
@@ -330,12 +331,13 @@ function probe = copyLandmarks(probe, refpts)
 if strcmp(refpts.name, 'probe')
     probe2 = refpts;
     refpts = probe2.registration.refpts;
+    probe.registration.direction = probe2.registration.direction;
 end
 if probeHasLandmarkRegistration(probe)
     return
 end
-[~,~,~,~,~, refpts] = getLandmarks(refpts);
-probe.registration.refpts = refpts.copyLandmarks(probe.registration.refpts, refpts);
+%[~,~,~,~,~, refpts] = getLandmarks(refpts);
+probe.registration.refpts = refpts;
 
 
 

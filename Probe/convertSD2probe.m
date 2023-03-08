@@ -6,120 +6,59 @@ if nargin == 0
 end
 SD = sd_data_Init(SD);
 
-if isfield(SD,'Lambda')
-    probe.lambda = SD.Lambda(:)';
-else
-    probe.lambda = [];
-end
+probe.lambda = SD.Lambda(:)';
 
 % Determine units of src/det coordinates
-if isfield(SD,'SpatialUnit')
-    unitsStr = SD.SpatialUnit;
+if ~isempty(SD.SrcPos3D)
+    probe.srcpos = SD.SrcPos3D;
 else
-    unitsStr = 'mm';
+    probe.srcpos = SD.SrcPos;
 end
-scaleFactor = 1;
-if ischar(unitsStr) && strcmp(unitsStr,'cm')
-    scaleFactor = 10;   % convert to mm if SD units are cm
-end
-
-if isfield(SD,'SrcPos')
-    probe.srcpos = scaleFactor*SD.SrcPos;
+if ~isempty(SD.DetPos3D)
+    probe.detpos = SD.DetPos3D;
 else
-    probe.srcpos = [];
+    probe.detpos = SD.DetPos;
 end
-if isfield(SD,'DetPos')
-    probe.detpos = scaleFactor*SD.DetPos;
+if ~isempty(SD.DummyPos3D)
+    probe.registration.dummypos = SD.DummyPos3D;
 else
-    probe.detpos = [];
-end
-if isfield(SD,'DummyPos')
     probe.registration.dummypos = SD.DummyPos;
-else
-    probe.registration.dummypos = [];
 end
 
-if isfield(SD,'SrcPos3D')
-    iStart = 1;
-    iEnd   = iStart + size(SD.SrcPos3D,1) - 1;
-    probe.optpos_reg(iStart : iEnd, :) = SD.SrcPos3D;
-end
-if isfield(SD,'DetPos3D')
-    iStart = size(SD.SrcPos3D,1) + 1;
-    iEnd   = iStart + size(SD.DetPos3D,1) - 1;
-    probe.optpos_reg(iStart : iEnd, :) = SD.DetPos3D;
-end
-if isfield(SD,'DummyPos3D')
-    iStart = size(SD.SrcPos3D,1) + size(SD.DetPos3D,1) + 1;
-    iEnd   = iStart + size(SD.DummyPos3D,1) - 1;
-    probe.optpos_reg(iStart : iEnd, :) = SD.DummyPos3D;
-end
-
-if isfield(SD,'orientation')
-    probe.orientation = SD.orientation;
-end
-
-if isfield(SD,'MeasList') && ~isempty(SD.MeasList) && size(SD.MeasList,2)>=4
+if ~isempty(SD.MeasList) && size(SD.MeasList,2)==4
     k = find(SD.MeasList(:,4)==1);
     probe.ml = SD.MeasList(k,:);
-    if isfield(SD,'MeasListAct') && (size(SD.MeasListAct,1)==size(probe.ml,1))
-        probe.ml(:,3) = SD.MeasListAct(k);
-    else
-        probe.ml(:,3) = ones(length(k),1);
-    end
-elseif isfield(SD,'MeasList') && ~isempty(SD.MeasList) && size(SD.MeasList,2)<4
+elseif ~isempty(SD.MeasList) && size(SD.MeasList,2)<4
     probe.ml = SD.MeasList;
     probe.ml(:,3) = ones(size(SD.MeasList,1),1);
+    probe.ml(:,4) = ones(size(SD.MeasList,1),1);
 else
-    probe.ml=[];
+    probe.ml = [];
 end
 
-if isfield(SD,'SpringList')
-    probe.registration.sl = SD.SpringList;
-else
-    probe.registration.sl = [];
+probe.registration.sl = SD.SpringList;
+probe.registration.al = SD.AnchorList;
+if ~isempty(SD.Landmarks3D)
+    probe.registration.refpts.labels    = SD.Landmarks3D.labels;
+    probe.registration.refpts.pos       = SD.Landmarks3D.pos;
 end
-if isfield(SD,'AnchorList')
-    probe.registration.al = SD.AnchorList;
-else
-    probe.registration.al = [];
-end
-if isfield(SD,'Landmarks')
-    probe.registration.refpts.labels    = SD.Landmarks.labels;
-    probe.registration.refpts.pos       = SD.Landmarks.pos;
-else
-    probe.registration.refpts = initRefpts();
-end
-
-if isfield(SD,'SrcGrommetType')
-    probe.SrcGrommetType = SD.SrcGrommetType;
-else
-    probe.SrcGrommetType = {};
-end
-if isfield(SD,'DetGrommetType')
-    probe.DetGrommetType = SD.DetGrommetType;
-else
-    probe.DetGrommetType = {};
-end
-if isfield(SD,'DummyGrommetType')
-    probe.DummyGrommetType = SD.DummyGrommetType;
-else
-    probe.DummyGrommetType = {};
-end
+probe.SrcGrommetType = SD.SrcGrommetType;
+probe.DetGrommetType = SD.DetGrommetType;
+probe.DummyGrommetType = SD.DummyGrommetType;
 
 % get grommet rotation informationf from SD and add it to the probe. If not
 % intialize the grommet rotations to zero.
-if isfield(SD,'SrcGrommetRot')
+if ~isempty(SD.SrcGrommetRot)
     probe.SrcGrommetRot = SD.SrcGrommetRot;
 else
     probe.SrcGrommetRot = zeros(size(probe.SrcGrommetType));
 end
-if isfield(SD,'DetGrommetRot')
+if ~isempty(SD.DetGrommetRot)
     probe.DetGrommetRot = SD.DetGrommetRot;
 else
     probe.DetGrommetRot = zeros(size(probe.DetGrommetType));
 end
-if isfield(SD,'DummyGrommetRot')
+if ~isempty(SD.DummyGrommetRot)
     probe.DummyGrommetRot = SD.DummyGrommetRot;
 else
     probe.DummyGrommetRot = zeros(size(probe.DummyGrommetType));

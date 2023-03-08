@@ -6,5 +6,3 @@ end
 probe0 = convertSD2probe(SD);
 probe = probe.copy(probe, probe0);
 
-
-

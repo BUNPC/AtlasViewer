@@ -187,13 +187,18 @@ end
 % 2. Get processed data from dataTree
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isempty(dataTree) || dataTree.IsEmpty()
-    MessageBox('Error: data is missing ... existing image reconstruction GUI');
+    MenuBox('Error: data is missing');
     return
 end
 
 h = waitbar(0,'Please wait, running...');
 
 dataTree.currElem.Load();
+if isempty(dataTree.currElem) || dataTree.currElem.procStream.output.IsEmpty()
+    close(h);
+    MenuBox('Error: data is missing');
+    return
+end
 
 %%%% Get probe data 
 SD = extractSDFromDataTree(dataTree);

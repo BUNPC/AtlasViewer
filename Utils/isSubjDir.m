@@ -66,3 +66,8 @@ if ~isempty(files)
     b = true;
 end
 
+% 8. Check for presense homer processed data
+if ispathvalid([dirname, 'derivatives/homer'], 'dir')
+    b = true;
+end
+

@@ -1,31 +1,19 @@
-function b = probeHas3DLandmarkRegistration()
-global atlasViewer
-b= false;
-
-dataTree = atlasViewer.dataTree;
-if ~isempty(dataTree)
-    procElem = dataTree.currElem;
-    if strcmp(procElem.type,'sess')
-        dataTree.SetCurrElem(procElem.iGroup, procElem.iSubj, procElem.iSess, 1);
-        dataTree.LoadCurrElem();
-        procElem = dataTree.currElem;
-        dataTree.SetCurrElem(procElem.iGroup, procElem.iSubj, procElem.iSess);
-        dataTree.LoadCurrElem();
-    elseif strcmp(procElem.type,'subj')
-        dataTree.SetCurrElem(procElem.iGroup, procElem.iSubj, 1, 1);
-        dataTree.LoadCurrElem();
-        procElem = dataTree.currElem;
-        dataTree.SetCurrElem(procElem.iGroup, procElem.iSubj);
-        dataTree.LoadCurrElem();
-    elseif strcmp(procElem.type,'group')
-        dataTree.SetCurrElem(procElem.iGroup, 1, 1, 1);
-        dataTree.LoadCurrElem();
-        procElem = dataTree.currElem;
-        dataTree.SetCurrElem(procElem.iGroup);
-       dataTree.LoadCurrElem();
-    end
-    probe_data = procElem.acquired.probe;
-    if ~isempty(probe_data.landmarkPos3D) && ~isempty(probe_data.landmarkPos3D)
-        b = true;
-    end
+function b = probeHas3DLandmarkRegistration(probe)
+b = false;
+if isempty(probe.registration.refpts)
+    return;
 end
+if isempty(probe.registration.refpts.pos)
+    return;
+end
+if isempty(probe.registration.refpts.labels)
+    return;
+end
+if strcmpi(probe.registration.direction, 'atlas2probe')
+    return
+end
+if size(probe.registration.refpts.pos,1) ~= length(probe.registration.refpts.labels)
+    return;
+end
+b = true;
+

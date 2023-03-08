@@ -29,11 +29,6 @@ if isfield(probe, 'registration')
             b = true;
         end
     end
-    if ~b
-        if probeHas3DLandmarkRegistration()
-            b = 2;
-        end
-    end
 elseif isfield(SD, 'AnchorList')
     if isempty(SD.SpringList)
         msg{1} = sprintf('\nWARNING: Probe does not have any springs. In order to register');

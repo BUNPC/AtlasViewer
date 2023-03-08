@@ -47,16 +47,16 @@ for ii = 1:length(args)
         logger.Write('Args #%d = %0.1f\n', ii, args{ii});
     end
 end
-logger.Write('\n');
-logger.Write('Current Folder = %s\n', filesepStandard(pwd));
-logger.Write('%s\n\n', banner());
-logger.Write('dirnameApp = %s\n', getAppDir());
-logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
-logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
-logger.Write('\n');
-
-atlasViewer.dirnameSubj = getSubjDir(args);
-atlasViewer.dirnameAtlas = getAtlasDir(args);
+if length(args) > 0
+    atlasViewer.dirnameSubj = args{1};
+else
+    atlasViewer.dirnameSubj = getSubjDir(args);
+end
+if length(args) > 1
+    atlasViewer.dirnameAtlas = args{2};
+else
+    atlasViewer.dirnameAtlas = getAtlasDir(args);
+end
 if length(args)>3
     atlasViewer.handles.dataTree = args{4};
     atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
@@ -65,8 +65,9 @@ if isempty(atlasViewer.dataTree)
     atlasViewer.handles.dataTree = DataTreeGUI();
 end
 
-    
-    
+
+
+
 % ----------------------------------------------------------------------
 function InitStruct(args)
 global atlasViewer
@@ -111,6 +112,16 @@ logger = Logger('AtlasViewer');
 cfg = ConfigFileClass();
 CloseSupportingGuis(handles)
 InitStruct(varargin);
+
+
+logger.Write('\n');
+logger.Write('Current Folder = %s\n', filesepStandard(pwd));
+logger.Write('%s\n\n', banner());
+logger.Write('dirnameApp = %s\n', getAppDir());
+logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
+logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+logger.Write('\n');
+
 
 if ~isempty(getappdata(gcf, 'zoomlevel'))
     rmappdata(gcf, 'zoomlevel');
@@ -650,11 +661,10 @@ else
         MessageBox('Error registering probe using spring relaxation. Headvol object is empty');
         return;
     end
-    [reg_flag, msg] = probeHasSpringRegistration(probe);
-    if ~reg_flag
-%         msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
-%         msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
-%         msg{3} = sprintf('registration data using SDgui application.\n\n');
+    if ~probeHasSpringRegistration(probe) && ~probeHas3DLandmarkRegistration(probe)
+        msg{1} = sprintf('\nWARNING: Loaded probe lacks registration data. In order to register it\n');
+        msg{2} = sprintf('to head surface you need to add registration data. You can manually add\n');
+        msg{3} = sprintf('registration data using SDgui application.\n\n');
         MessageBox(msg);
         return
     end
@@ -703,8 +713,6 @@ if strcmpi(get(handles.menuItemProbeDesignEditAV,'Checked'),'on')
         end
     end
 end
-
-
 
 
 
