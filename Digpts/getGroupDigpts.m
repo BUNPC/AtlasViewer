@@ -1,4 +1,5 @@
 function digpts = getGroupDigpts(digpts, dirname, refpts)
+global logger
 
 if ~exist('refpts','var')
     refpts = [];
@@ -100,6 +101,7 @@ if ~isempty(digpts.digpts)
             digpts.pathname = dirname;
         end
         printDigpts(digpts, 'Mean group dig points for');
+        logger.Write([msg{1}, 'Loading mean digitized points']);
     else
         digpts.digpts = [];
     end

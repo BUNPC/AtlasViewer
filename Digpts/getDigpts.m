@@ -51,14 +51,13 @@ elseif exist(dirname,'dir')==7
 end
 
 
-% Check if there's a group of subjects with dig pts in current subject
-% folder. If yes then create a group of dig pt structures to represent
-% them. They'll be used when importing a group probe, which will be the
-% mean of all the subjects' dig pts.
-digpts = getGroupDigpts(digpts, dirname, refpts);
-
 % Check if dig pts file exists in current subject folder
 if ~exist(inputfile,'file')
+    % Check if there's a group of subjects with dig pts in current subject
+    % folder. If yes then create a group of dig pt structures to represent
+    % them. They'll be used when importing a group probe, which will be the
+    % mean of all the subjects' dig pts.
+    digpts = getGroupDigpts(digpts, dirname, refpts);    
     return;
 end
 
