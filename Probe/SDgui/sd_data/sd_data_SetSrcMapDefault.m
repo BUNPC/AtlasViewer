@@ -1,6 +1,9 @@
 function sd_data_SetSrcMapDefault(nwl)
 global SD
 
+if isempty(SD)
+    return
+end
 if ~exist('nwl','var') || isempty(nwl)
     nwl = sd_data_GetNwl();
 end

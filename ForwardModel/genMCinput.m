@@ -14,6 +14,8 @@
 
 function fwmodel = genMCinput(fwmodel, probe, dirnameSubj)
 
+fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
+
 hWait = waitbar(0,'Generating MC input files');
 
 if ~isempty(dir([dirnameSubj, './fw/fw*.inp']))

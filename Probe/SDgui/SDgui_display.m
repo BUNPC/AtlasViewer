@@ -2,13 +2,15 @@ function SDgui_display(handles, SDo)
 global SD 
 
 if ~exist('SDo','var')
-    SDo = sd_data_Init();
+    SDo = [];
 end
 
 % Initialize SD object with data from SD file
 % then fix any errors in the SD file data
 SD = sd_data_Init(SDo);
-
+if isempty(SD)
+    return
+end
 SDgui_AtlasViewerGUI('update');
 
 err = sd_data_ErrorFix();

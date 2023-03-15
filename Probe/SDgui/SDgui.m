@@ -24,18 +24,17 @@ suppressGuiArgWarning(0);
 
 
 
+
 % -------------------------------------------------------------------
 function SDgui_OpeningFcn(hObject, ~, handles, varargin)
 global SD
 global filedata
 
 set(hObject, 'visible','off');
-
 setNamespace('AtlasViewerGUI')
 
 SD = [];
 filedata.SD = [];
-
 
 % Choose default command line output for SDgui
 handles.output = hObject;
@@ -66,15 +65,18 @@ elseif ~isempty(varargin)
     SDgui_display(handles, varargin{1})
 end
 
+% Initialize graphics
+%   -- GUI fonts 
+%   -- Display app name and version
+%   -- GUI position and size on screen
+%   -- Disable 3D view by default
+%   -- Init Spatial unit dropdown menu options
 sd_file_panel_SetPathname(handles, pathname);
 SDgui_version(hObject);
 positionGUI(hObject, [], [], 0.75, 0.78);
 setGuiFonts(hObject);
-
-% Disable 3D view by default
 set(handles.radiobuttonView3D, 'value',0);
-radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles)
-
+radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles);
 EnableGUI(hObject);
 
 
@@ -109,6 +111,7 @@ delete(handles.SDgui);
 
 
 
+
 % -------------------------------------------------------------------
 function varargout = SDgui_OutputFcn(~, ~, handles)
 % Get default command line output from handles structure
@@ -117,9 +120,12 @@ if ~isempty(handles)
 end
 
 
+
+
 % -------------------------------------------------------------------
 function SDgui_clear_all_bttn_Callback(~, ~, handles)
 SDgui_clear_all(handles)
+
 
 
 
@@ -136,9 +142,11 @@ sd_file_open(filename, pathname, handles);
 
 
 
+
 % -------------------------------------------------------------------
 function SDgui_newmenuitem_Callback(hObject, ~, handles)
 SDgui_clear_all_bttn_Callback(hObject, [], handles);
+
 
 
 
@@ -148,6 +156,7 @@ function SDgui_savemenuitem_Callback(~, ~, handles)
 filename = sd_filename_edit_Get(handles);
 pathname = sd_file_panel_GetPathname(handles);
 sd_file_save(filename, pathname, handles);
+
 
 
 
@@ -165,10 +174,12 @@ sd_file_save(filename, pathname, handles);
 
 
 
+
 % -------------------------------------------------------------------
 function SDgui_radiobuttonSpringEnable_Callback(hObject, ~, handles)
 SDgui_chooseMode(hObject, handles);
 radiobuttonView3D_Callback(handles.radiobuttonView3D, [], handles);
+
 
 
 
@@ -187,6 +198,7 @@ else
     probe_geometry_axes2_Hide(handles,'on');
     optode_tbls2_Hide(handles,'on');
 end
+
 
 
 
@@ -235,6 +247,8 @@ pname = filesepStandard(pname);
 fname = [fname, ext];
 
 
+
+
 % -------------------------------------------------------------------
 function sd_filename_edit_Callback(hObject, ~, ~)
 filename = get(hObject,'string');
@@ -247,7 +261,7 @@ if ~isempty(k)
 else
     ext=[];
 end
-if ~strcmpi(ext,'.nirs') && ~strcmpi(ext,'.sd')
+if ~strcmpi(ext,'.nirs') && ~strcmpi(ext,'.sd') && ~strcmpi(ext,'.snirf')
     filename = [filename '.SD'];
     set(hObject,'string',filename);
 end
@@ -277,14 +291,34 @@ optode_dummy_tbl_Update(handles);
 
 
 % ------------------------------------------------------------------
-function popupmenuSpatialUnit_Callback(hObject, ~, handles)
+function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
 global SD
+if ischar(eventdata) && strcmpi(eventdata, 'init')
+    set(hObject, 'string',{'mm','cm','m'});
+    return;
+end
+spatialUnitPrev = SD.SpatialUnit;
 strs = get(hObject, 'string');
 idx = get(hObject, 'value');
+msg{1} = 'Please select the type of length unit change you are making. Your selection will determine ';
+msg{2} = 'if the displayed coordinates will change (i.e., the scaling factor, 1 or >1).';
+option1 = sprintf('Current length units ("%s") correctly describe units of displayed coordinates. Will change coordinates and units to "%s".', spatialUnitPrev, strs{idx});
+option2 = sprintf('Current length units ("%s") do NOT correctly describe units of displayed coordinates. Will correct ONLY units to "%s".', spatialUnitPrev, strs{idx});
+q = MenuBox(msg, {option1, option2},[],[],'radiobutton');
+if q(1)==0
+    idx = find(strcmpi(strs, spatialUnitPrev));
+    set(hObject, 'value',idx);
+    return;
+elseif q(1)==1
+    scalefactor = [];
+else
+    scalefactor = 1;
+end
 n = NirsClass(SD);
-n.SetProbeSpatialUnit(strs{idx});
+n.SetProbeSpatialUnit(strs{idx}, scalefactor);
 SD = n.SD;
 SDgui_display(handles, SD);
+
 
 
 

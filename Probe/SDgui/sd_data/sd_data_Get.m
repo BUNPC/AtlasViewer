@@ -11,7 +11,11 @@ switch lower(datatype)
     case {'lambda'}
         data = SD.Lambda;
     case {'srcpos'}
-        data = SD.SrcPos;
+        try
+            data = SD.SrcPos;
+        catch
+            d=1;
+        end
     case {'detpos'}
         data = SD.DetPos;
     case {'srcpos3d'}
