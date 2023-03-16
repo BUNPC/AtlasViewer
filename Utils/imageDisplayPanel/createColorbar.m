@@ -56,7 +56,13 @@ end
 n = 1000;
 %cm = wrev(hsv(n));
 cm = jet(n);
-if leastSignificantVal==cmThreshold(1)
+if ~isempty(leastSignificantVal)
+    if leastSignificantVal==cmThreshold(1)
+        i = floor(n/2);
+        m = 1:i;
+        cm(m, :) = repmat(cm(i,:), length(m),1);
+    end
+elseif all(img==-1)
     i = floor(n/2);
     m = 1:i;
     cm(m, :) = repmat(cm(i,:), length(m),1);

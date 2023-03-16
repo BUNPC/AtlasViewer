@@ -13,7 +13,12 @@ else
     hImg = [];
     val = 'off';
 end
-hbconc = setHbConcColormap(hbconc, hAxes, hImg);
+if ~isempty(hImg)
+    img = hImg.FaceVertexCData;
+else
+    img = [];
+end
+hbconc = setHbConcColormap(hbconc, hAxes, img);
 set(hbconc.handles.HbO,'visible',valHbO);
 set(hbconc.handles.HbR,'visible',valHbR);
 setImageDisplay_EmptyImage(hImg, val);

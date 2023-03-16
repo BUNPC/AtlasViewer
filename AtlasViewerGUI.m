@@ -61,6 +61,11 @@ if length(args)>3
     atlasViewer.handles.dataTree = args{4};
     atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
 end
+
+% Change current folder to dirnameSubj and load data
+atlasViewer.dirnameSubj = filesepStandard(atlasViewer.dirnameSubj);
+atlasViewer.dirnameAtlas = filesepStandard(atlasViewer.dirnameAtlas);
+cd(atlasViewer.dirnameSubj);
 if isempty(atlasViewer.dataTree)
     atlasViewer.handles.dataTree = DataTreeGUI();
 end
@@ -477,12 +482,16 @@ axesv = atlasViewer.axesv;
 probe = atlasViewer.probe;
 imgrecon = atlasViewer.imgrecon;
 
-if ishandles(probe.handles.hSDgui)
-    delete(probe.handles.hSDgui);
+if ~isempty(probe)
+    if ishandles(probe.handles.hSDgui)
+        delete(probe.handles.hSDgui);
+    end
 end
 
-if ishandles(imgrecon.handles.ImageRecon)
-    delete(imgrecon.handles.ImageRecon);
+if ~isempty(imgrecon)
+    if ishandles(imgrecon.handles.ImageRecon)
+        delete(imgrecon.handles.ImageRecon);
+    end
 end
 
 if length(axesv)>1
@@ -812,7 +821,7 @@ if length(axesv)>1
         delete(hp);
     end
 end
-AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
+AtlasViewerGUI(filesepStandard(dirnameSubj), dirnameAtlas, 'userargs');
 
 
 
