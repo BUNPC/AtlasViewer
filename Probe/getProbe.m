@@ -316,6 +316,19 @@ function probe = checkMeasList(probe)
 global logger
 logger = InitLogger(logger);
 
+if isempty(probe)
+    return
+end
+if isempty(probe.optpos)
+    return
+end
+if isempty(probe.srcpos)
+    return
+end
+if isempty(probe.detpos)
+    return
+end
+
 while isempty(probe.ml)
     msg{1} = sprintf('WARNING: measurement list missing from probe. Without a measurement list you can still ');
     msg{2} = sprintf('register the existing probe and run Monte Carlo but you will not be able to generate a ');
