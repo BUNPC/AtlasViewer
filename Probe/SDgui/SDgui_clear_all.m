@@ -32,11 +32,12 @@ optode_anchor_tbl_Clear(handles);
 sd_file_panel_Clear(handles);
 
 % Clear Lambda panel
-wavelength1_edit_Update(handles, 690);
-wavelength2_edit_Update(handles, 830);
+wavelength1_edit_Update(handles, []);
+wavelength2_edit_Update(handles, []);
 wavelength3_edit_Update(handles, []);
 
 SDgui_disp_msg(handles, '');
 
+set(handles.popupmenuSpatialUnit, 'string',{'mm','cm','m'});
 
 

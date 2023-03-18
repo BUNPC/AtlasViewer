@@ -3,7 +3,6 @@ function probe = setProbeDisplay(probe, headobj, method, iCh)
 hProjectionRays = probe.handles.hProjectionRays;
 hSprings        = probe.handles.hSprings;
 hMeasList       = probe.handles.hMeasList;
-noptorig        = probe.noptorig;
 nsrc            = probe.nsrc;
 ndet            = probe.ndet;
 sl              = probe.registration.sl;
@@ -69,12 +68,12 @@ if strcmp(method,'digpts')
       if ishandles(hProjectionRays)
           set(hProjectionRays,'visible','on');
       end
-      if ishandles(hMeasList) & probe.hideMeasList
+      if ishandles(hMeasList) && probe.hideMeasList
           set(hMeasList,'visible','off');
       elseif ishandles(hMeasList)
           set(hMeasList,'visible','on');
       end
-      if ishandles(hSprings) & probe.hideSprings
+      if ishandles(hSprings) && probe.hideSprings
           set(hSprings,'visible','off');
       elseif ishandles(hSprings)
           set(hSprings,'visible','on');
@@ -106,7 +105,7 @@ elseif strcmp(method,'springs')
          if ishandles(hProjectionRays)
             set(hProjectionRays,'visible','on');
          end
-         if ishandles(hMeasList) & probe.hideMeasList
+         if ishandles(hMeasList) && probe.hideMeasList
              set(hMeasList,'visible','off');
              set(hSprings,'visible','on');
          elseif ishandles(hMeasList)
@@ -122,7 +121,7 @@ elseif strcmp(method,'springs')
          set(hOptodes(:,iAct),'visible','on');
          set(hOptodes(:,iInAct),'visible','off');
          set(hOptodes(iDummy,iAct),'visible','off');
-         if ishandles(hMeasList) & probe.hideMeasList
+         if ishandles(hMeasList) && probe.hideMeasList
              set(hMeasList,'visible','off');
              set(hSprings,'visible','on');
          elseif ishandles(hMeasList)
@@ -141,7 +140,7 @@ elseif strcmp(method,'springs')
          set(hSprings,'visible','off');
          set(hOptodes(iDummy,iAct),'visible','on');
          set(hOptodes(iDummy,iInAct),'visible','off');
-         if ishandles(hMeasList) & probe.hideMeasList
+         if ishandles(hMeasList) && probe.hideMeasList
              set(hMeasList,'visible','off');
          elseif ishandles(hMeasList)
              set(hMeasList,'visible','on');
@@ -154,7 +153,7 @@ elseif strcmp(method,'springs')
          end
          set(hSprings,'visible','off');
          set(hOptodes(iDummy,:),'visible','off');
-         if ishandles(hMeasList) & probe.hideMeasList
+         if ishandles(hMeasList) && probe.hideMeasList
              set(hMeasList,'visible','off');
          elseif ishandles(hMeasList)
              set(hMeasList,'visible','on');

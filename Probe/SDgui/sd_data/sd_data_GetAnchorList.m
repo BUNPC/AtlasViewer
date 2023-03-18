@@ -3,6 +3,9 @@ global SD
 
 al = {};
 
+if isempty(SD)
+    return
+end
 if iscell(SD.AnchorList)
     for ii = 1:size(SD.AnchorList,1)
         al{ii,1} = num2str(SD.AnchorList{ii,1});

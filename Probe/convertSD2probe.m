@@ -4,7 +4,7 @@ probe = initProbe();
 if nargin == 0
     return;
 end
-SD = sd_data_Init(SD);
+SD = sd_data_Init(SD, 'mm');
 
 probe.lambda = SD.Lambda(:)';
 

@@ -136,11 +136,14 @@ ylimits = str2num(get(handles.plotylimit,'String'));
 % -----------------------------------------------------------------------------
 function image_recon_Callback(~, ~, handles)
 global atlasViewer
+global logger
+
+atlasViewer.imgrecon.Aimg_conc.HbO = [];
+atlasViewer.imgrecon.Aimg_conc.HbR = [];
 
 imgrecon = atlasViewer.imgrecon;
 fwmodel = atlasViewer.fwmodel;
 dataTree = atlasViewer.dataTree;
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Get image parameters from GUI 
@@ -211,6 +214,12 @@ SD = extractSDFromDataTree(dataTree);
 ml_dod  = dataTree.currElem.GetMeasurementList('matrix');
 [activeChLst_SDpairs, activeChLst_OD] = GetActiveChannels(dcAvg, ml_dcAvg, ml_dod, SD, rhoSD_ssThresh);
 
+if isempty(activeChLst_SDpairs)
+    MenuBox('Error: There are no active channels and therefore no data to display');
+    close(h);
+    return;
+end
+
 %%%% After figuring out inactive channels in HRF, we can erase all NaN values 
 dcAvg(find(isnan(dcAvg))) = 0;
 
@@ -222,6 +231,12 @@ end
 %%%%  get dod conversion for each cond, if more than one condition
 dod = [];
 ppf = dataTree.currElem.GetVar('ppf');
+if isempty(ppf)
+    ppf = zeros(1, length(SD.Lambda)) + 6;
+    msg = sprintf('WARNING: could not retrieve value of partial path length (ppf) used in Homer processing. Will use ppf = [ %s ]\n', num2str(ppf));
+    logger.Write(msg);
+    MenuBox(msg);
+end
 for icond = 1:size(dcAvg,4)
     dod(:,:,icond) = hmrConc2OD( squeeze(dcAvg(:, :, :, icond)), SD, ppf );
 end
@@ -447,6 +462,7 @@ if isempty(imgrecon)
     return;
 end
 if isempty(HbO) & isempty(HbR)
+    setImageDisplay_EmptyImage([], 'on')
     MenuBox('Missing reconstructed image. First generate HbO and HbR', 'Okay');
     return;
 end

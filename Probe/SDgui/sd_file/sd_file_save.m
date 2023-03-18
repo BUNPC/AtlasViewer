@@ -4,7 +4,6 @@ global SD
 
 [~,~,ext] = fileparts(filename);
 
-
 % Check file path for errors
 if exist(pathname,'dir')~=7
     msg = sprintf('Error: couldn''t save SD file - directory doesn''t exist');
@@ -37,13 +36,6 @@ if ~isempty(msgWarnings)
 end
 
 sd_data_ErrorFix();
-
-% Check spatial unit and try to fix spatial units
-SD = sd_data_Get('all');
-n = NirsClass(SD);
-n.FixProbeSpatialUnit();
-SD = n.SD;
-
 SDgui_display(handles, SD);
 
 if ~isempty(ext) && strcmp(ext,'.nirs')
@@ -54,8 +46,31 @@ else
         if isempty(ext)
             filename = [filename, '.SD'];
         end
-        filedata.SD = SD;
+        
+        if strcmpi(ext, '.sd')
         save([pathname, filename],'SD','-mat');
+        elseif strcmpi(ext, '.snirf')
+            n = NirsClass(SD);
+            s2 = SnirfClass(n);
+            if ispathvalid([pathname, filename])
+                s = SnirfClass([pathname, filename]);
+            else
+                s = SnirfClass();
+                s.SetFilename([pathname, filename])
+            end
+            h = waitbar_improved(0, sprintf('Saving %s ... Please wait', filename));
+            s.metaDataTags = s2.metaDataTags.copy();            
+            for ii = 1:length(s2.data)
+                if ii > length(s.data)
+                    s.data(ii) = DataClass();
+                end
+                s.data(ii).CopyMeasurementList(s2.data(ii));
+            end
+            s.Save();
+            close(h);
+        end
+        
+        filedata.SD = SD;
     catch ME
         msg = sprintf('Error: %s', ME.message);
         SDgui_disp_msg(handles, msg, -1);

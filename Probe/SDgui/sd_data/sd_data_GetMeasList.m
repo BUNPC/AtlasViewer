@@ -2,6 +2,9 @@ function ml = sd_data_GetMeasList()
 global SD
 
 ml = [];
+if isempty(SD)
+    return
+end
 if size(SD.MeasList,2)<3
     return;
 end

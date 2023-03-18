@@ -15,4 +15,6 @@ imgrecon = setImgReconColormap(imgrecon, []);
 
 imgrecon.localizationError = [];
 imgrecon.resolution = [];
+imgrecon.Aimg_conc.HbO = [];
+imgrecon.Aimg_conc.HbR = [];
 

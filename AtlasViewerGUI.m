@@ -61,6 +61,11 @@ if length(args)>3
     atlasViewer.handles.dataTree = args{4};
     atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
 end
+
+% Change current folder to dirnameSubj and load data
+atlasViewer.dirnameSubj = filesepStandard(atlasViewer.dirnameSubj);
+atlasViewer.dirnameAtlas = filesepStandard(atlasViewer.dirnameAtlas);
+cd(atlasViewer.dirnameSubj);
 if isempty(atlasViewer.dataTree)
     atlasViewer.handles.dataTree = DataTreeGUI();
 end
@@ -113,15 +118,13 @@ cfg = ConfigFileClass();
 CloseSupportingGuis(handles)
 InitStruct(varargin);
 
-
 logger.Write('\n');
 logger.Write('Current Folder = %s\n', filesepStandard(pwd));
 logger.Write('%s\n\n', banner());
-logger.Write('dirnameApp = %s\n', getAppDir());
-logger.Write('dirnameAtlas = %s\n', atlasViewer.dirnameAtlas);
-logger.Write('dirnameSubj = %s\n', atlasViewer.dirnameSubj);
+logger.Write('dirnameApp   = %s\n', getAppDir());
+logger.Write('dirnameAtlas = %s\n', filesepStandard(atlasViewer.dirnameAtlas));
+logger.Write('dirnameSubj  = %s\n', filesepStandard(atlasViewer.dirnameSubj));
 logger.Write('\n');
-
 
 if ~isempty(getappdata(gcf, 'zoomlevel'))
     rmappdata(gcf, 'zoomlevel');
@@ -479,12 +482,16 @@ axesv = atlasViewer.axesv;
 probe = atlasViewer.probe;
 imgrecon = atlasViewer.imgrecon;
 
-if ishandles(probe.handles.hSDgui)
-    delete(probe.handles.hSDgui);
+if ~isempty(probe)
+    if ishandles(probe.handles.hSDgui)
+        delete(probe.handles.hSDgui);
+    end
 end
 
-if ishandles(imgrecon.handles.ImageRecon)
-    delete(imgrecon.handles.ImageRecon);
+if ~isempty(imgrecon)
+    if ishandles(imgrecon.handles.ImageRecon)
+        delete(imgrecon.handles.ImageRecon);
+    end
 end
 
 if length(axesv)>1
@@ -814,7 +821,7 @@ if length(axesv)>1
         delete(hp);
     end
 end
-AtlasViewerGUI(dirnameSubj, dirnameAtlas, 'userargs');
+AtlasViewerGUI(filesepStandard(dirnameSubj), dirnameAtlas, 'userargs');
 
 
 
@@ -1272,7 +1279,7 @@ dirnameSubj = atlasViewer.dirnameSubj;
 axesv       = atlasViewer.axesv;
 
 try 
-    if isempty(eventdata) | strcmp(eventdata.EventName,'Action')
+    if isempty(eventdata) || strcmp(eventdata.EventName,'Action')
         fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf,dirnameSubj);
         if isempty(fwmodel.Adot)
             return;
@@ -1382,9 +1389,9 @@ for ii = 1:sectionsize:probe.noptorig
     % Get number of dets in this probe section
     if iFirst > probe.nsrc
         ndet = iFirst-iLast+1;
-    elseif iFirst <= probe.nsrc & iLast <= probe.nsrc
+    elseif iFirst <= probe.nsrc && iLast <= probe.nsrc
         ndet = 0;
-    elseif iFirst <= probe.nsrc & iLast > probe.nsrc
+    elseif iFirst <= probe.nsrc && iLast > probe.nsrc
         ndet = iLast-probe.nsrc;
     end
     
@@ -2589,7 +2596,7 @@ cmThreshold = str2num(get(hObject,'string'));
 val = get(handles.popupmenuImageDisplay,'value');
 switch(val)
     case fwmodel.menuoffset+1
-        fwmodel = setSensitivityColormap(fwmodel, axesv(1).handles.axesSurfDisplay, [], cmThreshold);
+        fwmodel = setSensitivityColormap(fwmodel, axesv(1).handles.axesSurfDisplay, cmThreshold);
     case {imgrecon.menuoffset+1, imgrecon.menuoffset+2, imgrecon.menuoffset+3, imgrecon.menuoffset+4}
         imgrecon = setImgReconColormap(imgrecon, axesv(1).handles.axesSurfDisplay, [], cmThreshold);
     case {hbconc.menuoffset+1, hbconc.menuoffset+2}
@@ -2738,22 +2745,18 @@ atlasViewer.imgrecon = imgrecon;
 % --------------------------------------------------------------------
 function menuItemImageReconGUI_Callback(hObject, eventdata, handles)
 global atlasViewer
-
 ImageRecon();
-
 
 
 
 % --------------------------------------------------------------------
 function radiobuttonShowRefpts_Callback(hObject, eventdata, handles)
-
 radiobuttonShowRefpts(hObject, eventdata, handles)
 
 
 
 % --------------------------------------------------------------
 function uipanelBrainDisplay_Callback(hObject, eventdata, handles)
-
 uipanelBrainDisplay(hObject, eventdata, handles);
 
 
