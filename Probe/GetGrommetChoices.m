@@ -25,9 +25,9 @@ choices = { ...
 %     filename = which('GrommetTypes_Custom.cfg');
 % end
 
-% cfg = ConfigFileClass();
-% custom_choices = cfg.GetMultiValues('Grommet Types');
-% 
-% if ~isempty(custom_choices)
-%     choices = union(choices, custom_choices, 'stable');
-% end
+cfg = ConfigFileClass();
+custom_choices = cfg.GetMultiValues('Grommet Types');
+
+if ~isempty(custom_choices)
+    choices = union(choices, custom_choices, 'stable');
+end

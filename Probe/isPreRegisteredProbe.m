@@ -25,7 +25,7 @@ end
 if ~isempty(headsurf)
     b = isPreRegisteredToHeadsurf(probe, headsurf) && ~probeHasSpringRegistration(probe);
 else
-    b = isPreRegisteredToRefpts(probe, refpts) && ~probeHasSpringRegistration(probe);    
+    b = isPreRegisteredToRefpts(probe, refpts) && probeHasSpringRegistration(probe);    
 end
 
 

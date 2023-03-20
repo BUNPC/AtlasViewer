@@ -4359,16 +4359,34 @@ if eventdata.Button == 1
                     opt_no = idx;
                     grommet_type = atlasViewer.probe.SrcGrommetType{opt_no};
                     grommet_rot = atlasViewer.probe.SrcGrommetRot{opt_no};
+                    set(handles.text_changeOptodeNumber,'Enable','On');
+                    set(handles.popupmenu_changeOptodeNumberTo,'Enable','On');
+                    set(handles.text_changeOptodeNumber,'String',['Switch Source ' num2str(opt_no) ' number with:']);
+                    contents = cell(nrsc,1);
+                    for u = 1:nrsc
+                        contents{u} = num2str(u);
+                    end
+                    set(handles.popupmenu_changeOptodeNumberTo,'String',contents);
                 elseif idx <= nrsc+ndet
                     opt_type = 'Detector';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DetGrommetType{opt_no};
                     grommet_rot = atlasViewer.probe.DetGrommetRot{opt_no};
+                    set(handles.text_changeOptodeNumber,'Enable','On');
+                    set(handles.popupmenu_changeOptodeNumberTo,'Enable','On');
+                    set(handles.text_changeOptodeNumber,'String',['Switch Detector ' num2str(opt_no) ' number with:']);
+                    contents = cell(ndet,1);
+                    for u = 1:ndet
+                        contents{u} = num2str(u);
+                    end
+                    set(handles.popupmenu_changeOptodeNumberTo,'String',contents);
                 else
                     opt_type = 'Dummy';
                     opt_no = idx-nrsc;
                     grommet_type = atlasViewer.probe.DummyGrommetType{idx-nrsc-ndet};
                     grommet_rot = atlasViewer.probe.DummyGrommetRot{idx-nrsc-ndet};
+                    set(handles.text_changeOptodeNumber,'Enable','Off');
+                    set(handles.popupmenu_changeOptodeNumberTo,'Enable','Off');
                 end
                 optode_index = find(strcmp(optode_type_contents,opt_type));
                 set(handles.popupmenuSelectOptodeType,'Value',optode_index);
@@ -4621,6 +4639,8 @@ else
         set(handles.uitable_editMLorSL,'ColumnName',{'Optode1','Optode2','Distance'})
     end
     set(handles.checkboxOptodeSDMode,'Enable','off')
+        set(handles.text_changeOptodeNumber,'Enable','Off');
+    set(handles.popupmenu_changeOptodeNumberTo,'Enable','Off');
 end
 
 
@@ -4695,6 +4715,8 @@ else
         set(handles.uitable_editMLorSL,'ColumnName',{'Source','Detector','Distance'})
     end
     set(handles.checkboxOptodeSDMode,'Enable','off')
+    set(handles.text_changeOptodeNumber,'Enable','On');
+    set(handles.popupmenu_changeOptodeNumberTo,'Enable','On');
 end
 
 
@@ -5090,3 +5112,120 @@ displayProbeOnUnitCircle(atlasViewer.probe, 'numbers')
 
 
 
+
+
+% --- Executes on selection change in popupmenu_changeOptodeNumberTo.
+function popupmenu_changeOptodeNumberTo_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu_changeOptodeNumberTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_changeOptodeNumberTo contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu_changeOptodeNumberTo
+
+global atlasViewer
+nrsc = atlasViewer.probe.nsrc;
+ndet = atlasViewer.probe.ndet;
+idx = atlasViewer.probe.editOptodeInfo.currentOptode;
+contents = cellstr(get(hObject,'String'));
+optode_to_switch = str2num(contents{get(hObject,'Value')});
+if idx <= nrsc % if opt_type is source
+    % switch srcpos
+    pos = atlasViewer.probe.srcpos(idx,:);
+    atlasViewer.probe.srcpos(idx,:) = atlasViewer.probe.srcpos(optode_to_switch,:);
+    atlasViewer.probe.srcpos(optode_to_switch,:) = pos;
+    
+    % update measurement list
+    idx1 = find(atlasViewer.probe.ml(:,1) == idx);
+    idx2 = find(atlasViewer.probe.ml(:,1) == optode_to_switch);
+    atlasViewer.probe.ml(idx2,1) = idx;
+    atlasViewer.probe.ml(idx1,1) = optode_to_switch;
+    
+    set(handles.text_changeOptodeNumber,'String',['Switch Source ' num2str(optode_to_switch) ' number with:']);
+    set(handles.popupmenu_changeOptodeNumberTo,'Value',1);
+    
+    [ml,ia,ic] = unique(atlasViewer.probe.ml(:,1:2),'rows');
+    m_idx = find(ml(:,1) ==  optode_to_switch);
+   
+elseif idx <= nrsc+ndet % if opt_type is source
+     % switch detpos
+    pos = atlasViewer.probe.detpos(idx-nrsc,:);
+    atlasViewer.probe.detpos(idx-nrsc,:) = atlasViewer.probe.detpos(optode_to_switch,:);
+    atlasViewer.probe.detpos(optode_to_switch,:) = pos;
+    
+    % update measurement list
+    idx1 = find(atlasViewer.probe.ml(:,2) == idx-nrsc);
+    idx2 = find(atlasViewer.probe.ml(:,2) == optode_to_switch);
+    atlasViewer.probe.ml(idx2,2) = idx-nrsc;
+    atlasViewer.probe.ml(idx1,2) = optode_to_switch;
+    
+    set(handles.text_changeOptodeNumber,'String',['Switch Source ' num2str(optode_to_switch) ' number with:']);
+    set(handles.popupmenu_changeOptodeNumberTo,'Value',1);
+    
+    [ml,ia,ic] = unique(atlasViewer.probe.ml(:,1:2),'rows');
+    m_idx = find(ml(:,2) ==  optode_to_switch);
+    optode_to_switch = optode_to_switch+nrsc;
+end
+
+% switch optpos
+pos = atlasViewer.probe.optpos(idx,:);
+atlasViewer.probe.optpos(idx,:) = atlasViewer.probe.optpos(optode_to_switch,:);
+atlasViewer.probe.optpos(optode_to_switch,:) = pos;
+
+% switch optpos_reg
+pos = atlasViewer.probe.optpos_reg(idx,:);
+atlasViewer.probe.optpos_reg(idx,:) = atlasViewer.probe.optpos_reg(optode_to_switch,:);
+atlasViewer.probe.optpos_reg(optode_to_switch,:) = pos;
+
+ % update spring list
+idx1 = find(atlasViewer.probe.registration.sl(:,1:2)==idx);
+idx2 = find(atlasViewer.probe.registration.sl(:,1:2)==optode_to_switch);
+atlasViewer.probe.registration.sl(idx2) = idx;
+atlasViewer.probe.registration.sl(idx1) = optode_to_switch;
+
+% update anchor list
+idx1 = find([atlasViewer.probe.registration.al{:,1}]==idx);
+idx2 = find([atlasViewer.probe.registration.al{:,1}]==optode_to_switch);
+if ~isempty(idx1)
+    atlasViewer.probe.registration.al{idx1} = optode_to_switch;
+end
+if ~isempty(idx2)
+    atlasViewer.probe.registration.al{idx2} = idx;
+end
+atlasViewer.probe.editOptodeInfo.currentOptode = optode_to_switch;
+
+sl = atlasViewer.probe.registration.sl;
+if ~isempty(m_idx)
+    data = cell(length(m_idx),3);
+    for u = 1:length(m_idx)
+        data{u,1} = ml(m_idx(u),1);
+        data{u,2} = ml(m_idx(u),2);
+        o1 = ml(m_idx(u),1);
+        o2 = ml(m_idx(u),2)+nrsc;
+        s_idx = find((sl(:,1) == o1 & sl(:,2) == o2) | (sl(:,1) == o2 & sl(:,2) == o1));
+        if ~isempty(s_idx)
+            data{u,3} = sl(s_idx,3);
+        else
+            data{u,3} = 0;
+        end
+    end
+else
+    data = cell(3,3);
+end
+set(handles.uitable_editMLorSL,'Data',data)
+probe = displayProbe(atlasViewer.probe, atlasViewer.headsurf);
+probe = displyMeasChannels_editOptode(probe,ia(m_idx));
+atlasViewer.probe = probe;
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu_changeOptodeNumberTo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu_changeOptodeNumberTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

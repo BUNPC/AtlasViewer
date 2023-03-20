@@ -25,6 +25,26 @@ else
     probe.registration.dummypos = SD.DummyPos;
 end
 
+if isfield(SD,'SrcPos3D')
+    iStart = 1;
+    iEnd   = iStart + size(SD.SrcPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.SrcPos3D;
+end
+if isfield(SD,'DetPos3D')
+    iStart = size(SD.SrcPos3D,1) + 1;
+    iEnd   = iStart + size(SD.DetPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.DetPos3D;
+end
+if isfield(SD,'DummyPos3D')
+    iStart = size(SD.SrcPos3D,1) + size(SD.DetPos3D,1) + 1;
+    iEnd   = iStart + size(SD.DummyPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.DummyPos3D;
+end
+
+if isfield(SD,'orientation')
+    probe.orientation = SD.orientation;
+end
+
 if ~isempty(SD.MeasList) && size(SD.MeasList,2)==4
     k = find(SD.MeasList(:,4)==1);
     probe.ml = SD.MeasList(k,:);
@@ -38,9 +58,9 @@ end
 
 probe.registration.sl = SD.SpringList;
 probe.registration.al = SD.AnchorList;
-if ~isempty(SD.Landmarks3D)
-    probe.registration.refpts.labels    = SD.Landmarks3D.labels;
-    probe.registration.refpts.pos       = SD.Landmarks3D.pos;
+if ~isempty(SD.Landmarks)
+    probe.registration.refpts.labels    = SD.Landmarks.labels;
+    probe.registration.refpts.pos       = SD.Landmarks.pos;
 end
 probe.SrcGrommetType = SD.SrcGrommetType;
 probe.DetGrommetType = SD.DetGrommetType;
