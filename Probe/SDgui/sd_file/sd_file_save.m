@@ -59,7 +59,14 @@ else
                 s.SetFilename([pathname, filename])
             end
             h = waitbar_improved(0, sprintf('Saving %s ... Please wait', filename));
+            
+            % Copy probe
+            s.probe = s2.probe.copy();
+            
+            % Copy metaDataTags
             s.metaDataTags = s2.metaDataTags.copy();            
+
+            % Copy measurement list
             for ii = 1:length(s2.data)
                 if ii > length(s.data)
                     s.data(ii) = DataClass();

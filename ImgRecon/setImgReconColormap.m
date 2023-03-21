@@ -1,5 +1,5 @@
 function imgrecon = setImgReconColormap(imgrecon, hAxes, img, cmThreshold)
-if ~exist('img','var')
+if ~exist('img','var') || isempty(img)
     img = getImgRecon_DisplayPanelImage(imgrecon);
 end
 if ~exist('cmThreshold','var')
@@ -14,7 +14,7 @@ else
 end
 
 if ~isempty(cmThreshold)
-    createColorbar(cmThreshold);
+    createColorbar(cmThreshold, img);
 else
     createColorbar([], img);
 end

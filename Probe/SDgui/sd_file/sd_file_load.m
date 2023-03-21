@@ -13,7 +13,7 @@ if isempty(file)
     return;
 end
 
-if file.isdir()
+if file.isdir
     err=1;
     SDgui_disp_msg(handles, sprintf('ERROR: %s is a folder. Please choose a file.', filename), err);
     return;
