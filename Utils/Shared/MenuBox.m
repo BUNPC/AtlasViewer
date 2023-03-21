@@ -111,6 +111,11 @@ for ii = 1:length(bttns)
         Hbttn = temp;
     end
 end
+
+
+% Character size doesn't quite equal character units so we compensate by multiplying by 
+% scaling factor in the x and y directions
+Wbttn = Wbttn*1.3;
 Hbttn = Hbttn*2;
 
 
