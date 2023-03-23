@@ -303,9 +303,9 @@ strs = get(hObject, 'string');
 idx = get(hObject, 'value');
 msg{1} = 'Please select the type of length unit change you are making. Your selection will determine ';
 msg{2} = 'if the displayed coordinates will change (i.e., the scaling factor, 1 or >1).';
-option1 = sprintf('Current length units ("%s") correctly describe units of displayed coordinates. Will change coordinates and units to "%s".', spatialUnitPrev, strs{idx});
-option2 = sprintf('Current length units ("%s") do NOT correctly describe units of displayed coordinates. Will correct ONLY units to "%s".', spatialUnitPrev, strs{idx});
-option3 = sprintf('Current length units ("%s") do NOT correctly describe units of displayed coordinates. Choose scale factor for coordinates which will correspond to selected units "%s".', spatialUnitPrev, strs{idx});
+option1 = sprintf('Current length units ("%s") match units of displayed coordinates. Will change coordinates and units to "%s".', spatialUnitPrev, strs{idx});
+option2 = sprintf('Current length units ("%s") do NOT match units of displayed coordinates. Will correct ONLY units to "%s".', spatialUnitPrev, strs{idx});
+option3 = sprintf('Current length units ("%s") do NOT match units of displayed coordinates. Choose scale factor for coordinates which will correspond to selected units "%s".', spatialUnitPrev, strs{idx});
 q = MenuBox(msg, {option1, option2, option3},[],[],'radiobutton');
 if q(1)==0
     idx = find(strcmpi(strs, spatialUnitPrev));

@@ -35,7 +35,7 @@ probe = preRegister(probe, headsurf, refpts);
 % If it was but probe is neither registered to head nor has registration 
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe = checkRegistrationData(pname, probe, headsurf);
+probe = checkRegistrationData(pname, probe, headsurf, refpts);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 5. Save new probe

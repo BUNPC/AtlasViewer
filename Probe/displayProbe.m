@@ -43,7 +43,7 @@ if ishandles(probe.handles.circles)
     delete(probe.handles.circles);
 end
 
-if leftRightFlipped(headobj)
+if leftRightFlipped(probe)
     axes_order = [2,1,3];
 else
     axes_order = [1,2,3];
