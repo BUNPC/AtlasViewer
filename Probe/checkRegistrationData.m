@@ -1,4 +1,4 @@
-function probe = checkRegistrationData(dirname, probe, headsurf)
+function probe = checkRegistrationData(dirname, probe, headsurf, refpts)
 global SD
 if probe.isempty(probe)
     return;
@@ -14,5 +14,7 @@ if ~isPreRegisteredProbe(probe, headsurf)
             end
         end
     end
+else
+    probe.orientation = refpts.orientation;
 end
 

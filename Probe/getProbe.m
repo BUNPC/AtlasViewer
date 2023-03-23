@@ -99,7 +99,7 @@ probe = preRegister(probe, headsurf, refpts);
 % If it was but probe is neither registered to head nor has registration
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe = checkRegistrationData(dirname, probe, headsurf);
+probe = checkRegistrationData(dirname, probe, headsurf, refpts);
 
 % Generate measurement list mid points in 3D if #D optodes exist
 probe = checkMeasList(probe);
