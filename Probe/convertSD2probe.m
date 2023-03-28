@@ -9,21 +9,9 @@ SD = sd_data_Init(SD, 'mm');
 probe.lambda = SD.Lambda(:)';
 
 % Determine units of src/det coordinates
-if ~isempty(SD.SrcPos3D)
-    probe.srcpos = SD.SrcPos3D;
-else
-    probe.srcpos = SD.SrcPos;
-end
-if ~isempty(SD.DetPos3D)
-    probe.detpos = SD.DetPos3D;
-else
-    probe.detpos = SD.DetPos;
-end
-if ~isempty(SD.DummyPos3D)
-    probe.registration.dummypos = SD.DummyPos3D;
-else
-    probe.registration.dummypos = SD.DummyPos;
-end
+probe.srcpos = SD.SrcPos;
+probe.detpos = SD.DetPos;
+probe.registration.dummypos = SD.DummyPos;
 
 if isfield(SD,'SrcPos3D')
     iStart = 1;

@@ -5229,3 +5229,31 @@ function popupmenu_changeOptodeNumberTo_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --------------------------------------------------------------------
+function menuItemupdateOptodeNumbers_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemupdateOptodeNumbers (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function menuItemUpdateSourceNumbers_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemUpdateSourceNumbers (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+prompt = {'Enter source and updated source pairs sepearted by semi colon'};
+dlgtitle = 'Update source numbers';
+dims = [5 50];
+answer = inputdlg(prompt,dlgtitle,dims);
+answer
+
+
+
+% --------------------------------------------------------------------
+function menuItemUpdateDetectorNumbers_Callback(hObject, eventdata, handles)
+% hObject    handle to menuItemUpdateDetectorNumbers (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
