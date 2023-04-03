@@ -9,20 +9,28 @@ SD = sd_data_Init(SD, 'mm');
 probe.lambda = SD.Lambda(:)';
 
 % Determine units of src/det coordinates
-if ~isempty(SD.SrcPos3D)
-    probe.srcpos = SD.SrcPos3D;
-else
-    probe.srcpos = SD.SrcPos;
+probe.srcpos = SD.SrcPos;
+probe.detpos = SD.DetPos;
+probe.registration.dummypos = SD.DummyPos;
+
+if isfield(SD,'SrcPos3D')
+    iStart = 1;
+    iEnd   = iStart + size(SD.SrcPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.SrcPos3D;
 end
-if ~isempty(SD.DetPos3D)
-    probe.detpos = SD.DetPos3D;
-else
-    probe.detpos = SD.DetPos;
+if isfield(SD,'DetPos3D')
+    iStart = size(SD.SrcPos3D,1) + 1;
+    iEnd   = iStart + size(SD.DetPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.DetPos3D;
 end
-if ~isempty(SD.DummyPos3D)
-    probe.registration.dummypos = SD.DummyPos3D;
-else
-    probe.registration.dummypos = SD.DummyPos;
+if isfield(SD,'DummyPos3D')
+    iStart = size(SD.SrcPos3D,1) + size(SD.DetPos3D,1) + 1;
+    iEnd   = iStart + size(SD.DummyPos3D,1) - 1;
+    probe.optpos_reg(iStart : iEnd, :) = SD.DummyPos3D;
+end
+
+if isfield(SD,'orientation')
+    probe.orientation = SD.orientation;
 end
 
 if ~isempty(SD.MeasList) && size(SD.MeasList,2)==4
@@ -38,9 +46,9 @@ end
 
 probe.registration.sl = SD.SpringList;
 probe.registration.al = SD.AnchorList;
-if ~isempty(SD.Landmarks3D)
-    probe.registration.refpts.labels    = SD.Landmarks3D.labels;
-    probe.registration.refpts.pos       = SD.Landmarks3D.pos;
+if ~isempty(SD.Landmarks)
+    probe.registration.refpts.labels    = SD.Landmarks.labels;
+    probe.registration.refpts.pos       = SD.Landmarks.pos;
 end
 probe.SrcGrommetType = SD.SrcGrommetType;
 probe.DetGrommetType = SD.DetGrommetType;

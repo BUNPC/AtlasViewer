@@ -12,6 +12,9 @@ SD.SrcPos               = probe.srcpos;
 SD.DetPos               = probe.detpos;
 SD.DummyPos             = probe.registration.dummypos;
 SD                      = convertProbe3D_2_SD(probe, SD);
+SD.nSrcs                = probe.nsrc;
+SD.nDets                = probe.ndet;
+SD.nDummys               = probe.registration.ndummy;
 SD.MeasList             = [];
 [unique_probe_ml, ia, ic] = unique(probe.ml(:,[1,2]),'rows', 'stable'); 
 for ii = 1:length(SD.Lambda)
@@ -30,7 +33,7 @@ if isfield(probe,'SrcGrommetType')
     SD.SrcGrommetType       = probe.SrcGrommetType;
 end
 
-if ~isfield(probe,'DetGrommetType')
+if isfield(probe,'DetGrommetType')
     SD.DetGrommetType       = probe.DetGrommetType;
 end
 

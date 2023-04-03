@@ -4,7 +4,7 @@ if isempty(varargin)
     return;
 end
 
-AtlasViewerGUI_version();
+vrnum = AtlasViewerGUI_version();
 
 hwait = waitbar(0,'Please wait for AtlasViewer to save the state ...');
 
