@@ -7,7 +7,7 @@ end
 
 % Initialize SD object with data from SD file
 % then fix any errors in the SD file data
-SD = sd_data_Init(SDo);
+[SD, n] = sd_data_Init(SDo);
 if isempty(SD)
     return
 end
@@ -90,5 +90,13 @@ if ~isempty(idx) && (idx <= length(strs))
 else
     set(handles.popupmenuSpatialUnit, 'value',0);    
 end
+
+[md2d, md3d] = n.GetChannelsMeanDistance();
+if handles.radiobuttonView3D.Value == 1
+    md = md3d;
+else
+    md = md2d;
+end
+set(handles.textChannelsMeanDist, 'string',sprintf('%0.3f', md));
 
 

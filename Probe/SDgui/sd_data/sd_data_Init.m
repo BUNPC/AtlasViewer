@@ -1,5 +1,6 @@
-function SD = sd_data_Init(SD0, units)
+function [SD, n] = sd_data_Init(SD0, units)
 SD = [];
+n = [];
 if ~exist('SD0','var')
     SD0 = [];
 end

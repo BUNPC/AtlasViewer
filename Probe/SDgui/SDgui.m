@@ -295,6 +295,7 @@ function popupmenuSpatialUnit_Callback(hObject, eventdata, handles)
 global SD
 if ischar(eventdata) && strcmpi(eventdata, 'init')
     set(hObject, 'string',{'mm','cm','m'});
+    
     return;
 end
 spatialUnitPrev = SD.SpatialUnit;
@@ -302,22 +303,42 @@ strs = get(hObject, 'string');
 idx = get(hObject, 'value');
 msg{1} = 'Please select the type of length unit change you are making. Your selection will determine ';
 msg{2} = 'if the displayed coordinates will change (i.e., the scaling factor, 1 or >1).';
-option1 = sprintf('Current length units ("%s") correctly describe units of displayed coordinates. Will change coordinates and units to "%s".', spatialUnitPrev, strs{idx});
-option2 = sprintf('Current length units ("%s") do NOT correctly describe units of displayed coordinates. Will correct ONLY units to "%s".', spatialUnitPrev, strs{idx});
-q = MenuBox(msg, {option1, option2},[],[],'radiobutton');
+option1 = sprintf('Current length units ("%s") match units of displayed coordinates. Will change coordinates and units to "%s".', spatialUnitPrev, strs{idx});
+option2 = sprintf('Current length units ("%s") do NOT match units of displayed coordinates. Will correct ONLY units to "%s".', spatialUnitPrev, strs{idx});
+option3 = sprintf('Current length units ("%s") do NOT match units of displayed coordinates. Choose scale factor for coordinates which will correspond to selected units "%s".', spatialUnitPrev, strs{idx});
+q = MenuBox(msg, {option1, option2, option3},[],[],'radiobutton');
 if q(1)==0
     idx = find(strcmpi(strs, spatialUnitPrev));
     set(hObject, 'value',idx);
     return;
 elseif q(1)==1
     scalefactor = [];
-else
+elseif q(1)==2
     scalefactor = 1;
+elseif q(1)==3
+    a = inputdlg('scale factor');
+    if ~isnumber(a{1})        
+        idx = find(strcmpi(strs, spatialUnitPrev));
+        set(hObject, 'value',idx);
+        return
+    end
+    scalefactor = str2num(a{1});
+else
+    idx = find(strcmpi(strs, spatialUnitPrev));
+    set(hObject, 'value',idx);
+    return
+end
+if handles.radiobuttonView3D.Value == 1
+    ndims = '3D';
+else
+    ndims = '2D';
 end
 n = NirsClass(SD);
-n.SetProbeSpatialUnit(strs{idx}, scalefactor);
+n.SetProbeSpatialUnit(strs{idx}, scalefactor, ndims);
 SD = n.SD;
 SDgui_display(handles, SD);
+
+
 
 
 
