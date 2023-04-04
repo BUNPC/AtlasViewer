@@ -67,6 +67,12 @@ if isempty(msg)
     return;
 end
 
+fs(1) = 10;
+fs(2) = 8;
+if ismac()
+    fs = fs + 4;
+end
+
 ncheckboxes = length(checkboxes);
 nbttns       = length(bttns)+ncheckboxes;
 
@@ -74,9 +80,8 @@ nbttns       = length(bttns)+ncheckboxes;
 % Initial X size and position of text
 Wtext = 70;
 
-Hk = 1.2;
-nNewLines = length(find(msg == sprintf('\n')))+2;
-nLines = ceil(length(msg) / Wtext)*Hk;
+nNewLines = length(find(msg == sprintf('\n')))+4; %#ok<SPRINTFN>
+nLines = ceil(length(msg) / Wtext)*1.5;
 Htext = max([nNewLines, nLines]);
 HtextGap0 = 1;
 HtextGap = 2;
@@ -103,7 +108,7 @@ end
 
 % Initial Y size and position of buttons
 Hbttn = 1;
-HbttnGap = 1.5;
+HbttnGap = 2;
 
 % Calculate standard height of buttons
 for ii = 1:length(bttns)    
@@ -116,7 +121,7 @@ end
 
 % Character size doesn't quite equal character units so we compensate by multiplying by 
 % scaling factor in the x and y directions
-Wbttn = Wbttn;
+Wbttn = Wbttn*1.2;
 Hbttn = Hbttn*1.2;
 
 
@@ -160,7 +165,7 @@ pF = get(hf, 'position');
 
 YbttnStart = Htext + HtextGap;
 
-ht = uicontrol('parent',hf, 'style','text', 'units','characters', 'string',msg, 'fontsize',8, ...
+ht = uicontrol('parent',hf, 'style','text', 'units','characters', 'string',msg, 'fontsize',fs(1), ...
     'position',[XtextOffset, pF(4)-(HtextGap0+Htext), Wtext, Htext], 'horizontalalignment','left', ...
     'userdata',2);    
 for k = 1:nbttns
@@ -176,13 +181,13 @@ for k = 1:nbttns
     else
         if strcmpi(selectionStyle, 'radiobutton')
             hb = uicontrol('parent',hf, 'style',selectionStyle, 'string','', 'units','characters', 'position',[p(1), p(2), 4, p(4)], ...
-                'tag',sprintf('%d', k), 'callback',@pushbuttonGroup_Callback);
+                'tag',sprintf('%d', k), 'callback',@pushbuttonGroup_Callback,  'backgroundcolor',[0.80, 0.80, 0.80]);
             
             uicontrol('parent',hf, 'style','text', 'string',bttns{k}, 'units','characters', 'position',[p(1)+4, p(2), p(3), p(4)], ...
-                'horizontalalignment','left', 'fontsize',8, 'userdata',2, 'backgroundcolor',[1,1,1]);
+                'horizontalalignment','left', 'fontsize',fs(2), 'userdata',2, 'backgroundcolor',[1.0, 1.0, 1.0]);
         else
             uicontrol('parent',hf, 'style',selectionStyle, 'string',bttns{k}, 'units','characters', 'position',[p(1), p(2), p(3), p(4)+Hbttn/2], ...
-                'tag',sprintf('%d', k), 'fontsize',8, 'callback',@pushbuttonGroup_Callback, 'userdata',2, 'backgroundcolor',[1,1,1]);
+                'tag',sprintf('%d', k), 'fontsize',fs(2), 'callback',@pushbuttonGroup_Callback, 'userdata',2, 'backgroundcolor',[1.0, 1.0, 1.0]);
         end
     end
 end

@@ -10,14 +10,8 @@ GrommetRot   = sd_data_Get('DetGrommetRot');
 A = get(handles.optode_det_tbl, 'data');
 cnames      = get(handles.optode_det_tbl, 'ColumnName');
 cwidth      = get(handles.optode_det_tbl, 'ColumnWidth');
-for ii = 1:size(OptPos,1)
-    A{ii,1} = real2str(OptPos(ii,1));
-    A{ii,2} = real2str(OptPos(ii,2));
-    A{ii,3} = real2str(OptPos(ii,3));
-    A{ii,4} = GrommetType{ii};
-    A{ii,5} = GrommetRot(ii);
-end
-A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
+
+A           = optodes_tbl_copy_data(A, OptPos, GrommetType, GrommetRot);
 
 if get(handles.checkboxNinjaCap,'Value') == 0
     cwidth{4} = 0;

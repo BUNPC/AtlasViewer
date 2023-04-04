@@ -370,9 +370,13 @@ function [activeChLst1, activeChLst2] = GetActiveChannels(y, ml, ml2, SD, rhoSD_
 mlact1 = mlAct_Initialize([], ml);
 mlact2 = mlAct_Initialize([], ml2);
 
+n = NirsClass(SD);
+SrcPos = n.GetSrcPos();
+DetPos = n.GetDetPos();
+
 % Get long separation channels and mark inacive all sd pairs that have short sep optodes
 for iML = 1:length(ml)
-    rho = sum( (SD.SrcPos(ml(iML,1),:) - SD.DetPos(ml(iML,2),:)) .^ 2) ^ 0.5;
+    rho = sum( (SrcPos(ml(iML,1),:) - DetPos(ml(iML,2),:)) .^ 2) ^ 0.5;
     if rho < rhoSD_ssThresh
         k1 = mlact1(:,1)==ml(iML,1) & mlact1(:,2)==ml(iML,2);
         k2 = mlact2(:,1)==ml(iML,1) & mlact2(:,2)==ml(iML,2);
@@ -439,7 +443,7 @@ elseif value2 == 1
         HbR = Aimg_conc_scalp.HbR;
     end
 else
-    q = MenuBox('Please select an image reconstruction type: Brian Only or Brian and Scalp', 'OK');
+    MenuBox('Please select an image reconstruction type: Brian Only or Brian and Scalp');
     return;
 end
 
@@ -463,7 +467,7 @@ if isempty(imgrecon)
 end
 if isempty(HbO) & isempty(HbR)
     setImageDisplay_EmptyImage([], 'on')
-    MenuBox('Missing reconstructed image. First generate HbO and HbR', 'Okay');
+    MenuBox('Missing reconstructed image. First generate HbO and HbR');
     return;
 end
 if isempty(fwmodel)
