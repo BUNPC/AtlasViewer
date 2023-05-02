@@ -5068,6 +5068,11 @@ SD = convertProbe2SD(atlasViewer.probe);
 % create snirf object 
 snirf = SnirfClass();
 probe_snirf_object = ProbeClass(SD);
+% this field is required for acquired data to be BIDS
+% compatible. By updating this field here, it will be
+% propagated to BIDS meta data files if geneartae them through
+% bfNIRS website.
+probe_snirf_object.coordinateSystem = 'CapTrak';
 snirf.probe = probe_snirf_object;
 snirf.data = DataClass();
 % measurementList = MeasListClass(SD.MeasList);

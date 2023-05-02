@@ -60,14 +60,22 @@ end
 
 % add refpts and head mesh to SD file
 if ~isempty(atlasViewer)
-    if isfield(atlasViewer.refpts,'eeg_system')
-        SD.Landmarks.eeg_system = atlasViewer.refpts.eeg_system;
+    % ninjaCap requires 10-5 eeg reference points to generate STL files
+    % correctly. So while saving SD file, here we always save 10-5 reference
+    % points
+    refpts = atlasViewer.refpts;
+    refpts.eeg_system.selected = '10-5';
+    set_eeg_curve_select(refpts);
+    refpts = setRefptsMenuItemSelection(refpts);
+    refpts = set_eeg_active_pts(refpts,'warning',false);
+    if isfield(refpts,'eeg_system')
+        SD.Landmarks.eeg_system =refpts.eeg_system;
     end
-    if isfield(atlasViewer.refpts,'scaling')
-        SD.Landmarks.scaling = atlasViewer.refpts.scaling;
+    if isfield(refpts,'scaling')
+        SD.Landmarks.scaling = refpts.scaling;
     end
-    SD.Landmarks.pos = atlasViewer.refpts.pos;
-    SD.Landmarks.labels = atlasViewer.refpts.labels;
+    SD.Landmarks.pos = refpts.pos;
+    SD.Landmarks.labels = refpts.labels;
     SD.mesh = atlasViewer.headsurf.mesh;
 end
 

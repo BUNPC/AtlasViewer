@@ -18,6 +18,7 @@ classdef ProbeClass < FileLoadSaveClass
         sourceLabels
         detectorLabels
         landmarkLabels
+        coordinateSystem
     end
     
     properties (Access = private)
@@ -369,6 +370,7 @@ classdef ProbeClass < FileLoadSaveClass
             hdf5write_safe(fileobj, [location, '/sourceLabels'], obj.sourceLabels, 'array');
             hdf5write_safe(fileobj, [location, '/detectorLabels'], obj.detectorLabels, 'array');
             hdf5write_safe(fileobj, [location, '/landmarkLabels'], obj.landmarkLabels, 'array');
+            hdf5write_safe(fileobj, [location, '/coordinateSystem'], obj.coordinateSystem, 'scalar');
         end
         
         
