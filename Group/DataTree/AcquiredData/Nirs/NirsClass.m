@@ -1338,12 +1338,12 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             obj.SD.SpatialUnit = snirf.GetLengthUnit();
             if length(snirf.probe.landmarkLabels) == size(snirf.probe.landmarkPos3D,1)
                 obj.SD.Landmarks3D.labels   = snirf.probe.landmarkLabels;
-            obj.SD.Landmarks3D.pos      = snirf.probe.landmarkPos3D;
+            	obj.SD.Landmarks3D.pos      = snirf.probe.landmarkPos3D;
             end
             if length(snirf.probe.landmarkLabels) == size(snirf.probe.landmarkPos2D,1)
-            obj.SD.Landmarks2D.labels   = snirf.probe.landmarkLabels;
+            	obj.SD.Landmarks2D.labels   = snirf.probe.landmarkLabels;
                 obj.SD.Landmarks2D.pos      = snirf.probe.landmarkPos2D;
-        end
+        	end
             if     ~isempty(obj.SD.Landmarks3D.labels)
                 obj.SD.Landmarks.pos        = obj.SD.Landmarks3D.pos;
                 obj.SD.Landmarks.labels     = obj.SD.Landmarks3D.labels;
@@ -1400,8 +1400,10 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         % ----------------------------------------------------------------------------------
         function ConvertSnirf(obj, snirf)
             obj.ConvertSnirfProbe(snirf);
-            obj.d = snirf.data(1).dataTimeSeries;
-            obj.t = snirf.data(1).time;
+            if ~isempty(snirf.data)
+                obj.d = snirf.data(1).dataTimeSeries;
+                obj.t = snirf.data(1).time;
+            end
             obj.ConvertSnirfStim(snirf);
             obj.ConvertSnirfAux(snirf);
         end
