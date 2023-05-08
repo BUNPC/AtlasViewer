@@ -532,3 +532,7 @@ function menuItemDeleteRegistrationData_Callback(~, ~, handles)
 global SD
 sd_data_DeleteRegistrationData();
 SDgui_display(handles, SD);
+
+
+
+

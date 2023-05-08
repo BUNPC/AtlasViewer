@@ -88,7 +88,7 @@ idx = find(strcmp(strs, SD.SpatialUnit));
 if ~isempty(idx) && (idx <= length(strs))
     set(handles.popupmenuSpatialUnit, 'value', idx);
 else
-    set(handles.popupmenuSpatialUnit, 'value',0);    
+    set(handles.popupmenuSpatialUnit, 'value',1);    
 end
 
 [md2d, md3d] = n.GetChannelsMeanDistance();

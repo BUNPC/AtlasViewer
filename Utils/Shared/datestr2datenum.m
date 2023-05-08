@@ -12,6 +12,6 @@ dateStr(dateStr=='-')='';
 timeStr(timeStr==':')='';
 
 timeNum = str2num(timeStr);
-dateNum = str2num(dateStr) + timeNum/1e6;
+dateNum = str2num(dateStr) + timeNum/1e6 + timeNum;
 
 dateStr = [c{1}, ' ', c{2}];

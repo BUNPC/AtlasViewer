@@ -15,6 +15,7 @@ if ~isPreRegisteredProbe(probe, headsurf)
         end
     end
 else
+    probe.optpos_reg = [probe.srcpos; probe.detpos; probe.registration.dummypos];
     probe.orientation = refpts.orientation;
 end
 
