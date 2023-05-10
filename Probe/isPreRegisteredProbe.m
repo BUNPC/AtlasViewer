@@ -1,6 +1,11 @@
 function b = isPreRegisteredProbe(probe, obj)
 b = 0;
 
+if ~isempty(probe.orientation)
+    b = 1;
+    return;
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Eliminate simple cases of probe not being registered
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
