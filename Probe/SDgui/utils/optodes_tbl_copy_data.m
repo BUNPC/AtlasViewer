@@ -20,6 +20,3 @@ for ii = 1:size(OptPos,1)
 end
 A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
 
-
-
-
