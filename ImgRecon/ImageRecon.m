@@ -18,7 +18,7 @@ end
 
 
 % ---------------------------------------------------------------------------------
-function err = UpdateGuiControls(handles)
+function err = UpdateGuiControls(handles, iCond)
 global atlasViewer
 
 err = -1;
@@ -30,8 +30,12 @@ currElem  = atlasViewer.dataTree.currElem;
 % Display list of subject name
 set(handles.ListofSubjects, 'String',currElem.GetName);
 
-% default exp condition
-set(handles.Condition, 'String',1);
+% default exp editcondition
+if ~isempty(atlasViewer.dataTree)
+    set(handles.editCondition, 'string',atlasViewer.dataTree.currElem.CondNames, 'value',iCond,'enable','on');
+else
+    set(handles.editCondition, 'string',atlasViewer.dataTree.currElem.CondNames, 'enable','off');
+end
 
 % default time range
 set(handles.time_range, 'String',num2str([5 10]));
@@ -45,14 +49,22 @@ set(handles.alpha_brain_scalp, 'String',1e-2);
 % default beta (regularization) for brain and scalp reconstruction
 set(handles.beta_brain_scalp, 'String',1e-2);
 
+trange = abs(atlasViewer.dataTree.currElem.GetVar('trange'));
+set(handles.time_range,'String',num2str(trange));
+
+
 err = 0;
 
 
 % ---------------------------------------------------------------------------------
 function ImageRecon_OpeningFcn(hObject, ~, handles, varargin)
-% This function executes just before ImageRecon is made visible.
-
 global atlasViewer
+
+if ~isempty(varargin)
+    iCond = varargin{1};
+else
+    iCond = 1;
+end
 
 % Choose default command line output for ImageRecon
 handles.output = hObject;
@@ -62,7 +74,7 @@ guidata(hObject, handles);
 
 atlasViewer.imgrecon.handles.ImageRecon = hObject;
 
-UpdateGuiControls(handles);
+UpdateGuiControls(handles, iCond);
 
 
 
@@ -79,21 +91,6 @@ end
 % -----------------------------------------------------------------------------
 function ListofSubjects_Callback(~, ~, handles)
 s = set(handles.ListofSubjects, 'Value');
-
-
-% -----------------------------------------------------------------------------
-function Condition_Callback(~, ~, handles)
-cond = get(handles.Condition, 'String');
-
-
-% -----------------------------------------------------------------------------
-function time_range_Callback(~, ~, handles)
-tRangeimg = str2num(get(handles.time_range,'String'));
-
-
-% -----------------------------------------------------------------------------
-function shortsep_thresh_Callback(~, ~, handles)
-rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
 
 % -----------------------------------------------------------------------------
@@ -129,8 +126,9 @@ beta = str2num(get(handles.beta_brain_scalp,'String'));
 
 
 % -----------------------------------------------------------------------------
-function plotylimit_Callback(~, ~, handles)
+function plotylimit_Callback(~, ~, handles) %#ok<*DEFNU>
 ylimits = str2num(get(handles.plotylimit,'String'));
+
 
 
 % -----------------------------------------------------------------------------
@@ -150,8 +148,8 @@ dataTree = atlasViewer.dataTree;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 value1 = get(handles.brainonly, 'Value'); % 1 if brain only checked
 value2 = get(handles.brain_scalp, 'Value'); % 1 if brain and scalp checked
-cond = str2num(get(handles.Condition, 'String'));
-tRangeimg = str2num(get(handles.time_range,'String'));
+cond = get(handles.editCondition, 'value');
+trange = str2num(get(handles.time_range,'String'));
 rhoSD_ssThresh = str2num(get(handles.shortsep_thresh,'String'));
 
 Adot        = fwmodel.Adot;
@@ -224,11 +222,11 @@ end
 dcAvg(find(isnan(dcAvg))) = 0;
 
 %%%% Error checking of subject data itself
-if ErrorCheck_Data(dcAvg, tHRF, cond, tRangeimg) < 0 
+if ErrorCheck_Data(dcAvg, tHRF, cond, trange) < 0 
     return
 end
 
-%%%%  get dod conversion for each cond, if more than one condition
+%%%%  get dod conversion for each cond, if more than one editcondition
 dod = [];
 ppf = dataTree.currElem.GetVar('ppf');
 if isempty(ppf)
@@ -242,7 +240,7 @@ for icond = 1:size(dcAvg,4)
 end
 
 % average HRF (number of channels at all wavelengths X number of conditions) over a time range
-yavgimg = hmrImageHrfMeanTwin(dod, tHRF, tRangeimg);
+yavgimg = hmrImageHrfMeanTwin(dod, tHRF, trange);
 
 % Use only active channels
 yavgimg = yavgimg(activeChLst_OD, :);
@@ -521,7 +519,7 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % ----------------------------------------------------------------------------
-function err = ErrorCheck_Data(dcAvg, tHRF, cond, tRangeimg)
+function err = ErrorCheck_Data(dcAvg, tHRF, cond, trange)
 err = -1;
 if isempty(tHRF)
     MenuBox('Error: tHRF is missing from subject data. Check groupResults.mat use Homer3 to generate new groupResults.mat file','Okay');
@@ -539,7 +537,7 @@ if cond<1 || cond>size(dcAvg, 4)
     MenuBox('Invalid condition for this time course.','Okay');
     return;
 end
-if tRangeimg(1)<tHRF(1) || tRangeimg(1)>tHRF(end) || tRangeimg(2)<tHRF(1) || tRangeimg(2)>tHRF(end)
+if trange(1)<tHRF(1) || trange(1)>tHRF(end) || trange(2)<tHRF(1) || trange(2)>tHRF(end)
     MenuBox(sprintf('Invalid time rage entered. Enter values between tHRF range [%0.1f - %0.1f].', tHRF(1), tHRF(end)), 'OK');
     return;
 end

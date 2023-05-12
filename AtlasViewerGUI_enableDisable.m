@@ -18,7 +18,7 @@ if refpts.isempty(refpts)
 end
 
 
-if isempty(digpts.refpts.pos) | isempty(refpts.pos) | isempty(headsurf.mesh.vertices)
+if isempty(digpts.refpts.pos) || isempty(refpts.pos) || isempty(headsurf.mesh.vertices)
     set(handles.menuItemRegisterAtlasToDigpts,'enable','off')
 else
     set(handles.menuItemRegisterAtlasToDigpts,'enable','on')
@@ -26,6 +26,11 @@ end
 
 % Set the GUI controls for post-probe-registration controls, 
 % like fw model, image recon, hb overlay, 
-fwmodel = updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf);
+updateGuiControls_AfterProbeRegistration(probe, fwmodel, imgrecon, labelssurf);
 
+if ~isempty(atlasViewer.dataTree)
+    set(handles.editCondition, 'string',atlasViewer.dataTree.currElem.CondNames, 'value',1,'enable','on');
+else
+    set(handles.editCondition, 'enable','off');
+end
 

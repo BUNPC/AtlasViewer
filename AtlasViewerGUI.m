@@ -2712,7 +2712,7 @@ atlasViewer.fwmodel = fwmodel;
 
 
 % --------------------------------------------------------------------
-function pushbuttonCalcMetrics_new_Callback(hObject, eventdata, handles)
+function pushbuttonCalcMetrics_new_Callback(~, ~, handles)
 global atlasViewer
 
 imgrecon     = atlasViewer.imgrecon;
@@ -2740,9 +2740,9 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % --------------------------------------------------------------------
-function menuItemImageReconGUI_Callback(hObject, eventdata, handles)
-global atlasViewer
-ImageRecon();
+function menuItemImageReconGUI_Callback(~, ~, handles)
+iCond = get(handles.editCondition,'value');
+ImageRecon(iCond);
 
 
 
@@ -2809,53 +2809,9 @@ atlasViewer.probe = probe;
 
 
 % --------------------------------------------------------------------
-function editCondition_Callback(hObject, ~, handles)
-global atlasViewer
-
-hbconc = atlasViewer.hbconc;
-imgrecon  = atlasViewer.imgrecon;
-fwmodel   = atlasViewer.fwmodel;
-pialsurf  = atlasViewer.pialsurf;
-probe     = atlasViewer.probe;
-
-condstr = get(hObject, 'string');
-if isempty(condstr)
-    set(hObject, 'string', num2str(hbconc.iCond));
-    return;
-end
-if ~isnumber(condstr)
-    set(hObject, 'string', num2str(hbconc.iCond));
-    return;
-end
-cond = str2num(condstr);
-if floor(str2num(condstr))~=cond
-    set(hObject, 'string', num2str(hbconc.iCond));
-    return;
-end
-if (cond < 1) | (cond > size(hbconc.HbConcRaw,4))
-    set(hObject, 'string', num2str(hbconc.iCond));
-    return;
-end
-if hbconc.iCond == cond    
-    return;
-end
-val = get(handles.popupmenuImageDisplay,'value');
-if val ~= hbconc.menuoffset+1 & val ~= hbconc.menuoffset+2
-    return;
-end
-
-hbconc = calcHbConc(hbconc, probe);
-hbconc = calcHbConcCmThreshold(hbconc);
-set(hbconc.handles.editColormapThreshold, ...
-    'string',sprintf('%0.2g %0.2g', hbconc.cmThreshold(1,1), hbconc.cmThreshold(1,2)));
-                                                             
-% Turn off the other object displays that share the Image Display panel
-fwmodel = showFwmodelDisplay(fwmodel, [], 'off');
-imgrecon = showImgReconDisplay(imgrecon, [], 'off','off','off','off');
-
-hbconc = displayHbConc(hbconc, pialsurf, probe, fwmodel, imgrecon);
-
-atlasViewer.hbconc = hbconc;
+function editCondition_Callback(hObject, ~, ~)
+iCond = get(hObject, 'value');
+ImageRecon(iCond);
 
 
 

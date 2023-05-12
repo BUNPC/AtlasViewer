@@ -21,7 +21,7 @@ end
 
 if ~isempty(img)
     if ishandles(img)
-        img = img.FaceVer
+        img = img.FaceVer;
     end
     img(isnan(img)) = 0;
     img(isinf(img)) = 0;
