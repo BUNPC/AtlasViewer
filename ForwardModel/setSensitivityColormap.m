@@ -1,36 +1,27 @@
-function fwmodel = setSensitivityColormap(fwmodel, hAxes)
-
-hclim = fwmodel.handles.editColormapThreshold;
+function fwmodel = setSensitivityColormap(fwmodel, hAxes, cmThreshold)
 
 if ~isempty(hAxes)
     axes(hAxes);
 else
-    colorbar off;
     return;
 end
 
-% Get colopmap editbox input and check it for errors
-climstr = get(hclim,'string');
-if ~isnumber(climstr)
-    set(hclim,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
+if isempty(fwmodel.iCh)
     return;
 end
-clim = str2num(climstr);
-if length(clim)~=2
-    set(hclim,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
-    return;
-end
-if clim(1)>=clim(2)
-    set(hclim,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
-    return;
+if ~exist('cmThreshold','var')
+    cmThreshold = [];
 end
 
-fwmodel.cmThreshold = clim;
-set(hclim,'string',sprintf('%0.2g %0.2g',fwmodel.cmThreshold(1),fwmodel.cmThreshold(2)));
+if isempty(cmThreshold)
+    cmThreshold = fwmodel.cmThreshold;
+end
 
-% Set colormap values 
-colorbar;
-cm = jet(100);
-cm(1,:) = fwmodel.colormin;
-colormap(cm);
-caxis(fwmodel.cmThreshold);
+% Wavelength to display always one for now. TBD: Add feature to select
+% between wavelengths
+img = getFwmodel_DisplayPanelImage(fwmodel);
+
+% Set colormap max/min values
+createColorbar(cmThreshold, img, cmThreshold(1));
+
+

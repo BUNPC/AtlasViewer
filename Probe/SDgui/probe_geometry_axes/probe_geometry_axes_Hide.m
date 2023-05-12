@@ -15,4 +15,6 @@ set(h_lm,'visible',val);
 set(hObject,'visible',val);
 set(get(hObject,'xlabel'), 'visible',val)
 set(get(hObject,'ylabel'), 'visible',val)
-set(get(hObject,'zlabel'), 'visible',val)
+if get(handles.radiobuttonView3D, 'value')
+    set(get(hObject,'zlabel'), 'visible',val)
+end

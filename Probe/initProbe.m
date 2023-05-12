@@ -2,6 +2,7 @@ function probe = initProbe(handles)
 probe = struct( ...
                'name','probe', ...
                'pathname',filesepStandard(pwd), ...
+               'filename_to_save','', ...
                'handles',struct( ...
                                 'labels',[], ...
                                 'circles',[], ...
@@ -34,6 +35,8 @@ probe = struct( ...
                'srcpos',[], ...
                'detpos',[], ...
                'optpos',[], ...
+               'srcpos2d',[], ...
+               'detpos2d',[], ...
                'optpos_reg',[], ...
                'optpos_reg_mean',[], ...
                'nsrc',0, ...
@@ -125,6 +128,7 @@ if exist('handles','var')
 end
 
 
+
 % --------------------------------------------------------------
 function b = isempty_loc(probe)
 b = true;
@@ -174,6 +178,9 @@ probe = scaleFactor(probe);
 probe = copySpringRegistration(probe, probe2);
 probe = copyLandmarks(probe, probe2);
 
+if isfield(probe2,'filename_to_save')
+    probe.filename_to_save = probe2.filename_to_save;
+end
 if ~isempty(probe2.lambda) && isempty(probe.lambda)
     probe.lambda        = probe2.lambda;
 end
@@ -182,6 +189,12 @@ if ~isempty(probe2.srcpos) && isempty(probe.srcpos)
 end
 if ~isempty(probe2.detpos) && isempty(probe.detpos)
     probe.detpos        = probe2.detpos;
+end
+if ~isempty(probe2.srcpos2d) && isempty(probe.srcpos2d)
+    probe.srcpos2d        = probe2.srcpos2d;
+end
+if ~isempty(probe2.detpos2d) && isempty(probe.detpos2d)
+    probe.detpos2d        = probe2.detpos2d;
 end
 if ~isempty(probe2.optpos_reg) && isempty(probe.optpos_reg)
     probe.optpos_reg    = probe2.optpos_reg;
@@ -260,12 +273,12 @@ end
 
 % ------------------------------------------------
 function probe = scaleFactor(probe)
-if strcmp(guessUnit(probe), 'cm')
-    probe.optpos    = 10 * probe.optpos;
-    probe.srcpos    = 10 * probe.srcpos;
-    probe.detpos    = 10 * probe.detpos;
-    probe.registration.dummypos = 10 * probe.registration.dummypos;
-end
+% if strcmp(guessUnit(probe), 'cm')
+%     probe.optpos    = 10 * probe.optpos;
+%     probe.srcpos    = 10 * probe.srcpos;
+%     probe.detpos    = 10 * probe.detpos;
+%     probe.registration.dummypos = 10 * probe.registration.dummypos;
+% end
 
 
 % ------------------------------------------------
@@ -301,11 +314,13 @@ probe.registration = struct(...
     'sl',[], ...
     'al',[], ...    
     'dummypos',[], ...
+    'dummypos2d',[], ...
     'ndummy',0, ...
     'springLenThresh',[3,10], ...
     'refpts',initRefpts(), ...
     'isempty',@isempty_reg_loc, ...
-    'init',@initRegistration ...
+    'init',@initRegistration, ...
+    'direction','probe2head' ...   % possible values:   { probe2atlas | atlas2probe }
     );
 
 
@@ -317,6 +332,7 @@ end
 probe1.registration.sl              = probe2.registration.sl;
 probe1.registration.al              = probe2.registration.al;
 probe1.registration.dummypos        = probe2.registration.dummypos;
+probe1.registration.dummypos2d      = probe2.registration.dummypos2d;
 probe1.registration.springLenThresh = probe2.registration.springLenThresh;
 
 
@@ -326,12 +342,13 @@ function probe = copyLandmarks(probe, refpts)
 if strcmp(refpts.name, 'probe')
     probe2 = refpts;
     refpts = probe2.registration.refpts;
+    probe.registration.direction = probe2.registration.direction;
 end
 if probeHasLandmarkRegistration(probe)
     return
 end
-[~,~,~,~,~, refpts] = getLandmarks(refpts);
-probe.registration.refpts = refpts.copyLandmarks(probe.registration.refpts, refpts);
+%[~,~,~,~,~, refpts] = getLandmarks(refpts);
+probe.registration.refpts = refpts;
 
 
 

@@ -18,11 +18,7 @@ if isempty(fwmodel.projVoltoMesh_brain)
     %%%%%%%%%%%%%%%%%%%%
     % load head volume
     %%%%%%%%%%%%%%%%%%%%
-    nx = size(fwmodel.headvol.img,1);
-    ny = size(fwmodel.headvol.img,2);
-    nz = size(fwmodel.headvol.img,3);
-    
-    [nodeX, nNode, fwmode.mesh] = showReducedMesh(fwmodel.mesh_orig, fwmodel.mesh);
+    [nodeX, nNode, fwmodel.mesh] = showReducedMesh(fwmodel.mesh_orig, fwmodel.mesh);
     
     if ishandles(hf)
         delete(hf);
@@ -36,14 +32,13 @@ if isempty(fwmodel.projVoltoMesh_brain)
     % what the tissue number of gray matter is in the 
     % seg file. 
     for gm_seg_num=1:length(fwmodel.headvol.tiss_prop)
-        if(strcmp(lower(fwmodel.headvol.tiss_prop(gm_seg_num).name), 'gm') | ...
-           strcmp(lower(fwmodel.headvol.tiss_prop(gm_seg_num).name), 'gray matter'))
+        if(strcmpi(fwmodel.headvol.tiss_prop(gm_seg_num).name, 'gm') || ...
+           strcmpi(fwmodel.headvol.tiss_prop(gm_seg_num).name, 'gray matter'))
             break;
         end
     end
     i_headvol = uint32(find(fwmodel.headvol.img==gm_seg_num));
     nmiss=0;
-    nxy = nx*ny;
     nC = length(i_headvol);
     Amap = single(zeros(nC,1));
     mapMesh2Vox = single(ones(nNode,1000));
@@ -67,14 +62,14 @@ if isempty(fwmodel.projVoltoMesh_brain)
         if ~isempty(i_nX)
             % rsep: get the distances from [x y z] to all the points in nodeX(i_nX,:).
             rsep = sum( (nodeX(i_nX,:) - ones(length(i_nX),1)*[x y z]).^2, 2 ).^0.5;
-            [foo,imin] = min(rsep);
+            [~, imin] = min(rsep);
             Amap(ii) = i_nX(imin);
             NVoxPerNode(Amap(ii)) = NVoxPerNode(Amap(ii))+1; % might be useful?
             mapMesh2Vox(Amap(ii),NVoxPerNode(Amap(ii))) = i_headvol(ii);
         else
             nmiss = nmiss+1; % temporary var, delete when everything works
         end
-    end;
+    end
     close(hwait);
     ciao = find(mapMesh2Vox(:)==0);
     mapMesh2Vox(ciao) = 1;

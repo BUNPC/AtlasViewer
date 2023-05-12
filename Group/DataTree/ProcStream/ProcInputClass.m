@@ -36,6 +36,15 @@ classdef ProcInputClass < handle
         
                 
         % ----------------------------------------------------------------------------------
+        function ReloadStim(obj, acquired)
+            if isempty(obj)
+                return;
+            end
+            obj.acquired = acquired.CopyMutable(copyOptions);
+        end
+        
+                
+        % ----------------------------------------------------------------------------------
         function Copy(obj, obj2)
             if ~isa(obj, 'ProcInputClass')
                 return;
@@ -73,7 +82,11 @@ classdef ProcInputClass < handle
         
         % --------------------------------------------------------------
         function CopyStims(obj, obj2)
-            obj.acquired.CopyStim(obj2.acquired);
+            if isa(obj2, 'ProcInputClass')
+                obj.acquired.CopyStim(obj2.acquired);
+            elseif isa(obj2, 'AcqDataClass')
+                obj.acquired.CopyStim(obj2);
+            end
         end
         
         
@@ -233,35 +246,13 @@ classdef ProcInputClass < handle
             end
             if isempty(obj.mlActMan)
                 obj.mlActMan{iBlk} = ml;
+            elseif isempty(obj.mlActMan{iBlk})
+               obj.mlActMan{iBlk} = ml; 
             elseif length(obj.mlActMan{iBlk}) == length(ml)
                obj.mlActMan{iBlk} = ml; 
             end
         end
 
-        % ----------------------------------------------------------------------------------
-        function ml = GetMeasListVis(obj, iBlk)
-        if ~exist('iBlk','var')
-            iBlk = 1;
-        end
-        if ~isempty(obj.mlVis)
-            ml = obj.mlVis{iBlk};
-        else
-            ml = []; 
-        end
-        end
-        
-        
-        % ----------------------------------------------------------------------------------
-        function SetMeasListVis(obj, ml, iBlk)
-            if ~exist('iBlk','var')
-                iBlk = 1;
-            end
-            if isempty(obj.mlVis)
-                obj.mlVis{iBlk} = ml;
-            elseif length(obj.mlVis{iBlk}) == length(ml)
-               obj.mlVis{iBlk} = ml; 
-            end
-        end
         
         % ----------------------------------------------------------------------------------
         function n = GetDataBlocksNum(obj)

@@ -56,7 +56,4 @@ else
     pialsurf.mesh_reduced = reduceMesh(pialsurf.mesh);
     
 end
-
-if ~pialsurf.isempty(pialsurf)
-    pialsurf.pathname = dirname0;
-end
+pialsurf.pathname = dirname0;

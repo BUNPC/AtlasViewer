@@ -223,11 +223,11 @@ if ~isempty(fs2viewer)
             msg{1} = sprintf('WARNING: Neither a head volume or a segmented volume file was chosen. Results might not be what\n');
             msg{2} = sprintf('is expected unless you provide a head volume or segmented volume file. Do you want to provide the\n');
             msg{3} = sprintf('path of one of these files? ');
-            q = menu([msg{:}],'Yes','No');
+            q = MenuBox([msg{:}],{'Yes','No'});
             if q==1
                 return;
             else
-                q = menu('Importing of subject anatomical files will now begin','OK','Cancel');
+                q = MenuBox('Importing of subject anatomical files will now begin',{'OK','Cancel'});
                 if q==2
                     return;
                 end
@@ -317,18 +317,18 @@ try
         % that's available.
         
         if status(1)>0
-            q = menu(sprintf('Error generating segmented head volume.'),'Proceed Anyway','Cancel');
+            q = MenuBox(sprintf('Error generating segmented head volume.'),{'Proceed Anyway','Cancel'});
             if q==2
                 return;
             end
         elseif status(3)>0
-            q = menu(sprintf('Error generating head surface.'),'Proceed Anyway','Cancel');
+            q = MenuBox(sprintf('Error generating head surface.'),{'Proceed Anyway','Cancel'});
             if q==2
                 status = importmri.status;
                 return;
             end
         elseif importmri.status(2)>0 || importmri.status(4)>0
-            q = menu(sprintf('Error generating brain surface. Do you want to proceed with only the head surface?'),'Proceed Anyway','Cancel');
+            q = MenuBox(sprintf('Error generating brain surface. Do you want to proceed with only the head surface?'),{'Proceed Anyway','Cancel'});
             if q==2
                 return;
             end

@@ -11,7 +11,7 @@ if strcmp(ns, 'AtlasViewerGUI')
     elseif nargin == 2
         setGuiFonts_AtlasViewerGUI(inp1, inp2);
     end
-elseif strcmp(ns, 'Homer3')
+elseif strcmp(ns, 'Homer3') || strcmp(ns, 'DataTreeClass') 
     if nargin == 0
         setGuiFonts_Homer3();
     elseif nargin == 1
@@ -111,7 +111,11 @@ for ii=1:length(hc)
             if userdata==FONT_SMALLER
                 set(hc(ii), 'fontsize',font_uicontrol.size-1);
             elseif userdata~=KEEP_FONTSIZE
-                set(hc(ii), 'fontsize',font_uicontrol.size);
+                if isalphaNumeric(hc(ii).String)
+                    set(hc(ii), 'fontsize',font_uicontrol.size);
+                else
+                    set(hc(ii), 'fontsize',font_uicontrol.size+3);
+                end
             end
             if userdata~=KEEP_FONTWEIGHT
                 set(hc(ii), 'fontweight',font_uicontrol.weight);
@@ -259,7 +263,11 @@ for ii=1:length(hc)
             if userdata==FONT_SMALLER
                 set(hc(ii), 'fontsize',font_uicontrol.size-1);
             elseif userdata~=KEEP_FONTSIZE
-                set(hc(ii), 'fontsize',font_uicontrol.size);
+                if isalphaNumeric(hc(ii).String)
+                    set(hc(ii), 'fontsize',font_uicontrol.size);
+                elseif ~isempty(hc(ii).String)
+                    set(hc(ii), 'fontsize',font_uicontrol.size+3);
+                end
             end
             if userdata~=KEEP_FONTWEIGHT
                 set(hc(ii), 'fontweight',font_uicontrol.weight);
@@ -314,5 +322,23 @@ if ~exist('fc','var') || isempty(fc)
 end
 font = struct('size',fs,'weight',fw, 'color',fc);
 
+
+
+
+% --------------------------------------------------------
+function b = isalphaNumeric(s)
+b = false;
+if isempty(s)
+    return;
+end
+if ischar(s)
+    s = {s};
+end
+for ii = 1:length(s)
+    if ~any( (s{ii}>='0' & s{ii}<='9') | (s{ii}>='a' & s{ii}<='z') | (s{ii}>='A' & s{ii}<='Z') )
+        return
+    end
+end
+b = true;
 
 

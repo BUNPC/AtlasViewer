@@ -13,16 +13,8 @@ optid        = size([SrcPos; DetPos],1);
 A = get(handles.optode_dummy_tbl, 'data');
 cnames      = get(handles.optode_dummy_tbl, 'ColumnName');
 cwidth      = get(handles.optode_dummy_tbl, 'ColumnWidth');
-ceditable   = get(handles.optode_dummy_tbl, 'ColumnEditable');
-for ii = 1:size(OptPos,1)
-    A{ii,1} = num2str(optid+ii);
-    A{ii,2} = real2str(OptPos(ii,1));
-    A{ii,3} = real2str(OptPos(ii,2));
-    A{ii,4} = real2str(OptPos(ii,3));
-    A{ii,5} = GrommetType{ii};
-    A{ii,6} = GrommetRot{ii};
-end
-A(ii+1:end,:) = {''};     % Set the rest of the rows to empty string 
+
+A = optodes_tbl_copy_data(A, OptPos, GrommetType, GrommetRot, optid);
 
 if get(handles.checkboxNinjaCap,'Value') == 0
     cwidth{5} = 0;

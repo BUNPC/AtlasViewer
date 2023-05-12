@@ -7,14 +7,14 @@ mc_appnamelist = mcAppList();
 dirnameApp = getAppDir();
 
 %%%% SEARCH 1: Check external args for user supplied MC app root folder 
-if length(argExtern)>2 & ~isempty(argExtern{3})
-    mc_exepath = argExtern{3};
-    [mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(mc_exepath, fwmodel.platform);
-    fwmodel = setMCFields(fwmodel, mc_exepath, mc_exename, mc_appname, ext);
-    if ~isempty(mc_exename)
-        return;
-    end
-end
+% if length(argExtern) && ~isempty(argExtern{3})
+%     mc_exepath = argExtern{3};
+%     [mc_exepath, mc_exename, mc_appname, ext] = searchDirForMCApp(mc_exepath, fwmodel.platform);
+%     fwmodel = setMCFields(fwmodel, mc_exepath, mc_exename, mc_appname, ext);
+%     if ~isempty(mc_exename)
+%         return;
+%     end
+% end
 
 % Since it doesn't exist, try to build mc_exename
 fwmodel = buildMC(fwmodel);
@@ -71,7 +71,7 @@ while 1
     
     % Do a few basic error checks
     if istextfile(filenm)
-        q = menu('Selected file not an executable. Try again', 'OK', 'Cancel');
+        q = MenuBox('Selected file not an executable. Try again', {'OK', 'Cancel'}); 
         if q==2
             return;
         else

@@ -25,7 +25,7 @@ if m~=n
     return;
 end
 if(p<n)
-    menu(sprintf('Cannot solve transformation with fewer anchor\npoints (%d) than dimensions (%d).', p,n),'Okay');
+    MenuBox(sprintf('Cannot solve transformation with fewer anchor\npoints (%d) than dimensions (%d).', p,n),'Okay');
     return;
 end
 T = eye(n+1);

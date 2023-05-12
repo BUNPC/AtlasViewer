@@ -2,17 +2,19 @@ function SDgui_display(handles, SDo)
 global SD 
 
 if ~exist('SDo','var')
-    SDo = sd_data_Init();
+    SDo = [];
 end
 
 % Initialize SD object with data from SD file
 % then fix any errors in the SD file data
-SD = sd_data_Init(SDo);
-
+[SD, n] = sd_data_Init(SDo);
+if isempty(SD)
+    return
+end
 SDgui_AtlasViewerGUI('update');
 
 err = sd_data_ErrorFix();
-if err
+if err ~= 0
     return;
 end
 
@@ -27,7 +29,6 @@ ml           = sd_data_GetMeasList();
 sl           = sd_data_GetSpringList();
 al           = sd_data_GetAnchorList();
 Lambda       = sd_data_Get('Lambda');
-SpatialUnit  = sd_data_Get('SpatialUnit');
 
 %%%%%%%% DRAW PROBE GEOMETRY IN THE GUI AXES %%%%%%%
 probe_geometry_axes_Init(handles, SrcPos, DetPos, DummyPos, Landmarks, ml);
@@ -83,9 +84,19 @@ end
 
 % Set spatial unit dropdown menu
 strs = get(handles.popupmenuSpatialUnit, 'string');
-idx = find(strcmp(strs, SpatialUnit));
+idx = find(strcmp(strs, SD.SpatialUnit));
 if ~isempty(idx) && (idx <= length(strs))
     set(handles.popupmenuSpatialUnit, 'value', idx);
+else
+    set(handles.popupmenuSpatialUnit, 'value',1);    
 end
+
+[md2d, md3d] = n.GetChannelsMeanDistance();
+if handles.radiobuttonView3D.Value == 1
+    md = md3d;
+else
+    md = md2d;
+end
+set(handles.textChannelsMeanDist, 'string',sprintf('%0.3f', md));
 
 

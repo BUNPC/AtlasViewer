@@ -1,4 +1,4 @@
-function PrintSystemInfo(logger, appname)
+function logger = PrintSystemInfo(logger, appname, varargin)
 if ~exist('logger','var')
     logger = [];
 end
@@ -20,9 +20,19 @@ for ii = 1:length(appnames)
     if strcmp(appnames{ii}, 'Untitled')
         logger.Write('Running %s, %s\n', appnames{ii}, platform);
     else
-        logger.Write('Running %s, (v%s), %s\n', appnames{ii}, getVernum(appnames{ii}), platform);
+        vstr = getVernum(appnames{ii});
+        if ~isempty(find(vstr==':' | vstr=='-'))
+            vs = sprintf('(Last Rev:  %s), ', vstr);
+        elseif ~isempty(vstr)
+            vs = sprintf('(v%s), ', vstr);
+        else
+            vs = '';
+        end
+        logger.Write('Running %s, %s %s\n', appnames{ii}, vs, platform);
     end
 end
+printArgs(varargin);
+
 logger.Write('\n');
 logger.Write('============\n');
 logger.Write('SYSTEM INFO:\n');
@@ -34,7 +44,7 @@ try
     end
     [hdSpaceAvail, hdSpaceTotal] = getFreeDiskSpace();
 
-	  logger.Write('Platform Arch  : %s\n', computer);
+	logger.Write('Platform Arch  : %s\n', computer);
     if ~isempty(systemview)
         logger.Write('RAM Total      : %0.1f GB\n', systemview.PhysicalMemory.Total/1e9)
         logger.Write('RAM Free       : %0.1f GB\n', systemview.PhysicalMemory.Available/1e9)
@@ -42,11 +52,11 @@ try
         logger.Write('RAM Total      : Not available on this platform\n')
         logger.Write('RAM Free       : Not available on this platform\n')
     end
-    logger.Write('HD Space Total : %0.1f GB\n', hdSpaceTotal/1e9);
-    logger.Write('HD Space Free  : %0.1f GB\n', hdSpaceAvail/1e9);
-    logger.Write('\n') %#ok<*SPRINTFN>
+	logger.Write('HD Space Total : %0.1f GB\n', hdSpaceTotal/1e9);
+	logger.Write('HD Space Free  : %0.1f GB\n', hdSpaceAvail/1e9);
+	logger.Write('\n') %#ok<*SPRINTFN>
 catch ME
-  	logger.Write('%s\n', ME.message);
+	logger.Write('%s\n', ME.message);
 end
 
 
@@ -60,4 +70,27 @@ for ii = 1:size(submodules,1)
     url             = submodules{ii,1};
     [~, libs{ii,1}] = fileparts(url);
 end
+
+
+
+% --------------------------------------------------------------------
+function printArgs(args)
+global logger
+
+for ii = 1:length(args)
+    if strcmp(args{ii}, 'userargs')
+        break;
+    end
+    if ischar(args{ii})
+        logger.Write('   arg %d:  ''%s''\n', ii, args{ii});
+    elseif isnumeric(args{ii})
+        logger.Write('   arg %d:  %s\n', ii, num2str(args{ii}));
+    elseif iscell(args{ii})
+        printArgs(args{ii});
+    end
+end
+
+
+
+
 

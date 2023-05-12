@@ -1,4 +1,5 @@
 function digpts = getGroupDigpts(digpts, dirname, refpts)
+global logger
 
 if ~exist('refpts','var')
     refpts = [];
@@ -69,8 +70,8 @@ if ~isempty(digpts.digpts)
     
     meanDigptsConfigSetting = digpts.config.GetValue('Load Group Mean Digitized Points');
     msg{1} = sprintf('AtlasViewer has detected dig points in the current subject''s sub-folders. ');
-    msg{2} = sprintf('Do you want to load the mean of the group dig points?');
     if strcmp(meanDigptsConfigSetting, 'ask me')
+        msg{2} = sprintf('Do you want to load the mean of the group dig points?');
         q = MenuBox(msg, {'YES', 'NO'});
         if q(1)==1
             digpts = digpts1;
@@ -94,12 +95,15 @@ if ~isempty(digpts.digpts)
             digpts.config.Save();
         end
     elseif strcmp(meanDigptsConfigSetting, 'on')
+        msg{2} = sprintf('Loading the mean of the group dig points');
+        MenuBox(msg);
         digpts = digpts1;
         digpts = setDigptsOrientation(digpts, dirname);
         if ~digpts.isempty(digpts)
             digpts.pathname = dirname;
         end
         printDigpts(digpts, 'Mean group dig points for');
+        logger.Write([msg{1}, 'Loading mean digitized points']);
     else
         digpts.digpts = [];
     end

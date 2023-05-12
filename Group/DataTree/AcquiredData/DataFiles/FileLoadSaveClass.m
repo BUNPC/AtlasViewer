@@ -62,6 +62,11 @@ classdef FileLoadSaveClass < matlab.mixin.Copyable
             if ~exist('format','var')
                 format = obj.fileformat;
             end
+            
+            p = fileparts(filename);
+            if isempty(p)
+                filename = ['./', filename];
+            end
                        
             switch(lower(format))
                 case obj.supportedFomats.matlab
@@ -142,6 +147,10 @@ classdef FileLoadSaveClass < matlab.mixin.Copyable
         
         % -------------------------------------------------------
         function err = GetError(obj)
+            err = [];
+            if isempty(obj)
+                return
+            end
             err = obj.err;
         end
         

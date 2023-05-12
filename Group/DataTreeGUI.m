@@ -38,6 +38,8 @@ if datatreegui.dataTree.IsEmptyOutput()
 end
 DisplayGroupTree(handles);
 
+set(hObject, 'UserData',datatreegui.dataTree);
+
 
 
 % -----------------------------------------------------------------------
@@ -155,6 +157,7 @@ AtlasViewerGUI(dirnameSubjNew, atlasViewer.dirnameAtlas, [], handles.figure1, 'u
 
 
 
+
 % -----------------------------------------------------------------------
 function listboxFilesErr_Callback(~, ~, ~) %#ok<*DEFNU>
 
@@ -194,22 +197,23 @@ datatreegui.listboxGroupTreeParams = InitListboxGroupTreeParams();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 listboxGroup = datatreegui.listboxGroupTreeParams.listMaps(viewSetting).names;
 nFiles = length(datatreegui.listboxGroupTreeParams.listMaps(views.RUNS).names);
+nFilesErr = length(datatreegui.dataTree.filesErr);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set listbox used for displaying files that did not load correctly
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-listboxFilesErr = cell(length(datatreegui.dataTree.filesErr),1);
-nFilesErr=0;
-for ii=1:length(datatreegui.dataTree.filesErr)
-    if datatreegui.dataTree.filesErr(ii).isdir
-        listboxFilesErr{ii} = datatreegui.dataTree.filesErr(ii).name;
-    elseif ~isempty(datatreegui.dataTree.filesErr(ii).subjdir)
-        listboxFilesErr{ii} = ['    ', datatreegui.dataTree.filesErr(ii).name];
-        nFilesErr=nFilesErr+1;
-    else
-        listboxFilesErr{ii} = datatreegui.dataTree.filesErr(ii).name;
-        nFilesErr=nFilesErr+1;
-    end
+listboxFilesErr = {};
+kk = 1;
+for ii = 1:length(datatreegui.dataTree.filesErr)
+    nspaces = 0;
+    %     if ~strcmp(datatreegui.dataTree.filesErr(ii).name, datatreegui.dataTree.filesErr(ii).filename)
+    %         listboxFilesErr{kk} = pathsubtract(datatreegui.dataTree.filesErr(ii).name, datatreegui.dataTree.filesErr(ii).filename, 'nochange');
+    %         kk = kk+1;
+    %         nspaces = 8;
+    %     end
+    %     listboxFilesErr{kk}   = sprintf('%s%s', blanks(nspaces), datatreegui.dataTree.filesErr(ii).filename);
+    listboxFilesErr{kk}   = sprintf('%s%s', blanks(nspaces), filesepStandard(datatreegui.dataTree.filesErr(ii).name, 'filesepwide'));
+    kk = kk+1;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,11 +227,13 @@ if ~isempty(handles)
         } );
     
     if ~isempty(listboxGroup)
-        set(handles.listboxGroupTree, 'value',1, 'string',listboxGroup)
+        set(handles.listboxGroupTree, 'value',1)
+        set(handles.listboxGroupTree, 'string',listboxGroup)
     end
     
     if ~isempty(listboxFilesErr)
         set(handles.listboxFilesErr, 'visible','on', 'value',1, 'string',listboxFilesErr)
+        set(handles.textStatus, 'foregroundcolor',[0.70, 0.20, 0.10]);
     else
         set(handles.listboxFilesErr, 'visible','off');
     end
@@ -599,4 +605,3 @@ for ii = 1:length(listIdxs)
         break;
     end
 end
-

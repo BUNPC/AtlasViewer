@@ -93,7 +93,7 @@ pos = nearest_point(vertices,pos);
 
 % Arg 3 (optional)
 if ~exist('labels','var')
-    menu('ERROR: Labels not found. Cannot determine reference points.', 'OK');
+    MenuBox('ERROR: Labels not found. Cannot determine reference points.', 'OK');
     return;
 end
 
@@ -111,7 +111,7 @@ kcz = find(strcmpi(labels,'cz'));
 
 % Error checking 
 if isempty(knz) | isempty(kiz) | (isempty(klpa) & isempty(kal)) | (isempty(krpa) & isempty(kar)) | isempty(kcz)
-    menu(sprintf('One or more landmarks are missing - unable to calculate %s pts.', refpts.eeg_system.selected),'OK');
+    MenuBox(sprintf('One or more landmarks are missing - unable to calculate %s pts.', refpts.eeg_system.selected),'OK');
     return;
 end
 

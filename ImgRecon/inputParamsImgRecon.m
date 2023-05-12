@@ -28,7 +28,7 @@ while 1
         end
     end
     if ~all(err==0)
-        q = menu(sprintf('Invalid input for parameter # %d. Do you want to try again?', ii),'Yes','No');
+        q = MenuBox(sprintf('Invalid input for parameter # %d. Do you want to try again?', ii), {'Yes','No'});
         if q==2
             imgrecon = [];
             return;

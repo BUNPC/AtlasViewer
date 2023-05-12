@@ -22,6 +22,13 @@ set(hObject, 'units','normalized');
 Ps = get(0,'MonitorPositions');
 p = get(hObject,'position');
 
+% Don't do anything if within screen borders in all directions
+if ((p(1)+p(3)) < 1) && (p(1) > 0)
+    if ((p(2)+p(4)) < 1) && (p(2) > 0)
+        return
+    end
+end
+
 % To work correctly for mutiple sceens, Ps must be sorted in ascending order
 Ps = sort(Ps,'ascend');
 
@@ -65,6 +72,9 @@ if p(4)>=ScreenHeight
     b(4) = p(4) - ScreenHeight;
 end
 p = p - b;
+if p(4)==1
+    p(2)=0;
+end
 
 % Set the screen units back to initial units
 set(0,'units',us0);

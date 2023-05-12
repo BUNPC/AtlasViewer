@@ -26,7 +26,13 @@ classdef ConfigFileClass < handle
                 end
             end
             obj.FindCfgFiles(rootdir);
-            
+            obj.Update();            
+        end
+        
+        
+        
+        % ---------------------------------------------------
+        function Update(obj)        
             kk = [];
             for ii = 1:length(obj.filenames)
                 obj.fids(ii) = fopen(obj.filenames{ii},'rt');
@@ -46,10 +52,10 @@ classdef ConfigFileClass < handle
                     rethrow(ME)
                 end
             end
-            
             obj.Close();
             obj.linestr = '';
         end
+        
         
         
         % ----------------------------------------------------
@@ -194,35 +200,38 @@ classdef ConfigFileClass < handle
             end
             for ii = 1:length(obj.fids)
                 if strcmp(options, 'backup')
+                    
                     copyfile(obj.filenames{ii}, [obj.filenames{ii}, '.bak'])
-                end
-                if obj.fids(ii)<0
-                    obj.fids(ii) = fopen(obj.filenames{ii}, 'w');
-                end
-                if obj.fids(ii)<0
-                    continue;
-                end
-                fprintf(obj.fids(ii), '\n');
-                for jj = 1:length(obj.params)
-                    if obj.params(jj).iSrc ~= ii
-                        continue
+                    
+                else
+                    
+                    if obj.fids(ii)<0
+                        obj.fids(ii) = fopen(obj.filenames{ii}, 'w');
                     end
-                    if iscell(obj.params(jj).valOptions) && all(~cellfun(@isempty,obj.params(jj).valOptions))
-                        fprintf(obj.fids(ii), '%% %s # %s\n', obj.params(jj).name, strjoin(obj.params(jj).valOptions,', '));
-                    elseif iscell(obj.params(jj).valOptions) && all(cellfun(@isempty,obj.params(jj).valOptions))
-                        fprintf(obj.fids(ii), '%% %s #\n', obj.params(jj).name);
-                    else
-                        fprintf(obj.fids(ii), '%% %s\n', obj.params(jj).name);
+                    if obj.fids(ii)<0
+                        continue;
                     end
-                    for kk = 1:length(obj.params(jj).val)
-                        fprintf(obj.fids(ii), '%s\n', obj.params(jj).val{kk});
+                    for jj = 1:length(obj.params)
+                        if obj.params(jj).iSrc ~= ii
+                            continue
+                        end
+                        if iscell(obj.params(jj).valOptions) && all(~cellfun(@isempty,obj.params(jj).valOptions))
+                            fprintf(obj.fids(ii), '%% %s # %s\n', obj.params(jj).name, strjoin(obj.params(jj).valOptions,', '));
+                        elseif iscell(obj.params(jj).valOptions) && all(cellfun(@isempty,obj.params(jj).valOptions))
+                            fprintf(obj.fids(ii), '%% %s #\n', obj.params(jj).name);
+                        else
+                            fprintf(obj.fids(ii), '%% %s\n', obj.params(jj).name);
+                        end
+                        for kk = 1:length(obj.params(jj).val)
+                            fprintf(obj.fids(ii), '%s\n', obj.params(jj).val{kk});
+                        end
+                        fprintf(obj.fids(ii), '\n');
                     end
-                    fprintf(obj.fids(ii), '\n');
+                    fprintf(obj.fids(ii), '%% END\n');                    
+                    fclose(obj.fids(ii));
+                    obj.fids(ii) = -1;
+                    
                 end
-                fprintf(obj.fids(ii), '%% END\n');
-                
-                fclose(obj.fids(ii));
-                obj.fids(ii) = -1;
             end
         end
         
@@ -366,6 +375,9 @@ classdef ConfigFileClass < handle
             else
                 valOptions = strtrim_improve(obj.linestr(ii:jj));
                 valOptions = split(valOptions,', ');
+                for ii = 1:length(valOptions)
+                    valOptions{ii} = strtrim_improve(valOptions{ii});
+                end
             end
         end
         
@@ -407,7 +419,28 @@ classdef ConfigFileClass < handle
             end
         end
         
-         % -------------------------------------------------------------------------------------------------
+        
+        
+        % -------------------------------------------------------------------------------------------------
+        function valOptions = GetValueOptions(obj, paramName)
+            valOptions = '';
+            if nargin<2
+                return;
+            end
+            if ~ischar(paramName)
+                return;
+            end
+            for ii = 1:length(obj.params)
+                if strcmpi(obj.params(ii).name, paramName)
+                    valOptions = obj.params(ii).valOptions;
+                    break;
+                end
+            end
+        end
+        
+        
+        
+        % -------------------------------------------------------------------------------------------------
         function val = GetMultiValues(obj, paramName)
             val = '';
             if nargin<2
@@ -426,11 +459,24 @@ classdef ConfigFileClass < handle
             end
         end
         
+        
+        
         % -------------------------------------------------------------------------------------------------
-        function SetValue(obj, paramName, val)
+        function SetValue(obj, paramName, val, autosave)
             if nargin<3
                 return;
             end
+            if ~exist('autosave','var')
+                autosave = 0;
+            end
+            if ischar(autosave) 
+                if strcmpi(autosave,'autosave')
+                    autosave = true;
+                end
+            else
+                autosave = false;
+            end
+            
             if ~ischar(paramName)
                 return;
             end
@@ -438,6 +484,10 @@ classdef ConfigFileClass < handle
                 if strcmp(obj.params(ii).name, paramName)
                     obj.params(ii).val{1} = val;
                 end
+            end
+            
+            if autosave
+                obj.Save();
             end
         end
         
@@ -606,6 +656,9 @@ classdef ConfigFileClass < handle
                     continue;
                 end
                 if strcmp(dirs(ii).name, '..')
+                    continue;
+                end
+                if strcmp(dirs(ii).name, 'submodules')
                     continue;
                 end
                 obj.FindCfgFiles([rootdir, dirs(ii).name]);

@@ -1,6 +1,11 @@
 function b = isPreRegisteredProbe(probe, obj)
 b = 0;
 
+% if ~isempty(probe.orientation)
+%     b = 1;
+%     return;
+% end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Eliminate simple cases of probe not being registered
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,19 +19,18 @@ end
 headsurf = [];
 refpts = [];
 
-
 if strcmp(obj.name, 'headsurf')
     headsurf = obj;
 else
     refpts = obj;
 end
 
-% We cannot say that probe is preregistered if it has anchor points/springs
 if ~isempty(headsurf)
-    b = isPreRegisteredToHeadsurf(probe, headsurf) && ~probeHasSpringRegistration(probe);
+    b = isPreRegisteredToHeadsurf(probe, headsurf);
 else
-    b = isPreRegisteredToRefpts(probe, refpts) && ~probeHasSpringRegistration(probe);    
+    b = isPreRegisteredToRefpts(probe, refpts);   
 end
+
 
 
 

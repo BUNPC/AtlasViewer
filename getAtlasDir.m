@@ -66,7 +66,7 @@ end
 
 % Check if we still have no atlas dir and warn user if that's the case
 if isempty(dirname)
-    menu('Warning: Couldn''t find default atlas directory.','OK');
+    MenuBox('Warning: Couldn''t find default atlas directory.','OK');
     return;
 end
 

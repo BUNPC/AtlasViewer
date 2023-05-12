@@ -43,7 +43,7 @@ else
     
     % See if labels file matches ref points file 
     if ~matchRefptsFilenames(refpts_fn, refpts_labels_fn)
-        menu('Warning: Ref points file and ref points labels file don''t match. Ref points not loaded.','OK');
+        MenuBox('Warning: Ref points file and ref points labels file don''t match. Ref points not loaded.','OK');
         return;        
     end
     
@@ -100,10 +100,7 @@ else
     [refpts.orientation, refpts.center] = getOrientation(nz, iz, rpa, lpa, cz);
       
 end
-
-if ~refpts.isempty(refpts)
-    refpts.pathname = dirname0;
-end
+refpts.pathname = dirname0;
 
 
 

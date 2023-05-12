@@ -35,8 +35,7 @@ if isempty(iCh)
 end
 
 % Get condition 
-str = get(hbconc.handles.editCondition, 'string');
-hbconc.iCond = str2num(str);
+hbconc.iCond = get(hbconc.handles.editCondition, 'value');
 iCond = hbconc.iCond;
 if iCond<1 | iCond>size(hbconc.HbConcRaw,4)
     hbconc.HbO = [];

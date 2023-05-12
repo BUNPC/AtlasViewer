@@ -36,7 +36,7 @@ end
 
 h=[];
 if isempty(headsurf.mesh)
-    menu('head file does not exist in current directory','ok');
+    MenuBox('head file does not exist in current directory','ok');
     return;
 else
     viewAxesXYZ(hAxes, axes_order);

@@ -19,11 +19,11 @@ choices = { ...
 };
 
 % get grommet types from GrommetTypes_Custom.cfg file
-if isdeployed()
-    filename = [getAppDir(), 'GrommetTypes_Custom.cfg'];
-else
-    filename = which('GrommetTypes_Custom.cfg');
-end
+% if isdeployed()
+%     filename = [getAppDir(), 'GrommetTypes_Custom.cfg'];
+% else
+%     filename = which('GrommetTypes_Custom.cfg');
+% end
 
 cfg = ConfigFileClass();
 custom_choices = cfg.GetMultiValues('Grommet Types');

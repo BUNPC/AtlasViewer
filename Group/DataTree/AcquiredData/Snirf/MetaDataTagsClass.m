@@ -10,19 +10,20 @@ classdef MetaDataTagsClass  < FileLoadSaveClass
         function obj = MetaDataTagsClass(varargin)
             % Set class properties not part of the SNIRF format
             obj.SetFileFormat('hdf5');
-
             obj.tags.SubjectID = 'default';
             obj.tags.MeasurementDate = datestr(now,29);
             obj.tags.MeasurementTime = datestr(now,'hh:mm:ss');
             obj.tags.LengthUnit = 'mm';
             obj.tags.TimeUnit = 'unknown';
             obj.tags.FrequencyUnit = 'unknown';
-            obj.tags.AppName  = 'snirf-homer3';
-            obj.tags.SnirfDraft = '3';
-            
-            if nargin==1
+            obj.tags.AppName  = 'homer3-DataTree';
+
+            if nargin==1 && ~isempty(varargin{1})
                 obj.SetFilename(varargin{1});
                 obj.Load();
+            end
+            if nargin==2
+                obj.tags.LengthUnit = varargin{2};
             end
         end
     
@@ -81,12 +82,15 @@ classdef MetaDataTagsClass  < FileLoadSaveClass
                 err = -1;
                 
             end
-            
+            obj.SetError(err);
+
         end
         
         
         % -------------------------------------------------------
-        function SaveHdf5(obj, fileobj, location) %#ok<*INUSD>
+        function err = SaveHdf5(obj, fileobj, location) %#ok<*INUSD>
+            err = 0;
+            
             % Arg 1
             if ~exist('fileobj', 'var') || isempty(fileobj)
                 error('Unable to save file. No file name given.')
@@ -96,16 +100,18 @@ classdef MetaDataTagsClass  < FileLoadSaveClass
             if ~exist('location', 'var') || isempty(location)
                 location = '/nirs/metaDataTags';
             elseif location(1)~='/'
-                location = ['/',location];
+                location = ['/',location]; %#ok<*NASGU>
             end
             
-            if ~exist(fileobj, 'file')
-                fid = H5F.create(fileobj, 'H5F_ACC_TRUNC', 'H5P_DEFAULT', 'H5P_DEFAULT');
-                H5F.close(fid);
+            fid = HDF5_GetFileDescriptor(fileobj);
+            if fid < 0
+                err = -1;
+                return;
             end
-            props = propnames(obj.tags);
-            for ii=1:length(props)
-                eval(sprintf('hdf5write_safe(fileobj, [location, ''/%s''], obj.tags.%s);', props{ii}, props{ii}));
+                        
+            props = propnames(obj.tags);            
+            for ii = 1:length(props)
+                eval(sprintf('hdf5write_safe(fid, [location, ''/%s''], obj.tags.%s);', props{ii}, props{ii}));
             end
         end
         
@@ -153,7 +159,7 @@ classdef MetaDataTagsClass  < FileLoadSaveClass
         
         
         % -------------------------------------------------------
-        function Add(obj, key, value)
+        function Add(obj, key, value) %#ok<INUSL>
             key(key==' ') = '';
             eval(sprintf('obj.tags.%s = value', key));
         end
@@ -161,20 +167,41 @@ classdef MetaDataTagsClass  < FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function tags = Get(obj, name)
+        function val = Get(obj, name)
+            val = [];
             if ~exist('name', 'var')
-                name = '';
+                return;
             end
-            fields = propnames(obj.tags);
-            k = find(strcmp(fields, name));
-            if ~isempty(k)
-                fields = fields(k);
+            if isfield(obj.tags, name)
+                val = eval( sprintf('obj.tags.%s;', name) );
             end
-            tags = repmat(struct('key','','value',[]), length(fields), 1);
-            for ii=1:length(fields)
-                eval(sprintf('tags(ii).key = ''%s'';', fields{ii}));
-                eval(sprintf('tags(ii).value = obj.tags.%s;', fields{ii}));
+        end
+        
+        
+        % ----------------------------------------------------------------------------------
+        function Set(obj, name, value)
+            if ~exist('name', 'var') || ~exist('value', 'var')
+                retrun
+            end                                     
+            eval( sprintf('obj.tags.%s = ''%s'';', name, value) )   
+        end        
+        
+        % ----------------------------------------------------------------------------------
+        function SetLengthUnit(obj, unit)
+            if isempty(obj)
+                return
             end
+            obj.tags.LengthUnit = unit;
+        end
+        
+        
+        % ----------------------------------------------------------------------------------
+        function val = GetLengthUnit(obj)
+            val = '';
+            if isempty(obj)
+                return
+            end
+            val = obj.tags.LengthUnit;
         end
         
         

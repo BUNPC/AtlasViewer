@@ -13,3 +13,6 @@ probe.center        = digpts.center;
 probe.orientation   = digpts.orientation;
 probe.registration.dummypos = digpts.dummypos;
 probe.registration.refpts   = digpts.refpts;
+if ~digpts.isemptyProbe(digpts)
+    probe.registration.direction = 'atlas2probe';
+end

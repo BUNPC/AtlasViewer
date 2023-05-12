@@ -19,25 +19,25 @@ end
 % If probe isn't registered then can't generate sensitivity
 % from genSensitivityProfile.m
 if isempty(probe.optpos_reg)
-    menu('Error: Cannot generate sensitivity, because theprobe isn''t registered to the head','OK');
+    MenuBox('Error: Cannot generate sensitivity, because theprobe isn''t registered to the head', 'OK');
     return;
 end
 if isempty(probe.ml)
-    menu('Error: Cannot generate sensitivity, because the measurement list is missing','OK');
+    MenuBox('Error: Cannot generate sensitivity, because the measurement list is missing', 'OK');
     return;
 end
 iWav = unique(probe.ml(:,4));
 lst = find(probe.ml(:,4)==iWav(1));
 nMeas = length(lst);
 if nMeas==0
-    menu('Error: Cannot generate sensitivity, because the measurement list is empty','OK');
+    MenuBox('Error: Cannot generate sensitivity, because the measurement list is empty', 'OK');
     return;
 end
 
 % Adot already exists
 % from genSensitivityProfile.m
 if ~isempty( fwmodel.Adot)
-    q = menu('The Adot sensitivity profile has already been generated. Do you want to generate it again w MCXlab?','Yes','No');
+    q = MenuBox('The Adot sensitivity profile has already been generated. Do you want to generate it again w MCXlab?', {'Yes','No'});
     if q==1
         fwmodel.Adot=[];
     elseif q==2
@@ -91,8 +91,6 @@ if dirnameSubj(end)~='/' && dirnameSubj(end)~='\'
     dirnameSubj(end+1)='/';
 end
 dirnameOut = [dirnameSubj 'fw/'];
-
-
 % Sources and detector optode positions and number
 % from genMCinput.m
 nsrc = probe.nsrc;
@@ -167,15 +165,25 @@ end
 % from genSensitivityProfile.m
 fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
 [mapMesh2Vox, fwmodel]        = projVoltoMesh_brain(fwmodel, dirnameOut);
+mesh = fwmodel.mesh;
+save(fullfile(dirnameOut,'mesh_brain.mat'), 'mesh');
+clear mesh
+
 if isempty(mapMesh2Vox)
     close(hWait);
     return;
 end
+
 [mapMesh2Vox_scalp, fwmodel]        = projVoltoMesh_scalp(fwmodel, dirnameOut);
+mesh_scalp = fwmodel.mesh_scalp;
+save(fullfile(dirnameOut,'mesh_scalp.mat'), 'mesh_scalp');
+clear mesh_scalp
+
 if isempty(mapMesh2Vox_scalp)
     close(hWait);
     return;
 end
+
 
 % Init stuff ---- ALREADY DEFINED nx, ny, nz, nWav ABOVE BY Dx, Dy, Dz, num_wavelengths
 %                 although nWav from from MeasList and num_wavelengths comes from tiss_prop 

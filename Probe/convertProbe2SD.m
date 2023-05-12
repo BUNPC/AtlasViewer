@@ -14,8 +14,9 @@ SD.DummyPos             = probe.registration.dummypos;
 SD                      = convertProbe3D_2_SD(probe, SD);
 SD.nSrcs                = probe.nsrc;
 SD.nDets                = probe.ndet;
+SD.nDummys               = probe.registration.ndummy;
 SD.MeasList             = [];
-[unique_probe_ml, ia, ic] = unique(probe.ml(:,[1,2]),'rows', 'stable'); 
+[unique_probe_ml, ~, ~] = unique(probe.ml(:,[1,2]),'rows', 'stable'); 
 for ii = 1:length(SD.Lambda)
     SD.MeasList         = [SD.MeasList; [unique_probe_ml, ones(size(unique_probe_ml,1),1), ii*ones(size(unique_probe_ml,1),1)]];
 end
@@ -32,7 +33,7 @@ if isfield(probe,'SrcGrommetType')
     SD.SrcGrommetType       = probe.SrcGrommetType;
 end
 
-if ~isfield(probe,'DetGrommetType')
+if isfield(probe,'DetGrommetType')
     SD.DetGrommetType       = probe.DetGrommetType;
 end
 
@@ -59,17 +60,69 @@ end
 
 % add refpts and head mesh to SD file
 if ~isempty(atlasViewer)
-    if isfield(atlasViewer.refpts,'eeg_system')
-        SD.Landmarks.eeg_system = atlasViewer.refpts.eeg_system;
+    % ninjaCap requires 10-5 eeg reference points to generate STL files
+    % correctly. So while saving SD file, here we always save 10-5 reference
+    % points
+    refpts = atlasViewer.refpts;
+    refpts.eeg_system.selected = '10-5';
+    set_eeg_curve_select(refpts);
+    refpts = setRefptsMenuItemSelection(refpts);
+    refpts = set_eeg_active_pts(refpts,'warning',false);
+    if isfield(refpts,'eeg_system')
+        SD.Landmarks.eeg_system =refpts.eeg_system;
     end
-    if isfield(atlasViewer.refpts,'scaling')
-        SD.Landmarks.scaling = atlasViewer.refpts.scaling;
+    if isfield(refpts,'scaling')
+        SD.Landmarks.scaling = refpts.scaling;
     end
-    SD.Landmarks.pos = atlasViewer.refpts.pos;
-    SD.Landmarks.labels = atlasViewer.refpts.labels;
+    SD.Landmarks.pos = refpts.pos;
+    SD.Landmarks.labels = refpts.labels;
     SD.mesh = atlasViewer.headsurf.mesh;
 end
 
 SD = updateProbe2DcircularPts(probe, SD);
+SD = convert2Doptodes(SD, probe);
+
+
+
+
+% ----------------------------------------------------------------
+function SD = convert2Doptodes(SD, probe) 
+if ~isempty(probe.srcpos2d)
+    SD.SrcPos = probe.srcpos2d;
+elseif isProbeFlat(probe.srcpos)
+    SD.SrcPos = probe.srcpos;
+end
+if ~isempty(probe.detpos2d)
+    SD.DetPos = probe.detpos2d;
+elseif isProbeFlat(probe.detpos)
+    SD.DetPos = probe.detpos;
+end
+if ~isempty(probe.registration.dummypos2d)
+    SD.DummyPos = probe.registration.dummypos2d;
+elseif isProbeFlat(probe.registration.dummypos)
+    SD.DummyPos = probe.registration.dummypos;
+end
+
+
+
+
+% ----------------------------------------------------------------
+function b = isProbeFlat(optpos)
+b = [];
+if isempty(optpos)
+    return
+end
+b = false;
+ndim = size(optpos, 2);
+ncoord = ndim;
+for ii = 1:ncoord
+    if length(unique(optpos(:,ii)))==1
+        ndim = ndim-1;
+    end
+end
+if ndim<3
+    b = true;
+end
+
 
 

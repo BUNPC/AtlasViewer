@@ -1,4 +1,4 @@
-function sd_file_load_bttn_Callback(hObject, eventdata, handles)
+function sd_file_load_bttn_Callback(~, ~, handles)
 
 filename0 = sd_filename_edit_Get(handles);
 pathname0 = sd_file_panel_GetPathname(handles);

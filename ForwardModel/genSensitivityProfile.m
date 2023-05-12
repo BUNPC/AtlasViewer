@@ -28,14 +28,14 @@ if isempty(probe.optpos_reg)
     return;
 end
 if isempty(probe.ml)
-    menu('Error: Cannot generate sensitivity, because the measurement list is missing','OK');
+    MenuBox('Error: Cannot generate sensitivity, because the measurement list is missing', 'OK');
     return;
 end
 
 [mc_output_ext, loadMCFuncPtr] = getMCoutputExt(fwmodel.mc_appname);
 
 if ~isempty( fwmodel.Adot)
-    q = menu('The Adot sensitivity profile has already been generated. Do you want to generate it again?','Yes','No');
+    q = MenuBox('The Adot sensitivity profile has already been generated. Do you want to generate it again?', {'Yes','No'});
     if q==1
         fwmodel.Adot=[];
     end
@@ -156,7 +156,7 @@ if isempty(fwmodel.Adot)
                 if sum_p~=0
                     Ad(idx_p) = Ad(idx_p) * (1 - abs(sum_n)) / sum_p;
                 else
-                    disp(sprintf('No photons launched into tissue form Det %d',iD))
+                    fprintf('No photons launched into tissue form Det %d\n',iD)
                     Ad(idx_p) = 0;
                 end
                 
@@ -191,7 +191,7 @@ if isempty(fwmodel.Adot)
             if normfactor~=0
                 A = (As.*Ad)/normfactor;
             else
-                disp(sprintf('No photons detected between Src %d and Det %d',iS,iD))
+                fprintf('No photons detected between Src %d and Det %d',iS,iD);
                 A = zeros(size(As));
             end
             if fwmodel.AdotVolFlag
@@ -235,7 +235,7 @@ if isempty(fwmodel.Adot)
         fclose(fid2);
     end
     
-    q = menu('Sensitivity profile completed. Do you want to delete the MC output files to save disk space?','YES','NO');
+    q = MenuBox('Sensitivity profile completed. Do you want to delete the MC output files to save disk space?', {'YES','NO'});
     if q==1
         if ~isempty(mc_output_ext)
             delete([dirnameOut, '*.', mc_output_ext]);

@@ -14,6 +14,8 @@
 
 function fwmodel = genMCinput(fwmodel, probe, dirnameSubj)
 
+fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
+
 hWait = waitbar(0,'Generating MC input files');
 
 if ~isempty(dir([dirnameSubj, './fw/fw*.inp']))
@@ -91,7 +93,6 @@ num_wavelengths = length(tiss_prop(1).scattering);
 % Find head volume file path or save it to the fw for monte carlo app
 segfilename = [dirnameOut 'headvol.vox'];
 save_vox(segfilename, fwmodel.headvol);
-segfilename = ['fw' filesep() 'headvol.vox']; % don't need the path in the batch file below since we run the batch file in the directory with the headvol.vox file
 
 % Volume dimensions
 [Dx Dy Dz] = size(fwmodel.headvol.img);

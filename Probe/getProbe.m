@@ -42,8 +42,11 @@ probe.pathname = dirname;
 % 1. Load probe data from the various possible sources
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe_data      = loadFromData(dirname, dataTree);
+
+% if probe_data is complete then we are done no more complexity dealing with other sources of probe info
 probe_digpts    = loadProbeFromDigpts(digpts);
 probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. Copy all probe data loaded from different source which is not
@@ -96,15 +99,15 @@ probe = preRegister(probe, headsurf, refpts);
 % If it was but probe is neither registered to head nor has registration
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe = checkRegistrationData(dirname, probe, headsurf);
+probe = checkRegistrationData(dirname, probe, headsurf, refpts);
 
 % Generate measurement list mid points in 3D if #D optodes exist
-probe = findMeasMidPts(probe);
+probe = checkMeasList(probe);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 5. Save new probe
+% 5. Save new probe 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe.save(probe);
+% probe.save(probe);
 
 
 
@@ -120,67 +123,85 @@ for n = 1:length(varargin)
     probe_other_srcs_status(n) = probe_other_srcs(n).isempty(probe_other_srcs(n));
 end
 
-% Load probe into the array output parameter from the default SD files
-% We make sure this file is firast in the array
-files = [dir(['./*.SD']); dir(['./*.sd'])];
-probe = repmat(initProbe, length(files),1);
-jj = 0;
-if ispathvalid([dirname, 'probe.SD'],'file')
-    filedata = load([dirname, 'probe.SD'], '-mat');
-    jj = jj+1;
-    probeDefault = initProbe();
-    probe = [loadSD(probeDefault, filedata.SD); probe];    
-end
-
-% Load all the other probes from the rest of the SD files (non-default
-% ones). Then decide whether ask the user to choose among multiple SD
-% files.
-askuserflag = false;
-idxLst = [];
-for ii = 1:length(files)
-    
-    if strcmp(files(ii).name, 'probe.SD')
-        idxLst = [idxLst, ii+jj]; %#ok<*AGROW>
-        continue;
-    end
-    
-    filedata = load([dirname, files(ii).name], '-mat');
-    probe(ii+jj) = loadSD(probe(ii+jj), filedata.SD);
-    
-    % Check if there's a reason to ask user to choose an SD file.
-    % In order for the code to decide to ask the user to choose
-    % among mutiple SD files 3 conditions must be met:
-    %
-    %   a) All of the probes listed in varargin must be empty
-    %   c) Default SD file 'probe.SD' must not exist
-    %   d) Multiple SD files must exist at least one of which is
-    %      dissimilar to/incompatible with any one of the others.
-    %
-    for kk = 1:length(probe)
-        if ~compatibleProbes(probe(ii+jj), probe(kk))
-            if jj==0
-                if all(probe_other_srcs_status)
-                    askuserflag = true;
-                end
-            end
-        end
-    end
-    
-end
-probe(idxLst(2:end)) = [];
-
-
-% If askuserflag is set prompt user to select from mutiple incompatible
-% SD files
-if askuserflag
-    probe = initProbe();
+% Check if multiple SD files are available. If more than one probe is
+% availale then ask user to which one to import otherwise import the probe
+files = dir('./*.SD');
+probe = initProbe();
+if length(files) == 1
+    filedata = load([dirname, files(1).name], '-mat');
+    probe = loadSD(probe, filedata.SD);
+    probe.filename_to_save = files(1).name(1:end-3);
+elseif length(files) > 1
     [filename, pathname] = uigetfile('*.SD','Please select the SD file you want to load');
     if filename==0
         return;
     end
-    filedata = load([pathname, '/', filename], '-mat');
+    filedata = load([pathname filename], '-mat');
     probe = loadSD(probe, filedata.SD);
+    probe.filename_to_save = filename(1:end-3);
 end
+
+% % Load probe into the array output parameter from the default SD files
+% % We make sure this file is firast in the array
+% files = [dir(['./*.SD']); dir(['./*.sd'])];
+% probe = repmat(initProbe, length(files),1);
+% jj = 0;
+% if ispathvalid([dirname, 'probe.SD'],'file')
+%     filedata = load([dirname, 'probe.SD'], '-mat');
+%     jj = jj+1;
+%     probeDefault = initProbe();
+%     probe = [loadSD(probeDefault, filedata.SD); probe];    
+% end
+% 
+% % Load all the other probes from the rest of the SD files (non-default
+% % ones). Then decide whether ask the user to choose among multiple SD
+% % files.
+% askuserflag = false;
+% idxLst = [];
+% for ii = 1:length(files)
+%     
+%     if strcmp(files(ii).name, 'probe.SD')
+%         idxLst = [idxLst, ii+jj]; %#ok<*AGROW>
+%         continue;
+%     end
+%     
+%     filedata = load([dirname, files(ii).name], '-mat');
+%     probe(ii+jj) = loadSD(probe(ii+jj), filedata.SD);
+%     
+%     % Check if there's a reason to ask user to choose an SD file.
+%     % In order for the code to decide to ask the user to choose
+%     % among mutiple SD files 3 conditions must be met:
+%     %
+%     %   a) All of the probes listed in varargin must be empty
+%     %   c) Default SD file 'probe.SD' must not exist
+%     %   d) Multiple SD files must exist at least one of which is
+%     %      dissimilar to/incompatible with any one of the others.
+%     %
+%     for kk = 1:length(probe)
+%         if ~compatibleProbes(probe(ii+jj), probe(kk))
+%             if jj==0
+%                 if all(probe_other_srcs_status)
+%                     askuserflag = true;
+%                 end
+%             end
+%         end
+%     end
+%     
+% end
+% probe(idxLst(2:end)) = [];
+% 
+% 
+% % If askuserflag is set prompt user to select from mutiple incompatible
+% % SD files
+% if askuserflag
+%     probe = initProbe();
+%     [filename, pathname] = uigetfile('*.SD','Please select the SD file you want to load');
+%     if filename==0
+%         return;
+%     end
+%     filedata = load([pathname, '/', filename], '-mat');
+%     probe = loadSD(probe, filedata.SD);
+% end
 
 
 
@@ -193,7 +214,6 @@ SD = [];
 % Check if probe in data tree
 if ~isempty(dataTree) && ~dataTree.IsEmpty()
     SD = extractSDFromDataTree(dataTree);
-    
     % Check if probe exists in old-style Homer processing files
 elseif exist([dirname, 'groupResults.mat'], 'file')
     filedata = load([dirname, 'groupResults.mat'], '-mat');
@@ -289,5 +309,48 @@ for ii = 1:length(dirs)
     files = [files; fileNew];
 end
 
+
+
+% -------------------------------------------------------------------------
+function probe = checkMeasList(probe)
+global logger
+logger = InitLogger(logger);
+
+if isempty(probe)
+    return
+end
+if isempty(probe.optpos)
+    return
+end
+if isempty(probe.srcpos)
+    return
+end
+if isempty(probe.detpos)
+    return
+end
+
+while isempty(probe.ml)
+    msg{1} = sprintf('WARNING: measurement list missing from probe. Without a measurement list you can still ');
+    msg{2} = sprintf('register the existing probe and run Monte Carlo but you will not be able to generate a ');
+    msg{3} = sprintf('sensitivity profile. Do you want to choose a probe file from which to copy a measurement list?');
+    logger.Write(msg);
+    q = MenuBox(msg, {'YES','NO'});
+    if q==1
+        [fname, pname] = uigetfile({'*.SD';'*.nirs';'*.snirf'});
+        fnameFull = filesepStandard([pname, '/', fname]);
+        if ispathvalid(fnameFull)
+            probeSD = loadSD(probe, fnameFull);
+        end
+        logger.Write('Selecting  ''YES'':  probe file - %s\n', fnameFull);
+    else
+        logger.Write('Selecting  ''NO''\n');
+        break;
+    end
+    probe.ml = probeSD.ml;
+end
+if isempty(probe.ml)
+    return
+end
+probe = findMeasMidPts(probe);
 
 
