@@ -98,6 +98,8 @@ myCopyFile([dirnameInstall, 'generateDesktopPath.bat'], [dirnameInstall, install
 myCopyFile([dirnameInstall, 'README.txt'], [dirnameInstall, installfilename]);
 myCopyFile([dirnameInstall, 'uninstall.bat'], [dirnameInstall, installfilename]);
 myCopyFile([dirnameApp, 'LastCheckForUpdates.dat'], [dirnameInstall, installfilename]);
+myCopyFile([dirnameApp, 'Version.txt'], [dirnameInstall, installfilename]);
+
 for ii = 1:length(platform.iso2meshmex)
     myCopyFile([platform.iso2meshbin, platform.iso2meshmex{ii}], [dirnameInstall, installfilename]);
 end

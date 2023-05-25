@@ -6,8 +6,6 @@ global dirnameDst
 
 try
 
-    setNamespace('AtlasViewerGUI');
-    
     currdir = filesepStandard(pwd);
         
     h = waitbar(0,'Installation Progress ...');
@@ -63,9 +61,9 @@ logger = Logger([dirnameSrc, 'Setup']);
 
 [~, exename] = getAppname();
 
-v = getVernum('AtlasViewerGUI');
+v = getVernum(exename);
 logger.Write('==========================================\n');
-logger.Write('Setup script for %s v%s.%s.%s:\n', exename, v{1}, v{2}, v{3});
+logger.Write('Setup script for %s v%s:\n', exename, v);
 logger.Write('==========================================\n\n');
 
 logger.Write('Platform params:\n');
@@ -90,7 +88,7 @@ catch ME
     msg{1} = sprintf('Error: Could not create installation folder. It might be in use by other applications.\n');
     msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
     msg{3} = sprintf('installation folder and then retry installation.');
-    MenuBox([msg{:}], 'OK');
+    MenuBox(msg, 'OK');
     close(h);
     rethrow(ME)
 end
@@ -114,6 +112,7 @@ myCopyFile([dirnameSrc, 'Data'],         [dirnameDst, 'Data']);
 myCopyFile([dirnameSrc, platform.mc_exe_name], [dirnameDst, platform.mc_exe_name]);
 myCopyFile([dirnameSrc, 'Group'], [dirnameDst, 'Group']);
 myCopyFile([dirnameSrc, 'LastCheckForUpdates.dat'], dirnameDst);
+myCopyFile([dirnameSrc, 'Version.txt'],     dirnameDst);
 
 for ii = 1:length(platform.iso2meshmex)
     % Use dir instead of exist for mex files because of an annoying matlab bug, where a
@@ -157,7 +156,7 @@ catch ME
     msg{1} = sprintf('Error: Could not remove old installation folder %s. It might be in use by other applications.\n', dirnameDst);
     msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
     msg{3} = sprintf('installation folder and then retry installation.');
-    MenuBox([msg{:}], 'OK');
+    MenuBox(msg, 'OK');
     pause(5);
     rethrow(ME)
 end
@@ -236,8 +235,11 @@ try
     end
 catch ME
     msg{1} = sprintf('Error: Could not create %s shortcuts on Desktop. Exiting installation.', exename);
-    MenuBox([msg{:}], 'OK');
+    MenuBox(msg, 'OK');
     printStack(ME)
     return;    
 end
+
+
+
 
