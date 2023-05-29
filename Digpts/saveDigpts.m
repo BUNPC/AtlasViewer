@@ -11,10 +11,10 @@ end
 % end
 
 if isempty(digpts.pathname)
-    digpts.pathname = [pwd, '/'];
+    digpts.pathname = pwd;
 end
 
-dirname = digpts.pathname;
+dirname = filesepStandard(digpts.pathname);
 if ~exist(dirname, 'dir')
     mkdir(dirname);
 end
@@ -22,7 +22,7 @@ if ~exist('mode', 'var')
     mode='nooverwrite';
 end
 
-if ~exist([dirname 'digpts.txt'], 'file') | strcmp(mode, 'overwrite')
+if ~exist([dirname 'digpts.txt'], 'file') || strcmp(mode, 'overwrite')
     % Save points: unapply T_2mc to get back to original dig pts
     digpts.srcpos = xform_apply(digpts.srcpos, inv(digpts.T_2mc));
     digpts.detpos = xform_apply(digpts.detpos, inv(digpts.T_2mc));
@@ -44,8 +44,8 @@ if ~exist([dirname 'digpts.txt'], 'file') | strcmp(mode, 'overwrite')
     fclose(fid);
 end
 
-if ~exist([dirname 'digpts2mc.txt'], 'file') | strcmp(mode, 'overwrite')
-    T_digpts2mc = digpts.T_2mc;
+if ~exist([dirname 'digpts2mc.txt'], 'file') || strcmp(mode, 'overwrite')
+    T_digpts2mc = digpts.T_2mc; %#ok<NASGU>
     save([dirname 'digpts2mc.txt'], 'T_digpts2mc', '-ascii');
 end
 

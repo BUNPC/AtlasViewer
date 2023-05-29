@@ -11,8 +11,9 @@ end
 
 % Arg 2
 if ~exist('dirname','var') || isempty(dirname)
-    dirname = filesepStandard(pwd);
+    dirname = pwd;
 end
+dirname = filesepStandard(dirname);
 
 % Arg 3
 if ~exist('refpts','var')

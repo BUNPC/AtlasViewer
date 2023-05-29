@@ -1,13 +1,15 @@
 function SD = genProbeFromRefpts(refpts, dt, nW, options)
+t0 = tic;
+
 optpos = refpts.pos;
 ml = [];
 if nargin==0
     return;
 end
-if ~exist('dt','var')
+if ~exist('dt','var') || isempty(dt)
     dt = 30;
 end
-if ~exist('nW','var')
+if ~exist('nW','var') || isempty(nW)
     nW = 2;
 end
 if ~exist('options','var')
@@ -100,14 +102,16 @@ end
 SD = NirsClass().InitProbe(srcpos, detpos, ml, lambda, dummypos);
 if optionExists(options, 'springs')
 	SD = generateSpringRegistration(SD, refpts);
+elseif optionExists(options, 'landmarks')
+	SD = generateLandmarksRegistration(SD, refpts);
 end
-SD = movePts(SD, [50,80,-20], [1,1,1], [-80,110,-150]);
 
-if optionExists(options, 'probe')
-    profileFilename = [filesepStandard(pwd), 'probe.SD'];
-    fprintf('Saving %s with ', profileFilename)
-    save(profileFilename, '-mat', 'SD');
-end
+SD = movePts(SD, [50,80,-20], randNearOne(1,3,t0), [-80,110,-150]);
+
+probeFilename = [filesepStandard(pwd), 'probe.SD'];
+fprintf('Saving %s\n', probeFilename)
+save(probeFilename, '-mat', 'SD');
+
 
 
 
@@ -187,6 +191,14 @@ SD = generateAnchors(SD, refpts);
 
 
 
+% -----------------------------------------------
+function SD = generateLandmarksRegistration(SD, refpts)
+SD.Landmarks.pos = refpts.pos;
+SD.Landmarks.labels = refpts.labels;
+SD.Landmarks3D.pos = refpts.pos;
+SD.Landmarks3D.labels = refpts.labels;
+
+
 
 % -----------------------------------------------
 function SD = movePts(SD, r, s, t)
@@ -237,5 +249,31 @@ T = D*C*B*A;
 SD.SrcPos = xform_apply(SD.SrcPos, T);
 SD.DetPos = xform_apply(SD.DetPos, T);
 SD.DummyPos = xform_apply(SD.DummyPos, T);
+SD.Landmarks.pos = xform_apply(SD.Landmarks.pos, T);
+SD.Landmarks3D.pos = xform_apply(SD.Landmarks3D.pos, T);
+SD.Landmarks2D.pos = xform_apply(SD.Landmarks2D.pos, T);
 
+
+
+% ----------------------------------------------------------------
+function r = randNearOne(w, h, t0)
+generateRandNumSeed(t0);
+r = ones(w,h) + (rand(w,h) - 0.5) / 5;
+
+
+
+% ---------------------------------------------------
+function generateRandNumSeed(time0)
+if time0 == 0
+    x = uint32(100*rand);
+    rng(x);
+    y = uint32(100*rand);
+    rng(y);
+else
+    s = 0;
+    while s==0
+        s = uint64(1e4*toc(time0));
+    end    
+    rng(s);
+end
 
