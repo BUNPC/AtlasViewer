@@ -644,7 +644,7 @@ else
 end
 
 if isempty(probe.optpos_reg) && isempty(probe.optpos)
-    MenuBox('No probe has been loaded or created. Use the SDgui to make or load a probe', 'ok');
+    MenuBox('No probe has been loaded or created. Use the SDgui to make or load a probe');
     atlasViewer.probe = resetProbe(probe);
     return;
 end
@@ -1173,13 +1173,13 @@ if qAdotExists~=1
             msg1 = sprintf('MC input and output already exist for this probe.\n');
             msg2 = sprintf('Use ''Generate/Load Sensitivity Profile'' under the\n');
             msg3 = sprintf('Forward Model menu to generate the sensitivity profile');
-            MenuBox([msg1,msg2,msg3], 'OK');
+            MenuBox([msg1,msg2,msg3]);
             enableDisableMCoutputGraphics(fwmodel, 'on');
         else
             msg1 = sprintf('MC input and output already exist for this probe, but file with measurement list\n');
             msg2 = sprintf('is missing. NOTE: The .nirs file from an experiment using this probe\n');
             msg3 = sprintf('should contain the measurement list. Copy this file to the subject directory');
-            MenuBox([msg1,msg2,msg3], 'OK');
+            MenuBox([msg1,msg2,msg3]);
             enableDisableMCoutputGraphics(fwmodel, 'off');
         end
     else
@@ -1854,7 +1854,7 @@ if ~labelssurf.isempty(labelssurf) && (eventdata == true)
 elseif eventdata == false
     vertices       = pialsurf.mesh.vertices;
 else
-    MenuBox('Warning: No cortical anatomical labels provided for this anatomy.', 'Ok');
+    MenuBox('Warning: No cortical anatomical labels provided for this anatomy.');
     return;
 end
 T_headvol2mc       = headvol.T_2mc;
@@ -1862,8 +1862,8 @@ T_headvol2mc       = headvol.T_2mc;
 if isempty(hObject)
     option = 2;
 else
-    option = MenuBox('Select projection type', 'Curr Subject Optodes','Curr Subject Channels', ...
-                  {'Group Mean: Optodes','Group Mean: Channels','Cancel'});
+    option = MenuBox('Select projection type', {'Curr Subject Optodes','Curr Subject Channels', ...
+                                                'Group Mean: Optodes','Group Mean: Channels','Cancel'});
 end
 
 % Project optodes to labeled cortex
@@ -1920,7 +1920,7 @@ switch(option)
 end
 
 if isempty(ptsProj)
-    MenuBox('Warning: Projection is Empty', 'OK');
+    MenuBox('Warning: Projection is Empty');
     return;
 end
 
@@ -2050,7 +2050,8 @@ for ii=1:length(d)
 end
 
 if ~isempty(iDirs)
-    q = MenuBox('There are subject folders under the current subject. Do you want to process the group or only the current subject?', {'Group','Current Subject','Cancel'});
+    q = MenuBox('There are subject folders under the current subject. Do you want to process the group or only the current subject?', ...
+                {'Group','Current Subject','Cancel'});
     if q==1
         
         for ii=iDirs
@@ -2172,7 +2173,7 @@ if  exist([atlasViewer.dirnameSubj  'fw' filesep 'AdotVolSum.3pt'],'file')
     cd(atlasViewer.dirnameSubj);
 else
     msg = sprintf('You need to first generate a sensitivity profile with sensitivity matrix volume option enabled.');
-    MenuBox(msg, 'OK');
+    MenuBox(msg);
     return;
 end
 
@@ -2880,7 +2881,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -2914,7 +2915,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -2948,7 +2949,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -2981,7 +2982,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -3017,7 +3018,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -3052,7 +3053,7 @@ if isempty(ax)
     return;
 end
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -3085,7 +3086,7 @@ if isempty(ax)
 end
 
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -3117,7 +3118,7 @@ if isempty(ax)
 end
 
 if isempty(headsurf.orientation)
-    MenuBox(ax.errmsg{1}, 'OK');
+    MenuBox(ax.errmsg{1});
     return;
 end
 
@@ -3145,7 +3146,7 @@ if isfield(atlasViewer,'headsurf')
         if err==-1
             msg{1} = sprintf('The head surface and/or volume of this subject does not have enough vertices to\n');
             msg{2} = sprintf('calculate the eeg reference points. Need a denser surface mesh for this subject...');
-            MenuBox(msg, 'OK');
+            MenuBox(msg);
             return;
         end
     end
@@ -3305,11 +3306,11 @@ labelssurf   = atlasViewer.labelssurf;
 
 hSDgui = atlasViewer.probe.handles.hSDgui;
 if isempty(which('SDgui'))
-    MenuBox('SDgui doesn''t exist in the search path.', 'OK');
+    MenuBox('SDgui doesn''t exist in the search path.');
     return;
 end
 if ishandles(hSDgui)
-    MenuBox('SDgui already active.', 'OK');
+    MenuBox('SDgui already active.');
     return;
 end
 atlasViewer.probe = resetProbe(atlasViewer.probe, pwd, handles);

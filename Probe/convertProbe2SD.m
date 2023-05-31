@@ -77,6 +77,9 @@ if ~isempty(atlasViewer)
     SD.Landmarks.pos = refpts.pos;
     SD.Landmarks.labels = refpts.labels;
     SD.mesh = atlasViewer.headsurf.mesh;
+else
+	SD.Landmarks.pos        = probe.registration.refpts.pos;
+	SD.Landmarks.labels     = probe.registration.refpts.labels;
 end
 
 SD = updateProbe2DcircularPts(probe, SD);

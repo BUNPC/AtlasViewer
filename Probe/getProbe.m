@@ -11,7 +11,7 @@ end
 
 % Arg 2
 if ~exist('dirname','var') || isempty(dirname)
-    dirname = filesepStandard(pwd);
+    dirname = pwd;
 end
 
 % Arg 3
@@ -21,12 +21,12 @@ end
 
 % Arg 4
 if ~exist('headsurf','var')
-    headsurf = [];
+    headsurf = initHeadsurf();
 end
 
 % Arg 5
 if ~exist('refpts','var')
-    refpts = [];
+    refpts = initRefpts();
 end
 
 % Arg 6
@@ -140,69 +140,6 @@ elseif length(files) > 1
     probe = loadSD(probe, filedata.SD);
     probe.filename_to_save = filename(1:end-3);
 end
-
-% % Load probe into the array output parameter from the default SD files
-% % We make sure this file is firast in the array
-% files = [dir(['./*.SD']); dir(['./*.sd'])];
-% probe = repmat(initProbe, length(files),1);
-% jj = 0;
-% if ispathvalid([dirname, 'probe.SD'],'file')
-%     filedata = load([dirname, 'probe.SD'], '-mat');
-%     jj = jj+1;
-%     probeDefault = initProbe();
-%     probe = [loadSD(probeDefault, filedata.SD); probe];    
-% end
-% 
-% % Load all the other probes from the rest of the SD files (non-default
-% % ones). Then decide whether ask the user to choose among multiple SD
-% % files.
-% askuserflag = false;
-% idxLst = [];
-% for ii = 1:length(files)
-%     
-%     if strcmp(files(ii).name, 'probe.SD')
-%         idxLst = [idxLst, ii+jj]; %#ok<*AGROW>
-%         continue;
-%     end
-%     
-%     filedata = load([dirname, files(ii).name], '-mat');
-%     probe(ii+jj) = loadSD(probe(ii+jj), filedata.SD);
-%     
-%     % Check if there's a reason to ask user to choose an SD file.
-%     % In order for the code to decide to ask the user to choose
-%     % among mutiple SD files 3 conditions must be met:
-%     %
-%     %   a) All of the probes listed in varargin must be empty
-%     %   c) Default SD file 'probe.SD' must not exist
-%     %   d) Multiple SD files must exist at least one of which is
-%     %      dissimilar to/incompatible with any one of the others.
-%     %
-%     for kk = 1:length(probe)
-%         if ~compatibleProbes(probe(ii+jj), probe(kk))
-%             if jj==0
-%                 if all(probe_other_srcs_status)
-%                     askuserflag = true;
-%                 end
-%             end
-%         end
-%     end
-%     
-% end
-% probe(idxLst(2:end)) = [];
-% 
-% 
-% % If askuserflag is set prompt user to select from mutiple incompatible
-% % SD files
-% if askuserflag
-%     probe = initProbe();
-%     [filename, pathname] = uigetfile('*.SD','Please select the SD file you want to load');
-%     if filename==0
-%         return;
-%     end
-%     filedata = load([pathname, '/', filename], '-mat');
-%     probe = loadSD(probe, filedata.SD);
-% end
-
 
 
 
