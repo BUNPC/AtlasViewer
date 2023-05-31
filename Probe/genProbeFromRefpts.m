@@ -1,4 +1,6 @@
 function SD = genProbeFromRefpts(refpts, dt, nW, options)
+global probeFilename
+
 t0 = tic;
 
 optpos = refpts.pos;
@@ -108,10 +110,9 @@ end
 
 SD = movePts(SD, [50,80,-20], randNearOne(1,3,t0), [-80,110,-150]);
 
-probeFilename = [filesepStandard(pwd), 'probe.SD'];
-fprintf('Saving %s\n', probeFilename)
-save(probeFilename, '-mat', 'SD');
-
+probeFilenameFull = [filesepStandard(pwd), probeFilename];
+fprintf('Saving %s\n', probeFilenameFull)
+save(probeFilenameFull, '-mat', 'SD');
 
 
 
