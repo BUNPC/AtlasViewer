@@ -283,13 +283,10 @@ if value1 == 1 % brain only reconstruction after short separation regression
     end
     
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
-    
-    Adot = Adot(activeChIdxs,:,:);
-    Adot = Adot(longSepChLst,:,:);
-    
-    Adot_scalp = Adot_scalp(activeChIdxs,:,:);
-    Adot_scalp = Adot_scalp(longSepChLst,:,:);
-    
+
+    Adot = Adot(activeChLst_SDpairs,:,:);
+    Adot_scalp = Adot_scalp(activeChLst_SDpairs,:,:);
+
     % get alpha and beta for regularization
     alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>
     beta = str2num(get(handles.beta_brain_scalp,'String'));
