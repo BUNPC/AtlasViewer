@@ -249,11 +249,12 @@ for iWav = 1:num_wavelengths
         cfg.isnormalized = 1;
         cfg.outputtype = 'fluence';
         
-        cfg.prop=[         0         0    1.0000    1.0000 % background/air
-            tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
-            tiss_prop(2).absorption(iWav) tiss_prop(2).scattering(iWav) tiss_prop(2).anisotropy(1) tiss_prop(2).refraction(1)
-            tiss_prop(3).absorption(iWav) tiss_prop(3).scattering(iWav) tiss_prop(3).anisotropy(1) tiss_prop(3).refraction(1)
-            tiss_prop(4).absorption(iWav) tiss_prop(4).scattering(iWav) tiss_prop(4).anisotropy(1) tiss_prop(4).refraction(1) ];
+        cfg.prop=[         0         0    1.0000    1.0000 ]; % background/air
+        for i = 1:length(tiss_prop)
+            cfg.prop = [cfg.prop; ...
+                tiss_prop(i).absorption(iWav) tiss_prop(i).scattering(iWav) tiss_prop(i).anisotropy(1) tiss_prop(i).refraction(1)]
+
+        end
         
         cfg.seed=floor(rand()*10e+7);
         cfg.nphoton=num_phot;
