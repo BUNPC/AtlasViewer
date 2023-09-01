@@ -99,7 +99,7 @@ elseif nargin==1
     end
 end
       
-if isempty(nz) | isempty(iz) | isempty(rpa) | isempty(lpa) | isempty(cz)
+if isempty(nz) || isempty(iz) || isempty(rpa) || isempty(lpa) || isempty(cz)
     return;
 end
 
@@ -121,11 +121,8 @@ end
 T = [1 0 0 -o(1); 0 1 0 -o(2); 0 0 1 -o(3); 0 0 0 1];
 p_new = xform_apply([nz; iz; rpa; lpa; cz; czo], T);
 nz_new  = p_new(1,:);
-iz_new  = p_new(2,:);
 rpa_new = p_new(3,:);
-lpa_new = p_new(4,:);
 cz_new  = p_new(5,:);
-czo_new = p_new(6,:);
 
 % Rotate to align with x,y,z coordinates. 
 p(1,:) = findClosestAxes(rpa_new);

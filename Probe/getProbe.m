@@ -42,10 +42,8 @@ probe.pathname = dirname;
 % 1. Load probe data from the various possible sources
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe_data      = loadFromData(dirname, dataTree);
-
-% if probe_data is complete then we are done no more complexity dealing with other sources of probe info
 probe_digpts    = loadProbeFromDigpts(digpts);
-probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
+probe_SD        = loadFromSDFiles(dirname);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,41 +102,46 @@ probe = checkRegistrationData(dirname, probe, headsurf, refpts);
 % Generate measurement list mid points in 3D if #D optodes exist
 probe = checkMeasList(probe);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 5. Save new probe 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% probe.save(probe);
-
 
 
 % -------------------------------------------
-function probe = loadFromSDFiles(dirname, varargin)
-
-% Arg 2: Extract all the probes from varargin agianst which the SD probes have to
-% be compared for compatability
-probe_other_srcs          = repmat(initProbe, length(varargin),1);
-probe_other_srcs_status   = zeros(1, length(probe_other_srcs));
-for n = 1:length(varargin)
-    probe_other_srcs(n)        = varargin{n};
-    probe_other_srcs_status(n) = probe_other_srcs(n).isempty(probe_other_srcs(n));
-end
+function probe = loadFromSDFiles(dirname)
+probe = initProbe();
 
 % Check if multiple SD files are available. If more than one probe is
 % availale then ask user to which one to import otherwise import the probe
-files = dir('./*.SD');
-probe = initProbe();
+files1 = dir('./*.SD');
+files2 = dir('./*.nirs');
+files3 = dir('./*.snirf');
+files = [files1; files2; files3];
+
+% Check how many unique probes there are and throw away any redundant ones
+files = findUniqueProbeFiles(files);
+
 if length(files) == 1
-    filedata = load([dirname, files(1).name], '-mat');
-    probe = loadSD(probe, filedata.SD);
-    probe.filename_to_save = files(1).name(1:end-3);
+    [~, ~, ext] = fileparts(files(1).name);
+    if strcmpi(ext, '.SD')
+        filedata = load([dirname, files(1).name], '-mat');
+        probe = loadSD(probe, filedata.SD);
+    elseif strcmpi(ext, '.snirf')
+        s = SnirfClass([dirname, files(1).name]);
+        n = NirsClass(s);
+        probe = convertSD2probe(n.SD);
+    end
 elseif length(files) > 1
-    [filename, pathname] = uigetfile('*.SD','Please select the SD file you want to load');
+    [filename, pathname] = uigetfile({'*.SD; *.snirf'},'Please select the probe file you want to load');
     if filename==0
         return;
     end
-    filedata = load([pathname filename], '-mat');
-    probe = loadSD(probe, filedata.SD);
-    probe.filename_to_save = filename(1:end-3);
+    [~, ~, ext] = fileparts(filename);
+    if strcmpi(ext, '.SD')
+        filedata = load([pathname filename], '-mat');
+        probe = loadSD(probe, filedata.SD);
+    elseif strcmpi(ext, '.snirf')
+        s = SnirfClass([dirname, filename]);
+        n = NirsClass(s);
+        probe = convertSD2probe(n.SD);
+    end
 end
 
 
@@ -245,49 +248,5 @@ for ii = 1:length(dirs)
     fileNew = getDotNirsFiles(filesepStandard([dirname, dirs(ii).name]));
     files = [files; fileNew];
 end
-
-
-
-% -------------------------------------------------------------------------
-function probe = checkMeasList(probe)
-global logger
-logger = InitLogger(logger);
-
-if isempty(probe)
-    return
-end
-if isempty(probe.optpos)
-    return
-end
-if isempty(probe.srcpos)
-    return
-end
-if isempty(probe.detpos)
-    return
-end
-
-while isempty(probe.ml)
-    msg{1} = sprintf('WARNING: measurement list missing from probe. Without a measurement list you can still ');
-    msg{2} = sprintf('register the existing probe and run Monte Carlo but you will not be able to generate a ');
-    msg{3} = sprintf('sensitivity profile. Do you want to choose a probe file from which to copy a measurement list?');
-    logger.Write(msg);
-    q = MenuBox(msg, {'YES','NO'});
-    if q==1
-        [fname, pname] = uigetfile({'*.SD';'*.nirs';'*.snirf'});
-        fnameFull = filesepStandard([pname, '/', fname]);
-        if ispathvalid(fnameFull)
-            probeSD = loadSD(probe, fnameFull);
-        end
-        logger.Write('Selecting  ''YES'':  probe file - %s\n', fnameFull);
-    else
-        logger.Write('Selecting  ''NO''\n');
-        break;
-    end
-    probe.ml = probeSD.ml;
-end
-if isempty(probe.ml)
-    return
-end
-probe = findMeasMidPts(probe);
 
 

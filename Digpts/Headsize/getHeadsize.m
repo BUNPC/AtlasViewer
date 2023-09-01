@@ -11,6 +11,21 @@ if ~exist(filename, 'file')
 end
 
 try
+    % If headsize.txt file format is just 3 numbers then do this 
+    curveLen = load(filename, '-ascii');
+    scalefactor = getScaleFactor(curveLen);
+    if length(curveLen)==3
+        headsize.HC = curveLen(1)*scalefactor;
+        headsize.NzCzIz = curveLen(2)*scalefactor;
+        headsize.LPACzRPA = curveLen(3)*scalefactor;
+    end
+    if ~isempty(headsize.HC)
+        return
+    end
+   
+    
+    % If headsize.txt file format is more complicated and needs parsing do
+    % this
     fid = fopen(filename, 'r');
     linecount = 0;
     while 1
@@ -38,7 +53,6 @@ end
 
 % -----------------------------------------------------
 function headsize = parse(headsize, line, linecount)
-
 parts = str2cell(line, {':',' '});
 for ii = length(parts):-1:1
     if isempty(parts{ii})
@@ -49,18 +63,14 @@ if isempty(parts)
     return
 end
 
-scalefactor = 10;
 labelidx = 1;
 numidx = 2;
-unitsidx = 3;
 if isnumber(parts{1})
     labelidx = 0;
     numidx = 1;
-    unitsidx = 2;
 end
-if length(parts) >= unitsidx && strcmp(parts{unitsidx},'mm')
-    scalefactor = 1;
-end
+
+scalefactor = getScaleFactor(parts{numidx});
 
 if labelidx==0
     switch(linecount)
@@ -84,5 +94,15 @@ end
 
 
 
-
+% -------------------------------------------------------------------
+function scalefactor = getScaleFactor(curveLen)
+scalefactor = 10;
+if ischar(curveLen)
+    curveLen = str2num(curveLen);
+end
+if mean(curveLen) >= 100
+    scalefactor = 1;
+elseif mean(curveLen) < 100 
+    scalefactor = 10;
+end
 

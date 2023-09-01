@@ -81,7 +81,7 @@ probe = struct( ...
 probe = initFontSizeConfigParams(probe, 'Probe Optodes');
 probe = initRegistration(probe);
 
-if exist('handles','var')
+if exist('handles','var') && ~isempty(handles)
     probe.handles.pushbuttonRegisterProbeToSurface = handles.pushbuttonRegisterProbeToSurface;
     probe.handles.checkboxHideProbe                = handles.checkboxHideProbe;
     probe.handles.checkboxHideSprings              = handles.checkboxHideSprings;
@@ -178,9 +178,6 @@ probe = scaleFactor(probe);
 probe = copySpringRegistration(probe, probe2);
 probe = copyLandmarks(probe, probe2);
 
-if isfield(probe2,'filename_to_save')
-    probe.filename_to_save = probe2.filename_to_save;
-end
 if ~isempty(probe2.lambda) && isempty(probe.lambda)
     probe.lambda        = probe2.lambda;
 end

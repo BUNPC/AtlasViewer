@@ -8,17 +8,15 @@ if ~probeHasSpringRegistration(probe) && ~isempty(probe.registration.refpts)
         idx1 = ismember(lower(probe.registration.refpts.labels), lower(label));
         idx2 = ismember(lower(refpts.labels), lower(label));
         if sum(idx1)>0 && sum(idx2)>0
-            probe_refps_pos(kk,:) = probe.registration.refpts.pos(idx1,:);
+            probe_refps_pos(kk,:) = probe.registration.refpts.pos(idx1,1:3);
             AV_refpts_pos(kk,:) = refpts.pos(idx2,:);
             kk = kk+1;
         end
     end
     
-    probe_refps_pos = [probe_refps_pos, ones(size(probe_refps_pos,1),1)];
-    T = probe_refps_pos \ AV_refpts_pos;
+    T = gen_xform_from_pts(probe_refps_pos, AV_refpts_pos);
     optpos = [probe.srcpos; probe.detpos];
-    optpos = [optpos, ones(size(optpos,1),1)];
-    probe.optpos_reg = optpos*T;
+    probe.optpos_reg = xform_apply(optpos, T);
     probe = pullProbeToHeadsurf(probe, headvol);
 else
     [optconn, anchor_pts] = spring2posprobe(probe, refpts, headvol);

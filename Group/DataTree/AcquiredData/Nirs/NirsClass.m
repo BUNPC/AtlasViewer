@@ -76,7 +76,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             if ~ischar(varargin{1}) && nargin==1
                 obj.ErrorCheck();
                 return
-            end
+            end           
             
             if nargin==2
                 obj.SetDataStorageScheme(varargin{2});
@@ -361,10 +361,15 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             end
             [~, k1] = sortrows(obj.SD.MeasList);
             [~, k2] = sortrows(obj2.SD.MeasList);
+            
+            % Compare meas list dimensions first - if that's not equal then the probes aren't equal
+            if ~all( size(obj.SD.MeasList(k1,:)) == size(obj2.SD.MeasList(k2,:)) )
+                return;
+            end
+
             if ~all(obj.SD.MeasList(k1,:) == obj2.SD.MeasList(k2,:))
                 return;
-            end            
-
+            end
             
             for kk = 1:length(fields)
                 for jj = 1:length(fields{kk})
@@ -1261,7 +1266,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         
         
         % ----------------------------------------------------------------------------------
-        function CopyProbe(obj, SD)             %#ok<INUSD>
+        function CopyProbe(obj, SD)
             fields = propnames(obj.SD);
             for ii = 1:length(fields)
                 if eval( sprintf('isfield(SD, ''%s'')', fields{ii}) )
@@ -1339,7 +1344,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                                     
             % MesListAct
             if size(obj.SD.MeasListAct,1) < size(obj.SD.MeasList,1)
-                d = size(obj.SD.MeasListAct,1) - size(obj.SD.MeasList,1);
+                d = size(obj.SD.MeasListAct,1) - size(obj.SD.MeasList,1); %#ok<*PROPLC>
                 if d < 0
                     obj.SD.MeasListAct(end+1:end+abs(d)) = ones(abs(d),1);
                 elseif d>1
@@ -1376,7 +1381,31 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                 end
             end
         end
-
+        
+        
+        
+        % ----------------------------------------------------------------------------------
+        function b = IsProbeFlat(obj)
+            b = false;
+            if length(obj.SD.SrcPos) == length(obj.SD.SrcPos3D)
+                if ~all(obj.SD.SrcPos == obj.SD.SrcPos3D)
+                    return;
+                end
+            end
+            if length(obj.SD.DetPos) == length(obj.SD.DetPos3D)
+                if ~all(obj.SD.DetPos == obj.SD.DetPos3D)
+                    return
+                end
+            end
+            optpos = [obj.SD.SrcPos3D; obj.SD.DetPos3D];
+            ncoord = size(optpos, 2);
+            for ii = 1:ncoord
+                if length(unique(optpos(:,ii)))==1
+                    break;
+                end
+            end
+            b = true;
+        end        
         
         
         % ----------------------------------------------------------------------------------
@@ -1391,7 +1420,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             try
 	            obj.SD.Lambda = snirf.probe.wavelengths;
 	            obj.SD.SrcPos = snirf.probe.sourcePos2D;
-	            obj.SD.DetPos = snirf.probe.detectorPos2D;
+	            obj.SD.DetPos = snirf.probe.detectorPos2D;                
 	            obj.SD.SrcPos3D = snirf.probe.sourcePos3D;
 	            obj.SD.DetPos3D = snirf.probe.detectorPos3D;
 	            obj.SD.MeasList = snirf.GetMeasList();
@@ -1452,10 +1481,7 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         
         % ----------------------------------------------------------------------------------
         function ConvertSnirfAux(obj, snirf)
-            obj.aux = zeros(length(obj.t), length(snirf.aux));
-            for ii = 1:length(snirf.aux)
-                obj.aux(:,ii) = snirf.aux(ii).dataTimeSeries;
-            end
+            obj.aux = snirf.GetAuxDataMatrix();
         end
         
         
@@ -1541,7 +1567,10 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
                     end
                 end
             end
-            
+            if obj.IsProbeFlat()
+                obj.SD.SrcPos3D = [];
+                obj.SD.DetPos3D = [];
+            end
         end
         
         

@@ -90,14 +90,15 @@ else
         set(refpts.handles.menuItemShowRefpts,'enable','off');    
     end
     
-    if length(refpts.labels)>=50 & length(refpts.labels)<=100
+    if length(refpts.labels)>=50 && length(refpts.labels)<=100
         refpts.size = 9;
     elseif length(refpts.labels)>100
         refpts.size = 8;
     end
     
     [nz, iz, rpa, lpa, cz] = getLandmarks(refpts);
-    [refpts.orientation, refpts.center] = getOrientation(nz, iz, rpa, lpa, cz);
+    refpts.orientation = getOrientation(nz, iz, rpa, lpa, cz);
+    refpts.center = findcenter(refpts.pos);
       
 end
 refpts.pathname = dirname0;

@@ -35,7 +35,7 @@ if ~existDigpts(digpts)
     digpts = initDigpts();
 end
 
-digpts.headsize = getHeadsize(digpts.headsize, dirname);
+digpts = genDigptsFromHeadsize(digpts, dirname, refpts);
 
 inputfile = '';
 if exist(dirname,'file')==2

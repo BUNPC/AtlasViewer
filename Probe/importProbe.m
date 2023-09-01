@@ -1,28 +1,18 @@
-function probe = importProbe(probe, filename, headsurf, refpts)
-if ~exist('headsurf','var')
-    headsurf = [];
+function probe = importProbe(probe, filename, headsurf, refpts, handles)
+if ~exist('handles','var')
+    handles = [];
 end
-if ~exist('refpts','var')
-    refpts = [];
-end
-
-[pname, fname, ext] = fileparts(filename);
-pname = filesepStandard(pname);
-switch lower(ext)
-    case '.txt'
-        probe = loadProbeFormTextFile(probe, [pname, fname, ext]);
-
-    case {'.sd','.nirs'}
-
-        filedata = load([pname, fname, ext], '-mat');
-        probe = loadSD(probe, filedata.SD);
-
-    case {'.snirf'}
-
-        snirf = SnirfClass([pname, fname, ext]);
-        SD = snirf.GetSDG();
-        SD.MeasList = snirf.GetMeasList();
-        probe = loadSD(probe, SD);
+dirname = probe.pathname;
+resetProbe(probe, dirname, handles);
+probe = initProbe(handles);
+[~, ~, ext] = fileparts(filename);
+if strcmpi(ext, '.SD')
+    filedata = load(filename, '-mat');
+    probe = loadSD(probe, filedata.SD);
+elseif strcmpi(ext, '.snirf')
+    s = SnirfClass(filename);
+    n = NirsClass(s);
+    probe = convertSD2probe(n.SD, handles);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,17 +21,13 @@ end
 probe = preRegister(probe, headsurf, refpts);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 4. Check if registration data exists only if data from SD data was loaded. 
-% If it was but probe is neither registered to head nor has registration 
+% 4. Check if registration data exists only if data from SD data was loaded.
+% If it was but probe is neither registered to head nor has registration
 % data, then offer to add it manually
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe = checkRegistrationData(pname, probe, headsurf, refpts);
+probe = checkRegistrationData(dirname, probe, headsurf, refpts);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 5. Save new probe
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-probe.save(probe);
-
-
+% Generate measurement list mid points in 3D if #D optodes exist
+probe = checkMeasList(probe);
 
 

@@ -1,4 +1,4 @@
-function b = duplicate_anchors(pos, dpos, conO, conD)
+function b = duplicate_anchors(pos, dpos, conO)
 %
 % Usage:
 %
@@ -13,17 +13,18 @@ function b = duplicate_anchors(pos, dpos, conO, conD)
 %     unchecked.
 %
 
-b=0;
-for ii=1:size(pos,1)
-    if all(~dpos(ii,1)) && all(~dpos(ii,2)) && all(~dpos(ii,3))
-        for jj=1:length(conO(ii,:))
+b = 0;
+for ii = 1:size(pos,1)
+    if all(dpos(ii,:)==0)
+        for jj = 1:length(conO(ii,:))
             if conO(ii,jj)==0
                 continue;
             end
             if all(pos(ii,:) == pos(conO(ii,jj),:))
-                b=1;
+                b = 1;
                 return;
             end
         end
     end
 end
+

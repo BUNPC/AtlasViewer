@@ -30,11 +30,11 @@ neighbors = optconn;
 %%%% REPLACE OPTODE ROWS WHICH HAVE ASSOCIATED SURFACE POINTS WITH 
 %%%% THE SURFACE COORDINATES (ANCHOR POINTS)
 optpos_dxdydz = [optpos ones(size(optpos,1), 3)];
-for i=1:size(anchor_pts, 1)
+for i = 1:size(anchor_pts, 1)
      optpos_dxdydz(anchor_pts(i,1), 1:6) = [anchor_pts(i,2:4) 0 0 0];
 end
 
 %%%% CREATE FINAL PROBE DATA 
-data = [[1:size(optconn,1)]' optpos_dxdydz neighbors];
+data = [(1:size(optconn,1))', optpos_dxdydz, neighbors];
     
 

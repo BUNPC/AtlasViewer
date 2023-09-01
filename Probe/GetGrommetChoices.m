@@ -1,4 +1,5 @@
 function choices = GetGrommetChoices()
+global cfg
 
 choices = { ...
     'none', ...
@@ -25,7 +26,6 @@ choices = { ...
 %     filename = which('GrommetTypes_Custom.cfg');
 % end
 
-cfg = ConfigFileClass();
 custom_choices = cfg.GetMultiValues('Grommet Types');
 
 if ~isempty(custom_choices)

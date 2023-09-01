@@ -1,9 +1,11 @@
 function d = getFileDateStruct(file)
-
-if ~isstruct(file) & ischar(file)
+d = [];
+if ~isstruct(file) && ischar(file)
     file = dir(file);
 end
-
+if isempty(file)
+    return;
+end
 d = struct('filename',file.name,'str','','year',[],'month',[],'day',[],'hour',[],'min',[],'sec',[],'num',[]);
 
 START_YEAR     = 1970;
