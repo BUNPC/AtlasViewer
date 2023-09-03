@@ -238,8 +238,12 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
         
         % ---------------------------------------------------------
         function err = LoadProbeMeasList(obj, fdata, err)
-            if isproperty(fdata,'SD')
-                obj.CopyProbe(fdata.SD);
+            SD = fdata;
+            while isproperty(SD,'SD')
+                SD = SD.SD;
+            end
+            if isproperty(SD,'SrcPos')
+                obj.CopyProbe(SD);
                 if isempty(obj.SD) && err == 0
                     err = -4;
                 end
@@ -1401,12 +1405,48 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             ncoord = size(optpos, 2);
             for ii = 1:ncoord
                 if length(unique(optpos(:,ii)))==1
-                    break;
+                    b = true;
+                    return
                 end
             end
             b = true;
-        end        
+        end
         
+        
+        
+        % ----------------------------------------------------------------------------------
+        function b = Are3DLandmarksFlat(obj)
+            b = true;
+            if isempty(obj.SD.Landmarks3D.pos)
+                return;
+            end
+            ncoord = size(obj.SD.Landmarks3D.pos, 2);
+            for ii = 1:ncoord
+                if length(unique(obj.SD.Landmarks3D.pos(:,ii)))==1
+                    return;
+                end
+            end
+            b = false;
+        end
+        
+
+        
+        % ----------------------------------------------------------------------------------
+        function b = AreLandmarksFlat(obj)
+            b = true;
+            if isempty(obj.SD.Landmarks.pos)
+                return;
+            end
+            ncoord = size(obj.SD.Landmarks.pos, 2);
+            for ii = 1:ncoord
+                if length(unique(obj.SD.Landmarks.pos(:,ii)))==1
+                    return;
+                end
+            end
+            b = false;
+        end
+        
+
         
         % ----------------------------------------------------------------------------------
         function err = ConvertSnirfProbe(obj, snirf)
@@ -1429,17 +1469,17 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
 	                obj.SD.Landmarks3D.labels   = snirf.probe.landmarkLabels;
 	            	obj.SD.Landmarks3D.pos      = snirf.probe.landmarkPos3D;
 	            end
-	            if length(snirf.probe.landmarkLabels) == size(snirf.probe.landmarkPos2D,1)
-	            	obj.SD.Landmarks2D.labels   = snirf.probe.landmarkLabels;
-	                obj.SD.Landmarks2D.pos      = snirf.probe.landmarkPos2D;
-	        	end
-	            if     ~isempty(obj.SD.Landmarks3D.labels)
-	                obj.SD.Landmarks.pos        = obj.SD.Landmarks3D.pos;
-	                obj.SD.Landmarks.labels     = obj.SD.Landmarks3D.labels;
-	            elseif ~isempty(obj.SD.Landmarks2D.labels)
-	                obj.SD.Landmarks.pos        = obj.SD.Landmarks2D.pos;
-	                obj.SD.Landmarks.labels     = obj.SD.Landmarks2D.labels;
-	            end                
+                if length(snirf.probe.landmarkLabels) == size(snirf.probe.landmarkPos2D,1)
+                    obj.SD.Landmarks2D.labels   = snirf.probe.landmarkLabels;
+                    obj.SD.Landmarks2D.pos      = snirf.probe.landmarkPos2D;
+                end
+                if     ~isempty(obj.SD.Landmarks3D.labels)
+                    obj.SD.Landmarks.pos        = obj.SD.Landmarks3D.pos;
+                    obj.SD.Landmarks.labels     = obj.SD.Landmarks3D.labels;
+                elseif ~isempty(obj.SD.Landmarks2D.labels)
+                    obj.SD.Landmarks.pos        = obj.SD.Landmarks2D.pos;
+                    obj.SD.Landmarks.labels     = obj.SD.Landmarks2D.labels;
+                end
             catch
                 err = -1;
             end
@@ -1570,6 +1610,10 @@ classdef NirsClass < AcqDataClass & FileLoadSaveClass
             if obj.IsProbeFlat()
                 obj.SD.SrcPos3D = [];
                 obj.SD.DetPos3D = [];
+            end
+            if obj.Are3DLandmarksFlat() && ~obj.AreLandmarksFlat()
+                obj.SD.Landmarks3D.pos      = obj.SD.Landmarks.pos;
+                obj.SD.Landmarks3D.labels   = obj.SD.Landmarks.labels;
             end
         end
         
