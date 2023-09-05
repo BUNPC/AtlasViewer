@@ -239,27 +239,43 @@ for iWav = 1:num_wavelengths
         cfg.tend=time_gates(1,2);
         cfg.tstep=time_gates(1,3);
         
-        cfg.srcpos=[optpos(ii, 1) optpos(ii, 2) optpos(ii, 3)];
-        cfg.srcdir=[optpos(ii, 4) optpos(ii, 5) optpos(ii, 6)];
-        cfg.srcdir=cfg.srcdir/norm(cfg.srcdir);
-        
-        cfg.detpos=[];
-        
-        cfg.issrcfrom0=1;
-        cfg.isnormalized = 1;
-        cfg.outputtype = 'fluence';
-        
-        cfg.prop=[         0         0    1.0000    1.0000 % background/air
-            tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
-            tiss_prop(2).absorption(iWav) tiss_prop(2).scattering(iWav) tiss_prop(2).anisotropy(1) tiss_prop(2).refraction(1)
-            tiss_prop(3).absorption(iWav) tiss_prop(3).scattering(iWav) tiss_prop(3).anisotropy(1) tiss_prop(3).refraction(1)
-            tiss_prop(4).absorption(iWav) tiss_prop(4).scattering(iWav) tiss_prop(4).anisotropy(1) tiss_prop(4).refraction(1) ];
-        
-        cfg.seed=floor(rand()*10e+7);
-        cfg.nphoton=num_phot;
-        cfg.issaveexit=1;
-        
-        [flue,detps]=mcxlab(cfg);
+        while_flag = 1;
+        while_count = 1;
+        while while_flag
+            cfg.srcdir=[optpos(ii, 4) optpos(ii, 5) optpos(ii, 6)];
+            cfg.srcdir=cfg.srcdir/norm(cfg.srcdir);
+            if while_count == 1
+                cfg.srcpos=[optpos(ii, 1) optpos(ii, 2) optpos(ii, 3)];
+            else
+                cfg.srcpos = cfg.srcpos+cfg.srcdir;
+            end
+
+            cfg.detpos=[];
+
+            cfg.issrcfrom0=1;
+            cfg.isnormalized = 1;
+            cfg.outputtype = 'fluence';
+
+            cfg.prop=[         0         0    1.0000    1.0000 % background/air
+                tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
+                tiss_prop(2).absorption(iWav) tiss_prop(2).scattering(iWav) tiss_prop(2).anisotropy(1) tiss_prop(2).refraction(1)
+                tiss_prop(3).absorption(iWav) tiss_prop(3).scattering(iWav) tiss_prop(3).anisotropy(1) tiss_prop(3).refraction(1)
+                tiss_prop(4).absorption(iWav) tiss_prop(4).scattering(iWav) tiss_prop(4).anisotropy(1) tiss_prop(4).refraction(1) ];
+
+            cfg.seed=floor(rand()*10e+7);
+            cfg.nphoton=num_phot;
+            cfg.issaveexit=1;
+
+            [flue,detps]=mcxlab(cfg);
+            
+            min_val = min(flue.data(:));
+            max_val = max(flue.data(:));
+
+            if ~((min_val == 0 && max_val == 0))
+                 while_flag = 0;
+            end
+            while_count =  while_count+1;
+        end
         
         % Scale the flue
         % he gives me the energyabs... I guess I just get the scale factor
