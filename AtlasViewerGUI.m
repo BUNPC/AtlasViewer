@@ -4895,6 +4895,11 @@ end
 function menutemSaveProbeSD_Callback(~, ~, ~)
 global atlasViewer
 
+if atlasViewer.probe.isempty(atlasViewer.probe)
+    MenuBox('No probe to save');
+    return;
+end
+
 [filename, pathname] = uiputfile('*.SD');
 SD = convertProbe2SD(atlasViewer.probe);
 save([pathname filename],'-mat', 'SD');
