@@ -3,7 +3,7 @@ if ~exist('handles','var')
     handles = [];
 end
 dirname = probe.pathname;
-resetProbe(probe, dirname, handles);
+resetProbe(probe);
 probe = initProbe(handles);
 [~, ~, ext] = fileparts(filename);
 if strcmpi(ext, '.SD')

@@ -13,7 +13,10 @@ if ~exist('probe','var') || isempty(probe) || probe.isempty(probe)
     return
 end
 if ~exist('obj','var') || isempty(obj) || obj.isempty(obj)
-    return;
+    if ~probeHasSpringRegistration(probe)
+        return
+    end    
+    obj = probe.registration.refpts;
 end
 
 headsurf = [];
@@ -75,10 +78,21 @@ end
 if probe.registration.refpts.isempty(probe.registration.refpts)
     return
 end
-[rp1, rp2] = findCorrespondingRefpts(probe.registration.refpts, refpts);
-
+if probeHasSpringRegistration(probe)
+    try
+    refpts1.labels  = probe.registration.al(:,2);
+    refpts1.pos     = probe.optpos(cell2array(probe.registration.al(:,1)), :);
+    catch
+        d = 1;
+    end
+else
+    refpts1         = probe.registration.refpts;
+end
+refpts2 = refpts;
+[rp1, rp2] = findCorrespondingRefpts(refpts1, refpts2);
 d = dist3(rp1,rp2);
 b = analyseStats(d);
+
 
 
 

@@ -43,7 +43,7 @@ probe.pathname = dirname;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 probe_data      = loadFromData(dirname, dataTree);
 probe_digpts    = loadProbeFromDigpts(digpts);
-probe_SD        = loadFromSDFiles(dirname);
+probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,7 +105,7 @@ probe = checkMeasList(probe);
 
 
 % -------------------------------------------
-function probe = loadFromSDFiles(dirname)
+function probe = loadFromSDFiles(dirname, probe_digpts, probe_data)
 probe = initProbe();
 
 % Check if multiple SD files are available. If more than one probe is
@@ -116,7 +116,7 @@ files3 = dir('./*.snirf');
 files = [files1; files2; files3];
 
 % Check how many unique probes there are and throw away any redundant ones
-files = findUniqueProbeFiles(files);
+files = findUniqueProbeFiles(files, probe_digpts, probe_data);
 
 if length(files) == 1
     [~, ~, ext] = fileparts(files(1).name);

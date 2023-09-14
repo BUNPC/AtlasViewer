@@ -35,9 +35,5 @@ if ~isempty(probe1.ml) && ~isempty(probe2.ml)
         return;
     end
 end
-
-ds1 = distmatrix(probe1.optpos);
-ds2 = distmatrix(probe2.optpos);
-
 b = true;
 

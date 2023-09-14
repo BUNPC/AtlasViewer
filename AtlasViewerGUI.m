@@ -926,11 +926,8 @@ function menuItemChooseLabelsColormap_Callback(~, ~, ~)
 global atlasViewer
 
 hLabelsSurf     = atlasViewer.labelssurf.handles.surf;
-vertices        = atlasViewer.labelssurf.mesh.vertices;
 idxL            = atlasViewer.labelssurf.idxL;
-namesL          = atlasViewer.labelssurf.names;
 colormaps       = atlasViewer.labelssurf.colormaps;
-colormapsIdx    = atlasViewer.labelssurf.colormapsIdx;
 iFaces          = atlasViewer.labelssurf.iFaces;
 
 if ~ishandles(hLabelsSurf)
@@ -939,12 +936,12 @@ end
 
 n = length(colormaps);
 cmLst = cell(n,1);
-for ii=1:n
+for ii = 1:n
     cmLst{ii} = sprintf('%s',colormaps(ii).name);
 end
 cmLst{n+1} = 'Cancel';
 ch = MenuBox('Choose Labels Colormap', cmLst);
-if ch>n
+if ch>n || ch<1
     return;
 end
 cm = colormaps(ch).col;
@@ -3281,7 +3278,7 @@ atlasViewer.imgrecon = imgrecon;
 
 
 % --------------------------------------------------------------------
-function menuItemProbeCreate_Callback(~, ~, handles)
+function menuItemProbeCreate_Callback(~, ~, ~)
 global atlasViewer
 
 labelssurf   = atlasViewer.labelssurf;
@@ -3295,7 +3292,7 @@ if ishandles(hSDgui)
     MenuBox('SDgui already active.');
     return;
 end
-atlasViewer.probe = resetProbe(atlasViewer.probe, pwd, handles);
+atlasViewer.probe = resetProbe(atlasViewer.probe);
 atlasViewer.probe.handles.hSDgui = SDgui(atlasViewer.dirnameProbe,'userargs');
 set(atlasViewer.probe.handles.pushbuttonRegisterProbeToSurface,'enable','on');
 
