@@ -653,10 +653,27 @@ refpts = set_eeg_active_pts(refpts, [], false);
 % Finish registration
 if isPreRegisteredProbe(probe, refpts)
     
+    % check if probe is already on the surface
+    probe_on_surface = true;
+    if ~isempty(atlasViewer.probe.registration.al)
+        for u = 1:size(atlasViewer.probe.registration.al,1)
+            ii = ismember(atlasViewer.refpts.labels,atlasViewer.probe.registration.al{u,2});
+            refpt_pos = atlasViewer.refpts.pos(ii,:);
+            opt_pos = atlasViewer.probe.optpos_reg(atlasViewer.probe.registration.al{u,1},:);
+            dist_refpt_to_opt = sqrt(sum(refpt_pos-opt_pos).^2);
+            if dist_refpt_to_opt > 1
+                probe_on_surface = false;
+                break;
+            end
+        end
+    end
+
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
-    probe = pullProbeToHeadsurf(probe, headobj);
-    probe.hOptodesIdx = 1;
+    if ~ probe_on_surface
+        probe = pullProbeToHeadsurf(probe, headobj);
+        probe.hOptodesIdx = 1;
+    end
    
 else
     

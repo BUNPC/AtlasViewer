@@ -107,7 +107,7 @@ for ii=1:nopt
     end
 end
 optpos = probe.optpos_reg(1:nopt,:);
-
+optpos = optpos-1;
 
 % Tissue properties
 % from genMCinput.m
@@ -239,27 +239,44 @@ for iWav = 1:num_wavelengths
         cfg.tend=time_gates(1,2);
         cfg.tstep=time_gates(1,3);
         
-        cfg.srcpos=[optpos(ii, 1) optpos(ii, 2) optpos(ii, 3)];
-        cfg.srcdir=[optpos(ii, 4) optpos(ii, 5) optpos(ii, 6)];
-        cfg.srcdir=cfg.srcdir/norm(cfg.srcdir);
-        
-        cfg.detpos=[];
-        
-        cfg.issrcfrom0=1;
-        cfg.isnormalized = 1;
-        cfg.outputtype = 'fluence';
-        
-        cfg.prop=[         0         0    1.0000    1.0000 % background/air
-            tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
-            tiss_prop(2).absorption(iWav) tiss_prop(2).scattering(iWav) tiss_prop(2).anisotropy(1) tiss_prop(2).refraction(1)
-            tiss_prop(3).absorption(iWav) tiss_prop(3).scattering(iWav) tiss_prop(3).anisotropy(1) tiss_prop(3).refraction(1)
-            tiss_prop(4).absorption(iWav) tiss_prop(4).scattering(iWav) tiss_prop(4).anisotropy(1) tiss_prop(4).refraction(1) ];
-        
-        cfg.seed=floor(rand()*10e+7);
-        cfg.nphoton=num_phot;
-        cfg.issaveexit=1;
-        
-        [flue,detps]=mcxlab(cfg);
+        while_flag = 1;
+        while_count = 1;
+        while while_flag
+            cfg.srcdir=[optpos(ii, 4) optpos(ii, 5) optpos(ii, 6)];
+            cfg.srcdir=cfg.srcdir/norm(cfg.srcdir);
+            if while_count == 1
+                cfg.srcpos=[optpos(ii, 1) optpos(ii, 2) optpos(ii, 3)];
+            else
+                cfg.srcpos = cfg.srcpos+cfg.srcdir;
+                optpos(ii,1:3) = cfg.srcpos;
+            end
+
+            cfg.detpos=[];
+
+            cfg.issrcfrom0=1;
+            cfg.isnormalized = 1;
+            cfg.outputtype = 'fluence';
+
+            cfg.prop=[         0         0    1.0000    1.0000 % background/air
+                tiss_prop(1).absorption(iWav) tiss_prop(1).scattering(iWav) tiss_prop(1).anisotropy(1) tiss_prop(1).refraction(1)
+                tiss_prop(2).absorption(iWav) tiss_prop(2).scattering(iWav) tiss_prop(2).anisotropy(1) tiss_prop(2).refraction(1)
+                tiss_prop(3).absorption(iWav) tiss_prop(3).scattering(iWav) tiss_prop(3).anisotropy(1) tiss_prop(3).refraction(1)
+                tiss_prop(4).absorption(iWav) tiss_prop(4).scattering(iWav) tiss_prop(4).anisotropy(1) tiss_prop(4).refraction(1) ];
+
+            cfg.seed=floor(rand()*10e+7);
+            cfg.nphoton=num_phot;
+            cfg.issaveexit=1;
+
+            [flue,detps]=mcxlab(cfg);
+            
+            min_val = min(flue.data(:));
+            max_val = max(flue.data(:));
+
+            if ~((min_val == 0 && max_val == 0))
+                 while_flag = 0;
+            end
+            while_count =  while_count+1;
+        end
         
         % Scale the flue
         % he gives me the energyabs... I guess I just get the scale factor
@@ -285,9 +302,9 @@ for iWav = 1:num_wavelengths
                 xx = xx + optpos(jOpt,4);
                 yy = yy + optpos(jOpt,5);
                 zz = zz + optpos(jOpt,6);
-                foo = flue.data( ceil(xx), ceil(yy), ceil(zz) );
+                foo = fwmodel.headvol.img(ceil(xx), ceil(yy), ceil(zz));
             end
-            flueDet(ii,jOpt,iWav) = foo;
+            flueDet(ii,jOpt,iWav) = flue.data( ceil(xx), ceil(yy), ceil(zz) );
         end
         
         
@@ -326,8 +343,11 @@ for iWav = 1:num_wavelengths
         
         iD = probe.ml(iM,2);
         Ad = flueMesh(:,nsrc+iD,iWav);
-        
-        normfactor = (flueDet(iS,nsrc+iD,iWav) + flueDet(nsrc+iD,iS,iWav)) / 2;
+        n_nonzero = 2;
+        if flueDet(iS,nsrc+iD,iWav) == 0 || flueDet(nsrc+iD,iS,iWav)==0
+            n_nonzero = 1;
+        end
+        normfactor = (flueDet(iS,nsrc+iD,iWav) + flueDet(nsrc+iD,iS,iWav)) / n_nonzero;
         if normfactor~=0
             Adot(iM,:,iWav) = (As.*Ad)'/normfactor;
         else
