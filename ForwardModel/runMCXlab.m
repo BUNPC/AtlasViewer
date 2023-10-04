@@ -107,7 +107,7 @@ for ii=1:nopt
     end
 end
 optpos = probe.optpos_reg(1:nopt,:);
-
+optpos = optpos-1;
 
 % Tissue properties
 % from genMCinput.m
@@ -248,6 +248,7 @@ for iWav = 1:num_wavelengths
                 cfg.srcpos=[optpos(ii, 1) optpos(ii, 2) optpos(ii, 3)];
             else
                 cfg.srcpos = cfg.srcpos+cfg.srcdir;
+                optpos(ii,1:3) = cfg.srcpos;
             end
 
             cfg.detpos=[];
@@ -301,9 +302,9 @@ for iWav = 1:num_wavelengths
                 xx = xx + optpos(jOpt,4);
                 yy = yy + optpos(jOpt,5);
                 zz = zz + optpos(jOpt,6);
-                foo = flue.data( ceil(xx), ceil(yy), ceil(zz) );
+                foo = fwmodel.headvol.img(ceil(xx), ceil(yy), ceil(zz));
             end
-            flueDet(ii,jOpt,iWav) = foo;
+            flueDet(ii,jOpt,iWav) = flue.data( ceil(xx), ceil(yy), ceil(zz) );
         end
         
         
@@ -342,8 +343,11 @@ for iWav = 1:num_wavelengths
         
         iD = probe.ml(iM,2);
         Ad = flueMesh(:,nsrc+iD,iWav);
-        
-        normfactor = (flueDet(iS,nsrc+iD,iWav) + flueDet(nsrc+iD,iS,iWav)) / 2;
+        n_nonzero = 2;
+        if flueDet(iS,nsrc+iD,iWav) == 0 || flueDet(nsrc+iD,iS,iWav)==0
+            n_nonzero = 1;
+        end
+        normfactor = (flueDet(iS,nsrc+iD,iWav) + flueDet(nsrc+iD,iS,iWav)) / n_nonzero;
         if normfactor~=0
             Adot(iM,:,iWav) = (As.*Ad)'/normfactor;
         else
