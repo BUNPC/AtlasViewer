@@ -74,7 +74,7 @@ try
         end
         
         for jj = 1:length(foo)
-            p = filesepStandard_startup(fileparts(foo{jj}));
+            p = fileparts(foo{jj});
             if pathscompare_startup(appThis, p)
                 continue
             end
@@ -88,11 +88,11 @@ try
         foo = which([appNameInclList{ii}, '.m'],'-all');
         for jj = 1:length(foo)
             if jj > 1
-                p = filesepStandard_startup(fileparts(foo{jj}));
+                p = fileparts(foo{jj});
                 appExclList = [appExclList; p]; %#ok<AGROW>
                 printMethod(sprintf('Exclude paths for %s\n', p));
             else
-                p = filesepStandard_startup(fileparts(foo{jj}));
+                p = fileparts(foo{jj});
                 appInclList = [appInclList; p]; %#ok<AGROW>
                 printMethod(sprintf('Include paths for %s\n', p));
             end
@@ -188,7 +188,7 @@ for kk = 1:length(appPaths)
     addpath(appPaths{kk}, '-end');
     setpermissions(appPaths{kk});
 end
-printMethod(sprintf('ADDED search paths for app %s\n', appPaths{1}));
+printMethod(sprintf('ADDED search paths for app %s\n', string(appPaths{1})));
 
 
 
@@ -212,15 +212,12 @@ for kk = 1:length(p)
     if ~isempty(strfind(lower(p{kk}), 'matlab')) && ~isempty(strfind(p{kk}, r))
         continue;
     end
-    if ~isempty(strfind(filesepStandard_startup(p{kk}), app))
+    if ~isempty(strfind(p{kk}, app))
         rmpath(p{kk});
     end
 end
 close(h);
 printMethod(sprintf('REMOVED search paths for app %s\n', app));
-
-
-
 
 % ----------------------------------------------------
 function   d = addDependenciesSearchPaths()
@@ -239,9 +236,6 @@ for ii = 1:length(d)
     end
     addSearchPaths(rootpath);
 end
-
-
-
 
 % -----------------------------------------------------------------------------
 function [C,k] = str2cell_startup(str, delimiters, options)
@@ -398,7 +392,6 @@ if ~iscell(exclList)
     exclList = {exclList};
 end
 
-% subdirFullpath = filesepStandard_startup(subdir,'full');
 subdirFullpath = fullfile(subdir);
 
 if exist(subdirFullpath) ~= 7
@@ -781,13 +774,23 @@ end
 
 currdir = pwd;
 
-% If paths are files, compare just the file names, then the folders 
-fullpath1 = filesepStandard_startup(path1, 'full');
-fullpath2 = filesepStandard_startup(path2, 'full');
-
-
-% Compare folders
-b = strcmpi(fullpath1, fullpath2);
+% If paths are files, compare just the file names, then the folders
+if ~isfolder(path1)
+    [~,file1] = fileparts(path1);
+else
+    file1 = [];
+end
+if ~isfolder(path2)
+    [~,file2] = fileparts(path2);
+else
+    file2 = [];
+end
+if isempty(file1) && isempty(file2)
+    % Compare folders
+    b = strcmpi(path1, path2);
+else
+    b = strcmpi(file1, file2);
+end
 
 cd(currdir);
 
