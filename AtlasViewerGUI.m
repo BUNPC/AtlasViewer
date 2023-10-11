@@ -57,8 +57,10 @@ else
     atlasViewer.dirnameAtlas = getAtlasDir(args);
 end
 if length(args)>3
-    atlasViewer.handles.dataTree = args{4};
-    atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
+    if sum(isgraphics(args{4}))
+        atlasViewer.handles.dataTree = args{4};
+        atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
+    end
 end
 
 % Change current folder to dirnameSubj and load data
