@@ -1,6 +1,6 @@
 function probe = pullProbeToHeadsurf(probe, head)
 if isPreRegisteredProbe(probe)==2
-    MenuBox('Probe already registered ot head surface');
+    MenuBox('Probe already registered to head surface');
     return
 end
 if isempty(probe.optpos_reg)

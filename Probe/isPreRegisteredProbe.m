@@ -79,12 +79,8 @@ if probe.registration.refpts.isempty(probe.registration.refpts)
     return
 end
 if probeHasSpringRegistration(probe)
-    try
     refpts1.labels  = probe.registration.al(:,2);
     refpts1.pos     = probe.optpos(cell2array(probe.registration.al(:,1)), :);
-    catch
-        d = 1;
-    end
 else
     refpts1         = probe.registration.refpts;
 end

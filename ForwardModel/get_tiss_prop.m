@@ -46,38 +46,48 @@ function tiss_prop = get_tiss_prop(varargin)
 
 tiss_prop = struct([]);
 
-% Default tissue property values
-SCATTERING_SKIN_DEF_VAL  = 0.6600;
-SCATTERING_SKULL_DEF_VAL = 0.8600;
-SCATTERING_DM_DEF_VAL    = 0.6600;
-SCATTERING_CSF_DEF_VAL   = 0.0100;
-SCATTERING_GM_DEF_VAL    = 1.1000;
-SCATTERING_WM_DEF_VAL    = 1.1000;
-SCATTERING_OTHER_DEF_VAL = 0.8600;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Default tissue properties for wavelength 760nm and 860nm 
+% Reference: Sensors. 13 February 2023
+% Impact of Anatomical Variability on Sensitivity Pro?le in fNIRS–MRI Integration
+% Augusto Bonilauri 1, * , Francesca Sangiuliano Intra 2, Francesca Baglio 3and Giuseppe Baselli 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ABSORPTION_SKIN_DEF_VAL  = 0.0191; 
-ABSORPTION_SKULL_DEF_VAL = 0.0136; 
-ABSORPTION_DM_DEF_VAL    = 0.0191;
-ABSORPTION_CSF_DEF_VAL   = 0.0026; 
-ABSORPTION_GM_DEF_VAL    = 0.0186; 
-ABSORPTION_WM_DEF_VAL    = 0.0186; 
-ABSORPTION_OTHER_DEF_VAL = 0.0191;
+% Scattering 
+SCATTERING_SKIN_DEF_VAL  = [0.6727, 0.5818];
+SCATTERING_SKULL_DEF_VAL = [0.8545, 0.7636];
+SCATTERING_DM_DEF_VAL    = [0.6600, 0.2727];
+SCATTERING_CSF_DEF_VAL   = [0.2727, 0.2727];
+SCATTERING_GM_DEF_VAL    = [0.7600, 0.6165];
+SCATTERING_WM_DEF_VAL    = [1.0825, 0.9188];
+SCATTERING_OTHER_DEF_VAL = [0.8600, 0.6727];
 
-ANISOTROPY_SKIN_DEF_VAL  = 0.0010;
-ANISOTROPY_SKULL_DEF_VAL = 0.0010;
-ANISOTROPY_DM_DEF_VAL    = 0.0010;
-ANISOTROPY_CSF_DEF_VAL   = 0.0010;
-ANISOTROPY_GM_DEF_VAL    = 0.0010;
-ANISOTROPY_WM_DEF_VAL    = 0.0010;
-ANISOTROPY_OTHER_DEF_VAL = 0.0010;
+% Absorption 
+ABSORPTION_SKIN_DEF_VAL  = [0.0170, 0.0019]; 
+ABSORPTION_SKULL_DEF_VAL = [0.0116, 0.0139]; 
+ABSORPTION_DM_DEF_VAL    = [0.0191, 0.6727];
+ABSORPTION_CSF_DEF_VAL   = [0.0040, 0.0040]; 
+ABSORPTION_GM_DEF_VAL    = [0.0180, 0.0192]; 
+ABSORPTION_WM_DEF_VAL    = [0.0167, 0.0208]; 
+ABSORPTION_OTHER_DEF_VAL = [0.0180, 0.6727];
 
-REFRACTION_SKIN_DEF_VAL  = 1.0000;
-REFRACTION_SKULL_DEF_VAL = 1.0000;
-REFRACTION_DM_DEF_VAL    = 1.0000;
-REFRACTION_CSF_DEF_VAL   = 1.0000;
-REFRACTION_GM_DEF_VAL    = 1.0000;
-REFRACTION_WM_DEF_VAL    = 1.0000;
-REFRACTION_OTHER_DEF_VAL = 1.0000;
+% Anisotropy
+ANISOTROPY_SKIN_DEF_VAL  = [0.0010, 0.0010];
+ANISOTROPY_SKULL_DEF_VAL = [0.0010, 0.0010];
+ANISOTROPY_DM_DEF_VAL    = [0.0010, 0.0010];
+ANISOTROPY_CSF_DEF_VAL   = [0.0010, 0.0010];
+ANISOTROPY_GM_DEF_VAL    = [0.0010, 0.0010];
+ANISOTROPY_WM_DEF_VAL    = [0.0010, 0.0010];
+ANISOTROPY_OTHER_DEF_VAL = [0.0010, 0.0010];
+
+% Refraction
+REFRACTION_SKIN_DEF_VAL  = [1.0000, 1.0000];
+REFRACTION_SKULL_DEF_VAL = [1.0000, 1.0000];
+REFRACTION_DM_DEF_VAL    = [1.0000, 1.0000];
+REFRACTION_CSF_DEF_VAL   = [1.0000, 1.0000];
+REFRACTION_GM_DEF_VAL    = [1.0000, 1.0000];
+REFRACTION_WM_DEF_VAL    = [1.0000, 1.0000];
+REFRACTION_OTHER_DEF_VAL = [1.0000, 1.0000];
 
 %%% Extract args
 
@@ -143,7 +153,7 @@ end
 
 
 %%% Parse tissue names and tissue property names and find their values
-propval = [];
+propval = {};
 m=length(propnames);
 n=length(names);
 for i=1:m
@@ -152,84 +162,84 @@ for i=1:m
         for j=1:n
             switch lower(names{j})
             case {'skin', 'scalp'}
-                propval(j,i) = ANISOTROPY_SKIN_DEF_VAL;
+                propval{j,i} = ANISOTROPY_SKIN_DEF_VAL;
             case {'skull', 'bone'}
-                propval(j,i) = ANISOTROPY_SKULL_DEF_VAL;
+                propval{j,i} = ANISOTROPY_SKULL_DEF_VAL;
             case {'dura', 'dura mater', 'dm'}
-                propval(j,i) = ANISOTROPY_DM_DEF_VAL;
+                propval{j,i} = ANISOTROPY_DM_DEF_VAL;
             case {'csf', 'cerebral spinal fluid'}
-                propval(j,i) = ANISOTROPY_CSF_DEF_VAL;
+                propval{j,i} = ANISOTROPY_CSF_DEF_VAL;
             case {'gm', 'gray matter', 'brain'}
-                propval(j,i) = ANISOTROPY_GM_DEF_VAL;
+                propval{j,i} = ANISOTROPY_GM_DEF_VAL;
             case {'wm', 'white matter'}
-                propval(j,i) = ANISOTROPY_WM_DEF_VAL;
+                propval{j,i} = ANISOTROPY_WM_DEF_VAL;
             case 'other'
-                propval(j,i) = ANISOTROPY_OTHER_DEF_VAL;
+                propval{j,i} = ANISOTROPY_OTHER_DEF_VAL;
             otherwise
-                propval(j,i) = ANISOTROPY_OTHER_DEF_VAL;
+                propval{j,i} = ANISOTROPY_OTHER_DEF_VAL;
             end
         end
     case 'scattering'
         for j=1:n            
             switch lower(names{j})
             case {'skin', 'scalp'}
-                propval(j,i) = SCATTERING_SKIN_DEF_VAL;
+                propval{j,i} = SCATTERING_SKIN_DEF_VAL;
             case {'skull', 'bone'}
-                propval(j,i) = SCATTERING_SKULL_DEF_VAL;
+                propval{j,i} = SCATTERING_SKULL_DEF_VAL;
             case {'dura', 'dura mater', 'dm'}
-                propval(j,i) = SCATTERING_DM_DEF_VAL;
+                propval{j,i} = SCATTERING_DM_DEF_VAL;
             case {'csf', 'cerebral spinal fluid'}
-                propval(j,i) = SCATTERING_CSF_DEF_VAL;
+                propval{j,i} = SCATTERING_CSF_DEF_VAL;
             case {'gm', 'gray matter', 'brain'}
-                propval(j,i) = SCATTERING_GM_DEF_VAL;
+                propval{j,i} = SCATTERING_GM_DEF_VAL;
             case {'wm', 'white matter'}
-                propval(j,i) = SCATTERING_WM_DEF_VAL;
+                propval{j,i} = SCATTERING_WM_DEF_VAL;
             case 'other'
-                propval(j,i) = SCATTERING_OTHER_DEF_VAL;
+                propval{j,i} = SCATTERING_OTHER_DEF_VAL;
             otherwise
-                propval(j,i) = SCATTERING_OTHER_DEF_VAL;
+                propval{j,i} = SCATTERING_OTHER_DEF_VAL;
             end
         end
     case 'absorption'
         for j=1:n            
             switch lower(names{j})
             case {'skin', 'scalp'}
-                propval(j,i) = ABSORPTION_SKIN_DEF_VAL;
+                propval{j,i} = ABSORPTION_SKIN_DEF_VAL;
             case {'skull', 'bone'}
-                propval(j,i) = ABSORPTION_SKULL_DEF_VAL;
+                propval{j,i} = ABSORPTION_SKULL_DEF_VAL;
             case {'dura', 'dura mater', 'dm'}
-                propval(j,i) = ABSORPTION_DM_DEF_VAL;
+                propval{j,i} = ABSORPTION_DM_DEF_VAL;
             case {'csf', 'cerebral spinal fluid'}
-                propval(j,i) = ABSORPTION_CSF_DEF_VAL;
+                propval{j,i} = ABSORPTION_CSF_DEF_VAL;
             case {'gm', 'gray matter', 'brain'}
-                propval(j,i) = ABSORPTION_GM_DEF_VAL;
+                propval{j,i} = ABSORPTION_GM_DEF_VAL;
             case {'wm', 'white matter'}
-                propval(j,i) = ABSORPTION_WM_DEF_VAL;
+                propval{j,i} = ABSORPTION_WM_DEF_VAL;
             case 'other'
-                propval(j,i) = ABSORPTION_OTHER_DEF_VAL;
+                propval{j,i} = ABSORPTION_OTHER_DEF_VAL;
             otherwise
-                propval(j,i) = ABSORPTION_OTHER_DEF_VAL;
+                propval{j,i} = ABSORPTION_OTHER_DEF_VAL;
             end
         end
     case 'refraction'
         for j=1:n            
             switch lower(names{j})
             case {'skin', 'scalp'}
-                propval(j,i) = REFRACTION_SKIN_DEF_VAL;
+                propval{j,i} = REFRACTION_SKIN_DEF_VAL;
             case {'skull', 'bone'}
-                propval(j,i) = REFRACTION_SKULL_DEF_VAL;
+                propval{j,i} = REFRACTION_SKULL_DEF_VAL;
             case {'dura', 'dura mater', 'dm'}
-                propval(j,i) = REFRACTION_DM_DEF_VAL;
+                propval{j,i} = REFRACTION_DM_DEF_VAL;
             case {'csf', 'cerebral spinal fluid'}
-                propval(j,i) = REFRACTION_CSF_DEF_VAL;
+                propval{j,i} = REFRACTION_CSF_DEF_VAL;
             case {'gm', 'gray matter', 'brain'}
-                propval(j,i) = REFRACTION_GM_DEF_VAL;
+                propval{j,i} = REFRACTION_GM_DEF_VAL;
             case {'wm', 'white matter'}
-                propval(j,i) = REFRACTION_WM_DEF_VAL;
+                propval{j,i} = REFRACTION_WM_DEF_VAL;
             case 'other'
-                propval(j,i) = REFRACTION_OTHER_DEF_VAL;
+                propval{j,i} = REFRACTION_OTHER_DEF_VAL;
             otherwise
-                propval(j,i) = REFRACTION_OTHER_DEF_VAL;
+                propval{j,i} = REFRACTION_OTHER_DEF_VAL;
             end
         end
     end
@@ -240,6 +250,6 @@ end
 for j=1:length(names)
     tiss_prop(j).name = names{j};
     for i=1:length(propnames)
-        eval(sprintf('tiss_prop(j).%s = propval(j,i);',propnames{i}));
+        eval(sprintf('tiss_prop(j).%s = propval{j,i};',propnames{i}));
     end
 end
