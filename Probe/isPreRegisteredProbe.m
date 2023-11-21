@@ -81,7 +81,7 @@ end
 if probeHasSpringRegistration(probe)
     try
     refpts1.labels  = probe.registration.al(:,2);
-    refpts1.pos     = probe.optpos(cell2array(probe.registration.al(:,1)), :);
+    refpts1.pos     = probe.optpos_reg(cell2array(probe.registration.al(:,1)), :);
     catch
         d = 1;
     end
