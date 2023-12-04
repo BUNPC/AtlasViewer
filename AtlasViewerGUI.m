@@ -653,7 +653,7 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isPreRegisteredProbe(probe, refpts)
+if 0 %isPreRegisteredProbe(probe, refpts)
     
     % check if probe is already on the surface
     probe_on_surface = true;
