@@ -66,11 +66,14 @@ probe1.ml = sort(probe1.ml);
 probe2.ml = sort(probe2.ml);
 if ~isempty(probe1.ml) && ~isempty(probe2.ml)
     if size(probe1.ml,1) ~= size(probe2.ml,1)
+        b = false;
         return;
     end
-    if ~all(probe1.ml(:) == probe2.ml(:))
+    if ~(all(all(probe1.ml(:,[1,2,4]) == probe2.ml(:,[1,2,4]))))
+        b = false;
         return;
     end
+    return
 else
     return;
 end

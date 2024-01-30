@@ -655,27 +655,10 @@ refpts = set_eeg_active_pts(refpts, [], false);
 % Finish registration
 if 0 %isPreRegisteredProbe(probe, refpts)
     
-    % check if probe is already on the surface
-    probe_on_surface = true;
-    if ~isempty(atlasViewer.probe.registration.al)
-        for u = 1:size(atlasViewer.probe.registration.al,1)
-            ii = ismember(atlasViewer.refpts.labels,atlasViewer.probe.registration.al{u,2});
-            refpt_pos = atlasViewer.refpts.pos(ii,:);
-            opt_pos = atlasViewer.probe.optpos_reg(atlasViewer.probe.registration.al{u,1},:);
-            dist_refpt_to_opt = sqrt(sum(refpt_pos-opt_pos).^2);
-            if dist_refpt_to_opt > 1
-                probe_on_surface = false;
-                break;
-            end
-        end
-    end
-
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
-    if ~ probe_on_surface
         probe = pullProbeToHeadsurf(probe, headobj);
         probe.hOptodesIdx = 1;
-    end
    
 else
     
@@ -1283,15 +1266,13 @@ fwmodel     = atlasViewer.fwmodel;
 imgrecon    = atlasViewer.imgrecon;
 hbconc      = atlasViewer.hbconc;
 probe       = atlasViewer.probe;
-headvol     = atlasViewer.headvol;
 pialsurf    = atlasViewer.pialsurf;
-headsurf    = atlasViewer.headsurf;
 dirnameSubj = atlasViewer.dirnameSubj;
 axesv       = atlasViewer.axesv;
 
 try 
     if isempty(eventdata) || strcmp(eventdata.EventName,'Action')
-        fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf,dirnameSubj);
+        fwmodel = genSensitivityProfile(fwmodel, probe, dirnameSubj);
         if isempty(fwmodel.Adot)
             return;
         end
@@ -1514,7 +1495,7 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemShowRefpts_Callback(hObject, eventdata, handles)
+function menuItemShowRefpts_Callback(hObject, ~, ~)
 global atlasViewer
 
 switch(get(hObject, 'tag'))
@@ -1594,7 +1575,6 @@ axis off
 axis equal
 axis vis3d
 set(gca, 'unit','normalized');
-p = get(gca, 'position');
 set(gca, 'unit','normalized', 'position', [.20, .30, .40, .40]);
 
 % colormap is a propery of figure not axes. Since we don't want to 
@@ -1668,10 +1648,10 @@ global atlasViewer
 
 axesv       = atlasViewer.axesv;
 
-if strcmp(get(hObject,'checked'), 'on');
+if strcmp(get(hObject,'checked'), 'on')
     set(hObject,'checked', 'off');
     val=0;
-elseif strcmp(get(hObject,'checked'), 'off');
+elseif strcmp(get(hObject,'checked'), 'off')
     set(hObject,'checked', 'on');
     val=1;
 end
@@ -1688,12 +1668,12 @@ end
 
 
 % --------------------------------------------------------------------
-function menuItemFindRefpts_Callback(hObject, eventdata, handles)
+function menuItemFindRefpts_Callback(~, ~, ~)
 FindRefptsGUI();
 
 
 % --------------------------------------------------------------------
-function menuProbePlacementVariation_Callback(hObject, eventdata, handles)
+function menuProbePlacementVariation_Callback(~, ~, ~)
 plotProbePlacementVariation();
 
 
@@ -1960,7 +1940,7 @@ if eventdata == true
         set(hLabelsSurf,'FaceVertexCData',faceVertexCData);
         faceVertexAlphaData(iFace(iFaceMin)) = ones(length(iFace(iFaceMin)),1);
         set(hLabelsSurf,'FaceVertexAlphaData',faceVertexAlphaData);
-        iFaces = [iFaces iFace(iFaceMin)];
+        iFaces = [iFaces, iFace(iFaceMin)];
     end
     if all(ishandles(hProjectionRays))
         set(hProjectionRays,'color','k');
@@ -2247,13 +2227,8 @@ set(handles.checkbox_Display_MNI_Projection, 'value',0);
 
 
 % --------------------------------------------------------------------
-function checkbox_Display_MNI_Projection_Callback(hObject, eventdata, handles)
+function checkbox_Display_MNI_Projection_Callback(hObject, ~, ~)
 global atlasViewer
-
-fwmodel    = atlasViewer.fwmodel;
-headvol    = atlasViewer.headvol; 
-labelssurf = atlasViewer.labelssurf; 
-headvol    = atlasViewer.headvol; 
 headsurf   = atlasViewer.headsurf;
  
 if get(hObject,'value')==1 % if checkbox is checked
@@ -2270,12 +2245,12 @@ if get(hObject,'value')==1 % if checkbox is checked
         foo = num2str(coordinate_mni);
         fooi = sprintf(foo(1,:));
         if no_mni == 1
-            defaultanswer = {[fooi]};
+            defaultanswer = {fooi};
         else
             for i = 2:no_mni
                 foon = ['; ' sprintf(foo(i,:))];
                 defaultanswer = {[fooi foon]};
-                fooi = [fooi foon];
+                fooi = [fooi, foon];
             end %defaultanswer = {[sprintf(foo(1,:)) ';' sprintf(foo(2,:))]}
         end
     else
@@ -2302,7 +2277,6 @@ if get(hObject,'value')==1 % if checkbox is checked
     h2 = findobj('Marker','o');
     set(h2,'Visible','off');
     
-    headvol   = atlasViewer.headvol;
     vertices  = atlasViewer.labelssurf.mesh.vertices;
     
     % Project MNI in MC space to head surface and pial surface
@@ -2381,7 +2355,6 @@ headsurf     = atlasViewer.headsurf;
 pialsurf     = atlasViewer.pialsurf;
 labelssurf   = atlasViewer.labelssurf;
 refpts       = atlasViewer.refpts;
-dirnameSubj  = atlasViewer.dirnameSubj;
 
 saveHeadvol(headvol);
 saveHeadsurf(headsurf, headvol.T_2mc);
@@ -2392,12 +2365,11 @@ saveRefpts(refpts, headvol.T_2mc);
 
 
 % --------------------------------------------------------------------
-function menuItemLoadPrecalculatedProfile_Callback(hObject, eventdata, handles)
+function menuItemLoadPrecalculatedProfile_Callback(~, ~, handles)
 global atlasViewer
 
 fwmodel = atlasViewer.fwmodel;
 headvol = atlasViewer.headvol;
-pialsurf = atlasViewer.pialsurf;
 probe = atlasViewer.probe;
 T_vol2mc = headvol.T_2mc;
 
@@ -2484,7 +2456,7 @@ uipanelBrainDisplay_Callback(pialsurf.handles.radiobuttonShowPial, [], handles);
 
 
 % --------------------------------------------------------------------
-function popupmenuImageDisplay_CreateFcn(hObject, eventdata, handles)
+function popupmenuImageDisplay_CreateFcn(hObject, ~, ~)
 global popupmenuorder;
 
 popupmenuorder = struct(...

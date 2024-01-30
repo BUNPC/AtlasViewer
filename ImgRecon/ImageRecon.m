@@ -38,7 +38,7 @@ else
 end
 
 % default time range
-set(handles.time_range, 'String',num2str([5 10]));
+set(handles.time_range, 'String',num2str([-5 10]));
 
 % default alpha (regularization) for brain only reconstruction
 set(handles.alpha_brainonly, 'String',1e-2);
@@ -49,11 +49,15 @@ set(handles.alpha_brain_scalp, 'String',1e-2);
 % default beta (regularization) for brain and scalp reconstruction
 set(handles.beta_brain_scalp, 'String',1e-2);
 
-trange = abs(atlasViewer.dataTree.currElem.GetVar('trange'));
-set(handles.time_range,'String',num2str(trange));
-
-
+% Set default time range
+dcAvg  = atlasViewer.dataTree.currElem.GetVar('dcAvg');
+trange = atlasViewer.dataTree.currElem.GetVar('trange');
+if ~isempty(dcAvg)
+    trange = [dcAvg.time(1), dcAvg.time(end)];
+end
+set(handles.time_range,'String',sprintf('%0.3f  %0.3f', ceiln(trange(1),-3), floorn(trange(2),-3)));
 err = 0;
+
 
 
 % ---------------------------------------------------------------------------------
@@ -223,6 +227,7 @@ dcAvg(find(isnan(dcAvg))) = 0;
 
 %%%% Error checking of subject data itself
 if ErrorCheck_Data(dcAvg, tHRF, cond, trange) < 0 
+    close(h);
     return
 end
 
@@ -257,14 +262,15 @@ if value1 == 1 % brain only reconstruction after short separation regression
     % put A matrix together and combine with extinction coefficients
     E = GetExtinctions([SD.Lambda(1) SD.Lambda(2)]);
     E = E/10; %convert from /cm to /mm  E raws: wavelength, columns 1:HbO, 2:HbR
-    Amatrix = [squeeze(Adot(:,:,1))*E(1,1) squeeze(Adot(:,:,1))*E(1,2);
-        squeeze(Adot(:,:,2))*E(2,1) squeeze(Adot(:,:,2))*E(2,2)];
+    Amatrix = [squeeze(Adot(:,:,1))*E(1,1), squeeze(Adot(:,:,1))*E(1,2);
+               squeeze(Adot(:,:,2))*E(2,1), squeeze(Adot(:,:,2))*E(2,2)];
     
     
     alpha = str2num(get(handles.alpha_brainonly,'String'));
     [HbO, HbR, err] = hmrImageReconConc(yavgimg, [], alpha, Amatrix);
     if err==1
         MenuBox('Error: Number of channels in measuremnt is not the same as in Adot.', 'Okay');
+        close(h);
         return;
     end
     
@@ -284,13 +290,10 @@ if value1 == 1 % brain only reconstruction after short separation regression
     
 elseif value2 == 1 % brain and scalp reconstruction without short separation regression (Zhan2012)
     
-    % Adot = Adot(activeChIdxs,:,:);
-    % Adot = Adot(longSepChLst,:,:);
-    Adot = Adot(activeChLst_SDpairs,:,:);
     
-    % Adot_scalp = Adot_scalp(activeChIdxs,:,:);
-    % Adot_scalp = Adot_scalp(longSepChLst,:,:);
+    Adot = Adot(activeChLst_SDpairs,:,:);
     Adot_scalp = Adot_scalp(activeChLst_SDpairs,:,:);
+
     
     % get alpha and beta for regularization
     alpha = str2num(get(handles.alpha_brain_scalp,'String')); %#ok<*ST2NM>
@@ -544,4 +547,6 @@ if trange(1)<tHRF(1) || trange(1)>tHRF(end) || trange(2)<tHRF(1) || trange(2)>tH
     return;
 end
 err = 0;
+
+
 
