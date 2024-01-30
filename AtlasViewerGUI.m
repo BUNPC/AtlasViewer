@@ -57,8 +57,10 @@ else
     atlasViewer.dirnameAtlas = getAtlasDir(args);
 end
 if length(args)>3
-    atlasViewer.handles.dataTree = args{4};
-    atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
+    if sum(isgraphics(args{4}))
+        atlasViewer.handles.dataTree = args{4};
+        atlasViewer.dataTree = get(atlasViewer.handles.dataTree, 'userdata');
+    end
 end
 
 % Change current folder to dirnameSubj and load data
@@ -651,7 +653,7 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if isPreRegisteredProbe(probe, refpts)
+if 0 %isPreRegisteredProbe(probe, refpts)
     
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.

@@ -116,12 +116,27 @@ if isempty(hseg)
 end
 
 % Align layer volume with head volume
-X = inv(layer.vox2ras) * head.vox2ras;
-layer.vol = xform_apply_vol_smooth(layer.vol, X);
+X = inv(inv(layer.vox2ras) * head.vox2ras);
+% layer.vol = xform_apply_vol_smooth(layer.vol, X);
+
+tform = affinetform3d(X);
+% layer.vol = imwarp(layer.vol,tform,'OutputView',imref3d(size(head.vol)));
 
 % Assign layer segmentation number
 s = max(hseg(:))+1;
-layer_i = find(layer.vol ~= 0);
+% layer_i = find(layer.vol ~= 0);
+
+ind = find(layer.vol ~=0);
+[I1,I2,I3] = ind2sub(size(layer.vol),ind);
+t_ind = round([I1 I2 I3 ones(size(I1))]*X');
+idx = find(t_ind(:,1) < 1 | t_ind(:,1) > size(head.vol,1));
+t_ind(idx,:) = [];
+idx = find(t_ind(:,2) < 1 | t_ind(:,2) > size(head.vol,2));
+t_ind(idx,:) = [];
+idx = find(t_ind(:,3) < 1 | t_ind(:,3) > size(head.vol,3));
+t_ind(idx,:) = [];
+layer_i = sub2ind(size(head.vol),t_ind(:,1),t_ind(:,2),t_ind(:,3));
+
 hseg(layer_i) = s;
 tiss_type{s}=name;
 
