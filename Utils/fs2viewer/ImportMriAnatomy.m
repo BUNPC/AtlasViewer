@@ -356,6 +356,7 @@ try
     saveHeadvol(headvol);
     saveHeadsurf(headsurf);
     savePialsurf(pialsurf);
+    saveLabelSurf2Vol(headvol);
 
 catch ME
     
