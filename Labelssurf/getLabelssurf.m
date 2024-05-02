@@ -19,6 +19,12 @@ if dirname0(end)~='/' && dirname0(end)~='\'
 end
 dirname = [dirname0 'anatomical/'];
 
+if exist([dirname 'labelssurf2vol.txt'],'file')
+    T_2vol = load([dirname 'labelssurf2vol.txt'],'ascii');
+    labelssurf.T_2vol = T_2vol;
+end
+
+
 if exist([dirname 'labelssurf.mat'],'file')
     load([dirname 'labelssurf.mat'],'-mat');
 else
@@ -33,9 +39,9 @@ if ishandles(labelssurf.handles.surf)
 end
 
 load([dirname 'labelssurf.mat']);
-if exist([dirname 'labelssurf2vol.txt'],'file')
-    T_2vol = load([dirname 'labelssurf2vol.txt'],'ascii');
-end
+% if exist([dirname 'labelssurf2vol.txt'],'file')
+%     T_2vol = load([dirname 'labelssurf2vol.txt'],'ascii');
+% end
 
 fv = struct('vertices',[],'faces',[]);
 idxL = [];
@@ -65,7 +71,7 @@ labelssurf.names = aal_ll';
 labelssurf.colormaps = cm;
 labelssurf.colormapsIdx = 4;
 labelssurf.idxL = idxL;
-labelssurf.T_2vol = T_2vol;
+% labelssurf.T_2vol = T_2vol;
 
 
 if ~labelssurf.isempty(labelssurf)

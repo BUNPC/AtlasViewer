@@ -18,7 +18,6 @@ Iz  = [0,           -b*cos(r10p), -c*sin(r10p)];
 digpts.refpts.pos    = [Nz; Iz; LPA; RPA; Cz];
 digpts.refpts.labels = {'nz', 'iz', 'lpa', 'rpa', 'cz'};
 saveDigpts(digpts, 'overwrite');
-digpts = getDigpts(digpts, pwd);
 
 % Generate transformation from digitized point space to head volume
 [rp_atlas, rp_subj] = findCorrespondingRefpts(refpts, digpts.refpts);

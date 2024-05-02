@@ -4,6 +4,9 @@ probe = initProbe();
 if isa(probe0, 'DataTreeClass')
     probe0 = extractSDFromDataTree(probe0.currElem);
 end
+if isa(probe0, 'NirsClass')
+    probe0 = probe0.SD;
+end
     
 if isfield(probe0, 'SrcPos') && isfield(probe0, 'DetPos') && isfield(probe0, 'MeasList')
     probe = loadSD(probe, probe0);

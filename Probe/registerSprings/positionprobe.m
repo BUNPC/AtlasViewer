@@ -89,17 +89,16 @@ if FIRST_ANCHOR
     % that the first entry in the pf list is anchored by swapping places with the
     % first anchored entry.
     % Jay Dubb, 03/17/09
-    [pf k] = map_posprobedata(pf);
+    [pf, k] = map_posprobedata(pf);
 end
 
 % Initialize outputs
 pos = pf(:,2:4);
-posInit = pos;
 
 nOptodes = size(pf,1);
-dpos = pf(:,5:7);   
-conO = pf(:,8:2:end-1);
-conD = pf(:,9:2:end) * scale;
+dpos  = pf(:,5:7);   
+conO  = pf(:,8:2:end-1);
+conD  = pf(:,9:2:end) * scale;
 conKS = ones(size(conD));
 
 % The bigger the conKS, the stiffer the spring
@@ -108,24 +107,22 @@ conKS(lst) = 1e-4*abs(conD(lst));%*ones(1,size(conKS,2));
 conD = abs(conD);
 
 % Check for errors and conditions which might cause early exit
-[status pos posInit] = errcheck(pos,dpos,conO,conD);
+[status, pos, posInit] = errcheck(pos, dpos, conO);
 if status > 0
     return;
 end
 
 % permute axes
-if exist( 'permuteAxes' )
+if exist( 'permuteAxes','var' )
     pos = pos(:,permuteAxes);
     dpos = dpos(:,permuteAxes);
-%     conO = conO(:,permuteAxes);
-%     conD = conD(:,permuteAxes);
 end
 
 % add offset position to all optodes
 pos = pos + ones(size(pos,1),1)*poso;
 
 % use initial position if provided
-if exist('posi')
+if exist('posi','var')
     if size(posi)==size(pos)
         pos = posi;
     else
@@ -217,8 +214,7 @@ for idxIter = 1:nIter
     
     ADE = ADE / nOptodes;
     
-    disp( sprintf( 'Iteration #%d: Avg/Max Displacement Error = %3.1f, %3.1f',...
-        idxIter, ADE, MDE ));
+    fprintf('Iteration #%d: Avg/Max Displacement Error = %3.1f, %3.1f\n', idxIter, ADE, MDE);
     
 end    % end iterations
 
@@ -248,12 +244,12 @@ for idxOpt = 1:nOptodes
     jj = floor(pos(idxOpt,2));
     kk = floor(pos(idxOpt,3));
     
-    if ii<1 | ii>nVox(1) | jj<1 | jj>nVox(2) | kk<1 | kk>nVox(3)
+    if ii<1 || ii>nVox(1) || jj<1 || jj>nVox(2) || kk<1 || kk>nVox(3)
         dposAttract = [posAttract(1)-pos(idxOpt,1)...
             posAttract(2)-pos(idxOpt,2)...
             posAttract(3)-pos(idxOpt,3)];
         dposAttract = dposAttract / sum(dposAttract.^2).^0.5;
-        while   ii<1 | ii>nVox(1) | jj<1 | jj>nVox(2) | kk<1 | kk>nVox(3)
+        while   ii<1 || ii>nVox(1) || jj<1 || jj>nVox(2) || kk<1 || kk>nVox(3)
             pos(idxOpt,:) = pos(idxOpt,:) + dposAttract.*dpos(idxOpt,:);
             ii = floor(pos(idxOpt,1));
             jj = floor(pos(idxOpt,2));
@@ -291,8 +287,7 @@ end
 
 
 %-----------------------------------------------------------------------
-function [posprobe_map k] = map_posprobedata(posprobe)
-    
+function [posprobe_map, k] = map_posprobedata(posprobe)
 i = find((posprobe(:, 5) == 0) & (posprobe(:, 6) == 0) & (posprobe(:, 7) == 0));
 if(~isempty(i))
     k = i(1);
@@ -300,37 +295,36 @@ else
     k = 0;
 end
 
-
 posprobe_map = posprobe;
 if(k > 1)
     
     % Find all the indices of k in the connectivity matrix
-    i=1; ik=[];
-    for jj=1:size(posprobe,1)
-        for kk=8:2:size(posprobe,2)
-            if(posprobe(jj,kk) == k)
-                ik(i,:) = [jj kk];
-                i=i+1;
+    i = 1;  ik = [];
+    for jj = 1:size(posprobe,1)
+        for kk = 8:2:size(posprobe,2)
+            if(posprobe(jj, kk) == k)
+                ik(i,:) = [jj, kk];
+                i = i+1;
             end
         end
     end
     
     % Find all the indices of 1 in the connectivity matrix
-    i=1; i1=[];
-    for jj=1:size(posprobe,1)
-        for kk=8:2:size(posprobe,2)
+    i = 1;  i1 = [];
+    for jj = 1:size(posprobe,1)
+        for kk = 8:2:size(posprobe,2)
             if(posprobe(jj,kk) == 1)
                 i1(i,:) = [jj kk];
-                i=i+1;
+                i = i+1;
             end
         end
     end
     
     % Swap the 1's and the k's
-    for i=1:size(i1, 1)
+    for i = 1:size(i1, 1)
         posprobe(i1(i,1), i1(i,2)) = k;
     end
-    for i=1:size(ik, 1)
+    for i = 1:size(ik, 1)
         posprobe(ik(i,1), ik(i,2)) = 1;
     end
     
@@ -338,15 +332,14 @@ if(k > 1)
     posprobe_map = posprobe;
     
     % Lastly swap the 1st and kth rows
-    posprobe_map(1,:) = [1 posprobe(k,2:end)];
-    posprobe_map(k,:) = [k posprobe(1,2:end)];
+    posprobe_map(1,:) = [1, posprobe(k,2:end)];
+    posprobe_map(k,:) = [k, posprobe(1,2:end)];
 end
 
 
 
 %-----------------------------------------------------------------------
 function probe = unmap_probe(probe_map, k)
-    
 probe = probe_map;
 if(k ~= 1)
     probe(1,:) = probe_map(k,:);
@@ -357,20 +350,21 @@ end
 
 
 %-----------------------------------------------------------------------
-function [status pos posInit] = errcheck(pos,dpos,conO,conD)
-
+function [status, pos, posInit] = errcheck(pos, dpos, conO)
 status = 0;
 posInit = pos;
 
 % If all positions are fixed to begin with then we're done
 if all(~dpos(:,1)) && all(~dpos(:,2)) && all(~dpos(:,3))
-    disp(sprintf('Warning: All optodes seem to be already registered.\nNo registration performed'));
-    status = 1;    
+    fprintf('Warning: All optodes seem to be already registered.\nNo registration performed\n');
+    status = 1;
 end
 
-if duplicate_anchors(pos,dpos,conO,conD)
+if duplicate_anchors(pos,dpos,conO)
     pos = [];
     posInit = [];
-    disp(sprintf('Error: Two optodes which are neighbors are anchored to same optode.\nNo registration performed'));
+    fprintf('Error: Two optodes which are neighbors are anchored to same optode.\nNo registration performed\n');
     status = 2;
 end
+
+

@@ -34,15 +34,6 @@ if ~exist('headobj','var')
 end
 
     
-if ishandles(probe.handles.labels)
-    probe.handles.textSize = get(probe.handles.labels(1),'fontsize');
-    delete(probe.handles.labels);
-end
-if ishandles(probe.handles.circles)
-    probe.handles.circleSize = get(probe.handles.circles(1),'markersize');
-    delete(probe.handles.circles);
-end
-
 if leftRightFlipped(probe)
     axes_order = [2,1,3];
 else

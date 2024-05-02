@@ -54,14 +54,31 @@ global dirnameDst
 nSteps = 100;
 iStep = 1;
 
-fprintf('dirnameSrc = %s\n', dirnameSrc)
-fprintf('dirnameDst = %s\n', dirnameDst)
-
 logger = Logger([dirnameSrc, 'Setup']);
+
+logger.Write('dirnameSrc = %s\n', dirnameSrc)
+logger.Write('dirnameDst = %s\n', dirnameDst)
+logger.Write('\n')
+
+% Create destination folders
+try 
+    mkdir(dirnameDst);
+catch ME
+    msg{1} = sprintf('Error: Could not create installation folder. It might be in use by other applications.\n');
+    msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
+    msg{3} = sprintf('installation folder and then retry installation.');
+    MenuBox(msg, 'OK');
+    close(h);
+    rethrow(ME)
+end
+
+myCopyFile([dirnameSrc, 'Version.txt'],     dirnameDst);
+logger.Write('\n')
 
 [~, exename] = getAppname();
 
 v = getVernum(exename);
+
 logger.Write('==========================================\n');
 logger.Write('Setup script for %s v%s:\n', exename, v);
 logger.Write('==========================================\n\n');
@@ -81,17 +98,6 @@ deleteShortcuts();
 
 pause(2);
 
-% Create destination folders
-try 
-    mkdir(dirnameDst);
-catch ME
-    msg{1} = sprintf('Error: Could not create installation folder. It might be in use by other applications.\n');
-    msg{2} = sprintf('Try closing and reopening file browsers or any other applications that might be using the\n');
-    msg{3} = sprintf('installation folder and then retry installation.');
-    MenuBox(msg, 'OK');
-    close(h);
-    rethrow(ME)
-end
 
 % Get full paths for source and destination directories
 dirnameSrc = fullpath(dirnameSrc);

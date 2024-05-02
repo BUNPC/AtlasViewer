@@ -68,10 +68,7 @@ else
 
             % Copy measurement list
             for ii = 1:length(s2.data)
-                if ii > length(s.data)
-                    s.data(ii) = DataClass();
-                end
-                s.data(ii).CopyMeasurementList(s2.data(ii));
+                s.data(ii) = DataClass(s2.data(ii));
             end
             s.Save();
             close(h);

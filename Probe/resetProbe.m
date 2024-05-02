@@ -1,25 +1,7 @@
-function probe = resetProbe(probe, dirname, handles)
+function probe = resetProbe(probe)
 
 if nargin==0 || isempty(probe)
-    probe = initProbe;
-end
-if ~exist('dirname', 'var')
-    dirname = pwd;
-end
-dirname = filesepStandard(dirname);
-
-dirs = dir([dirname, '*']);
-for ii = 1:length(dirs)
-    if ~dirs(ii).isdir
-        continue;
-    end
-    if strcmp(dirs(ii).name, '.')
-        continue;
-    end
-    if strcmp(dirs(ii).name, '..')
-        continue;
-    end
-    resetProbe(probe, [dirname, dirs(ii).name], handles);
+    probe = initProbe(handles);
 end
 
 % dynamic handles
@@ -41,16 +23,5 @@ end
 if ishandles(probe.handles.hProjectionRays)
    delete(probe.handles.hProjectionRays);
 end
-for ii=1:length(probe.handles.hProjectionTbl)
-    if ishandle(probe.handles.hProjectionTbl(ii))
-        if probe.handles.hProjectionTbl(ii)>0
-            delete(probe.handles.hProjectionTbl(ii));
-            probe.handles.hProjectionTbl(ii)=-1;
-        end
-    end
-end
-
-probe = initProbe(handles);
-
 
 

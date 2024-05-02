@@ -123,33 +123,7 @@ else
     % Look at MC input files for forward model params only 
     % if not using precalculated fluence files
     if isempty(fwmodel.fluenceProfFnames)
-        
-        % Wavelength 1
-        if exist([dirnameOut, 'fw1.s1.inp'],'file')
-            config = read_tMCimg_inp([dirnameOut, 'fw1.s1.inp']);
-            fwmodel.nphotons = config.phot_num;
-            for ii=1:size(config.tiss_prop,1)
-                fwmodel.headvol.tiss_prop(ii).scattering(:,1) = config.tiss_prop(ii,1);
-                fwmodel.headvol.tiss_prop(ii).anisotropy(:,1) = config.tiss_prop(ii,2);
-                fwmodel.headvol.tiss_prop(ii).absorption(:,1) = config.tiss_prop(ii,3);
-                fwmodel.headvol.tiss_prop(ii).refraction(:,1) = config.tiss_prop(ii,4);
-            end
-            fwmodel.nWavelengths = 1;
-        end
-        
-        % Wavelength 2
-        if exist([dirnameOut, 'fw2.s1.inp'],'file')
-            config = read_tMCimg_inp([dirnameOut, 'fw2.s1.inp']);
-            fwmodel.nphotons = config.phot_num;
-            for ii=1:size(config.tiss_prop,1)
-                fwmodel.headvol.tiss_prop(ii).scattering(:,2) = config.tiss_prop(ii,1);
-                fwmodel.headvol.tiss_prop(ii).anisotropy(:,2) = config.tiss_prop(ii,2);
-                fwmodel.headvol.tiss_prop(ii).absorption(:,2) = config.tiss_prop(ii,3);
-                fwmodel.headvol.tiss_prop(ii).refraction(:,2) = config.tiss_prop(ii,4);
-            end
-            fwmodel.nWavelengths = 2;
-        end
-        
+        fwmodel.nWavelengths = length(fwmodel.headvol.tiss_prop(1).scattering);
     end
 end
 

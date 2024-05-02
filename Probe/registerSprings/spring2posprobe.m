@@ -18,17 +18,21 @@ if ~isempty(probe.optpos_reg)
 else
     optpos = probe.optpos;
 end
-sl     = probe.registration.sl;
+sl = probe.registration.sl;
 
 %%% find maximum # of springs stemming from one optode 
-for k = 1:size(optpos,1); r = find(sl(:,1)==k); m(k) = length(r); clear r; end;
+for k = 1:size(optpos,1)
+    r = find(sl(:,1)==k); 
+    m(k) = length(r); 
+    clear r; 
+end
 m = max(m);
 
-for ii=1:size(optpos,1)
+for ii = 1:size(optpos,1)
     r = find(sl(:,1)==ii);
-    neigh=[];
-    for jj=1:m
-        if jj<=length(r)
+    neigh = [];
+    for jj = 1:m
+        if jj <= length(r)
             neigh = [neigh sl(r(jj),2) sl(r(jj),3)];
         else
             neigh = [neigh 0 0];
@@ -39,7 +43,7 @@ end
 
 %%% Resolve anchor points list
 al = probe.registration.al;
-for ii=1:size(al,1)
+for ii = 1:size(al,1)
     if ischar(al{ii,1})
         al{ii,1} = str2num(al{ii,1});
     end

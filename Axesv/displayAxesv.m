@@ -36,16 +36,7 @@ set(axesv(1).handles.axesSurfDisplay, 'position', [p(1), 1-p(4)-.13, p(3), p(4)]
 %%%% Set the lighting
 axesv = setLighting(axesv, headobj);
 
-
-%%%% Before updating axesv(1).cameraposition and axesv(1).cameratarget 
-%%%% get old distance between them. 
-d0 = [];
-if ~isempty(axesv(1).cameraposition) & ~isempty(axesv(1).cameratarget)
-    v0 = axesv(1).cameraposition - axesv(1).cameratarget;
-    d0 = sqrt( v0(1)^2 + v0(2)^2 + v0(3)^2 );
-end
-
-%%%% Find center of all the objects on the canvas, and set caera target to it
+%%%% Find center of all the objects on the canvas, and set camera target to it
 c1 = [];
 c2 = [];
 if ~headobj.isempty(headobj)
@@ -75,27 +66,10 @@ setViewAngles(axesv(1).handles.axesSurfDisplay, headobj.orientation, axesv(1).az
 set(axesv(1).handles.editViewAnglesAzimuth, 'string', sprintf('%0.2f', az_new));
 set(axesv(1).handles.editViewAnglesElevation, 'string', sprintf('%0.2f', el_new));
 
-cp0 = get(axesv(1).handles.axesSurfDisplay, 'cameraposition');
-
 
 %%%% Find and set zoom by setting the camera position distance 
 %%%% from camera target.
-cp0 = get(axesv(1).handles.axesSurfDisplay, 'cameraposition');
-ct0 = get(axesv(1).handles.axesSurfDisplay, 'cameratarget');
-va = cp0-ct0;
-d1 = sqrt( va(1)^2 + va(2)^2 + va(3)^2 );
-if ~isempty(d0)
-    cp_new = ct0 + (va * (d0/d1));
-else
-    cp_new = ct0 + (va * .7);
-end
-axesv(1).cameraposition = cp_new;
-v_up = get(axesv(1).handles.axesSurfDisplay, 'cameraupvector');
-if angleBetweenVectors(abs(va), abs(v_up))==0
-    v_up = [va(2), va(1), va(3)];
-end
-set(axesv(1).handles.axesSurfDisplay, 'cameraupvector', v_up);
-set(axesv(1).handles.axesSurfDisplay, 'cameraposition', axesv(1).cameraposition);
+setZoom(axesv(1).handles.axesSurfDisplay, axesv(1).distCameraTarget);
 
 drawnow;
 

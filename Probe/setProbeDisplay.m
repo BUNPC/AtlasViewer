@@ -52,7 +52,7 @@ probe = updateProbeGuiControls(probe, headobj);
 
 probe = setOptodeNumbering(probe);
 
-% display/undisplay probe related objects
+% display/undisplay probe related objectshideMeasList
 if strcmp(method,'digpts')
    if probe.hideProbe==1
       set(hOptodes,'visible','off');

@@ -27,7 +27,16 @@ if leftRightFlipped(probe)
 else
     axes_order = [1,2,3];
 end
+
+% Save old positions
+probe2 = probe;
+
+% Get new probe positions
 [probe.handles.labels, probe.handles.circles] = viewPts(pts, probe.center, lift, axes_order);
+
+% Delete old probe graphics handles
+resetProbe(probe2);
+
 probe = setOptodeNumbering(probe);
 probe = drawMeasChannels(probe);
 probe = displaySprings(probe);

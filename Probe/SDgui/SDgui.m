@@ -29,6 +29,9 @@ suppressGuiArgWarning(0);
 function SDgui_OpeningFcn(hObject, ~, handles, varargin)
 global SD
 global filedata
+global cfg
+
+cfg = ConfigFileClass();
 
 set(hObject, 'visible','off');
 setNamespace('AtlasViewerGUI')

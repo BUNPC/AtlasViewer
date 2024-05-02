@@ -1,4 +1,4 @@
-function fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf,dirnameSubj)
+function fwmodel = genSensitivityProfile(fwmodel, probe, dirnameSubj)
 
 % Compute volume sensitivity matrix from Monte Carlo simulations and then
 % projects volume sensitivity onto pial mesh to obtain surface sensitivity
@@ -12,6 +12,9 @@ function fwmodel = genSensitivityProfile(fwmodel,probe,headvol,pialsurf,headsurf
 % usage:
 % call function Adot in subject directory or registered atlas
 % directory.
+global logger
+
+logger = InitLogger(logger);
 
 fwmodel = resetSensitivity(fwmodel,probe,dirnameSubj);
 if dirnameSubj(end)~='/' && dirnameSubj(end)~='\'
@@ -76,13 +79,6 @@ if isempty(fwmodel.Adot)
     Adot = single(zeros(nMeas,nNode,nWav));
     % Adot_scalp = single(zeros(nMeas,nNode_scalp,nWav));
 
-    
-    % We don't want to reserve the whole matrix in memory (too large). 
-    % rather append each channel's sensitivity to a file.
-    A = single(zeros(nx,ny,nz));
-    As = single(zeros(nx,ny,nz));
-    Ad = single(zeros(nx,ny,nz));
-
     if fwmodel.AdotVolFlag
         fprintf('Warning: option to generate Adot 3 pt file enabled - May run out of memory\n');
         fid1 = fopen([dirnameOut 'AdotVol.3pt'],'wb');
@@ -108,11 +104,11 @@ if isempty(fwmodel.Adot)
             % load 2pt for given measurement from mc2 mcextreme output
             iS = probe.ml(iM,1);
             fileS = sprintf('%sfw%d.s%d.%s', dirnameOut, iW, iS, mc_output_ext);
-            As = loadMCFuncPtr(fileS, [nx ny nz 1]);
+            As = loadMCFuncPtr(fileS, [nx, ny, nz, 1]);
             
             iD = probe.ml(iM,2);
             fileD = sprintf('%sfw%d.d%d.%s', dirnameOut, iW, iD, mc_output_ext);
-            Ad = loadMCFuncPtr(fileD, [nx ny nz 1]);
+            Ad = loadMCFuncPtr(fileD, [nx, ny, nz, 1]);
              
             if fwmodel.normalizeFluence
                 
@@ -134,7 +130,7 @@ if isempty(fwmodel.Adot)
                 if sum_p~=0
                     As(idx_p) = As(idx_p) * (1 - abs(sum_n)) / sum_p;
                 else
-                    disp(sprintf('No photons launched into tissue from Src %d',iS))
+                    logger.Write('No photons launched into tissue from Src %d\n',iS)
                     As(idx_p) = 0;
                 end
                 
@@ -156,7 +152,7 @@ if isempty(fwmodel.Adot)
                 if sum_p~=0
                     Ad(idx_p) = Ad(idx_p) * (1 - abs(sum_n)) / sum_p;
                 else
-                    fprintf('No photons launched into tissue form Det %d\n',iD)
+                    logger.Write('No photons launched into tissue form Det %d\n',iD)
                     Ad(idx_p) = 0;
                 end
                 
@@ -186,12 +182,18 @@ if isempty(fwmodel.Adot)
                 normfactor_d = As(floor(detpos{1}),floor(detpos{2}),floor(detpos{3}));
             end
             
+            [~, fs] = fileparts(fileS);
+            [~, fd] = fileparts(fileD);
+            logger.Write('Ch %d. Loading fluence files   [%s,  %s]\n', iM, fs, fd);
+            logger.Write('Generating sensitivity for ch %d = [%d, %d, %d],  (s%d pos = [%0.1f, %0.1f, %0.1f],  d%d pos = [%0.1f, %0.1f, %0.1f])\n', ...
+                    iM, probe.ml(iM,1), probe.ml(iM,2), iW, iS, srcpos{1}, srcpos{2}, srcpos{3}, iD, detpos{1}, detpos{2}, detpos{3});
+
             % Get Adot
             normfactor = (normfactor_s + normfactor_d)/2;
             if normfactor~=0
                 A = (As.*Ad)/normfactor;
             else
-                fprintf('No photons detected between Src %d and Det %d',iS,iD);
+                logger.Write('No photons detected between Src %d and Det %d\n',iS,iD);
                 A = zeros(size(As));
             end
             if fwmodel.AdotVolFlag
@@ -203,6 +205,9 @@ if isempty(fwmodel.Adot)
                 % memory function only available on windows
                 memory;
             end
+
+
+            logger.Write('\n');
             
             % Extract sensitivity values for the nodes of the low res mesh
             % (Adot) from the sensitivity matrix volume (A)

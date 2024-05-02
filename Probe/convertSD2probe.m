@@ -1,6 +1,8 @@
-function probe = convertSD2probe(SD)
-
-probe = initProbe();
+function probe = convertSD2probe(SD, handles)
+if ~exist('handles','var')
+    handles = [];
+end
+probe = initProbe(handles);
 if nargin == 0
     return;
 end
