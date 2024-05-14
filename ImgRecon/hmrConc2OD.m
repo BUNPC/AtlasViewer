@@ -48,8 +48,12 @@ for idx = 1:length(lst)
     idx1 = lst(idx);
     idx2 = find( ml(:,4)>1 & ml(:,1)==ml(idx1,1) & ml(:,2)==ml(idx1,2) );
     rho = norm(SD.SrcPos(ml(idx1,1),:)-SD.DetPos(ml(idx1,2),:));
-    dod0(:,[idx1, idx2']) = (e * dc(:,1:2,idx)')' .* (ones(nTpts,1)*rho*ppf);
+    if ppf(1)~=1
+        dod0(:,[idx1, idx2']) = (e * dc(:,1:2,idx)')' .* (ones(nTpts,1)*rho*ppf);
+    else
+        dod0(:,[idx1, idx2']) = (e * dc(:,1:2,idx)')';
     end
+end
 dod = dod0(:,order,:);
 
 
