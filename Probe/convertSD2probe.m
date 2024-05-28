@@ -40,9 +40,9 @@ end
 
 probe.registration.sl = SD.SpringList;
 probe.registration.al = SD.AnchorList;
-if ~isempty(SD.Landmarks3D)
+if ~isempty(SD.Landmarks3D.pos)
     probe.registration.refpts.labels    = SD.Landmarks3D.labels;
-    probe.registration.refpts.pos       = SD.Landmarks3D.pos;
+    probe.registration.refpts.pos       = SD.Landmarks3D.pos(:,1:3);
 end
 probe.SrcGrommetType = SD.SrcGrommetType;
 probe.DetGrommetType = SD.DetGrommetType;

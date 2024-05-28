@@ -9,5 +9,8 @@ end
 if length(probe.registration.refpts.pos)<5
     return;
 end
+if ~strcmp(probe.registration.direction, 'atlas2probe')
+    return
+end
 b = true;
 

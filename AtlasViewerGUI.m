@@ -653,13 +653,13 @@ refpts.eeg_system.selected = '10-5';
 refpts = set_eeg_active_pts(refpts, [], false);
 
 % Finish registration
-if 0 %isPreRegisteredProbe(probe, refpts)
-    
+if ~probeHasSpringRegistration(probe) && ~probeHas3DLandmarkRegistration(probe) && isPreRegisteredProbe(probe, headsurf)
+        
     % Register probe by simply pulling (or pushing) optodes toward surface
     % toward (or away from) center of head.
-        probe = pullProbeToHeadsurf(probe, headobj);
-        probe.hOptodesIdx = 1;
-   
+    probe = pullProbeToHeadsurf(probe, headobj);
+    probe.hOptodesIdx = 1;
+    
 else
     
     % Register probe using springs based method
@@ -5081,6 +5081,14 @@ function AssignRegisteredPoints(optpos_reg)
 global atlasViewer
 atlasViewer.probe.optpos_reg = optpos_reg;
 atlasViewer.probe.orientation = atlasViewer.headsurf.orientation;
+
+
+
+% --------------------------------------------------------------------
+function menuItemAppConfigGUI_Callback(~, ~, ~)
+global cfg
+configSettingsGUI(cfg.filenames{1})
+cfg.Update();
 
 
 
