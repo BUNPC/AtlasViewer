@@ -163,6 +163,9 @@ b = true;
 
 % --------------------------------------------------------------
 function probe = copy_loc(probe, probe2)
+if ~isstruct(probe) || ~isstruct(probe2) 
+    return;
+end
 if isempty(probe2)
     return;
 end
@@ -423,6 +426,8 @@ end
 probe1.ml = probe2.ml;
 probe1.lambda = probe2.lambda;
 
+
+
 % ----------------------------------------------------------------
 function probe2 = checkCompatability(probe2, probe1, field)
 switch(field)
@@ -433,7 +438,7 @@ switch(field)
     case 'dummypos'
         probe2.registration.dummypos = probe1.dummypos;
     case 'ndummy'
-        probe2.registration.dummypos = probe1.ndummy;
+        probe2.registration.ndummy = probe1.ndummy;
 end
 
 

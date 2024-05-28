@@ -1,9 +1,15 @@
-function v2 = restoreObject(v2, v1)
+function v2 = restoreObject(v2, v1, copyfunc, arg)
 if ~exist('v1','var')
     return
 end
 if ~exist('v2','var')
     return
+end
+if ~exist('copyfunc','var')
+    copyfunc = [];
+end
+if ~exist('arg','var')
+    arg = [];
 end
 
 % Do not overwrite graphics handles
@@ -27,7 +33,9 @@ fields2 = propnames(v2);
 
 % Copy array to array
 if isempty(fields1) && isempty(fields2)
-    if isnumeric(v1) && isnumeric(v2)
+    if ~isempty(copyfunc)
+        v2 = copyfunc(v1, arg);        
+    elseif isnumeric(v1) && isnumeric(v2)
         v2 = v1;
     elseif ischar(v1) && ischar(v2)
         v2 = v1;
@@ -59,7 +67,11 @@ for ii = 1:length(fields1)
             if isfield(v2(jj), 'checkCompatability') && ~isempty(v2(jj).checkCompatability)
                 eval( sprintf('v2(jj) = v2(jj).checkCompatability(v2(jj), v1(jj), ''%s'');', fields1{ii}) );                        
             end
-            eval( sprintf('v2(jj).%s = restoreObject(v2(jj).%s, v1(jj).%s);', fields1{ii}, fields1{ii}, fields1{ii}) );
+            if isfield(v2(jj), 'copy') && ~isempty(v2(jj).copy)
+                eval( sprintf('v2(jj).%s = restoreObject(v2(jj).%s, v1(jj).%s, v2(jj).copy, ''%s'');', fields1{ii}, fields1{ii}, fields1{ii}, fields1{ii}) );
+            else
+            	eval( sprintf('v2(jj).%s = restoreObject(v2(jj).%s, v1(jj).%s);', fields1{ii}, fields1{ii}, fields1{ii}) );
+            end
         elseif isfield(v2(jj), 'checkCompatability') && ~isempty(v2(jj).checkCompatability)
             eval( sprintf('v2(jj) = v2(jj).checkCompatability(v2(jj), v1(jj), ''%s'');', fields1{ii}) );            
         end
