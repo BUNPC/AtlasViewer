@@ -46,7 +46,7 @@ try
     appNameInclList = {'Homer3'};
     exclSearchList  = {'.git','.idea','Data','Docs','*_install','*.app','submodules'};
     
-    appThis         = pwd;
+    appThis         = filesepStandard_startup(pwd);
     appThisPaths    = findDotMFolders(appThis, exclSearchList);
     
     if addremove == 0
@@ -74,7 +74,7 @@ try
         end
         
         for jj = 1:length(foo)
-            p = fileparts(foo{jj});
+            p = filesepStandard_startup(fileparts(foo{jj}));
             if pathscompare_startup(appThis, p)
                 continue
             end
@@ -88,11 +88,11 @@ try
         foo = which([appNameInclList{ii}, '.m'],'-all');
         for jj = 1:length(foo)
             if jj > 1
-                p = fileparts(foo{jj});
+                p = filesepStandard_startup(fileparts(foo{jj}));
                 appExclList = [appExclList; p]; %#ok<AGROW>
                 printMethod(sprintf('Exclude paths for %s\n', p));
             else
-                p = fileparts(foo{jj});
+                p = filesepStandard_startup(fileparts(foo{jj}));
                 appInclList = [appInclList; p]; %#ok<AGROW>
                 printMethod(sprintf('Include paths for %s\n', p));
             end
@@ -188,7 +188,7 @@ for kk = 1:length(appPaths)
     addpath(appPaths{kk}, '-end');
     setpermissions(appPaths{kk});
 end
-printMethod(sprintf('ADDED search paths for app %s\n', string(appPaths{1})));
+printMethod(sprintf('ADDED search paths for app %s\n', appPaths{1}));
 
 
 
@@ -212,23 +212,27 @@ for kk = 1:length(p)
     if ~isempty(strfind(lower(p{kk}), 'matlab')) && ~isempty(strfind(p{kk}, r))
         continue;
     end
-    if ~isempty(strfind(p{kk}, app))
+    if ~isempty(strfind(filesepStandard_startup(p{kk}), app))
         rmpath(p{kk});
     end
 end
 close(h);
 printMethod(sprintf('REMOVED search paths for app %s\n', app));
 
+
+
+
 % ----------------------------------------------------
 function   d = addDependenciesSearchPaths()
-if exist(fullfile(pwd, 'Utils','submodules'),'dir')
-    addpath(fullfile(pwd, 'Utils','submodules'),'-end');
+if exist([pwd, '/Utils/submodules'],'dir')
+    addpath([pwd, '/Utils/submodules'],'-end');
 end
 d = dependencies();
 for ii = 1:length(d)
     rootpath = findFolder(pwd, d{ii});
-    if ispathvalid_startup(fullfile(rootpath, 'Shared'),'dir')
-        rootpath = fullfile(rootpath, 'Shared');
+    rootpath(rootpath=='\') = '/';
+    if ispathvalid_startup([rootpath, '/Shared'],'dir')
+        rootpath = [rootpath, '/Shared'];
     end
     if ~exist(rootpath,'dir')
         printMethod(sprintf('ERROR: Could not find required dependency %s\n', d{ii}));
@@ -236,6 +240,9 @@ for ii = 1:length(d)
     end
     addSearchPaths(rootpath);
 end
+
+
+
 
 % -----------------------------------------------------------------------------
 function [C,k] = str2cell_startup(str, delimiters, options)
@@ -355,12 +362,12 @@ cd(currdir);
 function dirpath = findFolder(repo, dirname)
 dirpath = '';
 if ~exist('repo','var')
-    repo = pwd;
+    repo = filesepStandard_startup(pwd);
 end
 dirpaths = findDotMFolders(repo, {'.git', '.idea'});
 
 for ii = 1:length(dirpaths)
-    [~, f, e] = fileparts(dirpaths{ii});
+    [~, f, e] = fileparts(dirpaths{ii}(1:end-1));
     if strcmp(dirname, [f,e])
         dirpath = dirpaths{ii};
         break;
@@ -392,9 +399,9 @@ if ~iscell(exclList)
     exclList = {exclList};
 end
 
-subdirFullpath = fullfile(subdir);
+subdirFullpath = filesepStandard_startup(subdir,'full');
 
-if exist(subdirFullpath) ~= 7
+if ~ispathvalid_startup(subdirFullpath, 'dir')
     logger.Write('Warning: folder %s doesn''t exist\n', subdirFullpath);
     return;
 end
@@ -404,14 +411,13 @@ if isExcluded(subdirFullpath, exclList)
     return;
 end
 
-dirs = dir(fullfile(subdirFullpath, '*'));
-dirs = dirs(3:end); % ignore . and ..
+dirs = dir([subdirFullpath, '*']);
 if isempty(dirs)
     return;
 end
 
 if isdotmfolder(subdirFullpath)
-    dotmfolders = {subdirFullpath};
+    dotmfolders = {filesepStandard_startup(subdirFullpath, 'nameonly')};
 end
 
 for ii = 1:length(dirs)
@@ -421,7 +427,7 @@ for ii = 1:length(dirs)
     if dirs(ii).name(1) == '.'
         continue;
     end
-    dotmfolders = [dotmfolders; findDotMFolders(fullfile(subdirFullpath, dirs(ii).name), exclList)]; %#ok<AGROW>
+    dotmfolders = [dotmfolders; findDotMFolders([subdirFullpath, dirs(ii).name], exclList)]; %#ok<AGROW>
 end
 
 
@@ -435,7 +441,7 @@ b = false;
 if ~ispathvalid_startup(folder, 'dir')
     return
 end
-if isempty(dir(fullfile(folder,'*.m')))
+if isempty(dir([folder,'/*.m']))
     % Exceptions to rule that 'dotm' folder must have at least one '.m' file: 
     % it is a an executable folder (i.e. '/bin')
     if ~isempty(strfind(folder, '/bin/')) %#ok<*STREMP>
@@ -444,16 +450,15 @@ if isempty(dir(fullfile(folder,'*.m')))
     end
     return;
 else
-    b = true;
-%     rootdir = which('findDotMFolders');
-%     rootdir = fileparts(rootdir);
-%     rootdir = pathsubtract(rootdir, fullfile('Utils','submodules'),'nochange');
-%     p = pathsubtract(folder, rootdir);
-%     if length(find(p==filesep)) > MAXPATHLENGTH
-%         return
-%     end
+    rootdir = which('findDotMFolders');
+    rootdir = fileparts(rootdir);
+    rootdir = pathsubtract(rootdir, 'Utils/submodules','nochange');
+    p = pathsubtract(folder, rootdir);
+    if length(find(p=='/')) > MAXPATHLENGTH
+        return
+    end
 end
-% b = true;
+b = true;
 
 
 
@@ -491,7 +496,7 @@ b = false;
 
 
 % -------------------------------------------------------------------------
-function diff = pathsubtract(p2, p1, options)
+function diff = pathsubtract(p2_0, p1_0, options)
 if ~exist('options','var')
     options = '';
 end
@@ -500,6 +505,14 @@ if optionExists_startup(options, 'nochange')
 else
     option = 'full';
 end
+p1 = filesepStandard_startup(p1_0, option);
+p2 = filesepStandard_startup(p2_0, option);
+if isempty(p1)
+    p1 = p1_0;
+end
+if isempty(p2)
+    p2 = p2_0;
+end
 k = strfind(p2, p1);
 if ~isempty(k) && k(1)==1
     diff = p2(k(1)+length(p1):end);
@@ -507,10 +520,6 @@ elseif ~isempty(k)
     diff = p2(1:k(1)-1);
 else
     diff = '';
-end
-
-if isempty(p1)
-    diff = p2;
 end
 
 
@@ -775,23 +784,13 @@ end
 
 currdir = pwd;
 
-% If paths are files, compare just the file names, then the folders
-if ~isfolder(path1)
-    [~,file1] = fileparts(path1);
-else
-    file1 = [];
-end
-if ~isfolder(path2)
-    [~,file2] = fileparts(path2);
-else
-    file2 = [];
-end
-if isempty(file1) && isempty(file2)
-    % Compare folders
-    b = strcmpi(path1, path2);
-else
-    b = strcmpi(file1, file2);
-end
+% If paths are files, compare just the file names, then the folders 
+fullpath1 = filesepStandard_startup(path1, 'full');
+fullpath2 = filesepStandard_startup(path2, 'full');
+
+
+% Compare folders
+b = strcmpi(fullpath1, fullpath2);
 
 cd(currdir);
 
