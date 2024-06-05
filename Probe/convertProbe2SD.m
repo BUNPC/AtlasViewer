@@ -2,7 +2,7 @@ function SD = convertProbe2SD(probe)
 global atlasViewer
 
 SD = sd_data_Init(probe);
-if isempty(probe)
+if isempty(probe) || probe.isempty(probe)
     return;
 end
 

@@ -177,8 +177,8 @@ if ~compatibleProbes(probe, probe2)
 end
 probe = scaleFactor(probe);
 
-probe = copySpringRegistration(probe, probe2);
 probe = copyLandmarks(probe, probe2);
+probe = copySpringRegistration(probe, probe2);
 
 if ~isempty(probe2.lambda) && isempty(probe.lambda)
     probe.lambda        = probe2.lambda;

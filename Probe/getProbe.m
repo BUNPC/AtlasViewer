@@ -45,6 +45,9 @@ probe_data      = loadFromData(dirname, dataTree);
 probe_digpts    = loadProbeFromDigpts(digpts);
 probe_SD        = loadFromSDFiles(dirname, probe_digpts, probe_data);
 
+% Make sure measurement list from SD file agrees with data
+probe_SD = reorderProbeMeasList(probe_SD, probe_data);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. Copy all probe data loaded from different source which is not
@@ -80,9 +83,11 @@ if ~probe_digpts.isempty(probe_digpts)
     end
 else
     probe = probe.copy(probe, probe_data);
+    if ~probeHas3DLandmarkRegistration(probe)
     for ii = 1:length(probe_SD)
         if ~probe_SD(ii).isempty(probe_SD(ii))
             probe = probe.copy(probe, probe_SD(ii));
+            end
         end
     end
 end
