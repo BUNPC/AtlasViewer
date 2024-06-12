@@ -235,7 +235,7 @@ end
 dod = [];
 ppf = dataTree.currElem.GetVar('ppf');
 if isempty(ppf)
-    ppf = zeros(1, length(SD.Lambda)) + 6;
+    ppf = zeros(1, length(SD.Lambda)) + 1;
     msg = sprintf('WARNING: could not retrieve value of partial path length (ppf) used in Homer processing. Will use ppf = [ %s ]\n', num2str(ppf));
     logger.Write(msg);
     MenuBox(msg);
@@ -517,8 +517,24 @@ hbconc = showHbConcDisplay(hbconc, axesv(1).handles.axesSurfDisplay, 'off', 'off
 % Turn resolution on and localization error display off
 imgrecon = showImgReconDisplay(imgrecon, axesv(1).handles.axesSurfDisplay, 'off', 'off', 'on', 'off');
 
+% Set condition display in main gui to agree with what is being plotted
+SetParentGuiConditionDisplay(handles);
+
 atlasViewer.fwmodel = fwmodel;
 atlasViewer.imgrecon = imgrecon;
+
+
+
+% ----------------------------------------------------------------------------
+function SetParentGuiConditionDisplay(handles)
+global atlasViewer
+condNamesParent = get(atlasViewer.imgrecon.handles.editCondition, 'string');
+condNameLocal  = handles.editCondition.String{handles.editCondition.Value};
+idx = strmatch(condNameLocal, condNamesParent); %#ok<MATCH2>
+if isempty(idx)
+    return
+end
+set(atlasViewer.imgrecon.handles.editCondition, 'value',idx);
 
 
 
