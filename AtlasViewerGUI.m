@@ -3999,6 +3999,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.SrcGrommetRot{end+1} = grommet_rot;
                 AssignRegisteredPoints(optpos_reg);
                 atlasViewer.probe.srcpos = [atlasViewer.probe.srcpos; [0 0 0]];
+                atlasViewer.probe.srcpos2d = [atlasViewer.probe.srcpos2d; [0 0 0]];
                 nrsc = nrsc+1;
                 atlasViewer.probe.nsrc = nrsc;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
@@ -4045,6 +4046,7 @@ if eventdata.Button == 1
                 atlasViewer.probe.DetGrommetRot{end+1} = grommet_rot;
                 AssignRegisteredPoints(optpos_reg);
                 atlasViewer.probe.detpos = [atlasViewer.probe.detpos; [0 0 0]];
+                atlasViewer.probe.detpos2d = [atlasViewer.probe.detpos2d; [0 0 0]];
                 ndet = ndet+1;
                 atlasViewer.probe.ndet = ndet;
                 atlasViewer.probe.noptorig = atlasViewer.probe.noptorig+1;
@@ -4090,6 +4092,7 @@ if eventdata.Button == 1
             elseif strcmpi(selected_optode_type,'Dummy')
                 AssignRegisteredPoints([atlasViewer.probe.optpos_reg; selected_point]);
                 atlasViewer.probe.registration.dummypos = [atlasViewer.probe.registration.dummypos; [0 0 0]];
+                atlasViewer.probe.registration.dummypos2d = [atlasViewer.probe.registration.dummypos2d; [0 0 0]];
                 atlasViewer.probe.DummyGrommetType{end+1} = selected_grommet_type;
                 atlasViewer.probe.DummyGrommetRot{end+1} = grommet_rot;
                 opt_pos = size(atlasViewer.probe.optpos_reg,1);
@@ -4137,6 +4140,7 @@ if eventdata.Button == 1
                         atlasViewer.probe.SrcGrommetType(opt_no) = [];
                         atlasViewer.probe.SrcGrommetRot(opt_no) = [];
                         atlasViewer.probe.srcpos(opt_no,:) = []; 
+                        atlasViewer.probe.srcpos2d(opt_no,:) = []; 
                         if ~isempty(ml)
                             optode_ml_idx = find(ml(:,1) == opt_no);
                             m_idx = find(ml(:,1) >= opt_no);
@@ -4149,6 +4153,7 @@ if eventdata.Button == 1
                         atlasViewer.probe.DetGrommetType(opt_no) = [];
                         atlasViewer.probe.DetGrommetRot(opt_no) = [];
                         atlasViewer.probe.detpos(opt_no,:) = []; 
+                        atlasViewer.probe.detpos2d(opt_no,:) = []; 
                         if ~isempty(ml)
                             optode_ml_idx = find(ml(:,2) == opt_no);
                             m_idx = find(ml(:,2) >= opt_no);
@@ -4161,6 +4166,7 @@ if eventdata.Button == 1
                         atlasViewer.probe.DummyGrommetType(idx-nrsc-ndet) = [];
                         atlasViewer.probe.DummyGrommetRot(idx-nrsc-ndet) = [];
                         atlasViewer.probe.registration.dummypos(idx-nrsc-ndet,:) = [];
+                        atlasViewer.probe.registration.dummypos2d(idx-nrsc-ndet,:) = [];
                     end  
                     if ~isempty(optode_ml_idx)
                         ml(optode_ml_idx,:) = [];
