@@ -262,9 +262,16 @@ classdef AuxClass < FileLoadSaveClass
                 err = -3;
                 return
             end
-            if length(obj.dataTimeSeries) ~= length(obj.time)
-                err = -4;
-                return
+            if size(obj.dataTimeSeries,1)~=1
+                if size(obj.dataTimeSeries,1) ~= length(obj.time) 
+                    err = -4;
+                    return
+                end
+            else
+                if size(obj.dataTimeSeries,2) ~= length(obj.time) 
+                    err = -4;
+                    return
+                end
             end
             if ~ischar(obj.name)
                 err = -5;
