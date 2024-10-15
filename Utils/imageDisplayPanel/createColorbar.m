@@ -53,20 +53,10 @@ set(h, 'visible','on');
 if isempty(cmThreshold)
     return;
 end
-n = 1000;
-%cm = wrev(hsv(n));
-cm = jet(n);
-if ~isempty(leastSignificantVal)
-    if leastSignificantVal==cmThreshold(1)
-        i = floor(n/2);
-        m = 1:i;
-        cm(m, :) = repmat(cm(i,:), length(m),1);
-    end
-elseif all(img==-1)
-    i = floor(n/2);
-    m = 1:i;
-    cm(m, :) = repmat(cm(i,:), length(m),1);
-end
+
+cm = jet(10000);
+cm(1,:) = [0.8 0.8 0.8];
+
 colormap(cm);
 caxis(cmThreshold);
 
